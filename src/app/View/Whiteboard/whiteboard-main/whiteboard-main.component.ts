@@ -3,9 +3,15 @@ import { AuthRequestService } from '../../../Controller/SocialLogin/auth-request
 import { RouterHelperService } from '../../../Model/Helper/router-helper-service/router-helper.service';
 import {UserDTO} from '../../../DTO/user-dto';
 import {PointerModeManagerService} from '../../../Model/Whiteboard/Pointer/pointer-mode-manager-service/pointer-mode-manager.service';
-// import * as paper from 'paper';
+
+import {
+  PointerMode
+} from '../../../Model/Whiteboard/Pointer/pointer-mode-enum-service/pointer-mode-enum.service';
+
+// @ts-ignore
 import Project = paper.Project;
 
+import * as paper from 'paper';
 
 @Component({
   selector: 'app-whiteboard-main',
@@ -13,12 +19,13 @@ import Project = paper.Project;
   styleUrls: ['./whiteboard-main.component.css']
 })
 export class WhiteboardMainComponent implements OnInit {
-  private paperProject: paper.Project;
+  private paperProject: Project;
 
   constructor(
     private apiRequester: AuthRequestService,
     private routerHelper: RouterHelperService,
-    private pointerModeManager: PointerModeManagerService,
+    private pointerModeManager: PointerModeManagerService
+
   ) { }
 
   requestProtectedApi(){
@@ -43,6 +50,7 @@ export class WhiteboardMainComponent implements OnInit {
 
   ngOnInit() {
     this.paperProject = new Project('cv1');
+    this.pointerModeManager.activateTool(PointerMode.DRAW);
   }
 
 }
