@@ -1,3 +1,70 @@
 <div style="height: 100%;">
-  <canvas id="cv1" class="element"></canvas>
+  <canvas id="cv1" class="element"
+          (mousemove)="ngCursorTracker($event)"
+          (mousewheel)="zoomControl($event)">
+  </canvas>
+
+  <div class="testPanel">
+    <button (click)="selectMoveTool()">move</button>
+    <button (click)="selectDrawTool()">Draw</button>
+
+    <table style="background-color: aqua;">
+      <tr><td>Angular Position</td></tr>
+      <tr>
+        <td>X : </td>
+        <td>{{ngCursorX}}</td>
+      </tr>
+      <tr>
+        <td>Y : </td>
+        <td>{{ngCursorY}}</td>
+      </tr>
+    </table>
+
+    <table style="background-color: orange;">
+      <tr><td>Paper Position</td></tr>
+      <tr>
+        <td>X : </td>
+        <td>{{cursorX}}</td>
+      </tr>
+      <tr>
+        <td>Y : </td>
+        <td>{{cursorY}}</td>
+      </tr>
+    </table>
+
+    <table style="background-color: orange;">
+      <tr><td>Paper View</td></tr>
+      <tr>
+        <td>X : </td>
+        <td>{{paperProject.view.center.x}}</td>
+      </tr>
+      <tr>
+        <td>Y : </td>
+        <td>{{paperProject.view.center.y}}</td>
+      </tr>
+    </table>
+
+    <table style="background-color: orange;">
+      <tr><td>Paper View Bound-TopLeft</td></tr>
+      <tr>
+        <td>X : </td>
+        <td>{{paperProject.view.bounds.topLeft.x}}</td>
+      </tr>
+      <tr>
+        <td>Y : </td>
+        <td>{{paperProject.view.bounds.topLeft.y}}</td>
+      </tr>
+    </table>
+    <table style="background-color: orange;">
+      <tr><td>Paper View Bound-BottomRight</td></tr>
+      <tr>
+        <td>X : </td>
+        <td>{{paperProject.view.bounds.bottomRight.x}}</td>
+      </tr>
+      <tr>
+        <td>Y : </td>
+        <td>{{paperProject.view.bounds.bottomRight.y}}</td>
+      </tr>
+    </table>
+  </div>
 </div>

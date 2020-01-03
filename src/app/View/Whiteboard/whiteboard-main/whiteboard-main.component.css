@@ -1,5 +1,11 @@
 .element{
   border: 1px solid black;
-  width: 640px;
-  height: 480px;
+  width: 100%;
+  height: 100%;
+}
+.testPanel{
+  display: inline-block;
+  position: fixed;
+  top: 36px;
+  left: 36px;
 }

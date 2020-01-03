@@ -1,8 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, HostListener } from '@angular/core';
 import { AuthRequestService } from '../../../Controller/SocialLogin/auth-request/auth-request.service';
 import { RouterHelperService } from '../../../Model/Helper/router-helper-service/router-helper.service';
 import {UserDTO} from '../../../DTO/user-dto';
 import {PointerModeManagerService} from '../../../Model/Whiteboard/Pointer/pointer-mode-manager-service/pointer-mode-manager.service';
+import { InfiniteCanvasService } from '../../../Model/Whiteboard/InfiniteCanvas/infinite-canvas.service';
+
 
 import {
   PointerMode
@@ -10,6 +12,10 @@ import {
 
 // @ts-ignore
 import Project = paper.Project;
+// @ts-ignore
+import Point = paper.Point;
+// @ts-ignore
+import Size = paper.Size;
 
 import * as paper from 'paper';
 
@@ -20,13 +26,21 @@ import * as paper from 'paper';
 })
 export class WhiteboardMainComponent implements OnInit {
   private paperProject: Project;
+  cursorX = 0;
+  cursorY = 0;
+  ngCursorX = 0;
+  ngCursorY = 0;
+
+  private htmlCanvasObject:HTMLCanvasElement;
 
   constructor(
     private apiRequester: AuthRequestService,
     private routerHelper: RouterHelperService,
-    private pointerModeManager: PointerModeManagerService
+    private pointerModeManager: PointerModeManagerService,
+    private infiniteCanvasService: InfiniteCanvasService
+  ) {
 
-  ) { }
+  }
 
   requestProtectedApi(){
     this.apiRequester.protectedApi()
@@ -49,8 +63,62 @@ export class WhiteboardMainComponent implements OnInit {
   }
 
   ngOnInit() {
+
+    this.htmlCanvasObject = document.getElementById("cv1") as HTMLCanvasElement;
+
     this.paperProject = new Project('cv1');
+    this.pointerModeManager.activateTool(PointerMode.MOVE);
+
+    this.infiniteCanvasService.initializeInfiniteCanvas(this.paperProject);
+
+    this.paperProject.view.onMouseMove = (event)=>{
+      this.cursorX = event.point.x;
+      this.cursorY = event.point.y;
+    };
+  }
+
+  selectMoveTool(){
+    this.pointerModeManager.activateTool(PointerMode.MOVE);
+  }
+  selectDrawTool(){
     this.pointerModeManager.activateTool(PointerMode.DRAW);
+  }
+  @HostListener('window:resize')
+  onWindowResized(){
+    console.log("WhiteboardMainComponent >> onWindowResized >> 진입함");
+    let bottomRight = this.getBottomRightPosition(this.htmlCanvasObject);
+    console.log("WhiteboardMainComponent >> onWindowResized >> bottomRight : ",bottomRight);
+    this.paperProject.view.viewSize = new Size( bottomRight.x, bottomRight.y );
+    this.infiniteCanvasService.resetInfiniteCanvas();
+  }
+  zoomControl(event){
+    let ngCanvasCenter = this.getCenterPosition(this.htmlCanvasObject);
+
+    this.paperProject.view.zoom
+      = this.infiniteCanvasService.changeZoom( this.paperProject.view.zoom,
+                                                ngCanvasCenter,
+                                                new Point(event.x, event.y),
+                                                event.deltaY );
+  }
+  ngCursorTracker(event){
+    this.ngCursorX = event.x;
+    this.ngCursorY = event.y;
+  }
+  getCenterPosition(el){
+    let width = this.getWidthOfHtmlElement(el);
+    let height = this.getHeightOfHtmlElement(el);
+    return new Point( width/2, height/2 );
+  }
+  getBottomRightPosition(el){
+    let width = this.getWidthOfHtmlElement(el);
+    let height = this.getHeightOfHtmlElement(el);
+    return new Point( width, height);
+  }
+  getWidthOfHtmlElement(el){
+    return parseFloat(getComputedStyle(el, null).width.replace("px", ""));
+  }
+  getHeightOfHtmlElement(el){
+    return parseFloat(getComputedStyle(el, null).height.replace("px", ""))
   }
 
 }
