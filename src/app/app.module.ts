@@ -32,7 +32,7 @@ const appRoutes: Routes = [
     data: { title: 'Whiteboard' }
   },
   {
-    path: 'login/succes/:authToken/:idToken/:email/:userName',
+    path: 'login/success/:authToken/:idToken/:email/:userName',
     component: AuthProcessComponent,
     data: { title: 'Whiteboard' }
   },
