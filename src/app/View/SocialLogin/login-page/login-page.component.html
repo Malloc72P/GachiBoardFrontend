@@ -1,0 +1,29 @@
+<div style="height: 100%;">
+  <mat-card class="sign-card do-anime-activateSignCard-normal">
+    <mat-card-header>
+      <div mat-card-avatar class="sign-header-image"></div>
+      <mat-card-title>GachiBoard</mat-card-title>
+      <mat-card-subtitle>Real-time collaboratable Web Whiteboard</mat-card-subtitle>
+    </mat-card-header>
+    <img mat-card-image src="assets/images/collaboration.png" alt="collaboration">
+    <mat-card-content>
+      <p>같이 보고, 같이 듣고, 같이 그리는 GachiBoard!</p>
+    </mat-card-content>
+    <mat-card-actions class="sign-card-actions">
+      <button mat-button
+              class="signin-btn-google"
+              (click)="signIn('Google');">
+        <span class="googleSignInBtn"></span>
+      </button>
+    </mat-card-actions>
+  </mat-card>
+
+  <div class="signin-bg"></div>
+  <particles class="do-anime-activateSignCard-normal"
+             style="z-index: 1;"
+             [style]="myStyle"
+             [width]="width"
+             [height]="height"
+             [params]="myParams">
+  </particles>
+</div>

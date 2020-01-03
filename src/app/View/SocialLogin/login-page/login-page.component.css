@@ -1,0 +1,45 @@
+.signin-bg{
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url("/assets/images/background/signin/worldmap_normal.svg");
+  opacity: 0.3;
+  /*filter: blur(5px);*/
+  transform: scale(1.1);
+  /*background-image: url("/assets/images/background/signin/night.jpg");*/
+  background-repeat: no-repeat;
+}
+.sign-card {
+  z-index: 2;
+  opacity: 0;
+  max-width: 400px;
+  margin-left: 50%;
+  margin-top: 4%;
+  left: -200px;
+}
+.sign-card:after {
+  content: '';
+  display: block;
+  clear: both;
+}
+.sign-card-actions{
+  float: right;
+}
+.sign-header-image {
+  background-image: url("/assets/images/malloc.jfif");
+  background-size: cover;
+}
+.googleSignInBtn {
+  display: inline-block;
+  width: 191px;
+  height: 46px;
+  background-image: url("/assets/images/sign/google/btn_signin_1x.png");
+  background-repeat: no-repeat;
+}
+.signin-btn-google{
+  padding: 0;
+  margin: 0;
+}
