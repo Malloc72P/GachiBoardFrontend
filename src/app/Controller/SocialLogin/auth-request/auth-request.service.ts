@@ -42,6 +42,7 @@ export class AuthRequestService {
     return this.userInfo;
   }
 
+  // TODO : get, post 분리시켜서 재사용성 올릴 수 있음 (선택)
   //###### Pure Method
   public get(url, params = null): Observable<any> {
     return this.http.get(this.baseUrl + url, {
@@ -79,7 +80,7 @@ export class AuthRequestService {
     this.routerHelper.goToLoginPage();
   }
 
-  //현재 가지고 있는 토큰이 validate한지 검사함.
+  //  현재 가지고 있는 토큰이 validate한지 검사함.
   //  보안상 의미있는 작업이 아님. 내 토큰이 쓸 수 있는지 확인하고,
   //  못쓰면 로그인창으로 보내줄 뿐임.
   protectedApi(){

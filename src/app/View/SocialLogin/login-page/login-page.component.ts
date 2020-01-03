@@ -1,11 +1,14 @@
 import {Component, OnInit} from '@angular/core';
-// import { ApiRequestService } from '../c-ServiceFamily/ApiService/api-request.service';
-// import { HttpHelper } from '../g-NetworkHelper/http-helper';
+import { HttpHelper } from '../../../Model/Helper/http-helper/http-helper';
+import {AuthRequestService} from '../../../Controller/SocialLogin/auth-request/auth-request.service';
 
 @Component({
   selector: 'app-auth-page',
   templateUrl: './login-page.component.html',
-  styleUrls: ['./login-page.component.css']
+  styleUrls: [
+    './login-page.component.css',
+    "./login-page.component.scss"
+  ]
 })
 export class LoginPageComponent implements OnInit {
   myStyle: object = {};
@@ -23,7 +26,7 @@ export class LoginPageComponent implements OnInit {
   private readonly opacityMin = 1;
 
   constructor(
-    // private apiRequester: ApiRequestService
+    private apiRequester: AuthRequestService
   ) {
   }
 
@@ -114,11 +117,11 @@ export class LoginPageComponent implements OnInit {
 
   // Method to sign in with social account
   signIn(platform: string): void {
-    // HttpHelper.redirectionTo(HttpHelper.api.authGoogle.uri);
+    HttpHelper.redirectTo(HttpHelper.api.authGoogle.uri);
   }
 
   // Method to sign out
   signOut(): void {
-    // this.apiRequester.signOut();
+    this.apiRequester.signOut();
   }
 }
