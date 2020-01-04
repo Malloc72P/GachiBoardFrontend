@@ -84,6 +84,7 @@ export class PointerModeManagerService {
     let newTool = new Tool();
     let segment;//얘가 움직일 대상임.
     let adjustedPosition: Point;
+
     newTool.onMouseDown = (event)=>{
       /*//(1) 세그먼트 초기화
       segment = null;

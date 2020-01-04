@@ -342,25 +342,26 @@ export class InfiniteCanvasService {
     let gapOfX = Math.abs(ngMousePosition.x - ngCenter.x);
     let gapOfY = Math.abs(ngMousePosition.y - ngCenter.y);
 
-    console.log("InfiniteCanvasService >> changeZoom >> gapOfX : ",gapOfX);
-    console.log("InfiniteCanvasService >> changeZoom >> gapOfY : ",gapOfY);
 
     let adjustedFactorOfX = gapOfX * 5/100;
     let adjustedFactorOfY = gapOfY * 5/100;
 
-    console.log("InfiniteCanvasService >> changeZoom >> adjustedFactorOfX : ",adjustedFactorOfX);
-    console.log("InfiniteCanvasService >> changeZoom >> adjustedFactorOfY : ",adjustedFactorOfY);
-
-    //view center X축 조정
-    newCenter.x += ( ngMousePosition.x > ngCenter.x ) ? ( adjustedFactorOfX ) : ( -adjustedFactorOfX );
-    //view center Y축 조정
-    newCenter.y += ( ngMousePosition.y > ngCenter.y ) ? ( adjustedFactorOfY ) : ( -adjustedFactorOfY );
-    console.log("InfiniteCanvasService >> changeZoom >> newCenter : ",newCenter);
-    this.currentProject.view.center = newCenter;
     if (delta < 0){
+      //view center X축 조정
+      newCenter.x += ( ngMousePosition.x > ngCenter.x ) ? ( adjustedFactorOfX ) : ( -adjustedFactorOfX );
+      //view center Y축 조정
+      newCenter.y += ( ngMousePosition.y > ngCenter.y ) ? ( adjustedFactorOfY ) : ( -adjustedFactorOfY );
+
+      this.currentProject.view.center = newCenter;
       return oldZoom * factor;
     }
     else if (delta > 0){//zoom out
+      //view center X축 조정
+      newCenter.x -= ( ngMousePosition.x > ngCenter.x ) ? ( adjustedFactorOfX ) : ( -adjustedFactorOfX );
+      //view center Y축 조정
+      newCenter.y -= ( ngMousePosition.y > ngCenter.y ) ? ( adjustedFactorOfY ) : ( -adjustedFactorOfY );
+
+      this.currentProject.view.center = newCenter;
       return oldZoom / factor;
     }
   }
