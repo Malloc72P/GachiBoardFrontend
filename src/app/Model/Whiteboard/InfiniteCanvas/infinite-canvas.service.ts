@@ -44,11 +44,18 @@ export class InfiniteCanvasService {
   private whiteboardLayer:Layer;
   private drawingLayer: Layer;
 
+  zoomDepth = 0;
+  zoomRatio = 0.0;
+
+  private readonly zoomFactor = 1.05;
+  private readonly zoomInMax = 40;
+  private readonly zoomOutMax = -40;
+
   constructor() {}
 
   public initializeInfiniteCanvas( currentProject: Project ){
     if(this.initFlag){
-      console.log("InfiniteCanvasService >> initializeInfiniteCanvas >> 이미 초기화됨 : ");
+      // console.log("InfiniteCanvasService >> initializeInfiniteCanvas >> 이미 초기화됨 : ");
       return;
     }
 
@@ -81,6 +88,7 @@ export class InfiniteCanvasService {
   }
 
   private whiteboardInitializer() {
+    // console.log("InfiniteCanvasService >> whiteboardInitializer >> this.currentProject.view.bounds : ",this.currentProject.view.bounds);
     const gridStep: number = this.currentProject.view.bounds.width/10;
     let rect: paper.Rectangle = this.currentProject.view.bounds;
 
@@ -103,13 +111,13 @@ export class InfiniteCanvasService {
         currentCell.cellData.opacity = 0.3;
         //currentCell.cellData.fullySelected = true;
 
-        currentCell.textInfo = new PointText({//디버깅용 textItem
+        /*currentCell.textInfo = new PointText({//디버깅용 textItem
           content: '[ ' + currentCell.id + ' ]',
           point: new Point(currentCell.cellData.bounds.center.x, currentCell.cellData.bounds.center.y),
           fillColor: 'black',
-        });
+        });*/
 
-        if (currentCell.id === 2) {
+        /*if (currentCell.id === 2) {
           currentCell.textInfo.content += 'TOP_CELL';
         } else if (currentCell.id === 4) {
           currentCell.textInfo.content += 'LEFT_CELL';
@@ -119,7 +127,7 @@ export class InfiniteCanvasService {
           currentCell.textInfo.content += 'BOTTOM_CELL';
         } else {
 
-        }
+        }*/
         currentCell.cellGroup = new Group();
         currentCell.cellGroup.name = "mainframeMatrix";
         currentCell.cellGroup.addChild(currentCell.cellData);
@@ -157,57 +165,57 @@ export class InfiniteCanvasService {
     let tempView = this.currentProject.view;
     let tempArr = [];
     for (let i = 0; i < 5; i++) {
-      let newObserverCircle = new Path.Circle(new Point(0, 0), 10);
+      // let newObserverCircle = new Path.Circle(new Point(0, 0), 10);
       // @ts-ignore
-      newObserverCircle.fillColor = 'black';
-      let newObserverTextInfo = new PointText({//디버깅용 textItem
-        content: 'x : [ ' + pos.x + ' ] y : [ ' + pos.y + ' ]',
-        point: new Point(pos.x, pos.y + 10),
-        fillColor: 'black',
-      });
-      let newObserver: boundaryObserver = {
-        circle: newObserverCircle,
-        textInfo: newObserverTextInfo,
-        observerMutex: true
-      };
-      tempArr.splice(tempArr.length, 0, newObserver);
+      // newObserverCircle.fillColor = 'black';
+      // let newObserverTextInfo = new PointText({//디버깅용 textItem
+      //   content: 'x : [ ' + pos.x + ' ] y : [ ' + pos.y + ' ]',
+      //   point: new Point(pos.x, pos.y + 10),
+      //   fillColor: 'black',
+      // });
+      // let newObserver: boundaryObserver = {
+      //   circle: newObserverCircle,
+      //   textInfo: newObserverTextInfo,
+      //   observerMutex: true
+      // };
+      // tempArr.splice(tempArr.length, 0, newObserver);
     }
-    //console.log('PaperMainComponent > whiteboardInitializer > tempArr : ', tempArr);
+    // //console.log('PaperMainComponent > whiteboardInitializer > tempArr : ', tempArr);
     this.observerFamily.set('center',   tempArr[0]);
     this.observerFamily.set('left',     tempArr[1]);
     this.observerFamily.set('right',    tempArr[2]);
     this.observerFamily.set('top',      tempArr[3]);
     this.observerFamily.set('bottom',   tempArr[4]);
-    //console.log('PaperMainComponent > whiteboardInitializer > observerFamily : ', this.observerFamily);
+    // //console.log('PaperMainComponent > whiteboardInitializer > observerFamily : ', this.observerFamily);
     this.observerFamily.forEach((iterItem: boundaryObserver, key) => {
       switch (key) {
         case 'center' :
-          //console.log('PaperMainComponent > center > 진입함');
+          // //console.log('PaperMainComponent > center > 진입함');
           pos = tempView.center;
           break;
         case 'left' :
-          //console.log('PaperMainComponent > left > 진입함');
+          // //console.log('PaperMainComponent > left > 진입함');
           pos = tempView.bounds.leftCenter;
           break;
         case 'right' :
-          //console.log('PaperMainComponent > right > 진입함');
+          // //console.log('PaperMainComponent > right > 진입함');
           pos = tempView.bounds.rightCenter;
           break;
         case 'top' :
-          //console.log('PaperMainComponent > top > 진입함');
+          // //console.log('PaperMainComponent > top > 진입함');
           pos = tempView.bounds.topCenter;
           break;
         case 'bottom' :
-          //console.log('PaperMainComponent > bottom > 진입함');
+          // //console.log('PaperMainComponent > bottom > 진입함');
           pos = tempView.bounds.bottomCenter;
           break;
       }
-      iterItem.circle.position = pos;
-      iterItem.textInfo.position.x = pos.x;
-      iterItem.textInfo.position.y = pos.y + 10;
-      iterItem.textInfo.content = 'x : [ ' + pos.x + ' ] y : [ ' + pos.y + ' ]';
+      // iterItem.circle.position = pos;
+      // iterItem.textInfo.position.x = pos.x;
+      // iterItem.textInfo.position.y = pos.y + 10;
+      // iterItem.textInfo.content = 'x : [ ' + pos.x + ' ] y : [ ' + pos.y + ' ]';
     });
-    //console.log('PaperMainComponent > whiteboardInitializer > observerFamily : ', this.observerFamily);
+    // //console.log('PaperMainComponent > whiteboardInitializer > observerFamily : ', this.observerFamily);
 
     this.whiteboardRect = new Path.Rectangle(this.currentProject.view.bounds.scale(3));
     this.whiteboardRect.fillColor = '#0002ff';
@@ -234,67 +242,67 @@ export class InfiniteCanvasService {
       switch (key) {
         case "center" :
           pos = tempView.center;
-          iterItem.textInfo.position.x = pos.x;
-          iterItem.textInfo.position.y = pos.y + iterItem.textInfo.bounds.height;
+          /*iterItem.textInfo.position.x = pos.x;
+          iterItem.textInfo.position.y = pos.y + iterItem.textInfo.bounds.height;*/
           break;
         case "left" :
           pos = tempView.bounds.leftCenter;
-          iterItem.textInfo.position.x = pos.x + iterItem.textInfo.bounds.width;
-          iterItem.textInfo.position.y = pos.y;
+          /*iterItem.textInfo.position.x = pos.x + iterItem.textInfo.bounds.width;
+          iterItem.textInfo.position.y = pos.y;*/
           if(pos.x - widthMargin <= leftVector.cellData.bounds.leftCenter.x){
             if (mutexObserverMover) {
               mutexObserverMover = false;
-              //console.log("영역 벗어남( left )");
+              // //console.log("영역 벗어남( left )");
               this.shiftRight();
             }
           }
           break;
         case "right" :
           pos = tempView.bounds.rightCenter;
-          iterItem.textInfo.position.x = pos.x - iterItem.textInfo.bounds.width;
-          iterItem.textInfo.position.y = pos.y;
+          /*iterItem.textInfo.position.x = pos.x - iterItem.textInfo.bounds.width;
+          iterItem.textInfo.position.y = pos.y;*/
           if(pos.x + widthMargin >= rightVector.cellData.bounds.rightCenter.x){
             if (mutexObserverMover) {
               mutexObserverMover = false;
-              //console.log("영역 벗어남( right )");
+              // //console.log("영역 벗어남( right )");
               this.shiftLeft();
             }
           }
           break;
         case "top" :
           pos = tempView.bounds.topCenter;
-          iterItem.textInfo.position.x = pos.x;
-          iterItem.textInfo.position.y = pos.y + iterItem.textInfo.bounds.height;
+          /*iterItem.textInfo.position.x = pos.x;
+          iterItem.textInfo.position.y = pos.y + iterItem.textInfo.bounds.height;*/
           if(pos.y - heightMargin < topVector.cellData.bounds.topCenter.y){
             if(mutexObserverMover){
               mutexObserverMover = false;
-              //console.log("PaperMainComponent > async_TopChecker > top 영역 벗어남");
+              // //console.log("PaperMainComponent > async_TopChecker > top 영역 벗어남");
               this.shiftDown();
             }
           }
           break;
         case "bottom" :
           pos = tempView.bounds.bottomCenter;
-          iterItem.textInfo.position.x = pos.x;
-          iterItem.textInfo.position.y = pos.y - iterItem.textInfo.bounds.height;
+          /*iterItem.textInfo.position.x = pos.x;
+          iterItem.textInfo.position.y = pos.y - iterItem.textInfo.bounds.height;*/
           if(pos.y + heightMargin > bottomVector.cellData.bounds.bottomCenter.y){
             if (mutexObserverMover) {
               mutexObserverMover = false;
-              //console.log('PaperMainComponent > async_BottomChecker > bottom 영역 벗어남');
+              // //console.log('PaperMainComponent > async_BottomChecker > bottom 영역 벗어남');
               this.shiftUp();
             }
           }
           break;
       }
-      iterItem.circle.position = pos;
-      iterItem.textInfo.content = 'x : [ '+pos.x + " ] y : [ "+pos.y+" ]";
+      /*iterItem.circle.position = pos;
+      iterItem.textInfo.content = 'x : [ '+pos.x + " ] y : [ "+pos.y+" ]";*/
     });
   }
 
   private shiftDown() {
     this.whiteboardMatrix[2].forEach((vector: whiteboardCell) => {
       vector.cellGroup.position.y -= vector.cellGroup.bounds.height * 3;
-      vector.textInfo.position.y -= vector.cellGroup.bounds.height * 3;
+      // vector.textInfo.position.y -= vector.cellGroup.bounds.height * 3;
     });
     this.whiteboardMatrix.unshift(this.whiteboardMatrix.pop());
   }
@@ -302,7 +310,7 @@ export class InfiniteCanvasService {
   private shiftUp() {
     this.whiteboardMatrix[0].forEach((vector: whiteboardCell) => {
       vector.cellGroup.position.y += vector.cellGroup.bounds.height * 3;
-      vector.textInfo.position.y += vector.cellGroup.bounds.height * 3;
+      // vector.textInfo.position.y += vector.cellGroup.bounds.height * 3;
     });
     this.whiteboardMatrix.push(this.whiteboardMatrix.shift());
   }
@@ -311,7 +319,7 @@ export class InfiniteCanvasService {
     this.whiteboardMatrix.forEach((vector) => {
       let tgtVector = vector[2] as whiteboardCell;
       tgtVector.cellGroup.position.x -= tgtVector.cellGroup.bounds.width * 3;
-      tgtVector.textInfo.position.x -= tgtVector.cellGroup.bounds.width * 3;
+      // tgtVector.textInfo.position.x -= tgtVector.cellGroup.bounds.width * 3;
     });
     this.whiteboardMatrix.forEach(function(v) {
       v.unshift(v.pop());
@@ -322,7 +330,7 @@ export class InfiniteCanvasService {
     this.whiteboardMatrix.forEach((vector) => {
       let tgtVector = vector[0] as whiteboardCell;
       tgtVector.cellGroup.position.x += tgtVector.cellGroup.bounds.width * 3;
-      tgtVector.textInfo.position.x += tgtVector.cellGroup.bounds.width * 3;
+      // tgtVector.textInfo.position.x += tgtVector.cellGroup.bounds.width * 3;
     });
     this.whiteboardMatrix.forEach((v) => {
       v.push(v.shift());
@@ -330,56 +338,53 @@ export class InfiniteCanvasService {
   }
 
   public changeZoom(oldZoom, ngCenter, ngMousePosition, delta){
-    let factor = 1.05;
-
-    console.log("InfiniteCanvasService >> changeZoom >> ngMousePosition : ",ngMousePosition);
-    console.log("InfiniteCanvasService >> changeZoom >> ngCenter : ",ngCenter);
 
     this.resetInfiniteCanvas();
+
+    if (delta < 0 && this.zoomDepth < this.zoomInMax) {//Zoom In
+      this.zoomDepth++;
+      this.zoomRatio = this.zoomDepth * (this.zoomFactor - 1);
+    } else if (delta > 0 && this.zoomDepth > this.zoomOutMax) {//Zoom Out
+      this.zoomDepth--;
+      this.zoomRatio = this.zoomDepth * (this.zoomFactor - 1);
+    } else {
+      return oldZoom;//한계인 경우 줌인/아웃 수행 X
+    }
+
 
     let newCenter = new Point( this.currentProject.view.center.x,this.currentProject.view.center.y );
 
     let gapOfX = Math.abs(ngMousePosition.x - ngCenter.x);
     let gapOfY = Math.abs(ngMousePosition.y - ngCenter.y);
 
+    let adjustedFactorOfX = gapOfX * 0.05;
+    let adjustedFactorOfY = gapOfY * 0.05;
 
-    let adjustedFactorOfX = gapOfX * 5/100;
-    let adjustedFactorOfY = gapOfY * 5/100;
-
+    // console.log("InfiniteCanvasService >> changeZoom >> adjustedFactorOfX : ",adjustedFactorOfX);
+    // console.log("InfiniteCanvasService >> changeZoom >> adjustedFactorOfY : ",adjustedFactorOfY);
     if (delta < 0){
-      //view center X축 조정
+      //view center X,Y축 조정
       newCenter.x += ( ngMousePosition.x > ngCenter.x ) ? ( adjustedFactorOfX ) : ( -adjustedFactorOfX );
-      //view center Y축 조정
       newCenter.y += ( ngMousePosition.y > ngCenter.y ) ? ( adjustedFactorOfY ) : ( -adjustedFactorOfY );
 
       this.currentProject.view.center = newCenter;
-      return oldZoom * factor;
+      return oldZoom * this.zoomFactor;
     }
-    else if (delta > 0){//zoom out
-      //view center X축 조정
+    else{//zoom out
+      //view center X,Y축 조정
       newCenter.x -= ( ngMousePosition.x > ngCenter.x ) ? ( adjustedFactorOfX ) : ( -adjustedFactorOfX );
-      //view center Y축 조정
       newCenter.y -= ( ngMousePosition.y > ngCenter.y ) ? ( adjustedFactorOfY ) : ( -adjustedFactorOfY );
 
       this.currentProject.view.center = newCenter;
-      return oldZoom / factor;
+      return oldZoom / this.zoomFactor;
     }
   }
-  public changeCenter(angularX, angularY){
-    let factor = 1.05;
-    let topLeftX = this.currentProject.view.bounds.topLeft.x;
-    let topLeftY = this.currentProject.view.bounds.topLeft.y;
-
-    let offset = new Point( topLeftX + angularX, topLeftY + angularY);
-    console.log("InfiniteCanvasService >> changeCenter >> offset : ",offset);
-    return offset;
-  }
   public resetInfiniteCanvas(){
-    console.log("InfiniteCanvasService >> resetInfiniteCanvas >> 진입함");
+    // console.log("InfiniteCanvasService >> resetInfiniteCanvas >> 진입함");
     this.initFlag = false;
     this.currentProject.layers.forEach( (value, index) => {
       if(value.data.type === "infinite-canvas"){
-        //console.log("InfiniteCanvasService >>  >> value : ",value);
+        // //console.log("InfiniteCanvasService >>  >> value : ",value);
         value.removeChildren();
       }
     } );

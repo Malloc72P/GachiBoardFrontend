@@ -28,8 +28,8 @@ export class PointerModeManagerService {
 
   // TODO : 레퍼런스인지 테스트 해봐야함. 여기서 문제 발생 가능성 있음
   private initializeTool(toolMap: Map<number, Tool>) {
-    toolMap.set(PointerMode.DRAW, this.createBrush());
-    toolMap.set(PointerMode.MOVE, this.createPointMover());
+    //toolMap.set(PointerMode.DRAW, this.createBrush());
+    //toolMap.set(PointerMode.MOVE, this.createPointMover());
   }
 
   public activateTool(mode:number){
@@ -121,6 +121,8 @@ export class PointerModeManagerService {
     newTool.onMouseDrag = (event)=>{
       let delta = event.downPoint.subtract(event.point);
       this.infiniteCanvasService.movingAlg(delta);
+      console.log("PointerModeManagerService >> onMouseDrag >> event.downPoint : ",event.downPoint);
+      console.log("PointerModeManagerService >> onMouseDrag >> delta : ",delta);
       // @ts-ignore
       paper.view.scrollBy(delta);
       /*if(!PointerModeManager.segmentVerifier(segment)){//뭔가 안잡고 있는 경우엔 이동하고,

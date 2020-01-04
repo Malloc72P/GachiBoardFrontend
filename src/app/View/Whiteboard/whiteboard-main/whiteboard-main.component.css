@@ -1,5 +1,4 @@
 .element{
-  border: 1px solid black;
   width: 100%;
   height: 100%;
 }
@@ -8,4 +7,19 @@
   position: fixed;
   top: 36px;
   left: 36px;
+}
+.debugTable{
+  display: inline-block;
+  border: 1px solid black;
+}
+.debugTableWrapper{
+  display: inline-block;
+  position: absolute;
+  left: 0;
+  top: 50px;
+  width: 400px;
+}
+.debugButton{
+  width: 200px;
+  height: 40px;
 }

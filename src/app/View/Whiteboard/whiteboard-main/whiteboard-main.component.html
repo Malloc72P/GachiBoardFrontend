@@ -1,67 +1,138 @@
-<div style="height: 100%;">
+<div id="canvasWrapper"
+    style="height: 100%;">
   <canvas id="cv1" class="element"
           (mousemove)="ngCursorTracker($event)"
           (mousewheel)="zoomControl($event)">
   </canvas>
 
   <div class="testPanel">
-    <button (click)="selectMoveTool()">move</button>
-    <button (click)="selectDrawTool()">Draw</button>
+    <button class="debugButton" (click)="selectMoveTool()">move</button>
+    <button  class="debugButton" (click)="selectDrawTool()">Draw</button>
+    <div class="debugTableWrapper" id="debugInfoDiv">
+      <table class="debugTable" style="background-color: blue; color: white;">
+        <tr><td>NG Window Bound</td></tr>
+        <tr>
+          <td>X : </td>
+          <td>{{getBottomRightPosition(htmlCanvasWrapperObject).x}}</td>
+        </tr>
+        <tr>
+          <td>Y : </td>
+          <td>{{getBottomRightPosition(htmlCanvasWrapperObject).y}}</td>
+        </tr>
+      </table>
+      <table class="debugTable" style="background-color: blue; color: white;">
+        <tr><td>NG Window Center</td></tr>
+        <tr>
+          <td>X : </td>
+          <td>{{getBottomRightPosition(htmlCanvasWrapperObject).x/2}}</td>
+        </tr>
+        <tr>
+          <td>Y : </td>
+          <td>{{getBottomRightPosition(htmlCanvasWrapperObject).y/2}}</td>
+        </tr>
+      </table>
+      <table class="debugTable" style="background-color: blue; color: white;">
+        <tr><td>NG Mouse Position</td></tr>
+        <tr>
+          <td>X : </td>
+          <td>{{ngCursorX}}</td>
+        </tr>
+        <tr>
+          <td>Y : </td>
+          <td>{{ngCursorY}}</td>
+        </tr>
+      </table>
+      <table class="debugTable" style="background-color: blue; color: white;">
+        <tr><td>NG Touch Position</td></tr>
+        <tr>
+          <td>X : </td>
+          <td>{{ngTouchCursorX}}</td>
+        </tr>
+        <tr>
+          <td>Y : </td>
+          <td>{{ngTouchCursorY}}</td>
+        </tr>
+      </table>
+      <table class="debugTable" style="background-color: cyan;">
+        <tr><td>ZoomDepth</td></tr>
+        <tr>
+          <td>depth : </td>
+          <td>{{infiniteCanvasService.zoomDepth}}</td>
+        </tr>
+        <tr>
+          <td>zoomRatio : </td>
+          <td>X{{infiniteCanvasService.zoomRatio}}</td>
+        </tr>
+      </table>
+      <table class="debugTable" style="background-color: cyan;">
+        <tr><td>PinchZoom</td></tr>
+        <tr>
+          <td>isZooming : </td>
+          <td>{{isZooming}}</td>
+        </tr>
+        <tr>
+          <td>prevDistance : </td>
+          <td>{{prevDistance}}</td>
+        </tr>
+        <tr>
+          <td>currentDistance : </td>
+          <td>{{currentDistance}}</td>
+        </tr>
+        <tr>
+          <td>midPoint</td>
+          <td>{{midPoint.x}},</td>
+          <td>{{midPoint.y}}</td>
+        </tr>
+        <tr>
+          <td>slower</td>
+          <td>{{pinchZoomSlower}},</td>
+        </tr>
+      </table>
+      <table class="debugTable" style="background-color: orange;">
+        <tr><td>Paper Position</td></tr>
+        <tr>
+          <td>X : </td>
+          <td>{{cursorX}}</td>
+        </tr>
+        <tr>
+          <td>Y : </td>
+          <td>{{cursorY}}</td>
+        </tr>
+      </table>
+      <table class="debugTable" style="background-color: orange;">
+        <tr><td>Paper View</td></tr>
+        <tr>
+          <td>X : </td>
+          <td>{{paperProject.view.center.x}}</td>
+        </tr>
+        <tr>
+          <td>Y : </td>
+          <td>{{paperProject.view.center.y}}</td>
+        </tr>
+      </table>
+      <table class="debugTable" style="background-color: orange;">
+        <tr><td>Paper View Bound-TopLeft</td></tr>
+        <tr>
+          <td>X : </td>
+          <td>{{paperProject.view.bounds.topLeft.x}}</td>
+        </tr>
+        <tr>
+          <td>Y : </td>
+          <td>{{paperProject.view.bounds.topLeft.y}}</td>
+        </tr>
+      </table>
+      <table class="debugTable" style="background-color: orange;">
+        <tr><td>Paper View Bound-BottomRight</td></tr>
+        <tr>
+          <td>X : </td>
+          <td>{{paperProject.view.bounds.bottomRight.x}}</td>
+        </tr>
+        <tr>
+          <td>Y : </td>
+          <td>{{paperProject.view.bounds.bottomRight.y}}</td>
+        </tr>
+      </table>
+    </div>
 
-    <table style="background-color: aqua;">
-      <tr><td>Angular Position</td></tr>
-      <tr>
-        <td>X : </td>
-        <td>{{ngCursorX}}</td>
-      </tr>
-      <tr>
-        <td>Y : </td>
-        <td>{{ngCursorY}}</td>
-      </tr>
-    </table>
-    <table style="background-color: orange;">
-      <tr><td>Paper Position</td></tr>
-      <tr>
-        <td>X : </td>
-        <td>{{cursorX}}</td>
-      </tr>
-      <tr>
-        <td>Y : </td>
-        <td>{{cursorY}}</td>
-      </tr>
-    </table>
-    <table style="background-color: orange;">
-      <tr><td>Paper View</td></tr>
-      <tr>
-        <td>X : </td>
-        <td>{{paperProject.view.center.x}}</td>
-      </tr>
-      <tr>
-        <td>Y : </td>
-        <td>{{paperProject.view.center.y}}</td>
-      </tr>
-    </table>
-    <table style="background-color: orange;">
-      <tr><td>Paper View Bound-TopLeft</td></tr>
-      <tr>
-        <td>X : </td>
-        <td>{{paperProject.view.bounds.topLeft.x}}</td>
-      </tr>
-      <tr>
-        <td>Y : </td>
-        <td>{{paperProject.view.bounds.topLeft.y}}</td>
-      </tr>
-    </table>
-    <table style="background-color: orange;">
-      <tr><td>Paper View Bound-BottomRight</td></tr>
-      <tr>
-        <td>X : </td>
-        <td>{{paperProject.view.bounds.bottomRight.x}}</td>
-      </tr>
-      <tr>
-        <td>Y : </td>
-        <td>{{paperProject.view.bounds.bottomRight.y}}</td>
-      </tr>
-    </table>
   </div>
 </div>
