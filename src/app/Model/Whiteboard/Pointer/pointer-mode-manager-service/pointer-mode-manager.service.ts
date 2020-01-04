@@ -14,7 +14,6 @@ import * as paper from 'paper';
 
 export class PointerModeManagerService {
   private toolMap: Map<number, Tool>;
-  private test = Tool;
   private currentPointerMode: number;
 
   constructor() {

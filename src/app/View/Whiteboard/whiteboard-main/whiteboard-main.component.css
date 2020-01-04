@@ -1,5 +1,48 @@
-.element{
-  border: 1px solid black;
-  width: 640px;
-  height: 480px;
+canvas {
+  left: 0;
+  top : 0;
+  width: 100%;
+  height: 100%;
+}
+
+app-whiteboard-tool-panel {
+  position: absolute;
+  left: 6px;
+  top: 50%;
+}
+app-tool-brush-panel {
+  position: absolute;
+  left: 62px;
+  top: 50%;
+}
+
+.elements{
+}
+
+.center{
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  margin: auto;
+}
+
+#cv1 {
+  position: absolute;
+}
+
+#textEditor{
+  display: block;
+  visibility: hidden;
+  background: transparent;
+  position: absolute;
+  font-family: 'Courier New';
+  font-weight: bold;
+  font-size: 12px;
+  text-align: left;
+}
+
+#textEditor:focus{
+  outline: none;
 }

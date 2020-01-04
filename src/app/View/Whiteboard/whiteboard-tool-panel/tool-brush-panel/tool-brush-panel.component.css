@@ -1,0 +1,13 @@
+.brush-panel-wrapper {
+  padding: 8px;
+}
+
+.color-picker {
+  display: inline-block;
+  width: 26px;
+  height: 26px;
+  border-radius: 15px;
+  cursor: pointer;
+  border: 1px solid white;
+  margin: 2px;
+}

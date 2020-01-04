@@ -1,17 +1,27 @@
 import { Injectable } from '@angular/core';
+import {CommonEnum} from '../../../Helper/common-enum/common-enum';
 
 export enum PointerMode {
   MOVE,
   DRAW,
+  ERASER,
   LASSO_SELECTOR,
-  ERASER
+}
+
+// /View\Whiteboard\whiteboard-tool-panel\whiteboard-tool-panel.component.css 에
+// 등록한 클래스 'icon-tools-***' ***을 넣을것
+export enum PointerIcon {
+  move,
+  brush,
+  eraser,
+  selection,
 }
 
 @Injectable({
   providedIn: 'root'
 })
 
-export class PointerModeEnumService {
+export class PointerModeEnumService implements CommonEnum {
   private enumData = PointerMode;
   private selectableMode:Array<any>;
 
@@ -30,5 +40,8 @@ export class PointerModeEnumService {
   }
   getEnumArray(){
     return this.enumData;
+  }
+  getPointerIcon(pointerMode) {
+    return "icon-tools-" + PointerIcon[pointerMode].toLowerCase();
   }
 }

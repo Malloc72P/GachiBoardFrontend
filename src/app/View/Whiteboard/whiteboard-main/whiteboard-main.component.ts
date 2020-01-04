@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, EventEmitter, OnInit} from '@angular/core';
 import { AuthRequestService } from '../../../Controller/SocialLogin/auth-request/auth-request.service';
 import { RouterHelperService } from '../../../Model/Helper/router-helper-service/router-helper.service';
 import {UserDTO} from '../../../DTO/user-dto';
@@ -20,13 +20,16 @@ import * as paper from 'paper';
 })
 export class WhiteboardMainComponent implements OnInit {
   private paperProject: Project;
+  private pointerMode: String;
+  // private pointerChangeEventEmitter: EventEmitter<any>;
 
   constructor(
     private apiRequester: AuthRequestService,
     private routerHelper: RouterHelperService,
-    private pointerModeManager: PointerModeManagerService
-
-  ) { }
+    private pointerModeManager: PointerModeManagerService,
+  ) {
+    // this.pointerChangeEventEmitter = new EventEmitter<any>();
+  }
 
   requestProtectedApi(){
     this.apiRequester.protectedApi()
@@ -50,7 +53,34 @@ export class WhiteboardMainComponent implements OnInit {
 
   ngOnInit() {
     this.paperProject = new Project('cv1');
-    this.pointerModeManager.activateTool(PointerMode.DRAW);
+    this.pointerModeManager.activateTool(PointerMode.DRAW); // default
   }
 
+  onPointerModeChanged(panelParam){ //포인터모드 변경패널
+    this.pointerMode = panelParam.mode;
+    console.log("PaperMainComponent > onPointerModeChanged > pointerMode : ", this.pointerMode);
+
+    switch (Number(this.pointerMode)) {
+      case PointerMode.MOVE :
+        this.pointerModeManager.activateTool(panelParam.mode);
+        // this.pointerChangeEventEmitter.emit({mode: Number(panelParam.mode)});
+        break;
+      case PointerMode.DRAW :
+        console.log("PaperMainComponent > onPointerModeChanged > DRAW 진입함");
+        this.pointerModeManager.activateTool(panelParam.mode);
+        // this.pointerChangeEventEmitter.emit({mode: Number(panelParam.mode)});
+        break;
+      case PointerMode.LASSO_SELECTOR :
+        console.log("PaperMainComponent > onPointerModeChanged > LASSO_SELECTOR 진입함");
+        this.pointerModeManager.activateTool(panelParam.mode);
+        // this.pointerChangeEventEmitter.emit({mode: Number(panelParam.mode)});
+        break;
+      case PointerMode.ERASER :
+        console.log('PaperMainComponent >> onPointerModeChanged >> ERASER 진입함');
+        this.pointerModeManager.activateTool(panelParam.mode);
+        // this.pointerChangeEventEmitter.emit({mode: Number(panelParam.mode)});
+      default:
+        console.log("PaperMainComponent > onPointerModeChanged-default > textItem : ", PointerMode[panelParam.mode]);
+    }
+  }
 }
