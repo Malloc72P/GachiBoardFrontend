@@ -8,8 +8,7 @@ export abstract class PopoverPanel {
   public selectableMode: Array<any>;
 
   protected constructor(
-    injectedEnumService: CommonEnum,
-    protected onPanelStateChange: EventEmitter<any>
+    injectedEnumService: CommonEnum
   ) {
     this.enumService = injectedEnumService;
     this.selectableMode = new Array<any>();
@@ -17,7 +16,5 @@ export abstract class PopoverPanel {
     this.selectableMode = this.enumService.getEnumEntryArray();
     this.currentSelectedMode = this.selectableMode[0];  // default
   }
-  onPanelStateChangeHandler() {
-    this.onPanelStateChange.emit({mode: this.currentSelectedMode, data: null});
-  }
+  onPanelStateChangeHandler() { }
 }

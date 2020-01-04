@@ -14,7 +14,7 @@ export enum PointerIcon {
   move,
   brush,
   eraser,
-  selection,
+  selector,
 }
 
 @Injectable({

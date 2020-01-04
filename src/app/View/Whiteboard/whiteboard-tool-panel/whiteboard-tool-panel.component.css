@@ -7,8 +7,8 @@
 .icon-tools-move {
   background-image: url("/assets/images/tools/move.svg");
 }
-.icon-tools-selection {
-  background-image: url("/assets/images/tools/selection.svg");
+.icon-tools-selector {
+  background-image: url("/assets/images/tools/selector.svg");
 }
 
 .selectable-icon {

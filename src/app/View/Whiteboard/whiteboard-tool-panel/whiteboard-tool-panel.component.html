@@ -2,6 +2,6 @@
                          (change)="onPanelStateChangeHandler()"
                          [(ngModel)]="currentSelectedMode">
   <mat-button-toggle *ngFor="let mode of selectableMode" [value]="mode">
-    <span class="selectable-icon {{pointerModeService.getPointerIcon(mode)}}"></span>
+    <span class="selectable-icon {{pointerModeEnumService.getPointerIcon(mode)}}"></span>
   </mat-button-toggle>
 </mat-button-toggle-group>
