@@ -6,9 +6,13 @@
   </canvas>
 
   <div class="testPanel">
-    <button class="debugButton" (click)="selectMoveTool()">move</button>
-    <button  class="debugButton" (click)="selectDrawTool()">Draw</button>
     <div class="debugTableWrapper" id="debugInfoDiv">
+      <button class="debugButton" (click)="selectMoveTool()">move</button>
+      <button  class="debugButton" (click)="selectDrawTool()">Draw</button>
+      <button  class="debugButton" (click)="resetPosition()">resetPosition</button>
+
+      <hr>
+
       <table class="debugTable" style="background-color: blue; color: white;">
         <tr><td>NG Window Bound</td></tr>
         <tr>
@@ -53,6 +57,7 @@
           <td>{{ngTouchCursorY}}</td>
         </tr>
       </table>
+      <hr>
       <table class="debugTable" style="background-color: cyan;">
         <tr><td>ZoomDepth</td></tr>
         <tr>
@@ -60,8 +65,8 @@
           <td>{{infiniteCanvasService.zoomDepth}}</td>
         </tr>
         <tr>
-          <td>zoomRatio : </td>
-          <td>X{{infiniteCanvasService.zoomRatio}}</td>
+          <td>ZoomValue : </td>
+          <td>X{{paperProject.view.zoom}}</td>
         </tr>
       </table>
       <table class="debugTable" style="background-color: cyan;">
@@ -88,6 +93,7 @@
           <td>{{pinchZoomSlower}},</td>
         </tr>
       </table>
+      <hr>
       <table class="debugTable" style="background-color: orange;">
         <tr><td>Paper Position</td></tr>
         <tr>
@@ -125,11 +131,11 @@
         <tr><td>Paper View Bound-BottomRight</td></tr>
         <tr>
           <td>X : </td>
-          <td>{{paperProject.view.bounds.bottomRight.x}}</td>
+          <td>{{ getBottomRightPosition(htmlCanvasWrapperObject).x / paperProject.view.zoom}}</td>
         </tr>
         <tr>
           <td>Y : </td>
-          <td>{{paperProject.view.bounds.bottomRight.y}}</td>
+          <td>{{ getBottomRightPosition(htmlCanvasWrapperObject).y / paperProject.view.zoom}}</td>
         </tr>
       </table>
     </div>

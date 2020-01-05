@@ -16,6 +16,8 @@ import Rectangle = paper.Path.Rectangle;
 import Circle = paper.Path.Circle;
 // @ts-ignore
 import Layer = paper.Layer;
+// @ts-ignore
+import Color = paper.Color;
 
 import * as paper from 'paper';
 
@@ -46,10 +48,23 @@ export class InfiniteCanvasService {
 
   zoomDepth = 0;
   zoomRatio = 0.0;
+  newZoom = 0;
 
-  private readonly zoomFactor = 1.05;
-  private readonly zoomInMax = 40;
-  private readonly zoomOutMax = -40;
+  private readonly zoomFactor = 1.04;
+  private readonly zoomInMax = 36;
+  private readonly zoomOutMax = -36;
+
+  private readonly gridLineStrokeColor = 'blue';
+  private readonly gridLineOpacity = 0.1;
+
+  private readonly gridStep = 100;
+
+  private htmlCanvasWrapperObject: HTMLDivElement;
+
+  private gridCellWidth;
+  private gridCellHeight;
+
+  private prevCenter = new Point(0,0);
 
   constructor() {}
 
@@ -58,6 +73,8 @@ export class InfiniteCanvasService {
       // console.log("InfiniteCanvasService >> initializeInfiniteCanvas >> 이미 초기화됨 : ");
       return;
     }
+    this.htmlCanvasWrapperObject
+      = document.getElementById("canvasWrapper") as HTMLDivElement;
 
     this.whiteboardLayer = new Layer();
     this.whiteboardLayer.data.type = "infinite-canvas";
@@ -89,7 +106,7 @@ export class InfiniteCanvasService {
 
   private whiteboardInitializer() {
     // console.log("InfiniteCanvasService >> whiteboardInitializer >> this.currentProject.view.bounds : ",this.currentProject.view.bounds);
-    const gridStep: number = this.currentProject.view.bounds.width/10;
+    const gridStep: number = this.gridStep;
     let rect: paper.Rectangle = this.currentProject.view.bounds;
 
     let width = rect.width + gridStep - (rect.width % gridStep);
@@ -106,30 +123,8 @@ export class InfiniteCanvasService {
         pivot.y -= height;
         currentCell.cellData.position
           = new Point(pivot.x + width * i, pivot.y + height * j);
-        // @ts-ignore
-        //currentCell.cellData.fillColor = "#0002ff";
-        currentCell.cellData.opacity = 0.3;
-        //currentCell.cellData.fullySelected = true;
 
-        /*currentCell.textInfo = new PointText({//디버깅용 textItem
-          content: '[ ' + currentCell.id + ' ]',
-          point: new Point(currentCell.cellData.bounds.center.x, currentCell.cellData.bounds.center.y),
-          fillColor: 'black',
-        });*/
-
-        /*if (currentCell.id === 2) {
-          currentCell.textInfo.content += 'TOP_CELL';
-        } else if (currentCell.id === 4) {
-          currentCell.textInfo.content += 'LEFT_CELL';
-        } else if (currentCell.id === 6) {
-          currentCell.textInfo.content += 'RIGHT_CELL';
-        } else if (currentCell.id === 8) {
-          currentCell.textInfo.content += 'BOTTOM_CELL';
-        } else {
-
-        }*/
         currentCell.cellGroup = new Group();
-        currentCell.cellGroup.name = "mainframeMatrix";
         currentCell.cellGroup.addChild(currentCell.cellData);
 
         let topY = currentCell.cellData.bounds.topCenter.y;
@@ -137,29 +132,37 @@ export class InfiniteCanvasService {
         let leftX = currentCell.cellData.bounds.topLeft.x;
         let rightX = currentCell.cellData.bounds.topRight.x;
 
+        let entryPoint = new Point( leftX - leftX % gridStep, topY - topY % gridStep );
+        let exitPoint = new Point( rightX - rightX % gridStep, bottomY - bottomY % gridStep );
 
-        for (let i = currentCell.cellData.bounds.topLeft.x; i <= currentCell.cellData.bounds.topRight.x; i += gridStep) {
+        for (let i = entryPoint.x; i <= exitPoint.x; i += gridStep) {
           let gridMaker = new Path({
             strokeColor: 'blue',
-            opacity: 0.2
+            opacity: this.gridLineOpacity
           });
-          gridMaker.moveTo(new Point(i, topY));
-          gridMaker.lineTo(new Point(i, bottomY));
+          gridMaker.moveTo(new Point(i, entryPoint.y));
+          gridMaker.lineTo(new Point(i, exitPoint.y));
           currentCell.cellGroup.addChild(gridMaker);
         }
-        for (let i = currentCell.cellData.bounds.topLeft.y; i <= currentCell.cellData.bounds.bottomLeft.y; i += gridStep) {
+        for (let i = entryPoint.y; i <= exitPoint.y; i += gridStep) {
           let gridMaker = new Path({
             strokeColor: 'blue',
-            opacity: 0.2
+            opacity: this.gridLineOpacity
           });
-          gridMaker.moveTo(new Point(leftX, i));
-          gridMaker.lineTo(new Point(rightX, i));
+          gridMaker.moveTo(new Point(entryPoint.x, i));
+          gridMaker.lineTo(new Point(exitPoint.x, i));
           currentCell.cellGroup.addChild(gridMaker);
         }
-
       }//for
     }
   }//WhiteboardInitializer
+
+  createGridLine( opacityValue ){
+    return new Path({
+      strokeColor: this.gridLineStrokeColor,
+      opacity: opacityValue
+    });
+  }
   private whiteboardBoundaryInitializer() {
     let pos = this.currentProject.view.center;
     let tempView = this.currentProject.view;
@@ -252,7 +255,7 @@ export class InfiniteCanvasService {
           if(pos.x - widthMargin <= leftVector.cellData.bounds.leftCenter.x){
             if (mutexObserverMover) {
               mutexObserverMover = false;
-              // //console.log("영역 벗어남( left )");
+              console.log("영역 벗어남( left )");
               this.shiftRight();
             }
           }
@@ -264,7 +267,7 @@ export class InfiniteCanvasService {
           if(pos.x + widthMargin >= rightVector.cellData.bounds.rightCenter.x){
             if (mutexObserverMover) {
               mutexObserverMover = false;
-              // //console.log("영역 벗어남( right )");
+              console.log("영역 벗어남( right )");
               this.shiftLeft();
             }
           }
@@ -276,7 +279,6 @@ export class InfiniteCanvasService {
           if(pos.y - heightMargin < topVector.cellData.bounds.topCenter.y){
             if(mutexObserverMover){
               mutexObserverMover = false;
-              // //console.log("PaperMainComponent > async_TopChecker > top 영역 벗어남");
               this.shiftDown();
             }
           }
@@ -288,7 +290,7 @@ export class InfiniteCanvasService {
           if(pos.y + heightMargin > bottomVector.cellData.bounds.bottomCenter.y){
             if (mutexObserverMover) {
               mutexObserverMover = false;
-              // //console.log('PaperMainComponent > async_BottomChecker > bottom 영역 벗어남');
+              console.log('PaperMainComponent > async_BottomChecker > bottom 영역 벗어남');
               this.shiftUp();
             }
           }
@@ -300,26 +302,32 @@ export class InfiniteCanvasService {
   }
 
   private shiftDown() {
+    console.log("InfiniteCanvasService >> shiftDown >> 진입함");
     this.whiteboardMatrix[2].forEach((vector: whiteboardCell) => {
-      vector.cellGroup.position.y -= vector.cellGroup.bounds.height * 3;
+      let cellHeight = vector.cellData.bounds.height;
+      vector.cellGroup.position.y -= (cellHeight * 3) - this.gridStep;
       // vector.textInfo.position.y -= vector.cellGroup.bounds.height * 3;
     });
     this.whiteboardMatrix.unshift(this.whiteboardMatrix.pop());
   }
 
   private shiftUp() {
+    console.log("InfiniteCanvasService >> shiftUp >> 진입함");
     this.whiteboardMatrix[0].forEach((vector: whiteboardCell) => {
-      vector.cellGroup.position.y += vector.cellGroup.bounds.height * 3;
+      let cellHeight = vector.cellData.bounds.height;
+      vector.cellGroup.position.y += (cellHeight * 3) - this.gridStep;
       // vector.textInfo.position.y += vector.cellGroup.bounds.height * 3;
     });
     this.whiteboardMatrix.push(this.whiteboardMatrix.shift());
   }
 
   private shiftRight() {
+    console.log("InfiniteCanvasService >> shiftRight >> 진입함");
     this.whiteboardMatrix.forEach((vector) => {
       let tgtVector = vector[2] as whiteboardCell;
-      tgtVector.cellGroup.position.x -= tgtVector.cellGroup.bounds.width * 3;
-      // tgtVector.textInfo.position.x -= tgtVector.cellGroup.bounds.width * 3;
+      //그리드의 실제 길이
+      let cellWidth = tgtVector.cellData.bounds.width;
+      tgtVector.cellGroup.position.x -= (cellWidth * 3) - this.gridStep;
     });
     this.whiteboardMatrix.forEach(function(v) {
       v.unshift(v.pop());
@@ -327,9 +335,12 @@ export class InfiniteCanvasService {
   }
 
   private shiftLeft() {
+    console.log("InfiniteCanvasService >> shiftLeft >> 진입함");
     this.whiteboardMatrix.forEach((vector) => {
       let tgtVector = vector[0] as whiteboardCell;
-      tgtVector.cellGroup.position.x += tgtVector.cellGroup.bounds.width * 3;
+      //그리드의 실제 길이
+      let cellWidth = tgtVector.cellData.bounds.width;
+      tgtVector.cellGroup.position.x += (cellWidth * 3) - this.gridStep;
       // tgtVector.textInfo.position.x += tgtVector.cellGroup.bounds.width * 3;
     });
     this.whiteboardMatrix.forEach((v) => {
@@ -354,8 +365,8 @@ export class InfiniteCanvasService {
 
     let newCenter = new Point( this.currentProject.view.center.x,this.currentProject.view.center.y );
 
-    let gapOfX = Math.abs(ngMousePosition.x - ngCenter.x);
-    let gapOfY = Math.abs(ngMousePosition.y - ngCenter.y);
+    let gapOfX = Math.abs(ngMousePosition.x - ngCenter.x) / this.currentProject.view.zoom;
+    let gapOfY = Math.abs(ngMousePosition.y - ngCenter.y) / this.currentProject.view.zoom;
 
     let adjustedFactorOfX = gapOfX * 0.05;
     let adjustedFactorOfY = gapOfY * 0.05;
@@ -368,7 +379,8 @@ export class InfiniteCanvasService {
       newCenter.y += ( ngMousePosition.y > ngCenter.y ) ? ( adjustedFactorOfY ) : ( -adjustedFactorOfY );
 
       this.currentProject.view.center = newCenter;
-      return oldZoom * this.zoomFactor;
+      this.newZoom = oldZoom * this.zoomFactor;
+      return this.newZoom;
     }
     else{//zoom out
       //view center X,Y축 조정
@@ -376,7 +388,9 @@ export class InfiniteCanvasService {
       newCenter.y -= ( ngMousePosition.y > ngCenter.y ) ? ( adjustedFactorOfY ) : ( -adjustedFactorOfY );
 
       this.currentProject.view.center = newCenter;
-      return oldZoom / this.zoomFactor;
+
+      this.newZoom = oldZoom / this.zoomFactor;
+      return this.newZoom;
     }
   }
   public resetInfiniteCanvas(){
@@ -396,6 +410,19 @@ export class InfiniteCanvasService {
     this.drawingLayer.data.isMovable = false;
     this.drawingLayer.activate();
   }
+  getBottomRightPosition(el) {
+    let width = this.getWidthOfHtmlElement(el);
+    let height = this.getHeightOfHtmlElement(el);
+    return new Point(width, height);
+  }
+  getWidthOfHtmlElement(el) {
+    return parseFloat(getComputedStyle(el, null).width.replace("px", ""));
+  }
+
+  getHeightOfHtmlElement(el) {
+    return parseFloat(getComputedStyle(el, null).height.replace("px", ""))
+  }
+
 
 
 }

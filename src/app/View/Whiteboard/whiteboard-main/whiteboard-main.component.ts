@@ -118,12 +118,6 @@ export class WhiteboardMainComponent implements OnInit {
     this.htmlCanvasObject.addEventListener("touchend",(event)=>{
       this.onTouchEnd(event);
     });
-
-    //==========추가 콜백함수 바인딩
-    // window.addEventListener("orientationchange", () => {
-    //   this.onWindowResized();
-    // });
-    //===========================
   }
 
   selectMoveTool() {
@@ -132,6 +126,10 @@ export class WhiteboardMainComponent implements OnInit {
 
   selectDrawTool() {
     this.currentPointerMode = PointerMode.DRAW;
+  }
+
+  resetPosition(){
+    this.paperProject.view.center = this.getCenterPosition(this.htmlCanvasWrapperObject);
   }
 
   //HostListener 바인딩 ===========================================================================
@@ -158,8 +156,8 @@ export class WhiteboardMainComponent implements OnInit {
 
       // Create a new path and set its stroke color to black:
       let paperLeftTop = this.paperProject.view.bounds.topLeft;
-      let adjustedX = paperLeftTop.x + event.x;
-      let adjustedY = paperLeftTop.y + event.y;
+      let adjustedX = paperLeftTop.x + event.x / this.paperProject.view.zoom;
+      let adjustedY = paperLeftTop.y + event.y / this.paperProject.view.zoom;
       let newPoint = new Point(adjustedX, adjustedY);
 
       this.newPath = new Path({
@@ -177,13 +175,13 @@ export class WhiteboardMainComponent implements OnInit {
     if(this.isMouseDown){
       if(this.currentPointerMode === PointerMode.DRAW){
         let paperLeftTop = this.paperProject.view.bounds.topLeft;
-        let adjustedX = paperLeftTop.x + event.x;
-        let adjustedY = paperLeftTop.y + event.y;
+        let adjustedX = paperLeftTop.x + event.x / this.paperProject.view.zoom;
+        let adjustedY = paperLeftTop.y + event.y / this.paperProject.view.zoom;
         let newPoint = new Point(adjustedX, adjustedY);
         this.newPath.add( new Point( newPoint.x, newPoint.y ) );
       }
       else if(this.currentPointerMode === PointerMode.MOVE){
-        let delta = new Point( -event.movementX, -event.movementY );
+        let delta = new Point( -event.movementX/this.paperProject.view.zoom, -event.movementY/this.paperProject.view.zoom );
         this.infiniteCanvasService.movingAlg(delta);
         // @ts-ignore
         paper.view.scrollBy(delta);
@@ -198,7 +196,7 @@ export class WhiteboardMainComponent implements OnInit {
       this.newPath.simplify(2);
     }
     else if(this.currentPointerMode === PointerMode.MOVE){
-      let delta = new Point( -event.movementX, -event.movementY );
+      let delta = new Point( -event.movementX/this.paperProject.view.zoom, -event.movementY/this.paperProject.view.zoom );
       this.infiniteCanvasService.movingAlg(delta);
       // @ts-ignore
       paper.view.scrollBy(delta);
@@ -209,8 +207,8 @@ export class WhiteboardMainComponent implements OnInit {
   onTouchStart(event) {
     event.preventDefault();
     console.log("WhiteboardMainComponent >> onTouchStart >> event : ",event);
-    this.prevTouchPoint.x = event.touches[0].clientX;
-    this.prevTouchPoint.y = event.touches[0].clientY;
+    this.prevTouchPoint.x = event.touches[0].clientX / this.paperProject.view.zoom;
+    this.prevTouchPoint.y = event.touches[0].clientY / this.paperProject.view.zoom;
 
     this.ngTouchCursorX = event.touches[0].clientX;
     this.ngTouchCursorY = event.touches[0].clientY;
@@ -221,8 +219,8 @@ export class WhiteboardMainComponent implements OnInit {
         this.newPath.selected = false;
       }
       let paperLeftTop = this.paperProject.view.bounds.topLeft;
-      let adjustedX = paperLeftTop.x + event.touches[0].clientX;
-      let adjustedY = paperLeftTop.y + event.touches[0].clientY;
+      let adjustedX = paperLeftTop.x + event.touches[0].clientX / this.paperProject.view.zoom;
+      let adjustedY = paperLeftTop.y + event.touches[0].clientY / this.paperProject.view.zoom;
       let newPoint = new Point(adjustedX, adjustedY);
       // Create a new path and set its stroke color to black:
       this.newPath = new Path({
@@ -242,14 +240,14 @@ export class WhiteboardMainComponent implements OnInit {
     this.ngTouchCursorY = event.touches[0].clientY;
     if(event.touches.length == 1){
 
-      let touchedPoint = new Point(event.touches[0].clientX, event.touches[0].clientY);
+      let touchedPoint = new Point(event.touches[0].clientX/this.paperProject.view.zoom, event.touches[0].clientY/this.paperProject.view.zoom);
       if(this.isZooming > 0){
         return;
       }
       else if(this.currentPointerMode === PointerMode.DRAW){
         let paperLeftTop = this.paperProject.view.bounds.topLeft;
-        let adjustedX = paperLeftTop.x + event.touches[0].clientX;
-        let adjustedY = paperLeftTop.y + event.touches[0].clientY;
+        let adjustedX = paperLeftTop.x + event.touches[0].clientX/this.paperProject.view.zoom;
+        let adjustedY = paperLeftTop.y + event.touches[0].clientY/this.paperProject.view.zoom;
         let newPoint = new Point(adjustedX, adjustedY);
         this.newPath.add( newPoint );
       }
@@ -337,7 +335,7 @@ export class WhiteboardMainComponent implements OnInit {
       this.newPath.simplify(2);
     }
     else if(this.currentPointerMode === PointerMode.MOVE && this.isZooming == 0){
-      let currentPoint = new Point(endPoint.clientX, endPoint.clientY);
+      let currentPoint = new Point(endPoint.clientX / this.paperProject.view.zoom, endPoint.clientY / this.paperProject.view.zoom);
 
       let calcX = currentPoint.x - this.prevTouchPoint.x ;
       let calcY = currentPoint.y - this.prevTouchPoint.y ;
@@ -374,7 +372,7 @@ export class WhiteboardMainComponent implements OnInit {
     // //console.log("WhiteboardMainComponent >> zoomControl >> event : ",event);
     event.preventDefault();
 
-    if (event.ctrlKey) {//컨트롤 누르고 휠 돌리는 경우
+    if (!event.ctrlKey) {//컨트롤키 안 누르고 휠 돌리는 경우
       let ngCanvasCenter = this.getCenterPosition(this.htmlCanvasObject);
 
       this.paperProject.view.zoom = this.infiniteCanvasService.changeZoom(
