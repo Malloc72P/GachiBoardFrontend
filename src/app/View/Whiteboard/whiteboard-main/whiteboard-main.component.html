@@ -1,5 +1,5 @@
 <div style="height: 100%;">
   <canvas id="cv1" class="element"></canvas>
-  <app-whiteboard-tool-panel></app-whiteboard-tool-panel>
-  <app-tool-brush-panel></app-tool-brush-panel>
+  <app-whiteboard-tool-panel id="toolPanel"></app-whiteboard-tool-panel>
+  <app-tool-brush-panel [hidden]="panelManager.isHideBrushPanel" id="brushPanel"></app-tool-brush-panel>
 </div>

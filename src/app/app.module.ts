@@ -17,6 +17,7 @@ import {PointerModeManagerService} from './Model/Whiteboard/Pointer/pointer-mode
 import { WhiteboardToolPanelComponent } from './View/Whiteboard/whiteboard-tool-panel/whiteboard-tool-panel.component';
 import {FormsModule} from '@angular/forms';
 import { ToolBrushPanelComponent } from './View/Whiteboard/whiteboard-tool-panel/tool-brush-panel/tool-brush-panel.component';
+import {PanelManagerService} from './Model/Whiteboard/Panel/panel-manager-service/panel-manager.service';
 
 const appRoutes: Routes = [
   {
@@ -81,6 +82,7 @@ const appRoutes: Routes = [
       multi: true
     },
     PointerModeManagerService,
+    PanelManagerService,
   ],
   bootstrap: [AppComponent]
 })

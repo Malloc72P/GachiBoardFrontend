@@ -11,6 +11,8 @@ import * as paper from 'paper';
 import Project = paper.Project;
 // @ts-ignore
 import Point = paper.Point;
+import {PanelManagerService} from '../../../Model/Whiteboard/Panel/panel-manager-service/panel-manager.service';
+import {InputType} from '../../../Model/Whiteboard/Pointer/input-type-enum/input-type.enum';
 
 @Component({
   selector: 'app-whiteboard-main',
@@ -30,6 +32,7 @@ export class WhiteboardMainComponent implements OnInit {
     private apiRequester: AuthRequestService,
     private routerHelper: RouterHelperService,
     private pointerModeManager: PointerModeManagerService,
+    private panelManager: PanelManagerService,
   ) {
     // this.pointerChangeEventEmitter = new EventEmitter<any>();
   }
@@ -53,13 +56,23 @@ export class WhiteboardMainComponent implements OnInit {
         this.routerHelper.goToLoginPage();
       });
   }
+
   // @HostListener('touchstart', ['$event'])
   onTouchStart(event) {
     event.preventDefault();
     this.touchStart = true;
     switch (this.pointerModeManager.currentPointerMode) {
+      case PointerMode.MOVE:
+        break;
       case PointerMode.DRAW:
         this.pointerModeManager.brush.createPath(new Point(event.touches[0].clientX, event.touches[0].clientY));
+        break;
+      case PointerMode.ERASER:
+        const point = new Point(event.touches[0].clientX, event.touches[0].clientY);
+        this.pointerModeManager.eraser.createPath(point);
+        break;
+      case PointerMode.LASSO_SELECTOR:
+        this.pointerModeManager.lassoSelector.createPath(event, InputType.TOUCH);
         break;
       default:
         break;
@@ -70,8 +83,17 @@ export class WhiteboardMainComponent implements OnInit {
     event.preventDefault();
     if(this.touchStart) {
       switch (this.pointerModeManager.currentPointerMode) {
+        case PointerMode.MOVE:
+          break;
         case PointerMode.DRAW:
           this.pointerModeManager.brush.drawPath(new Point(event.touches[0].clientX, event.touches[0].clientY));
+          break;
+        case PointerMode.ERASER:
+          const point = new Point(event.touches[0].clientX, event.touches[0].clientY);
+          this.pointerModeManager.eraser.drawPath(point);
+          break;
+        case PointerMode.LASSO_SELECTOR:
+          this.pointerModeManager.lassoSelector.drawPath(event, InputType.TOUCH);
           break;
         default:
           break;
@@ -83,8 +105,17 @@ export class WhiteboardMainComponent implements OnInit {
     event.preventDefault();
     this.touchStart = false;
     switch (this.pointerModeManager.currentPointerMode) {
+      case PointerMode.MOVE:
+        break;
       case PointerMode.DRAW:
-        this.pointerModeManager.brush.endPath(new Point(event.touches[0].clientX, event.touches[0].clientY));
+        this.pointerModeManager.brush.endPath(new Point(event.changedTouches[0].clientX, event.changedTouches[0].clientY));
+        break;
+      case PointerMode.ERASER:
+        const point = new Point(event.changedTouches[0].clientX, event.changedTouches[0].clientY);
+        this.pointerModeManager.eraser.remove(point);
+        break;
+      case PointerMode.LASSO_SELECTOR:
+        this.pointerModeManager.lassoSelector.endPath(event, InputType.TOUCH);
         break;
       default:
         break;
@@ -96,8 +127,17 @@ export class WhiteboardMainComponent implements OnInit {
     event.preventDefault();
     this.mouseDown = true;
     switch (this.pointerModeManager.currentPointerMode) {
+      case PointerMode.MOVE:
+        break;
       case PointerMode.DRAW:
         this.pointerModeManager.brush.createPath(new Point(event.x, event.y));
+        break;
+      case PointerMode.ERASER:
+        const point = new Point(event.x, event.y);
+        this.pointerModeManager.eraser.createPath(point);
+        break;
+      case PointerMode.LASSO_SELECTOR:
+        this.pointerModeManager.lassoSelector.createPath(event, InputType.MOUSE);
         break;
       default:
         break;
@@ -108,8 +148,17 @@ export class WhiteboardMainComponent implements OnInit {
     event.preventDefault();
     if(this.mouseDown) {
       switch (this.pointerModeManager.currentPointerMode) {
+        case PointerMode.MOVE:
+          break;
         case PointerMode.DRAW:
           this.pointerModeManager.brush.drawPath(new Point(event.x, event.y));
+          break;
+        case PointerMode.ERASER:
+          const point = new Point(event.x, event.y);
+          this.pointerModeManager.eraser.drawPath(point);
+          break;
+        case PointerMode.LASSO_SELECTOR:
+          this.pointerModeManager.lassoSelector.drawPath(event, InputType.MOUSE);
           break;
         default:
           break;
@@ -121,8 +170,17 @@ export class WhiteboardMainComponent implements OnInit {
     event.preventDefault();
     this.mouseDown = false;
     switch (this.pointerModeManager.currentPointerMode) {
+      case PointerMode.MOVE:
+        break;
       case PointerMode.DRAW:
         this.pointerModeManager.brush.endPath(new Point(event.x, event.y));
+        break;
+      case PointerMode.ERASER:
+        const point = new Point(event.x, event.y);
+        this.pointerModeManager.eraser.remove(point);
+        break;
+      case PointerMode.LASSO_SELECTOR:
+        this.pointerModeManager.lassoSelector.endPath(event, InputType.MOUSE);
         break;
       default:
         break;

@@ -1,5 +1,6 @@
 .brush-panel-wrapper {
   padding: 8px;
+  transform: translate(0, -50%);
 }
 
 .color-picker {
@@ -10,4 +11,13 @@
   cursor: pointer;
   border: 1px solid white;
   margin: 2px;
+}
+.color-picker-selected {
+  background-color: white;
+  display: inline-block;
+  width: 13px;
+  height: 13px;
+  border-radius: 8px;
+  margin: 0 auto;
+  vertical-align: middle;
 }
