@@ -1,0 +1,28 @@
+.testPanel{
+  display: inline-block;
+  position: fixed;
+  top: 36px;
+  left: 36px;
+}
+.debugTable{
+  display: inline-block;
+  border: 1px solid black;
+}
+.debugTableWrapper{
+  display: inline-block;
+  position: fixed;
+  right: 4px;
+  bottom: 4px;
+  width: 250px;
+  font-size: 11px;
+}
+
+.example-handle {
+  position: absolute;
+  top: -10px;
+  left: -10px;
+  color: black;
+  cursor: move;
+  width: 24px;
+  height: 24px;
+}

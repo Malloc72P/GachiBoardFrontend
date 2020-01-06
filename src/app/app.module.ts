@@ -26,6 +26,10 @@ import {ColorPickerModule} from 'ngx-color-picker';
 import {BrushService} from './Model/Whiteboard/Pointer/brush-service/brush.service';
 import {EraserService} from './Model/Whiteboard/Pointer/eraser-service/eraser.service';
 import {LassoSelectorService} from './Model/Whiteboard/Pointer/lasso-selector-service/lasso-selector.service';
+import { DebugingPannelComponent } from './View/debuging-pannel/debuging-pannel.component';
+import {DebugingService} from "./Model/Helper/DebugingHelper/debuging.service";
+import {MatExpansionModule} from "@angular/material/expansion";
+import {DragDropModule} from "@angular/cdk/drag-drop";
 
 const appRoutes: Routes = [
   {
@@ -63,6 +67,7 @@ const appRoutes: Routes = [
     AuthProcessComponent,
     WhiteboardToolPanelComponent,
     ToolBrushPanelComponent,
+    DebugingPannelComponent,
   ],
   imports: [
     BrowserModule,
@@ -80,7 +85,9 @@ const appRoutes: Routes = [
     FormsModule,
     MatRippleModule,
     MatSliderModule,
-    ColorPickerModule
+    ColorPickerModule,
+    MatExpansionModule,
+    DragDropModule
   ],
   providers: [
     RouterHelperService,
@@ -97,7 +104,8 @@ const appRoutes: Routes = [
     PanelManagerService,
     BrushService,
     EraserService,
-    LassoSelectorService
+    LassoSelectorService,
+    DebugingService
   ],
   bootstrap: [AppComponent]
 })

@@ -19,6 +19,7 @@ import Point = paper.Point;
 import Size = paper.Size;
 // @ts-ignore
 import Path = paper.Path;
+import {DebugingService} from "../../../Model/Helper/DebugingHelper/debuging.service";
 
 
 @Component({
@@ -28,21 +29,21 @@ import Path = paper.Path;
 })
 export class WhiteboardMainComponent implements OnInit {
   private paperProject: Project;
-  cursorX = 0;
-  cursorY = 0;
-  ngCursorX = 0;
-  ngCursorY = 0;
-  ngTouchCursorX = 0;
-  ngTouchCursorY = 0;
-
-  prevTouchPoint = new Point(0,0);
 
   private isMouseDown = false;
   private currentPointerMode;
   private htmlCanvasObject: HTMLCanvasElement;
   private htmlCanvasWrapperObject: HTMLDivElement;
 
+  cursorX = 0;
+  cursorY = 0;
+  ngTouchCursorX = 0;
+  ngTouchCursorY = 0;
 
+  ngCursorTracker(event) {
+    this.debugingService.ngCursorX = event.x;
+    this.debugingService.ngCursorY = event.y;
+  }
 
   requestProtectedApi() {
     this.apiRequester.protectedApi()
@@ -72,6 +73,7 @@ export class WhiteboardMainComponent implements OnInit {
     private posCalcService          : PositionCalcService,
     private panelManager            : PanelManagerService,
     private zoomControlService      : ZoomControlService,
+    private debugingService         : DebugingService
   ) {
   }
 
@@ -91,164 +93,10 @@ export class WhiteboardMainComponent implements OnInit {
     this.zoomControlService.initializeZoomControlService(this.paperProject);
     this.pointerModeManager.initializePointerModeManagerService(this.paperProject);
 
-
     this.paperProject.view.onMouseMove = (event) => {
-      this.cursorX = event.point.x;
-      this.cursorY = event.point.y;
+      this.debugingService.cursorX = event.point.x;
+      this.debugingService.cursorY = event.point.y;
     };
-  }
-
-  selectMoveTool() {
-    this.currentPointerMode = PointerMode.MOVE;
-  }
-
-  selectDrawTool() {
-    this.currentPointerMode = PointerMode.DRAW;
-  }
-
-  //HostListener 바인딩 ===========================================================================
-
-  private newPath:Path;
-
-  /*onMouseDown(event){
-    event.preventDefault();
-    this.isMouseDown = true;
-    if(this.currentPointerMode === PointerMode.DRAW){
-
-      // If we produced a path before, deselect it:
-      if (this.newPath) {
-        this.newPath.selected = false;
-      }
-
-      let paperLeftTop = this.paperProject.view.bounds.topLeft;
-      let adjustedX = paperLeftTop.x + event.x / this.paperProject.view.zoom;
-      let adjustedY = paperLeftTop.y + event.y / this.paperProject.view.zoom;
-      let newPoint = new Point(adjustedX, adjustedY);
-
-      this.newPath = new Path({
-        segments: [newPoint],
-        strokeColor: 'black',
-      });
-    }
-
-  }
-  onMouseMove(event){
-    event.preventDefault();
-    if(this.isMouseDown){
-      if(this.currentPointerMode === PointerMode.DRAW){
-        let paperLeftTop = this.paperProject.view.bounds.topLeft;
-        let adjustedX = paperLeftTop.x + event.x / this.paperProject.view.zoom;
-        let adjustedY = paperLeftTop.y + event.y / this.paperProject.view.zoom;
-        let newPoint = new Point(adjustedX, adjustedY);
-        this.newPath.add( new Point( newPoint.x, newPoint.y ) );
-      }
-      else if(this.currentPointerMode === PointerMode.MOVE){
-        this.canvasMoverService.onPointerMove(event);
-      }
-    }
-  }
-  onMouseUp(event){
-    event.preventDefault();
-    this.isMouseDown = false;
-    if(this.currentPointerMode === PointerMode.DRAW){
-      this.newPath.simplify(2);
-    }
-    else if(this.currentPointerMode === PointerMode.MOVE){
-      this.canvasMoverService.onPointerDown(event);
-    }
-  }
-
-
-  onTouchStart(event) {
-    event.preventDefault();
-    console.log("WhiteboardMainComponent >> onTouchStart >> event : ",event);
-    let currentPoint = this.posCalcService
-                        .reflectZoomWithPoint( new Point(event.touches[0].clientX, event.touches[0].clientY) );
-    this.prevTouchPoint = currentPoint;
-
-    this.ngTouchCursorX = event.touches[0].clientX;
-    this.ngTouchCursorY = event.touches[0].clientY;
-
-    if(this.currentPointerMode === PointerMode.DRAW){
-      // If we produced a path before, deselect it:
-      if (this.newPath) {
-        this.newPath.selected = false;
-      }
-      let newPoint = this.posCalcService.ngPointToCanvas(currentPoint);
-      // Create a new path and set its stroke color to black:
-      this.newPath = new Path({
-        segments: [ newPoint ],
-        strokeColor: 'black',
-        // Select the path, so we can see its segment points:
-        //fullySelected: true
-      });
-    }
-  }
-  onTouchMove(event) {
-    event.preventDefault();
-    console.log("WhiteboardMainComponent >> onTouchMove >> event : ", event);
-    this.ngTouchCursorX = event.touches[0].clientX;
-    this.ngTouchCursorY = event.touches[0].clientY;
-    if(event.touches.length == 1){
-      let currentPoint
-        = this.posCalcService.reflectZoomWithPoint(new Point(event.touches[0].clientX, event.touches[0].clientY));
-
-      if(this.zoomCtrlService.isZooming > 0){
-        return;
-      }
-      else if(this.currentPointerMode === PointerMode.DRAW){
-        let newPoint = this.posCalcService.ngPointToCanvas(currentPoint);
-        this.newPath.add( newPoint );
-      }
-      else if(this.currentPointerMode === PointerMode.MOVE){
-        let deltaX = currentPoint.x - this.prevTouchPoint.x ;
-        let deltaY = currentPoint.y - this.prevTouchPoint.y ;
-
-        let delta = new Point( -deltaX, -deltaY );
-        this.infiniteCanvasService.movingAlg();
-        // @ts-ignore
-        paper.view.scrollBy(delta);
-        this.prevTouchPoint.x = currentPoint.x;
-        this.prevTouchPoint.y = currentPoint.y;
-      }
-    }
-    if (event.touches.length == 2) {
-      this.zoomCtrlService.onPinchZoomMove(event);
-    }
-  }
-  onTouchEnd(event) {
-    event.preventDefault();
-    // console.log("WhiteboardMainComponent >> onTouchEnd >> event : ", event);
-    let endPoint
-      = this.posCalcService.reflectZoomWithPoint(
-        new Point( event.changedTouches[0].clientX, event.changedTouches[0].clientY )
-    );
-
-    if(this.zoomCtrlService.isZooming > 0){
-      this.zoomCtrlService.onPinchZoomEnd();
-    }
-    else if(this.currentPointerMode === PointerMode.DRAW){
-      this.newPath.simplify(2);
-    }
-    else if(this.currentPointerMode === PointerMode.MOVE && this.zoomCtrlService.isZooming == 0){
-
-      let calcX = endPoint.x - this.prevTouchPoint.x ;
-      let calcY = endPoint.y - this.prevTouchPoint.y ;
-
-      let delta = new Point( -calcX, -calcY );
-      console.log("WhiteboardMainComponent >> onTouchMove >> delta : ",delta);
-      this.infiniteCanvasService.movingAlg();
-      // @ts-ignore
-      paper.view.scrollBy(delta);
-      this.prevTouchPoint.x = endPoint.x;
-      this.prevTouchPoint.y = endPoint.y;
-    }
-
-  }*/
-
-  ngCursorTracker(event) {
-    this.ngCursorX = event.x;
-    this.ngCursorY = event.y;
   }
 
 }

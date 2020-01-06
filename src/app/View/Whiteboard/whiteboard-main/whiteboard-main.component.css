@@ -1,26 +1,4 @@
-.testPanel{
-  display: inline-block;
-  position: fixed;
-  top: 36px;
-  left: 36px;
-}
-.debugTable{
-  display: inline-block;
-  border: 1px solid black;
-}
-.debugTableWrapper{
-  border: 1px solid black;
-  display: inline-block;
-  position: fixed;
-  right: 4px;
-  bottom: 4px;
-  width: 700px;
-  font-size: 11px;
-}
-.debugButton {
-  width: 90px;
-  height: 20px;
-}
+
 .mainCanvas {
   left: 0;
   top : 0;
