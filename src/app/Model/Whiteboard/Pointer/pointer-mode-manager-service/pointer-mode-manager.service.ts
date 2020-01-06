@@ -20,10 +20,9 @@ import Point = paper.Point;
 
 export class PointerModeManagerService {
   public currentPointerMode: number;
-  public touchStart = false;
   public mouseDown = false;
   public currentProject;
-  private prevTouchPoint = new Point(0,0);
+
 
   constructor(
       public brushService: BrushService,
@@ -66,10 +65,10 @@ export class PointerModeManagerService {
   // Touch - Start Listener
   private onTouchStart(event) {
     event.preventDefault();
-    this.prevTouchPoint = this.posCalcService
-      .reflectZoomWithPoint(new Point(event.touches[0].clientX, event.touches[0].clientY));
+
     switch (this.currentPointerMode) {
       case PointerMode.MOVE:
+        this.canvasMoverService.onTouchStart(event);
         break;
       case PointerMode.DRAW:
         this.brushService.createPath(event);
@@ -88,9 +87,14 @@ export class PointerModeManagerService {
   // Touch - Move Listener
   private onTouchMove(event) {
     event.preventDefault();
+
     if(event.touches.length == 1){
+      if(this.zoomCtrlService.isZooming > 0){
+        return;
+      }
       switch (this.currentPointerMode) {
         case PointerMode.MOVE:
+          this.canvasMoverService.onTouchMove(event);
           break;
         case PointerMode.DRAW:
           this.brushService.drawPath(event);
@@ -117,23 +121,10 @@ export class PointerModeManagerService {
     event.preventDefault();
     if(this.zoomCtrlService.isZooming > 0) {
       this.zoomCtrlService.onPinchZoomEnd();
-    }else{
+    }else if ( this.zoomCtrlService.isZooming == 0){
       switch (this.currentPointerMode) {
         case PointerMode.MOVE:
-          let endPoint
-            = this.posCalcService.reflectZoomWithPoint(
-            new Point( event.changedTouches[0].clientX, event.changedTouches[0].clientY )
-          );
-          let calcX = endPoint.x - this.prevTouchPoint.x ;
-          let calcY = endPoint.y - this.prevTouchPoint.y ;
-
-          let delta = new Point( -calcX, -calcY );
-          console.log("WhiteboardMainComponent >> onTouchMove >> delta : ",delta);
-          this.infiniteCanvasService.movingAlg();
-          // @ts-ignore
-          paper.view.scrollBy(delta);
-          this.prevTouchPoint.x = endPoint.x;
-          this.prevTouchPoint.y = endPoint.y;
+          this.canvasMoverService.onTouchEnd(event);
           break;
         case PointerMode.DRAW:
           this.brushService.endPath();
@@ -157,7 +148,7 @@ export class PointerModeManagerService {
     this.mouseDown = true;
     switch (this.currentPointerMode) {
       case PointerMode.MOVE:
-        this.canvasMoverService.onPointerDown(event);
+        this.canvasMoverService.onMouseDown(event);
         break;
       case PointerMode.DRAW:
         this.brushService.createPath(event);
@@ -179,7 +170,7 @@ export class PointerModeManagerService {
     if(this.mouseDown) {
       switch (this.currentPointerMode) {
         case PointerMode.MOVE:
-          this.canvasMoverService.onPointerMove(event);
+          this.canvasMoverService.onMouseMove(event);
           break;
         case PointerMode.DRAW:
           this.brushService.drawPath(event);
@@ -202,7 +193,7 @@ export class PointerModeManagerService {
     this.mouseDown = false;
     switch (this.currentPointerMode) {
       case PointerMode.MOVE:
-        this.canvasMoverService.onPointerDown(event);
+        this.canvasMoverService.onMouseUp(event);
         break;
       case PointerMode.DRAW:
         this.brushService.endPath();

@@ -80,6 +80,7 @@ export class LassoSelectorService {
       return;
     }
     point = this.posCalcService.advConvertNgToPaper(point);
+    delta = this.posCalcService.reflectZoomWithPoint(delta);
 
     // 선택 그룹 객체 있는지 확인
     if (this.selectedGroup.hasChildren()) {

@@ -25,28 +25,61 @@ import {InfiniteCanvasService} from "../../InfiniteCanvas/infinite-canvas.servic
 export class CanvasMoverService {
   private currentProject: Project;
   constructor(
-    private positionCalcService: PositionCalcService,
-    private infiniteCanvasService:InfiniteCanvasService
+    private positionCalcService   : PositionCalcService,
+    private infiniteCanvasService : InfiniteCanvasService,
+    private posCalcService        : PositionCalcService
   ) {
 
   }
+  private prevTouchPoint = new Point(0,0);
   public initializeCanvasMoverService( currentProject: Project ){
     this.currentProject = currentProject;
   }
 
-  public onPointerMove(event){
-    this.movePositionByDelta(event);
+  public onMouseDown(event){
+    this.movedByMouse(event);
   }
-  public onPointerDown(event){
-    this.movePositionByDelta(event);
+  public onMouseMove(event){
+    this.movedByMouse(event);
+  }
+  public onMouseUp(event){
+    this.movedByMouse(event);
   }
 
-  private movePositionByDelta(event){
+  public onTouchStart(event){
+    this.prevTouchPoint = this.posCalcService.reflectZoomWithPoint(
+        new Point(event.touches[0].clientX, event.touches[0].clientY)
+    );
+  }
+  public onTouchMove(event){
+    this.movedByTouch(event);
+  }
+  public onTouchEnd(event){
+    this.movedByTouch(event);
+  }
+
+  private movedByMouse(event){
     let delta = this.positionCalcService.reflectZoomWithPoint(
       new Point( -event.movementX, -event.movementY )
     );
     this.infiniteCanvasService.movingAlg();
     // @ts-ignore
     paper.view.scrollBy(delta);
+  }
+  private movedByTouch(event){
+    let endPoint
+      = this.posCalcService.reflectZoomWithPoint(
+      new Point( event.changedTouches[0].clientX, event.changedTouches[0].clientY )
+    );
+    let calcX = endPoint.x - this.prevTouchPoint.x ;
+    let calcY = endPoint.y - this.prevTouchPoint.y ;
+
+    let delta = new Point( -calcX, -calcY );
+
+    this.infiniteCanvasService.movingAlg();
+    // @ts-ignore
+    paper.view.scrollBy(delta);
+    this.prevTouchPoint.x = endPoint.x;
+    this.prevTouchPoint.y = endPoint.y;
   }
 }

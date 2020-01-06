@@ -326,8 +326,6 @@ export class InfiniteCanvasService {
     } );
     this.initWhiteboardVariable();
     this.currentProject.layers.forEach((value, index) => {
-      console.log("\n");
-      console.log("InfiniteCanvasService >> resetInfiniteCanvas >> value : ",value.data);
       if(value.data.type === "drawing-canvas"){
         value.activate();
       }
