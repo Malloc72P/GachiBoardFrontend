@@ -1,12 +1,12 @@
+import { Injectable } from '@angular/core';
 import * as paper from 'paper';
-// @ts-ignore
-import Path = paper.Path;
-// @ts-ignore
-import Point = paper.Point;
 
-export class Eraser {
+@Injectable({
+  providedIn: 'root'
+})
+export class EraserService {
   private strokeWidth = 10;
-  private newPath: Path;
+  private newPath: paper.Path;
 
   constructor() { }
 
@@ -15,18 +15,18 @@ export class Eraser {
   }
 
   public createPath(event) {
-    let point: Point;
+    let point: paper.Point;
 
     if(event instanceof MouseEvent) {
-      point = new Point(event.x, event.y);
+      point = new paper.Point(event.x, event.y);
     } else if (event instanceof TouchEvent) {
-      point = new Point(event.touches[0].clientX, event.touches[0].clientY);
+      point = new paper.Point(event.touches[0].clientX, event.touches[0].clientY);
     } else {
       return;
     }
 
-    this.newPath = new Path({
-      segments: [new Point(point.x, point.y)],
+    this.newPath = new paper.Path({
+      segments: [new paper.Point(point.x, point.y)],
       strokeWidth: this.strokeWidth,
       strokeColor: 'white',
       strokeCap: 'round',
@@ -34,24 +34,24 @@ export class Eraser {
     });
   }
   public drawPath(event) {
-    let point: Point;
+    let point: paper.Point;
 
     if(event instanceof MouseEvent) {
-      point = new Point(event.x, event.y);
+      point = new paper.Point(event.x, event.y);
     } else if (event instanceof TouchEvent) {
-      point = new Point(event.touches[0].clientX, event.touches[0].clientY);
+      point = new paper.Point(event.touches[0].clientX, event.touches[0].clientY);
     } else {
       return;
     }
 
-    this.newPath.add(new Point(point.x, point.y));
+    this.newPath.add(new paper.Point(point.x, point.y));
   }
   public endPath() {
     this.removeProcess(this.newPath);
     this.newPath.remove();
   }
 
-  private removeProcess(path: Path) {
+  private removeProcess(path: paper.Path) {
     const currentProject = paper.project;
     for(const item of currentProject.activeLayer.children) {
       if(path.intersects(item)) {

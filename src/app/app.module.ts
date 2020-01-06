@@ -19,6 +19,9 @@ import {FormsModule} from '@angular/forms';
 import { ToolBrushPanelComponent } from './View/Whiteboard/whiteboard-tool-panel/tool-brush-panel/tool-brush-panel.component';
 import {PanelManagerService} from './Model/Whiteboard/Panel/panel-manager-service/panel-manager.service';
 import {ColorPickerModule} from 'ngx-color-picker';
+import {BrushService} from './Model/Whiteboard/Pointer/brush-service/brush.service';
+import {EraserService} from './Model/Whiteboard/Pointer/eraser-service/eraser.service';
+import {LassoSelectorService} from './Model/Whiteboard/Pointer/lasso-selector-service/lasso-selector.service';
 
 const appRoutes: Routes = [
   {
@@ -85,6 +88,9 @@ const appRoutes: Routes = [
     },
     PointerModeManagerService,
     PanelManagerService,
+    BrushService,
+    EraserService,
+    LassoSelectorService
   ],
   bootstrap: [AppComponent]
 })

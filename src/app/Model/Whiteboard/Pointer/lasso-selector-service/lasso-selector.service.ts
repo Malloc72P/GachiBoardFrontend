@@ -1,18 +1,17 @@
+import { Injectable } from '@angular/core';
 import * as paper from 'paper';
-// @ts-ignore
-import Path = paper.Path;
-// @ts-ignore
-import Point = paper.Point;
 
-export class LassoSelector {
-  private newPath: Path;
+@Injectable({
+  providedIn: 'root'
+})
+export class LassoSelectorService {
+  private newPath: paper.Path;
   private selectedGroup: paper.Group;
   private selectedItems = Array<paper.Item>();
-  private previousPoint: Point;
+  private previousPoint: paper.Point;
   private hitOption = { segments: true, stroke: true, fill: true, tolerance: 3 };
 
-  constructor() {
-  }
+  constructor() { }
 
   public createPath(event) {
     if(this.newPath) {
@@ -23,14 +22,14 @@ export class LassoSelector {
       this.selectedGroup = new paper.Group();
     }
 
-    let point: Point;
+    let point: paper.Point;
 
     // 입력 타입에 맞게 필요한 값들 초기화
     if(event instanceof MouseEvent) {
-      point = new Point(event.x, event.y);
+      point = new paper.Point(event.x, event.y);
     } else if (event instanceof TouchEvent) {
-      point = new Point(event.touches[0].clientX, event.touches[0].clientY);
-      this.previousPoint = new Point(point);
+      point = new paper.Point(event.touches[0].clientX, event.touches[0].clientY);
+      this.previousPoint = new paper.Point(point);
     } else {
       return;
     }
@@ -51,7 +50,7 @@ export class LassoSelector {
       }
     }
 
-    this.newPath = new Path({
+    this.newPath = new paper.Path({
       segments: [point],
       strokeColor: 'blue',
       strokeCap: 'round',
@@ -62,17 +61,17 @@ export class LassoSelector {
   }
 
   public drawPath(event) {
-    let point: Point;
-    let delta: Point;
+    let point: paper.Point;
+    let delta: paper.Point;
 
     // 입력 타입에 맞게 필요한 값들 초기화
     if(event instanceof MouseEvent) {
-      point = new Point(event.x, event.y);
-      delta = new Point(event.movementX, event.movementY);
+      point = new paper.Point(event.x, event.y);
+      delta = new paper.Point(event.movementX, event.movementY);
     } else if (event instanceof TouchEvent) {
-      point = new Point(event.touches[0].clientX, event.touches[0].clientY);
-      delta = new Point (point.x - this.previousPoint.x, point.y - this.previousPoint.y);
-      this.previousPoint = new Point(point);
+      point = new paper.Point(event.touches[0].clientX, event.touches[0].clientY);
+      delta = new paper.Point (point.x - this.previousPoint.x, point.y - this.previousPoint.y);
+      this.previousPoint = new paper.Point(point);
     } else {
       return;
     }
@@ -88,13 +87,13 @@ export class LassoSelector {
 
   public endPath(event) {
     // 입력 타입에 맞게 필요한 값들 초기화
-    let point: Point;
+    let point: paper.Point;
 
     if(event instanceof MouseEvent) {
-      point = new Point(event.x, event.y);
+      point = new paper.Point(event.x, event.y);
     } else if (event instanceof TouchEvent) {
-      point = new Point(event.changedTouches[0].clientX, event.changedTouches[0].clientY);
-      this.previousPoint = new Point(point);
+      point = new paper.Point(event.changedTouches[0].clientX, event.changedTouches[0].clientY);
+      this.previousPoint = new paper.Point(point);
     } else {
       return;
     }
@@ -112,7 +111,7 @@ export class LassoSelector {
       this.selectedGroup = new paper.Group();
       if (this.newPath.segments.length > 1) {
         for (const item of currentProject.activeLayer.children) {
-          if (item instanceof Path || item instanceof paper.Raster) {
+          if (item instanceof paper.Path || item instanceof paper.Raster) {
             if (this.isInside(this.newPath, item)) {
               //console.log("PointerModeManager >> onMouseUp >> path-item : ",item);
               this.selectedItems.push(item);
@@ -141,7 +140,7 @@ export class LassoSelector {
       });
       this.selectedGroup.selected = true;
 
-      selectRange = new Path.Rectangle(this.selectedGroup.strokeBounds);
+      selectRange = new paper.Path.Rectangle(this.selectedGroup.strokeBounds);
       selectRange.name = 'selectRange';
       selectRange.strokeColor = 'blue';
       selectRange.dashArray = [5, 5];

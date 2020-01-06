@@ -1,10 +1,8 @@
 import {Injectable} from '@angular/core';
-
-import * as paper from 'paper';
-import {Brush} from '../brush/brush';
-import {Eraser} from '../eraser/eraser';
-import {LassoSelector} from '../lasso-selector/lasso-selector';
 import {PointerMode} from '../pointer-mode-enum-service/pointer-mode-enum.service';
+import {BrushService} from '../brush-service/brush.service';
+import {EraserService} from '../eraser-service/eraser.service';
+import {LassoSelectorService} from '../lasso-selector-service/lasso-selector.service';
 
 @Injectable({
   providedIn: 'root'
@@ -13,18 +11,15 @@ import {PointerMode} from '../pointer-mode-enum-service/pointer-mode-enum.servic
 export class PointerModeManagerService {
   // private toolMap: Map<number, object>;
   public currentPointerMode: number;
-  public brush: Brush;
-  public eraser: Eraser;
-  public lassoSelector: LassoSelector;
-  public mover;
 
   private touchStart = false;
   private mouseDown = false;
 
-  constructor() {
-    this.brush = new Brush();
-    this.eraser = new Eraser();
-    this.lassoSelector = new LassoSelector();
+  constructor(
+    private brush: BrushService,
+    private eraser: EraserService,
+    private lassoSelector: LassoSelectorService,
+    ) {
   }
 
   public initListener() {
