@@ -109,7 +109,6 @@ export class LassoSelectorService {
     this.newPath.closed = true;
 
     if (this.selectedGroup.hasChildren()) {
-      // nothing
       this.selectedGroup.children.forEach(( segment )=>{
         // this.sendWbItemMovementData(segment);
       })
@@ -156,6 +155,25 @@ export class LassoSelectorService {
     }
 
     this.newPath.remove();
+  }
+
+  public cancelSelect() {
+    if (this.selectedGroup) {
+      const selectRange = this.selectedGroup.getItem({name: 'selectRange'});
+      if (selectRange) {
+        selectRange.remove();
+      }
+      this.selectedGroup.selected = false;
+      this.unGroup(this.selectedGroup);
+      this.newPath.remove();
+    }
+  }
+
+  public removeSelectedItem() {
+    if(this.selectedGroup) {
+      this.selectedGroup.removeChildren();
+      this.selectedGroup.remove();
+    }
   }
 
   private unGroup(group: paper.Group) {
