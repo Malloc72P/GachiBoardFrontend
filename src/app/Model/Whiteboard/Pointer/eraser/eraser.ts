@@ -14,7 +14,17 @@ export class Eraser {
     this.strokeWidth = value;
   }
 
-  public createPath(point) {
+  public createPath(event) {
+    let point: Point;
+
+    if(event instanceof MouseEvent) {
+      point = new Point(event.x, event.y);
+    } else if (event instanceof TouchEvent) {
+      point = new Point(event.touches[0].clientX, event.touches[0].clientY);
+    } else {
+      return;
+    }
+
     this.newPath = new Path({
       segments: [new Point(point.x, point.y)],
       strokeWidth: this.strokeWidth,
@@ -23,10 +33,20 @@ export class Eraser {
       strokeJoin: 'round',
     });
   }
-  public drawPath(point) {
+  public drawPath(event) {
+    let point: Point;
+
+    if(event instanceof MouseEvent) {
+      point = new Point(event.x, event.y);
+    } else if (event instanceof TouchEvent) {
+      point = new Point(event.touches[0].clientX, event.touches[0].clientY);
+    } else {
+      return;
+    }
+
     this.newPath.add(new Point(point.x, point.y));
   }
-  public remove(point) {
+  public endPath() {
     this.removeProcess(this.newPath);
     this.newPath.remove();
   }

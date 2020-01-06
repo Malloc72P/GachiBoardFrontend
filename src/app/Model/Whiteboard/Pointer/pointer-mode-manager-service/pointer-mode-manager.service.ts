@@ -5,7 +5,6 @@ import {Brush} from '../brush/brush';
 import {Eraser} from '../eraser/eraser';
 import {LassoSelector} from '../lasso-selector/lasso-selector';
 import {PointerMode} from '../pointer-mode-enum-service/pointer-mode-enum.service';
-import {InputType} from '../input-type-enum/input-type.enum';
 
 @Injectable({
   providedIn: 'root'
@@ -59,14 +58,13 @@ export class PointerModeManagerService {
       case PointerMode.MOVE:
         break;
       case PointerMode.DRAW:
-        this.brush.createPath(new paper.Point(event.touches[0].clientX, event.touches[0].clientY));
+        this.brush.createPath(event);
         break;
       case PointerMode.ERASER:
-        const point = new paper.Point(event.touches[0].clientX, event.touches[0].clientY);
-        this.eraser.createPath(point);
+        this.eraser.createPath(event);
         break;
       case PointerMode.LASSO_SELECTOR:
-        this.lassoSelector.createPath(event, InputType.TOUCH);
+        this.lassoSelector.createPath(event);
         break;
       default:
         break;
@@ -81,14 +79,13 @@ export class PointerModeManagerService {
         case PointerMode.MOVE:
           break;
         case PointerMode.DRAW:
-          this.brush.drawPath(new paper.Point(event.touches[0].clientX, event.touches[0].clientY));
+          this.brush.drawPath(event);
           break;
         case PointerMode.ERASER:
-          const point = new paper.Point(event.touches[0].clientX, event.touches[0].clientY);
-          this.eraser.drawPath(point);
+          this.eraser.drawPath(event);
           break;
         case PointerMode.LASSO_SELECTOR:
-          this.lassoSelector.drawPath(event, InputType.TOUCH);
+          this.lassoSelector.drawPath(event);
           break;
         default:
           break;
@@ -104,14 +101,13 @@ export class PointerModeManagerService {
       case PointerMode.MOVE:
         break;
       case PointerMode.DRAW:
-        this.brush.endPath(new paper.Point(event.changedTouches[0].clientX, event.changedTouches[0].clientY));
+        this.brush.endPath();
         break;
       case PointerMode.ERASER:
-        const point = new paper.Point(event.changedTouches[0].clientX, event.changedTouches[0].clientY);
-        this.eraser.remove(point);
+        this.eraser.endPath();
         break;
       case PointerMode.LASSO_SELECTOR:
-        this.lassoSelector.endPath(event, InputType.TOUCH);
+        this.lassoSelector.endPath(event);
         break;
       default:
         break;
@@ -126,14 +122,13 @@ export class PointerModeManagerService {
       case PointerMode.MOVE:
         break;
       case PointerMode.DRAW:
-        this.brush.createPath(new paper.Point(event.x, event.y));
+        this.brush.createPath(event);
         break;
       case PointerMode.ERASER:
-        const point = new paper.Point(event.x, event.y);
-        this.eraser.createPath(point);
+        this.eraser.createPath(event);
         break;
       case PointerMode.LASSO_SELECTOR:
-        this.lassoSelector.createPath(event, InputType.MOUSE);
+        this.lassoSelector.createPath(event);
         break;
       default:
         break;
@@ -148,14 +143,13 @@ export class PointerModeManagerService {
         case PointerMode.MOVE:
           break;
         case PointerMode.DRAW:
-          this.brush.drawPath(new paper.Point(event.x, event.y));
+          this.brush.drawPath(event);
           break;
         case PointerMode.ERASER:
-          const point = new paper.Point(event.x, event.y);
-          this.eraser.drawPath(point);
+          this.eraser.drawPath(event);
           break;
         case PointerMode.LASSO_SELECTOR:
-          this.lassoSelector.drawPath(event, InputType.MOUSE);
+          this.lassoSelector.drawPath(event);
           break;
         default:
           break;
@@ -171,14 +165,13 @@ export class PointerModeManagerService {
       case PointerMode.MOVE:
         break;
       case PointerMode.DRAW:
-        this.brush.endPath(new paper.Point(event.x, event.y));
+        this.brush.endPath();
         break;
       case PointerMode.ERASER:
-        const point = new paper.Point(event.x, event.y);
-        this.eraser.remove(point);
+        this.eraser.endPath();
         break;
       case PointerMode.LASSO_SELECTOR:
-        this.lassoSelector.endPath(event, InputType.MOUSE);
+        this.lassoSelector.endPath(event);
         break;
       default:
         break;

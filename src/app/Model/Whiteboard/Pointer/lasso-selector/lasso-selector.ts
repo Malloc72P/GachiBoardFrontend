@@ -3,7 +3,6 @@ import * as paper from 'paper';
 import Path = paper.Path;
 // @ts-ignore
 import Point = paper.Point;
-import {InputType} from '../input-type-enum/input-type.enum';
 
 export class LassoSelector {
   private newPath: Path;
@@ -15,7 +14,7 @@ export class LassoSelector {
   constructor() {
   }
 
-  public createPath(event, type: number) {
+  public createPath(event) {
     if(this.newPath) {
       this.newPath.selected = false;
     }
@@ -27,9 +26,9 @@ export class LassoSelector {
     let point: Point;
 
     // 입력 타입에 맞게 필요한 값들 초기화
-    if(type === InputType.MOUSE) {
+    if(event instanceof MouseEvent) {
       point = new Point(event.x, event.y);
-    } else if (type === InputType.TOUCH) {
+    } else if (event instanceof TouchEvent) {
       point = new Point(event.touches[0].clientX, event.touches[0].clientY);
       this.previousPoint = new Point(point);
     } else {
@@ -62,18 +61,18 @@ export class LassoSelector {
     });
   }
 
-  public drawPath(event, type: number) {
+  public drawPath(event) {
     let point: Point;
     let delta: Point;
+
     // 입력 타입에 맞게 필요한 값들 초기화
-    if(type === InputType.MOUSE) {
+    if(event instanceof MouseEvent) {
       point = new Point(event.x, event.y);
       delta = new Point(event.movementX, event.movementY);
-    } else if (type === InputType.TOUCH) {
+    } else if (event instanceof TouchEvent) {
       point = new Point(event.touches[0].clientX, event.touches[0].clientY);
       delta = new Point (point.x - this.previousPoint.x, point.y - this.previousPoint.y);
       this.previousPoint = new Point(point);
-      console.log('LassoSelector >> drawPath >> delta : ', delta);
     } else {
       return;
     }
@@ -87,12 +86,13 @@ export class LassoSelector {
     }
   }
 
-  public endPath(event, type: number) {
+  public endPath(event) {
     // 입력 타입에 맞게 필요한 값들 초기화
     let point: Point;
-    if(type === InputType.MOUSE) {
+
+    if(event instanceof MouseEvent) {
       point = new Point(event.x, event.y);
-    } else if (type === InputType.TOUCH) {
+    } else if (event instanceof TouchEvent) {
       point = new Point(event.changedTouches[0].clientX, event.changedTouches[0].clientY);
       this.previousPoint = new Point(point);
     } else {
@@ -106,7 +106,6 @@ export class LassoSelector {
     if (this.selectedGroup.hasChildren()) {
       // nothing
       this.selectedGroup.children.forEach(( segment )=>{
-        console.log("PointerModeManager >> onMouseUp >> segment : ",segment);
         // this.sendWbItemMovementData(segment);
       })
     } else {
