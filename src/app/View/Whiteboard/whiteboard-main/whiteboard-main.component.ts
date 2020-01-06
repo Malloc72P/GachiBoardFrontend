@@ -12,7 +12,7 @@ import Project = paper.Project;
 // @ts-ignore
 import Point = paper.Point;
 import {PanelManagerService} from '../../../Model/Whiteboard/Panel/panel-manager-service/panel-manager.service';
-import {InputType} from '../../../Model/Whiteboard/Pointer/input-type-enum/input-type.enum';
+
 
 @Component({
   selector: 'app-whiteboard-main',
@@ -57,158 +57,9 @@ export class WhiteboardMainComponent implements OnInit {
       });
   }
 
-  // @HostListener('touchstart', ['$event'])
-  onTouchStart(event) {
-    event.preventDefault();
-    this.touchStart = true;
-    switch (this.pointerModeManager.currentPointerMode) {
-      case PointerMode.MOVE:
-        break;
-      case PointerMode.DRAW:
-        this.pointerModeManager.brush.createPath(new Point(event.touches[0].clientX, event.touches[0].clientY));
-        break;
-      case PointerMode.ERASER:
-        const point = new Point(event.touches[0].clientX, event.touches[0].clientY);
-        this.pointerModeManager.eraser.createPath(point);
-        break;
-      case PointerMode.LASSO_SELECTOR:
-        this.pointerModeManager.lassoSelector.createPath(event, InputType.TOUCH);
-        break;
-      default:
-        break;
-    }
-  }
-  // @HostListener('touchmove', ['$event'])
-  onTouchMove(event) {
-    event.preventDefault();
-    if(this.touchStart) {
-      switch (this.pointerModeManager.currentPointerMode) {
-        case PointerMode.MOVE:
-          break;
-        case PointerMode.DRAW:
-          this.pointerModeManager.brush.drawPath(new Point(event.touches[0].clientX, event.touches[0].clientY));
-          break;
-        case PointerMode.ERASER:
-          const point = new Point(event.touches[0].clientX, event.touches[0].clientY);
-          this.pointerModeManager.eraser.drawPath(point);
-          break;
-        case PointerMode.LASSO_SELECTOR:
-          this.pointerModeManager.lassoSelector.drawPath(event, InputType.TOUCH);
-          break;
-        default:
-          break;
-      }
-    }
-  }
-  // @HostListener('touchend', ['$event'])
-  onTouchEnd(event) {
-    event.preventDefault();
-    this.touchStart = false;
-    switch (this.pointerModeManager.currentPointerMode) {
-      case PointerMode.MOVE:
-        break;
-      case PointerMode.DRAW:
-        this.pointerModeManager.brush.endPath(new Point(event.changedTouches[0].clientX, event.changedTouches[0].clientY));
-        break;
-      case PointerMode.ERASER:
-        const point = new Point(event.changedTouches[0].clientX, event.changedTouches[0].clientY);
-        this.pointerModeManager.eraser.remove(point);
-        break;
-      case PointerMode.LASSO_SELECTOR:
-        this.pointerModeManager.lassoSelector.endPath(event, InputType.TOUCH);
-        break;
-      default:
-        break;
-    }
-  }
-
-  // @HostListener('mousedown', ['$event'])
-  onMouseDown(event) {
-    event.preventDefault();
-    this.mouseDown = true;
-    switch (this.pointerModeManager.currentPointerMode) {
-      case PointerMode.MOVE:
-        break;
-      case PointerMode.DRAW:
-        this.pointerModeManager.brush.createPath(new Point(event.x, event.y));
-        break;
-      case PointerMode.ERASER:
-        const point = new Point(event.x, event.y);
-        this.pointerModeManager.eraser.createPath(point);
-        break;
-      case PointerMode.LASSO_SELECTOR:
-        this.pointerModeManager.lassoSelector.createPath(event, InputType.MOUSE);
-        break;
-      default:
-        break;
-    }
-  }
-  // @HostListener('mousemove', ['$event'])
-  onMouseMove(event) {
-    event.preventDefault();
-    if(this.mouseDown) {
-      switch (this.pointerModeManager.currentPointerMode) {
-        case PointerMode.MOVE:
-          break;
-        case PointerMode.DRAW:
-          this.pointerModeManager.brush.drawPath(new Point(event.x, event.y));
-          break;
-        case PointerMode.ERASER:
-          const point = new Point(event.x, event.y);
-          this.pointerModeManager.eraser.drawPath(point);
-          break;
-        case PointerMode.LASSO_SELECTOR:
-          this.pointerModeManager.lassoSelector.drawPath(event, InputType.MOUSE);
-          break;
-        default:
-          break;
-      }
-    }
-  }
-  // @HostListener('mouseup', ['$event'])
-  onMouseUp(event) {
-    event.preventDefault();
-    this.mouseDown = false;
-    switch (this.pointerModeManager.currentPointerMode) {
-      case PointerMode.MOVE:
-        break;
-      case PointerMode.DRAW:
-        this.pointerModeManager.brush.endPath(new Point(event.x, event.y));
-        break;
-      case PointerMode.ERASER:
-        const point = new Point(event.x, event.y);
-        this.pointerModeManager.eraser.remove(point);
-        break;
-      case PointerMode.LASSO_SELECTOR:
-        this.pointerModeManager.lassoSelector.endPath(event, InputType.MOUSE);
-        break;
-      default:
-        break;
-    }
-  }
-
   ngOnInit() {
     this.paperProject = new Project('cv1');
 
-    this.htmlCanvasObject = document.getElementById("cv1") as HTMLCanvasElement;
-
-    this.htmlCanvasObject.addEventListener("mousedown", (event) => {
-      this.onMouseDown(event);
-    });
-    this.htmlCanvasObject.addEventListener("mousemove", (event) => {
-      this.onMouseMove(event);
-    });
-    this.htmlCanvasObject.addEventListener("mouseup", (event) => {
-      this.onMouseUp(event);
-    });
-    this.htmlCanvasObject.addEventListener("touchstart", (event) => {
-      this.onTouchStart(event);
-    });
-    this.htmlCanvasObject.addEventListener("touchmove", (event) => {
-      this.onTouchMove(event);
-    });
-    this.htmlCanvasObject.addEventListener("touchend", (event) => {
-      this.onTouchEnd(event);
-    });
+    this.pointerModeManager.initListener();
   }
 }
