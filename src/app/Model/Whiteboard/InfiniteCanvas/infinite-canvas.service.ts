@@ -291,8 +291,8 @@ export class InfiniteCanvasService {
     let gapOfX = Math.abs(ngMousePosition.x - ngCenter.x) / this.currentProject.view.zoom;
     let gapOfY = Math.abs(ngMousePosition.y - ngCenter.y) / this.currentProject.view.zoom;
 
-    let adjustedFactorOfX = gapOfX * 0.05;
-    let adjustedFactorOfY = gapOfY * 0.05;
+    let adjustedFactorOfX = gapOfX * (this.zoomFactor - 1);
+    let adjustedFactorOfY = gapOfY * (this.zoomFactor - 1);
 
     if (delta < 0){
       //view center X,Y축 조정

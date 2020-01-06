@@ -132,8 +132,7 @@ export class WhiteboardMainComponent implements OnInit {
   }
 
   //HostListener 바인딩 ===========================================================================
-
-
+  
   private newPath:Path;
 
   onMouseDown(event){
