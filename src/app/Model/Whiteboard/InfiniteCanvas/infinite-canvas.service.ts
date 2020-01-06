@@ -43,6 +43,7 @@ export class InfiniteCanvasService {
   public observerFamily: Map<string, BoundaryObserver>;
   private whiteboardRect;
   private whiteboardLayer:Layer;
+  private isDrawingLayerExist = false;
   private drawingLayer: Layer;
 
   zoomDepth = 0;
@@ -320,15 +321,26 @@ export class InfiniteCanvasService {
     this.currentProject.layers.forEach( (value, index) => {
       if(value.data.type === "infinite-canvas"){
         value.removeChildren();
+        value.remove();
       }
     } );
     this.initWhiteboardVariable();
+    this.currentProject.layers.forEach((value, index) => {
+      console.log("\n");
+      console.log("InfiniteCanvasService >> resetInfiniteCanvas >> value : ",value.data);
+      if(value.data.type === "drawing-canvas"){
+        value.activate();
+      }
+    })
   }
   private initializeDrawingLayer(){
-    this.drawingLayer = new Layer();
-    this.drawingLayer.data.type = "drawing-canvas";
-    this.drawingLayer.data.isMovable = false;
-    this.drawingLayer.activate();
+    if(!this.isDrawingLayerExist){
+      this.drawingLayer = new Layer();
+      this.drawingLayer.data.type = "drawing-canvas";
+      this.drawingLayer.data.isMovable = false;
+      this.isDrawingLayerExist = true;
+      this.drawingLayer.activate();
+    }
   }
 
 

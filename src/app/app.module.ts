@@ -4,7 +4,7 @@ import { NgModule } from '@angular/core';
 import { AppComponent } from './app.component';
 import { LoginPageComponent } from './View/SocialLogin/login-page/login-page.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { MatButtonModule, MatCardModule } from '@angular/material';
+import {MatButtonModule, MatButtonToggleModule, MatCardModule, MatRadioModule, MatRippleModule, MatSliderModule} from '@angular/material';
 import { RouterModule, Routes } from '@angular/router';
 import { WhiteboardMainComponent } from './View/Whiteboard/whiteboard-main/whiteboard-main.component';
 import { ParticlesModule } from 'angular-particle';
@@ -14,9 +14,18 @@ import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import { AuthInterceptorService } from './Controller/SocialLogin/auth-interceptor/auth-interceptor.service';
 import { AuthProcessComponent } from './View/SocialLogin/auth-process/auth-process.component';
 import {PointerModeManagerService} from './Model/Whiteboard/Pointer/pointer-mode-manager-service/pointer-mode-manager.service';
+
 import {PositionCalcService} from "./Model/Whiteboard/PositionCalc/position-calc.service";
 import {ZoomControlService} from "./Model/Whiteboard/ZoomControl/zoom-control.service";
 import {CanvasMoverService} from "./Model/Whiteboard/Pointer/CanvasMover/canvas-mover.service";
+import { WhiteboardToolPanelComponent } from './View/Whiteboard/whiteboard-tool-panel/whiteboard-tool-panel.component';
+import {FormsModule} from '@angular/forms';
+import { ToolBrushPanelComponent } from './View/Whiteboard/whiteboard-tool-panel/tool-brush-panel/tool-brush-panel.component';
+import {PanelManagerService} from './Model/Whiteboard/Panel/panel-manager-service/panel-manager.service';
+import {ColorPickerModule} from 'ngx-color-picker';
+import {BrushService} from './Model/Whiteboard/Pointer/brush-service/brush.service';
+import {EraserService} from './Model/Whiteboard/Pointer/eraser-service/eraser.service';
+import {LassoSelectorService} from './Model/Whiteboard/Pointer/lasso-selector-service/lasso-selector.service';
 
 const appRoutes: Routes = [
   {
@@ -52,6 +61,8 @@ const appRoutes: Routes = [
     LoginPageComponent,
     WhiteboardMainComponent,
     AuthProcessComponent,
+    WhiteboardToolPanelComponent,
+    ToolBrushPanelComponent,
   ],
   imports: [
     BrowserModule,
@@ -63,7 +74,13 @@ const appRoutes: Routes = [
     ),
     ParticlesModule,
     MatButtonModule,
-    HttpClientModule
+    HttpClientModule,
+    MatButtonToggleModule,
+    MatRadioModule,
+    FormsModule,
+    MatRippleModule,
+    MatSliderModule,
+    ColorPickerModule
   ],
   providers: [
     RouterHelperService,
@@ -76,7 +93,11 @@ const appRoutes: Routes = [
     PointerModeManagerService,
     PositionCalcService,
     ZoomControlService,
-    CanvasMoverService
+    CanvasMoverService,
+    PanelManagerService,
+    BrushService,
+    EraserService,
+    LassoSelectorService
   ],
   bootstrap: [AppComponent]
 })

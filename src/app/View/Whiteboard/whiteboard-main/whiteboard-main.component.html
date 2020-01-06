@@ -1,9 +1,11 @@
 <div id="canvasWrapper"
     style="height: 100%;">
-  <canvas id="cv1" class="element"
+  <canvas id="cv1" class="mainCanvas"
           (mousemove)="ngCursorTracker($event)"
-          (mousewheel)="zoomCtrlService.zoomControl($event)">
+          (mousewheel)="zoomControlService.zoomControl($event)">
   </canvas>
+  <app-whiteboard-tool-panel id="toolPanel"></app-whiteboard-tool-panel>
+  <app-tool-brush-panel [hidden]="panelManager.isHideBrushPanel" id="brushPanel"></app-tool-brush-panel>
 
   <div class="testPanel">
     <div class="debugTableWrapper" id="debugInfoDiv">

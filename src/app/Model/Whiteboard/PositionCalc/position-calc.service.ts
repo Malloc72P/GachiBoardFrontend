@@ -95,6 +95,11 @@ export class PositionCalcService {
       paperLeftTop.y + point.y
     );
   }
+  public advConvertNgToPaper(point){
+    point = this.reflectZoomWithPoint(point);
+    point = this.ngPointToCanvas(point);
+    return new Point(point.x, point.y);
+  }
 
 
 }

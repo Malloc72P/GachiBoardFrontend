@@ -1,151 +1,223 @@
-import { Injectable } from '@angular/core';
+import {Injectable} from '@angular/core';
 import {PointerMode} from '../pointer-mode-enum-service/pointer-mode-enum.service';
 
-import {InfiniteCanvasService} from "../../InfiniteCanvas/infinite-canvas.service";
+import * as paper from 'paper';
 
-// @ts-ignore
-import Tool = paper.Tool;
+import {InfiniteCanvasService} from "../../InfiniteCanvas/infinite-canvas.service";
+import {BrushService} from '../brush-service/brush.service';
+import {EraserService} from '../eraser-service/eraser.service';
+import {LassoSelectorService} from '../lasso-selector-service/lasso-selector.service';
+import {ZoomControlService} from "../../ZoomControl/zoom-control.service";
+import {CanvasMoverService} from "../CanvasMover/canvas-mover.service";
+import {PositionCalcService} from "../../PositionCalc/position-calc.service";
+
 // @ts-ignore
 import Point = paper.Point;
-// @ts-ignore
-import Path = paper.Path;
-
-import * as paper from 'paper';
 
 @Injectable({
   providedIn: 'root'
 })
 
 export class PointerModeManagerService {
-  private readonly toolMap: Map<number, Tool>;
-  private test = Tool;
-  private currentPointerMode: number;
+  public currentPointerMode: number;
+  public touchStart = false;
+  public mouseDown = false;
+  public currentProject;
+  private prevTouchPoint = new Point(0,0);
 
-  constructor( private infiniteCanvasService:InfiniteCanvasService ) {
-    this.toolMap = new Map<number, Tool>();
-    this.initializeTool(this.toolMap);
+  constructor(
+      public brushService: BrushService,
+      public eraser: EraserService,
+      public lassoSelector: LassoSelectorService,
+      private infiniteCanvasService:InfiniteCanvasService,
+      private zoomCtrlService         : ZoomControlService,
+      private canvasMoverService      : CanvasMoverService,
+      private posCalcService          : PositionCalcService
+    ) {
   }
 
-  // TODO : 레퍼런스인지 테스트 해봐야함. 여기서 문제 발생 가능성 있음
-  private initializeTool(toolMap: Map<number, Tool>) {
-    //toolMap.set(PointerMode.DRAW, this.createBrush());
-    //toolMap.set(PointerMode.MOVE, this.createPointMover());
+  public initializePointerModeManagerService(currentProject) {
+    this.currentPointerMode = PointerMode.MOVE;
+    const htmlCanvasObject = document.getElementById("cv1") as HTMLCanvasElement;
+    this.currentProject = currentProject;
+    this.zoomCtrlService.initializeZoomControlService(this.currentProject);
+    this.canvasMoverService.initializeCanvasMoverService(this.currentProject);
+
+    htmlCanvasObject.addEventListener("mousedown", (event) => {
+      this.onMouseDown(event);
+    });
+    htmlCanvasObject.addEventListener("mousemove", (event) => {
+      this.onMouseMove(event);
+    });
+    htmlCanvasObject.addEventListener("mouseup", (event) => {
+      this.onMouseUp(event);
+    });
+    htmlCanvasObject.addEventListener("touchstart", (event) => {
+      this.onTouchStart(event);
+    });
+    htmlCanvasObject.addEventListener("touchmove", (event) => {
+      this.onTouchMove(event);
+    });
+    htmlCanvasObject.addEventListener("touchend", (event) => {
+      this.onTouchEnd(event);
+    });
   }
 
-  public activateTool(mode:number){
-    this.currentPointerMode = mode;
-    return this.toolMap.get(mode).activate();
+  // Touch - Start Listener
+  private onTouchStart(event) {
+    event.preventDefault();
+    this.prevTouchPoint = this.posCalcService
+      .reflectZoomWithPoint(new Point(event.touches[0].clientX, event.touches[0].clientY));
+    switch (this.currentPointerMode) {
+      case PointerMode.MOVE:
+        break;
+      case PointerMode.DRAW:
+        this.brushService.createPath(event);
+        break;
+      case PointerMode.ERASER:
+        this.eraser.createPath(event);
+        break;
+      case PointerMode.LASSO_SELECTOR:
+        this.lassoSelector.createPath(event);
+        break;
+      default:
+        break;
+    }
   }
 
-  private createBrush(): Tool{
-    let newTool = new Tool();
-    let newPath:Path;
-
-    newTool.onMouseDown = (event) => {
-      if(this.currentPointerMode === PointerMode.DRAW){
-        // If we produced a path before, deselect it:
-        if (newPath) {
-          newPath.selected = false;
-        }
-
-        // Create a new path and set its stroke color to black:
-        newPath = new Path({
-          segments: [event.point],
-          strokeColor: 'black',
-          // Select the path, so we can see its segment points:
-          //fullySelected: true
-        });
+  // Touch - Move Listener
+  private onTouchMove(event) {
+    event.preventDefault();
+    if(event.touches.length == 1){
+      switch (this.currentPointerMode) {
+        case PointerMode.MOVE:
+          break;
+        case PointerMode.DRAW:
+          this.brushService.drawPath(event);
+          break;
+        case PointerMode.ERASER:
+          this.eraser.drawPath(event);
+          break;
+        case PointerMode.LASSO_SELECTOR:
+          this.lassoSelector.drawPath(event);
+          break;
+        default:
+          break;
       }
-    };
+    }
+    else if (event.touches.length == 2) {
+      //핀치줌
+      this.zoomCtrlService.onPinchZoomMove(event);
+    }
 
-    newTool.onMouseDrag = (event) => {
-      if(this.currentPointerMode === PointerMode.DRAW){
-        newPath.add(event.point);
-      }
-      else if(this.currentPointerMode === PointerMode.MOVE){
-        //this.movingAlg(event);
-      }
-    };
-
-    newTool.onMouseUp = () => {
-      //let segmentCount = newPath.segments.length;
-
-      // When the mouse is released, simplify it:
-      newPath.simplify(2);
-      //this.wbRelay.sendData(newPath.exportJSON());
-      //this.wbRelay.sendDrawStrokeCreate(newPath.exportJSON());
-      // this.wbRelay.drawsStrokeController.drawsStrokeCreate(newPath);
-    };
-
-    return newTool;
   }
 
-  createPointMover(){
-    let newTool = new Tool();
-    let segment;//얘가 움직일 대상임.
-    let adjustedPosition: Point;
+  // Touch - End Listener
+  private onTouchEnd(event) {
+    event.preventDefault();
+    if(this.zoomCtrlService.isZooming > 0) {
+      this.zoomCtrlService.onPinchZoomEnd();
+    }else{
+      switch (this.currentPointerMode) {
+        case PointerMode.MOVE:
+          let endPoint
+            = this.posCalcService.reflectZoomWithPoint(
+            new Point( event.changedTouches[0].clientX, event.changedTouches[0].clientY )
+          );
+          let calcX = endPoint.x - this.prevTouchPoint.x ;
+          let calcY = endPoint.y - this.prevTouchPoint.y ;
 
-    newTool.onMouseDown = (event)=>{
-      /*//(1) 세그먼트 초기화
-      segment = null;
+          let delta = new Point( -calcX, -calcY );
+          console.log("WhiteboardMainComponent >> onTouchMove >> delta : ",delta);
+          this.infiniteCanvasService.movingAlg();
+          // @ts-ignore
+          paper.view.scrollBy(delta);
+          this.prevTouchPoint.x = endPoint.x;
+          this.prevTouchPoint.y = endPoint.y;
+          break;
+        case PointerMode.DRAW:
+          this.brushService.endPath();
+          break;
+        case PointerMode.ERASER:
+          this.eraser.endPath();
+          break;
+        case PointerMode.LASSO_SELECTOR:
+          this.lassoSelector.endPath(event);
+          break;
+        default:
+          break;
+      }
 
-      //(2) 히트테스트 실시
-      let hitResult = this.currentProject.hitTest(event.point, this.hitOptions);
-
-      //(3) 유효성검사 #####
-      if (!hitResult){
-        return;
-      }
-      if(!PointerModeManager.segmentVerifier(hitResult.item)){
-        return
-      }
-      //##### 유효성검사
-
-      //(4) 세그먼트 객체 얻어옴. 여기서 움직일 대상의 객체를 받아오는거임.
-      segment = this.segmentParser(hitResult);
-      if(!segment){
-        return;
-      }
-      //(5) 어딜 잡고 움직여도 되도록 하기 위한 좌표조정값임.
-      adjustedPosition = new Point( event.point.x- segment.bounds.center.x, event.point.y - segment.bounds.center.y );*/
-    };
-    newTool.onMouseMove = (event)=>{
-      // this.currentProject.activeLayer.selected = false;
-      // if (event.item){
-      //   if(event.item.parent.name === 'mainframeMatrix'){
-      //     return;
-      //   }
-      //   event.item.selected = true;
-      // }
-    };
-    newTool.onMouseDrag = (event)=>{
-      let delta = event.downPoint.subtract(event.point);
-      this.infiniteCanvasService.movingAlg(delta);
-      console.log("PointerModeManagerService >> onMouseDrag >> event.downPoint : ",event.downPoint);
-      console.log("PointerModeManagerService >> onMouseDrag >> delta : ",delta);
-      // @ts-ignore
-      paper.view.scrollBy(delta);
-      /*if(!PointerModeManager.segmentVerifier(segment)){//뭔가 안잡고 있는 경우엔 이동하고,
-        this.movingAlg(event);
-      } else{//잡고있는 경우엔 드래그함.
-        PointerModeManager.advDraggier(segment, adjustedPosition, event.point);
-      }*/
-    };
-    newTool.onMouseUp = (event)=>{//마우스를 땔때, 통신시도함.
-      if(!PointerModeManagerService.segmentVerifier(segment)){
-        let delta = event.downPoint.subtract(event.point);
-        this.infiniteCanvasService.movingAlg(delta);
-        // @ts-ignore
-        paper.view.scrollBy(delta);
-      }
-      else{
-        console.log("PointerModeManager >> onMouseUp >> segment : ",segment);
-        PointerModeManagerService.advDraggier(segment, adjustedPosition, event.point);
-        //this.sendWbItemMovementData(segment);
-      }
-    };
-    return newTool;
+    }
   }
+
+  // Mouse - Down Listener
+  private onMouseDown(event) {
+    event.preventDefault();
+    this.mouseDown = true;
+    switch (this.currentPointerMode) {
+      case PointerMode.MOVE:
+        this.canvasMoverService.onPointerDown(event);
+        break;
+      case PointerMode.DRAW:
+        this.brushService.createPath(event);
+        break;
+      case PointerMode.ERASER:
+        this.eraser.createPath(event);
+        break;
+      case PointerMode.LASSO_SELECTOR:
+        this.lassoSelector.createPath(event);
+        break;
+      default:
+        break;
+    }
+  }
+
+  // Mouse - Move Listener
+  private onMouseMove(event) {
+    event.preventDefault();
+    if(this.mouseDown) {
+      switch (this.currentPointerMode) {
+        case PointerMode.MOVE:
+          this.canvasMoverService.onPointerMove(event);
+          break;
+        case PointerMode.DRAW:
+          this.brushService.drawPath(event);
+          break;
+        case PointerMode.ERASER:
+          this.eraser.drawPath(event);
+          break;
+        case PointerMode.LASSO_SELECTOR:
+          this.lassoSelector.drawPath(event);
+          break;
+        default:
+          break;
+      }
+    }
+  }
+
+  // Mouse - Up Listener
+  private onMouseUp(event) {
+    event.preventDefault();
+    this.mouseDown = false;
+    switch (this.currentPointerMode) {
+      case PointerMode.MOVE:
+        this.canvasMoverService.onPointerDown(event);
+        break;
+      case PointerMode.DRAW:
+        this.brushService.endPath();
+        break;
+      case PointerMode.ERASER:
+        this.eraser.endPath();
+        break;
+      case PointerMode.LASSO_SELECTOR:
+        this.lassoSelector.endPath(event);
+        break;
+      default:
+        break;
+    }
+  }
+
 
   private static segmentVerifier(segment){
     if(!segment){//hit했지만, item을 못불러온 경우 리턴
@@ -160,7 +232,7 @@ export class PointerModeManagerService {
     segment.position.x = newCoordinate.x - adjustedPosition.x;
     segment.position.y = newCoordinate.y - adjustedPosition.y;
   }
-  private segmentParser(hitResult){
+  private static segmentParser(hitResult){
     let segment = null;
     //디버깅용. 해당 세그먼트의 타입이 뭔지 알기 위해 사용
     // if (hitResult !== null) {

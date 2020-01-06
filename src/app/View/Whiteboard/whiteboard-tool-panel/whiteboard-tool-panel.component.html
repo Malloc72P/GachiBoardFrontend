@@ -1,0 +1,7 @@
+<mat-button-toggle-group vertical="true" class="ctrl-pannel-wrapper"
+                         (change)="onPanelStateChangeHandler()"
+                         [(ngModel)]="currentSelectedMode">
+  <mat-button-toggle *ngFor="let mode of selectableMode" [value]="mode" (click)="onClickPanelItem(mode)">
+    <span class="selectable-icon {{pointerModeEnumService.getPointerIcon(mode)}}"></span>
+  </mat-button-toggle>
+</mat-button-toggle-group>

@@ -1,0 +1,20 @@
+.icon-tools-eraser {
+  background-image: url("/assets/images/tools/eraser.svg");
+}
+.icon-tools-brush {
+  background-image: url("/assets/images/tools/brush.svg");
+}
+.icon-tools-move {
+  background-image: url("/assets/images/tools/move.svg");
+}
+.icon-tools-selector {
+  background-image: url("/assets/images/tools/selector.svg");
+}
+
+.selectable-icon {
+  cursor: pointer;
+  display: inline-block;
+  width: 24px;
+  height: 24px;
+  background-size: cover;
+}

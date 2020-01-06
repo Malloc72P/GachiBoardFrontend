@@ -1,15 +1,16 @@
-import {Component, OnInit, HostListener} from '@angular/core';
-import {AuthRequestService} from '../../../Controller/SocialLogin/auth-request/auth-request.service';
-import {RouterHelperService} from '../../../Model/Helper/router-helper-service/router-helper.service';
+import {Component, OnInit} from '@angular/core';
+import { AuthRequestService } from '../../../Controller/SocialLogin/auth-request/auth-request.service';
+import { RouterHelperService } from '../../../Model/Helper/router-helper-service/router-helper.service';
 import {UserDTO} from '../../../DTO/user-dto';
-import {PointerModeManagerService} from '../../../Model/Whiteboard/Pointer/pointer-mode-manager-service/pointer-mode-manager.service';
 import {InfiniteCanvasService} from '../../../Model/Whiteboard/InfiniteCanvas/infinite-canvas.service';
+import {PointerModeManagerService} from '../../../Model/Whiteboard/Pointer/pointer-mode-manager-service/pointer-mode-manager.service';
+import {PanelManagerService} from '../../../Model/Whiteboard/Panel/panel-manager-service/panel-manager.service';
+import {PositionCalcService} from "../../../Model/Whiteboard/PositionCalc/position-calc.service";
+import {ZoomControlService} from "../../../Model/Whiteboard/ZoomControl/zoom-control.service";
+import {CanvasMoverService} from "../../../Model/Whiteboard/Pointer/CanvasMover/canvas-mover.service";
 
-
-import {
-  PointerMode
-} from '../../../Model/Whiteboard/Pointer/pointer-mode-enum-service/pointer-mode-enum.service';
-
+import { PointerMode } from '../../../Model/Whiteboard/Pointer/pointer-mode-enum-service/pointer-mode-enum.service';
+import * as paper from 'paper';
 // @ts-ignore
 import Project = paper.Project;
 // @ts-ignore
@@ -18,11 +19,6 @@ import Point = paper.Point;
 import Size = paper.Size;
 // @ts-ignore
 import Path = paper.Path;
-
-import * as paper from 'paper';
-import {PositionCalcService} from "../../../Model/Whiteboard/PositionCalc/position-calc.service";
-import {ZoomControlService} from "../../../Model/Whiteboard/ZoomControl/zoom-control.service";
-import {CanvasMoverService} from "../../../Model/Whiteboard/Pointer/CanvasMover/canvas-mover.service";
 
 
 @Component({
@@ -43,8 +39,6 @@ export class WhiteboardMainComponent implements OnInit {
 
   private isMouseDown = false;
   private currentPointerMode;
-
-
   private htmlCanvasObject: HTMLCanvasElement;
   private htmlCanvasWrapperObject: HTMLDivElement;
 
@@ -76,8 +70,8 @@ export class WhiteboardMainComponent implements OnInit {
     private pointerModeManager      : PointerModeManagerService,
     private infiniteCanvasService   : InfiniteCanvasService,
     private posCalcService          : PositionCalcService,
-    private zoomCtrlService         : ZoomControlService,
-    private canvasMoverService      : CanvasMoverService
+    private panelManager            : PanelManagerService,
+    private zoomControlService      : ZoomControlService,
   ) {
   }
 
@@ -94,33 +88,14 @@ export class WhiteboardMainComponent implements OnInit {
     //서비스 이니셜라이징
     this.infiniteCanvasService.initializeInfiniteCanvas(this.paperProject);
     this.posCalcService.initializePositionCalcService(this.paperProject);
-    this.zoomCtrlService.initializeZoomControlService(this.paperProject);
-    this.canvasMoverService.initializeCanvasMoverService(this.paperProject);
+    this.zoomControlService.initializeZoomControlService(this.paperProject);
+    this.pointerModeManager.initializePointerModeManagerService(this.paperProject);
 
 
     this.paperProject.view.onMouseMove = (event) => {
       this.cursorX = event.point.x;
       this.cursorY = event.point.y;
     };
-
-    this.htmlCanvasObject.addEventListener("mousedown",(event)=>{
-      this.onMouseDown(event);
-    });
-    this.htmlCanvasObject.addEventListener("mousemove",(event)=>{
-      this.onMouseMove(event);
-    });
-    this.htmlCanvasObject.addEventListener("mouseup",(event)=>{
-      this.onMouseUp(event);
-    });
-    this.htmlCanvasObject.addEventListener("touchstart",(event)=>{
-      this.onTouchStart(event);
-    });
-    this.htmlCanvasObject.addEventListener("touchmove",(event)=>{
-      this.onTouchMove(event);
-    });
-    this.htmlCanvasObject.addEventListener("touchend",(event)=>{
-      this.onTouchEnd(event);
-    });
   }
 
   selectMoveTool() {
@@ -132,10 +107,10 @@ export class WhiteboardMainComponent implements OnInit {
   }
 
   //HostListener 바인딩 ===========================================================================
-  
+
   private newPath:Path;
 
-  onMouseDown(event){
+  /*onMouseDown(event){
     event.preventDefault();
     this.isMouseDown = true;
     if(this.currentPointerMode === PointerMode.DRAW){
@@ -269,7 +244,7 @@ export class WhiteboardMainComponent implements OnInit {
       this.prevTouchPoint.y = endPoint.y;
     }
 
-  }
+  }*/
 
   ngCursorTracker(event) {
     this.ngCursorX = event.x;
