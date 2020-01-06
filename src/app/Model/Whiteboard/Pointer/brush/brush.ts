@@ -5,6 +5,7 @@ import Path = paper.Path;
 import Color = paper.Color;
 // @ts-ignore
 import Point = paper.Point;
+import {PanelManagerService} from '../../Panel/panel-manager-service/panel-manager.service';
 
 export class Brush {
   private strokeColor = new Color(0, 0, 0);
@@ -29,7 +30,6 @@ export class Brush {
     } else {
       return;
     }
-
     this.newPath =  new Path({
       segments: [new Point(point.x, point.y)],
       strokeColor: this.strokeColor,

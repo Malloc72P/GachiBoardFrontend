@@ -17,7 +17,7 @@ type SelectableColor = {
 
 export class ToolBrushPanelComponent implements OnInit {
   private strokeWidth: number;
-  private strokeColor: string;
+  private colorPickerPicked: string;
   private strokeColors = [
     {isSelect: true, color: new Color(0, 0, 0, 1)},
     {isSelect: false, color: new Color(255, 0, 0, 1)},
@@ -56,5 +56,8 @@ export class ToolBrushPanelComponent implements OnInit {
     for(let color of this.strokeColors) {
       color.isSelect = false;
     }
+  }
+  onAddColorClicked() {
+    this.strokeColors.push({isSelect: false, color: new Color(this.colorPickerPicked)});
   }
 }

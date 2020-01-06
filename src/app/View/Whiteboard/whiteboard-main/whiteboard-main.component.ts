@@ -1,17 +1,14 @@
-import {Component, EventEmitter, HostListener, OnInit} from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import { AuthRequestService } from '../../../Controller/SocialLogin/auth-request/auth-request.service';
 import { RouterHelperService } from '../../../Model/Helper/router-helper-service/router-helper.service';
 import {UserDTO} from '../../../DTO/user-dto';
 import {PointerModeManagerService} from '../../../Model/Whiteboard/Pointer/pointer-mode-manager-service/pointer-mode-manager.service';
+import {PanelManagerService} from '../../../Model/Whiteboard/Panel/panel-manager-service/panel-manager.service';
 
 import { PointerMode } from '../../../Model/Whiteboard/Pointer/pointer-mode-enum-service/pointer-mode-enum.service';
-
 import * as paper from 'paper';
 // @ts-ignore
 import Project = paper.Project;
-// @ts-ignore
-import Point = paper.Point;
-import {PanelManagerService} from '../../../Model/Whiteboard/Panel/panel-manager-service/panel-manager.service';
 
 
 @Component({
@@ -21,10 +18,6 @@ import {PanelManagerService} from '../../../Model/Whiteboard/Panel/panel-manager
 })
 export class WhiteboardMainComponent implements OnInit {
   private paperProject: Project;
-  private mouseDown: boolean = false;
-  private touchStart: boolean = false;
-
-  private htmlCanvasObject: HTMLCanvasElement;
 
   // private pointerChangeEventEmitter: EventEmitter<any>;
 
