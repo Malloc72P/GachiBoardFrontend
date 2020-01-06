@@ -4,19 +4,25 @@ import * as paper from 'paper'
 // @ts-ignore
 import Color = paper.Color;
 
+type SelectableColor = {
+  isSelect: boolean;
+  color: Color;
+}
+
 @Component({
   selector: 'app-tool-brush-panel',
   templateUrl: './tool-brush-panel.component.html',
   styleUrls: ['./tool-brush-panel.component.css']
 })
+
 export class ToolBrushPanelComponent implements OnInit {
   private strokeWidth: number;
   private strokeColor: string;
   private strokeColors = [
-    new Color(0, 0, 0),
-    new Color(255, 0, 0),
-    new Color(0, 255, 0),
-    new Color(0, 0, 255)];
+    {isSelect: true, color: new Color(0, 0, 0, 1)},
+    {isSelect: false, color: new Color(255, 0, 0, 1)},
+    {isSelect: false, color: new Color(0, 255, 0, 1)},
+    {isSelect: false, color: new Color(0, 0, 255, 1)}];
 
   constructor(
     private pointerModeManagerService: PointerModeManagerService
@@ -28,10 +34,27 @@ export class ToolBrushPanelComponent implements OnInit {
   onStrokeWidthChanged() {
     this.pointerModeManagerService.brush.setWidth(this.strokeWidth);
   }
-  colorToHTMLRGB(color: Color) {
-    return "rgb(" + color.red + ", " + color.green + ", " + color.blue + ")";
+  colorToHTMLRGB(selectableColor: SelectableColor) {
+    return "rgba(" + selectableColor.color.red + ", "
+      + selectableColor.color.green + ", "
+      + selectableColor.color.blue + ", "
+      + selectableColor.color.alpha + ")";
   }
-  onColorPickerClicked(color: Color) {
-    this.pointerModeManagerService.brush.setColor(color);
+  selectedToCSSClass(selectableColor: SelectableColor) {
+    if(selectableColor.isSelect) {
+      return "selected";
+    } else {
+      return;
+    }
+  }
+  onColorPickerClicked(selectableColor: SelectableColor) {
+    this.unSelectAllColor();
+    selectableColor.isSelect = true;
+    this.pointerModeManagerService.brush.setColor(selectableColor.color);
+  }
+  unSelectAllColor() {
+    for(let color of this.strokeColors) {
+      color.isSelect = false;
+    }
   }
 }

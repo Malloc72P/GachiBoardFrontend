@@ -5,12 +5,15 @@
 
 .color-picker {
   display: inline-block;
-  width: 26px;
-  height: 26px;
+  width: 20px;
+  height: 20px;
   border-radius: 15px;
   cursor: pointer;
   border: 1px solid white;
-  margin: 2px;
+  margin: 5px;
+}
+.selected {
+  box-shadow: 0 0 0 2px white, 0 0 0 4px #4262ff;
 }
 .color-picker-selected {
   background-color: white;
