@@ -14,6 +14,9 @@ import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import { AuthInterceptorService } from './Controller/SocialLogin/auth-interceptor/auth-interceptor.service';
 import { AuthProcessComponent } from './View/SocialLogin/auth-process/auth-process.component';
 import {PointerModeManagerService} from './Model/Whiteboard/Pointer/pointer-mode-manager-service/pointer-mode-manager.service';
+import {PositionCalcService} from "./Model/Whiteboard/PositionCalc/position-calc.service";
+import {ZoomControlService} from "./Model/Whiteboard/ZoomControl/zoom-control.service";
+import {CanvasMoverService} from "./Model/Whiteboard/Pointer/CanvasMover/canvas-mover.service";
 
 const appRoutes: Routes = [
   {
@@ -71,6 +74,9 @@ const appRoutes: Routes = [
       multi: true
     },
     PointerModeManagerService,
+    PositionCalcService,
+    ZoomControlService,
+    CanvasMoverService
   ],
   bootstrap: [AppComponent]
 })
