@@ -10,11 +10,16 @@ export class LassoSelectorService {
   private selectedGroup: paper.Group;
   private selectedItems = Array<paper.Item>();
   private previousPoint: paper.Point;
+  private currentProject: paper.Project;
   private hitOption = { segments: true, stroke: true, fill: true, tolerance: 3 };
 
   constructor(
     private posCalcService: PositionCalcService,
   ) { }
+
+  public initializeLassoSelectorService(project: paper.Project) {
+    this.currentProject = project;
+  }
 
   public createPath(event) {
     if(this.newPath) {
@@ -105,7 +110,6 @@ export class LassoSelectorService {
     point = this.posCalcService.advConvertNgToPaper(point);
 
     let selectRange;
-    const currentProject = paper.project;
     this.newPath.closed = true;
 
     if (this.selectedGroup.hasChildren()) {
@@ -115,7 +119,7 @@ export class LassoSelectorService {
     } else {
       this.selectedGroup = new paper.Group();
       if (this.newPath.segments.length > 1) {
-        for (const item of currentProject.activeLayer.children) {
+        for (const item of this.currentProject.activeLayer.children) {
           if (item instanceof paper.Path || item instanceof paper.Raster) {
             if (this.isInside(this.newPath, item)) {
               //console.log("PointerModeManager >> onMouseUp >> path-item : ",item);
@@ -124,7 +128,7 @@ export class LassoSelectorService {
           }
         }
       } else {
-        const hitResult = currentProject.hitTestAll(point, this.hitOption)[1];
+        const hitResult = this.currentProject.hitTestAll(point, this.hitOption)[1];
         let segment = null;
 
         // 세그먼트 디버깅용 해당 세그먼트의 타입이 뭔지 알기위해 사용

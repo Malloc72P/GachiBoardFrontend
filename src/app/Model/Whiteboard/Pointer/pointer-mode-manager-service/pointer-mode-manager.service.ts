@@ -40,8 +40,12 @@ export class PointerModeManagerService {
     this.currentPointerMode = PointerMode.MOVE;
     const htmlCanvasObject = document.getElementById("cv1") as HTMLCanvasElement;
     this.currentProject = currentProject;
+
     this.zoomCtrlService.initializeZoomControlService(this.currentProject);
     this.canvasMoverService.initializeCanvasMoverService(this.currentProject);
+    this.brushService.initializeBrushService(this.currentProject);
+    this.eraser.initializeEraserService(this.currentProject);
+    this.lassoSelector.initializeLassoSelectorService(this.currentProject);
 
     htmlCanvasObject.addEventListener("mousedown", (event) => {
       this.onMouseDown(event);

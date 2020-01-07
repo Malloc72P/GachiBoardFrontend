@@ -26,10 +26,15 @@ export class BrushService {
   private strokeColor = new paper.Color(0, 0, 0);
   private strokeWidth = 1;
   private newPath: paper.Path;
+  private currentProject: paper.Project;
 
   constructor(
     private posCalcService: PositionCalcService,
   ) { }
+
+  public initializeBrushService(project: paper.Project) {
+    this.currentProject = project;
+  }
 
   public setColor(color: paper.Color) {
     this.strokeColor = color;

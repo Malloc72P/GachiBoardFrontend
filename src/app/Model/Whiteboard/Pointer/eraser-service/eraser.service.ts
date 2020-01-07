@@ -7,12 +7,17 @@ import {PositionCalcService} from "../../PositionCalc/position-calc.service";
 })
 export class EraserService {
   private strokeWidth = 10;
-  private newPath: paper.Path;
   private eraserType = "eraser-trail";
+  private newPath: paper.Path;
+  private currentProject: paper.Project;
 
   constructor(
     private posCalcService: PositionCalcService,
   ) { }
+
+  public initializeEraserService(project: paper.Project) {
+    this.currentProject = project;
+  }
 
   public setWidth(value: number) {
     this.strokeWidth = value;
@@ -58,8 +63,7 @@ export class EraserService {
   }
 
   private removeProcess(path: paper.Path) {
-    const currentProject = paper.project;
-    for(const item of currentProject.activeLayer.children) {
+    for(const item of this.currentProject.activeLayer.children) {
       if(path.intersects(item)) {
         if(!(item.data.type === this.eraserType)){
           item.remove();
