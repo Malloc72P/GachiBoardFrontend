@@ -25,7 +25,7 @@ export class DebugingService {
   ) {
 
   }
-  public initializeDebugingService(){
-    this.paperProject = paper.project;
+  public initializeDebugingService(currentProject){
+    this.paperProject = currentProject;
   }
 }

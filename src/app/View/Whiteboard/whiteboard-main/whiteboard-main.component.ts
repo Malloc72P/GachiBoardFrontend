@@ -92,6 +92,7 @@ export class WhiteboardMainComponent implements OnInit {
     this.posCalcService.initializePositionCalcService(this.paperProject);
     this.zoomControlService.initializeZoomControlService(this.paperProject);
     this.pointerModeManager.initializePointerModeManagerService(this.paperProject);
+    this.debugingService.initializeDebugingService(this.paperProject);
 
     this.paperProject.view.onMouseMove = (event) => {
       this.debugingService.cursorX = event.point.x;
