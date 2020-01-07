@@ -10,10 +10,11 @@ import {LassoSelectorService} from '../lasso-selector-service/lasso-selector.ser
 import {ZoomControlService} from "../../InfiniteCanvas/ZoomControl/zoom-control.service";
 import {CanvasMoverService} from "../CanvasMover/canvas-mover.service";
 import {PositionCalcService} from "../../PositionCalc/position-calc.service";
+import {MinimapSyncService} from '../../InfiniteCanvas/MinimapSync/minimap-sync.service';
+import {HighlighterService} from '../highlighter-service/highlighter.service';
 
 // @ts-ignore
 import Point = paper.Point;
-import {MinimapSyncService} from '../../InfiniteCanvas/MinimapSync/minimap-sync.service';
 
 @Injectable({
   providedIn: 'root'
@@ -29,6 +30,7 @@ export class PointerModeManagerService {
       public brushService: BrushService,
       public eraser: EraserService,
       public lassoSelector: LassoSelectorService,
+      public highlighter: HighlighterService,
       private infiniteCanvasService:InfiniteCanvasService,
       private zoomCtrlService         : ZoomControlService,
       private canvasMoverService      : CanvasMoverService,
@@ -94,6 +96,9 @@ export class PointerModeManagerService {
       case PointerMode.DRAW:
         this.brushService.createPath(event);
         break;
+      case PointerMode.HIGHLIGHTER:
+        this.highlighter.createPath(event);
+        break;
       case PointerMode.ERASER:
         this.eraser.createPath(event);
         break;
@@ -119,6 +124,9 @@ export class PointerModeManagerService {
           break;
         case PointerMode.DRAW:
           this.brushService.drawPath(event);
+          break;
+        case PointerMode.HIGHLIGHTER:
+          this.highlighter.drawPath(event);
           break;
         case PointerMode.ERASER:
           this.eraser.drawPath(event);
@@ -150,6 +158,9 @@ export class PointerModeManagerService {
         case PointerMode.DRAW:
           this.brushService.endPath();
           break;
+        case PointerMode.HIGHLIGHTER:
+          this.highlighter.endPath();
+          break;
         case PointerMode.ERASER:
           this.eraser.endPath();
           break;
@@ -175,6 +186,9 @@ export class PointerModeManagerService {
       case PointerMode.DRAW:
         this.brushService.createPath(event);
         break;
+      case PointerMode.HIGHLIGHTER:
+        this.highlighter.createPath(event);
+        break;
       case PointerMode.ERASER:
         this.eraser.createPath(event);
         break;
@@ -196,6 +210,9 @@ export class PointerModeManagerService {
           break;
         case PointerMode.DRAW:
           this.brushService.drawPath(event);
+          break;
+        case PointerMode.HIGHLIGHTER:
+          this.highlighter.drawPath(event);
           break;
         case PointerMode.ERASER:
           this.eraser.drawPath(event);
@@ -219,6 +236,9 @@ export class PointerModeManagerService {
         break;
       case PointerMode.DRAW:
         this.brushService.endPath();
+        break;
+      case PointerMode.HIGHLIGHTER:
+        this.highlighter.endPath();
         break;
       case PointerMode.ERASER:
         this.eraser.endPath();

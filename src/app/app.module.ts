@@ -32,6 +32,9 @@ import {MatExpansionModule} from "@angular/material/expansion";
 import {DragDropModule} from "@angular/cdk/drag-drop";
 import { WhiteboardMinimapComponent } from './View/Whiteboard/whiteboard-minimap/whiteboard-minimap.component';
 import {MinimapSyncService} from './Model/Whiteboard/InfiniteCanvas/MinimapSync/minimap-sync.service';
+import { ToolHighlighterPanelComponent } from './View/Whiteboard/whiteboard-tool-panel/tool-highlighter-panel/tool-highlighter-panel.component';
+import {HighlighterService} from './Model/Whiteboard/Pointer/highlighter-service/highlighter.service';
+
 
 const appRoutes: Routes = [
   {
@@ -71,6 +74,7 @@ const appRoutes: Routes = [
     ToolBrushPanelComponent,
     DebugingPannelComponent,
     WhiteboardMinimapComponent,
+    ToolHighlighterPanelComponent,
   ],
   imports: [
     BrowserModule,
@@ -109,7 +113,8 @@ const appRoutes: Routes = [
     EraserService,
     LassoSelectorService,
     DebugingService,
-    MinimapSyncService
+    MinimapSyncService,
+    HighlighterService
   ],
   bootstrap: [AppComponent]
 })

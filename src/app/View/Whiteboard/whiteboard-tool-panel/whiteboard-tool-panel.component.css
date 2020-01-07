@@ -10,6 +10,9 @@
 .icon-tools-selector {
   background-image: url("/assets/images/tools/selector.svg");
 }
+.icon-tools-highlighter {
+  background-image: url("/assets/images/tools/highlighter.svg");
+}
 
 .selectable-icon {
   cursor: pointer;

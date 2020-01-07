@@ -22,9 +22,9 @@ import {PositionCalcService} from "../../PositionCalc/position-calc.service";
 @Injectable({
   providedIn: 'root'
 })
-export class BrushService {
-  private strokeColor = new paper.Color(0, 0, 0);
-  private strokeWidth = 1;
+export class HighlighterService {
+  private strokeColor = new paper.Color(255, 255, 0, 0.3);
+  private strokeWidth = 3;
   private newPath: paper.Path;
   private currentProject: paper.Project;
 
@@ -32,7 +32,7 @@ export class BrushService {
     private posCalcService: PositionCalcService,
   ) { }
 
-  public initializeBrushService(project: paper.Project) {
+  public initializeHighLighterService(project: paper.Project) {
     this.currentProject = project;
   }
 
@@ -52,6 +52,7 @@ export class BrushService {
     } else {
       return;
     }
+
     point = this.posCalcService.advConvertNgToPaper(point);
     this.newPath =  new paper.Path({
       segments: [new Point(point.x, point.y)],

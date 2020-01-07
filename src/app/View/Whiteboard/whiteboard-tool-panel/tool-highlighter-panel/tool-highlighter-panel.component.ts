@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
-import {PointerModeManagerService} from '../../../../Model/Whiteboard/Pointer/pointer-mode-manager-service/pointer-mode-manager.service';
 import * as paper from 'paper'
 // @ts-ignore
 import Color = paper.Color;
+import {PointerModeManagerService} from '../../../../Model/Whiteboard/Pointer/pointer-mode-manager-service/pointer-mode-manager.service';
 
 type SelectableColor = {
   isSelect: boolean;
@@ -10,21 +10,18 @@ type SelectableColor = {
 }
 
 @Component({
-  selector: 'app-tool-brush-panel',
-  templateUrl: './tool-brush-panel.component.html',
-  styleUrls: ['./tool-brush-panel.component.css']
+  selector: 'app-tool-highlighter-panel',
+  templateUrl: './tool-highlighter-panel.component.html',
+  styleUrls: ['./tool-highlighter-panel.component.css']
 })
-
-export class ToolBrushPanelComponent implements OnInit {
+export class ToolHighlighterPanelComponent implements OnInit {
   private strokeWidth: number;
   private colorPickerPicked: string;
-  private highlighterAlpha = 1;
+  private highlighterAlpha = 0.3;
   private strokeColors = [
-    {isSelect: true, color: new Color(0, 0, 0, this.highlighterAlpha)},
-    {isSelect: false, color: new Color(255, 0, 0, this.highlighterAlpha)},
+    {isSelect: true, color: new Color(255, 255, 0, this.highlighterAlpha)},
     {isSelect: false, color: new Color(0, 255, 0, this.highlighterAlpha)},
-    {isSelect: false, color: new Color(0, 0, 255, this.highlighterAlpha)}];
-
+    {isSelect: false, color: new Color(255, 0, 0, this.highlighterAlpha)}];
 
   constructor(
     private pointerModeManagerService: PointerModeManagerService
@@ -34,7 +31,7 @@ export class ToolBrushPanelComponent implements OnInit {
   }
 
   onStrokeWidthChanged() {
-    this.pointerModeManagerService.brushService.setWidth(this.strokeWidth);
+    this.pointerModeManagerService.highlighter.setWidth(this.strokeWidth * 3);
   }
   colorToHTMLRGB(selectableColor: SelectableColor) {
     let tempColor = selectableColor.color.clone();
@@ -51,7 +48,7 @@ export class ToolBrushPanelComponent implements OnInit {
   onColorPickerClicked(selectableColor: SelectableColor) {
     this.unSelectAllColor();
     selectableColor.isSelect = true;
-    this.pointerModeManagerService.brushService.setColor(selectableColor.color);
+    this.pointerModeManagerService.highlighter.setColor(selectableColor.color);
   }
   unSelectAllColor() {
     for(let color of this.strokeColors) {
