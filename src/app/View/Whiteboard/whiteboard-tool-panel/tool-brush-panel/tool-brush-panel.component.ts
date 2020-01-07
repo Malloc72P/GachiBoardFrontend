@@ -18,11 +18,12 @@ type SelectableColor = {
 export class ToolBrushPanelComponent implements OnInit {
   private strokeWidth: number;
   private colorPickerPicked: string;
+  private highlighterAlpha = 1;
   private strokeColors = [
-    {isSelect: true, color: new Color(0, 0, 0, 1)},
-    {isSelect: false, color: new Color(255, 0, 0, 1)},
-    {isSelect: false, color: new Color(0, 255, 0, 1)},
-    {isSelect: false, color: new Color(0, 0, 255, 1)}];
+    {isSelect: true, color: new Color(0, 0, 0, this.highlighterAlpha)},
+    {isSelect: false, color: new Color(255, 0, 0, this.highlighterAlpha)},
+    {isSelect: false, color: new Color(0, 255, 0, this.highlighterAlpha)},
+    {isSelect: false, color: new Color(0, 0, 255, this.highlighterAlpha)}];
 
 
   constructor(
@@ -36,10 +37,9 @@ export class ToolBrushPanelComponent implements OnInit {
     this.pointerModeManagerService.brushService.setWidth(this.strokeWidth);
   }
   colorToHTMLRGB(selectableColor: SelectableColor) {
-    return "rgba(" + selectableColor.color.red + ", "
-      + selectableColor.color.green + ", "
-      + selectableColor.color.blue + ", "
-      + selectableColor.color.alpha + ")";
+    let tempColor = selectableColor.color.clone();
+    tempColor.alpha = 1;
+    return tempColor.toCSS(false);
   }
   selectedToCSSClass(selectableColor: SelectableColor) {
     if(selectableColor.isSelect) {
@@ -59,6 +59,9 @@ export class ToolBrushPanelComponent implements OnInit {
     }
   }
   onAddColorClicked() {
-    this.strokeColors.push({isSelect: false, color: new Color(this.colorPickerPicked)});
+    let color = new Color(this.colorPickerPicked);
+    color.alpha = this.highlighterAlpha;
+    this.strokeColors.push({isSelect: false, color: color});
+    this.onColorPickerClicked(this.strokeColors[this.strokeColors.length - 1]);
   }
 }

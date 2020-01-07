@@ -34,10 +34,9 @@ export class ToolHighlighterPanelComponent implements OnInit {
     this.pointerModeManagerService.highlighter.setWidth(this.strokeWidth * 3);
   }
   colorToHTMLRGB(selectableColor: SelectableColor) {
-    return "rgba(" + selectableColor.color.red + ", "
-      + selectableColor.color.green + ", "
-      + selectableColor.color.blue + ", "
-      + 1 + ")";
+    let tempColor = selectableColor.color.clone();
+    tempColor.alpha = 1;
+    return tempColor.toCSS(false);
   }
   selectedToCSSClass(selectableColor: SelectableColor) {
     if(selectableColor.isSelect) {
@@ -57,6 +56,9 @@ export class ToolHighlighterPanelComponent implements OnInit {
     }
   }
   onAddColorClicked() {
-    this.strokeColors.push({isSelect: false, color: new Color(this.colorPickerPicked)});
+    let color = new Color(this.colorPickerPicked);
+    color.alpha = this.highlighterAlpha;
+    this.strokeColors.push({isSelect: false, color: color});
+    this.onColorPickerClicked(this.strokeColors[this.strokeColors.length - 1]);
   }
 }
