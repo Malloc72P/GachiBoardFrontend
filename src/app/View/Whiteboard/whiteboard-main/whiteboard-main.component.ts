@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, HostListener, OnInit} from '@angular/core';
 import { AuthRequestService } from '../../../Controller/SocialLogin/auth-request/auth-request.service';
 import { RouterHelperService } from '../../../Model/Helper/router-helper-service/router-helper.service';
 import {UserDTO} from '../../../DTO/user-dto';
@@ -99,5 +99,22 @@ export class WhiteboardMainComponent implements OnInit {
       this.debugingService.cursorY = event.point.y;
     };
   }
-
+  @HostListener('document:keydown', ['$event'])
+  keydownHandler(event) {
+    switch (this.pointerModeManager.currentPointerMode) {
+      case PointerMode.MOVE:
+        break;
+      case PointerMode.DRAW:
+        break;
+      case PointerMode.ERASER:
+        break;
+      case PointerMode.LASSO_SELECTOR:
+        if(event.code === "Delete") {
+          this.pointerModeManager.lassoSelector.removeSelectedItem();
+        }
+        break;
+      default:
+        break;
+    }
+  }
 }

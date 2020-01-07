@@ -39,8 +39,12 @@ export class PointerModeManagerService {
     this.currentPointerMode = PointerMode.MOVE;
     const htmlCanvasObject = document.getElementById("cv1") as HTMLCanvasElement;
     this.currentProject = currentProject;
+
     this.zoomCtrlService.initializeZoomControlService(this.currentProject);
     this.canvasMoverService.initializeCanvasMoverService(this.currentProject);
+    this.brushService.initializeBrushService(this.currentProject);
+    this.eraser.initializeEraserService(this.currentProject);
+    this.lassoSelector.initializeLassoSelectorService(this.currentProject);
 
     htmlCanvasObject.addEventListener("mousedown", (event) => {
       this.onMouseDown(event);
@@ -60,6 +64,21 @@ export class PointerModeManagerService {
     htmlCanvasObject.addEventListener("touchend", (event) => {
       this.onTouchEnd(event);
     });
+    document.addEventListener("mousedown", (event) => {
+      this.onClickOutsideCanvas(event);
+    });
+    document.addEventListener("touchend", (event) => {
+      this.onClickOutsideCanvas(event);
+    });
+  }
+
+  // Document - Blur Listener
+  private onClickOutsideCanvas(event) {
+    let htmlCanvasObject = document.getElementById("cv1");
+
+    if(!htmlCanvasObject.contains(event.target)) {
+      this.lassoSelector.cancelSelect();
+    }
   }
 
   // Touch - Start Listener
