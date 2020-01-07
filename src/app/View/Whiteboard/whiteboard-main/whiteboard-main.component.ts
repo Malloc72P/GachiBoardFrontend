@@ -6,7 +6,7 @@ import {InfiniteCanvasService} from '../../../Model/Whiteboard/InfiniteCanvas/in
 import {PointerModeManagerService} from '../../../Model/Whiteboard/Pointer/pointer-mode-manager-service/pointer-mode-manager.service';
 import {PanelManagerService} from '../../../Model/Whiteboard/Panel/panel-manager-service/panel-manager.service';
 import {PositionCalcService} from "../../../Model/Whiteboard/PositionCalc/position-calc.service";
-import {ZoomControlService} from "../../../Model/Whiteboard/ZoomControl/zoom-control.service";
+import {ZoomControlService} from "../../../Model/Whiteboard/InfiniteCanvas/ZoomControl/zoom-control.service";
 import {CanvasMoverService} from "../../../Model/Whiteboard/Pointer/CanvasMover/canvas-mover.service";
 
 import { PointerMode } from '../../../Model/Whiteboard/Pointer/pointer-mode-enum-service/pointer-mode-enum.service';
@@ -20,6 +20,7 @@ import Size = paper.Size;
 // @ts-ignore
 import Path = paper.Path;
 import {DebugingService} from "../../../Model/Helper/DebugingHelper/debuging.service";
+import {MinimapSyncService} from '../../../Model/Whiteboard/InfiniteCanvas/MinimapSync/minimap-sync.service';
 
 
 @Component({
@@ -73,7 +74,8 @@ export class WhiteboardMainComponent implements OnInit {
     private posCalcService          : PositionCalcService,
     private panelManager            : PanelManagerService,
     private zoomControlService      : ZoomControlService,
-    private debugingService         : DebugingService
+    private debugingService         : DebugingService,
+    private minimapSyncService      : MinimapSyncService
   ) {
   }
 
@@ -93,11 +95,16 @@ export class WhiteboardMainComponent implements OnInit {
     this.zoomControlService.initializeZoomControlService(this.paperProject);
     this.pointerModeManager.initializePointerModeManagerService(this.paperProject);
     this.debugingService.initializeDebugingService(this.paperProject);
+    this.minimapSyncService.initializePositionCalcService(this.paperProject);
+
 
     this.paperProject.view.onMouseMove = (event) => {
       this.debugingService.cursorX = event.point.x;
       this.debugingService.cursorY = event.point.y;
     };
+    setTimeout(()=>{
+      this.minimapSyncService.syncMinimap();
+    },100);
   }
   @HostListener('document:keydown', ['$event'])
   keydownHandler(event) {

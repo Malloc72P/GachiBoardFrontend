@@ -21,6 +21,7 @@ import Size = paper.Size;
 
 import * as paper from 'paper';
 import {PositionCalcService} from "../PositionCalc/position-calc.service";
+import {MinimapSyncService} from './MinimapSync/minimap-sync.service';
 
 interface BoundaryObserver {
   position: Point;
@@ -48,11 +49,11 @@ export class InfiniteCanvasService {
 
   zoomDepth = 0;
   zoomRatio = 0.0;
-  newZoom = 0;
+  newZoom = 1;
 
   private readonly zoomFactor = 1.04;
-  private readonly zoomInMax = 36;
-  private readonly zoomOutMax = -36;
+  private readonly zoomInMax = 40;
+  private readonly zoomOutMax = -40;
 
   private readonly gridLineStrokeColor = 'blue';
   private readonly gridLineOpacity = 0.1;
@@ -64,7 +65,9 @@ export class InfiniteCanvasService {
   private htmlCanvasWrapperObject: HTMLDivElement;
 
   constructor(
-    private posCalcService  : PositionCalcService
+    private posCalcService  : PositionCalcService,
+    private minimapSyncService  : MinimapSyncService,
+
   ) {
 
   }
@@ -329,7 +332,8 @@ export class InfiniteCanvasService {
       if(value.data.type === "drawing-canvas"){
         value.activate();
       }
-    })
+    });
+    this.minimapSyncService.syncMinimap();
   }
   private initializeDrawingLayer(){
     if(!this.isDrawingLayerExist){

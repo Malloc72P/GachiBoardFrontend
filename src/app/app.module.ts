@@ -16,7 +16,7 @@ import { AuthProcessComponent } from './View/SocialLogin/auth-process/auth-proce
 import {PointerModeManagerService} from './Model/Whiteboard/Pointer/pointer-mode-manager-service/pointer-mode-manager.service';
 
 import {PositionCalcService} from "./Model/Whiteboard/PositionCalc/position-calc.service";
-import {ZoomControlService} from "./Model/Whiteboard/ZoomControl/zoom-control.service";
+import {ZoomControlService} from "./Model/Whiteboard/InfiniteCanvas/ZoomControl/zoom-control.service";
 import {CanvasMoverService} from "./Model/Whiteboard/Pointer/CanvasMover/canvas-mover.service";
 import { WhiteboardToolPanelComponent } from './View/Whiteboard/whiteboard-tool-panel/whiteboard-tool-panel.component';
 import {FormsModule} from '@angular/forms';
@@ -30,6 +30,8 @@ import { DebugingPannelComponent } from './View/debuging-pannel/debuging-pannel.
 import {DebugingService} from "./Model/Helper/DebugingHelper/debuging.service";
 import {MatExpansionModule} from "@angular/material/expansion";
 import {DragDropModule} from "@angular/cdk/drag-drop";
+import { WhiteboardMinimapComponent } from './View/Whiteboard/whiteboard-minimap/whiteboard-minimap.component';
+import {MinimapSyncService} from './Model/Whiteboard/InfiniteCanvas/MinimapSync/minimap-sync.service';
 
 const appRoutes: Routes = [
   {
@@ -68,6 +70,7 @@ const appRoutes: Routes = [
     WhiteboardToolPanelComponent,
     ToolBrushPanelComponent,
     DebugingPannelComponent,
+    WhiteboardMinimapComponent,
   ],
   imports: [
     BrowserModule,
@@ -105,7 +108,8 @@ const appRoutes: Routes = [
     BrushService,
     EraserService,
     LassoSelectorService,
-    DebugingService
+    DebugingService,
+    MinimapSyncService
   ],
   bootstrap: [AppComponent]
 })

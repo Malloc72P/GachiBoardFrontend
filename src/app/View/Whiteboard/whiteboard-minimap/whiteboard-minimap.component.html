@@ -1,0 +1,33 @@
+
+<mat-card class="gachi-minimap">
+  <div id="gachi-minimap-wrapper" class="minimapCanvasWrapper">
+    <canvas id="gachi-minimap" class="minimap-canvas">
+
+    </canvas>
+  </div>
+  <div class="minimap-tool">
+    <div class="minimap-tool-Info">
+      {{(100 * infiniteCanvasService.newZoom).toFixed(1)}}%
+    </div>
+
+    <button mat-button
+            [ngStyle]="isFullScreen === true && { 'opacity': 1, 'font-weight' : 'bold', 'background': 'rgba(0,0,0,0.14)' }"
+            (click)="toggleFullScreen()"
+            class="minimap-tool-btn minimap-tool-fullScreen">
+      <i class="im im-fullscreen"></i>
+    </button>
+
+    <button mat-button
+            (click)="zoomControlService.zoomOutToCenter()"
+            class="minimap-tool-btn minimap-tool-zoomOut">
+      <i class="im im-magnifier-minus"></i>
+    </button>
+
+    <button mat-button
+            (click)="zoomControlService.zoomInToCenter()"
+            class="minimap-tool-btn minimap-tool-zoomIn">
+      <i class="im im-magnifier-plus"></i>
+    </button>
+
+  </div>
+</mat-card>

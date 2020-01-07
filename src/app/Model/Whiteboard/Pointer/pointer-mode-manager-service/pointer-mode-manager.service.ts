@@ -7,12 +7,13 @@ import {InfiniteCanvasService} from "../../InfiniteCanvas/infinite-canvas.servic
 import {BrushService} from '../brush-service/brush.service';
 import {EraserService} from '../eraser-service/eraser.service';
 import {LassoSelectorService} from '../lasso-selector-service/lasso-selector.service';
-import {ZoomControlService} from "../../ZoomControl/zoom-control.service";
+import {ZoomControlService} from "../../InfiniteCanvas/ZoomControl/zoom-control.service";
 import {CanvasMoverService} from "../CanvasMover/canvas-mover.service";
 import {PositionCalcService} from "../../PositionCalc/position-calc.service";
 
 // @ts-ignore
 import Point = paper.Point;
+import {MinimapSyncService} from '../../InfiniteCanvas/MinimapSync/minimap-sync.service';
 
 @Injectable({
   providedIn: 'root'
@@ -31,7 +32,8 @@ export class PointerModeManagerService {
       private infiniteCanvasService:InfiniteCanvasService,
       private zoomCtrlService         : ZoomControlService,
       private canvasMoverService      : CanvasMoverService,
-      private posCalcService          : PositionCalcService
+      private posCalcService          : PositionCalcService,
+      private minimapSyncService      : MinimapSyncService,
     ) {
   }
 
@@ -159,6 +161,7 @@ export class PointerModeManagerService {
       }
 
     }
+    this.minimapSyncService.syncMinimap();
   }
 
   // Mouse - Down Listener
@@ -226,6 +229,7 @@ export class PointerModeManagerService {
       default:
         break;
     }
+    this.minimapSyncService.syncMinimap();
   }
 
 
