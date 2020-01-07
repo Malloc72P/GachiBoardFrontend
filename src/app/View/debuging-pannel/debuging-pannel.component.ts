@@ -3,7 +3,7 @@ import {PointerModeManagerService} from "../../Model/Whiteboard/Pointer/pointer-
 import {InfiniteCanvasService} from "../../Model/Whiteboard/InfiniteCanvas/infinite-canvas.service";
 import {PositionCalcService} from "../../Model/Whiteboard/PositionCalc/position-calc.service";
 import {PanelManagerService} from "../../Model/Whiteboard/Panel/panel-manager-service/panel-manager.service";
-import {ZoomControlService} from "../../Model/Whiteboard/ZoomControl/zoom-control.service";
+import {ZoomControlService} from "../../Model/Whiteboard/InfiniteCanvas/ZoomControl/zoom-control.service";
 import * as paper from 'paper';
 // @ts-ignore
 import Project = paper.Project;

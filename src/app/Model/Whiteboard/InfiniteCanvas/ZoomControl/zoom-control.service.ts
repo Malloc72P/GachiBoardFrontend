@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import {PositionCalcService} from "../PositionCalc/position-calc.service";
+import {PositionCalcService} from "../../PositionCalc/position-calc.service";
 // @ts-ignore
 import Path = paper.Path;
 // @ts-ignore
@@ -18,14 +18,14 @@ import Circle = paper.Path.Circle;
 import Layer = paper.Layer;
 
 import * as paper from 'paper';
-import {InfiniteCanvasService} from "../InfiniteCanvas/infinite-canvas.service";
+import {InfiniteCanvasService} from "../infinite-canvas.service";
 
 @Injectable({
   providedIn: 'root'
 })
 export class ZoomControlService {
 
-  private currentProject: Project;
+  public currentProject: Project;
 
   private prevDistance = 0;
   private currentDistance = 0;
@@ -120,5 +120,23 @@ export class ZoomControlService {
   }
   onPinchZoomEnd(){
     this.isZooming--;
+  }
+  zoomInToCenter(){
+    let ngCanvasCenter = this.posCalcService.getCenterOfBrowser();
+    this.currentProject.view.zoom = this.infiniteCanvasService.changeZoom(
+      this.currentProject.view.zoom,
+      ngCanvasCenter,
+      ngCanvasCenter,
+      -100);
+
+  }
+  zoomOutToCenter(){
+    let ngCanvasCenter = this.posCalcService.getCenterOfBrowser();
+    this.currentProject.view.zoom = this.infiniteCanvasService.changeZoom(
+      this.currentProject.view.zoom,
+      ngCanvasCenter,
+      ngCanvasCenter,
+      100);
+
   }
 }
