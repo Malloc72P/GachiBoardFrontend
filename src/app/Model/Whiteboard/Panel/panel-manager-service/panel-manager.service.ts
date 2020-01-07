@@ -21,7 +21,8 @@ export class PanelManagerService {
     if(!(this.HTMLToolPanel.contains(event.target) || this.HTMLBrushPanel.contains(event.target))) {
       this.isHideBrushPanel = true;
     // ToolPanel이나 HighLighterPanel 누르지 않은경우 HighLighterPanel 숨김
-    } else if (!(this.HTMLToolPanel.contains(event.target) || !this.HTMLHighLighterPanel.contains(event.target))) {
+    }
+    if (!(this.HTMLToolPanel.contains(event.target) || this.HTMLHighLighterPanel.contains(event.target))) {
       this.isHideHighlighterPanel = true;
     }
   }

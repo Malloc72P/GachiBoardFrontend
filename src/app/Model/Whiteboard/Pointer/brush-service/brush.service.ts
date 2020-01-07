@@ -75,6 +75,6 @@ export class BrushService {
     this.newPath.add(new Point(point.x, point.y));
   }
   public endPath() {
-    this.newPath.simplify(5);
+    this.newPath.simplify(3);
   }
 }

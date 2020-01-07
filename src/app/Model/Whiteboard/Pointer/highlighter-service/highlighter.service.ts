@@ -23,8 +23,8 @@ import {PositionCalcService} from "../../PositionCalc/position-calc.service";
   providedIn: 'root'
 })
 export class HighlighterService {
-  private strokeColor = new paper.Color(0, 0, 0, 0.3);
-  private strokeWidth = 5;
+  private strokeColor = new paper.Color(255, 255, 0, 0.3);
+  private strokeWidth = 3;
   private newPath: paper.Path;
   private currentProject: paper.Project;
 
@@ -76,6 +76,6 @@ export class HighlighterService {
     this.newPath.add(new Point(point.x, point.y));
   }
   public endPath() {
-    this.newPath.simplify(5);
+    this.newPath.simplify(3);
   }
 }

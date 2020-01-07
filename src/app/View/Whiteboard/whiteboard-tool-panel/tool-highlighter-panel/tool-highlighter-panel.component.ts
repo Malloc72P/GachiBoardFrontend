@@ -19,10 +19,9 @@ export class ToolHighlighterPanelComponent implements OnInit {
   private colorPickerPicked: string;
   private highlighterAlpha = 0.3;
   private strokeColors = [
-    {isSelect: true, color: new Color(0, 0, 0, this.highlighterAlpha)},
-    {isSelect: false, color: new Color(255, 0, 0, this.highlighterAlpha)},
+    {isSelect: true, color: new Color(255, 255, 0, this.highlighterAlpha)},
     {isSelect: false, color: new Color(0, 255, 0, this.highlighterAlpha)},
-    {isSelect: false, color: new Color(0, 0, 255, this.highlighterAlpha)}];
+    {isSelect: false, color: new Color(255, 0, 0, this.highlighterAlpha)}];
 
   constructor(
     private pointerModeManagerService: PointerModeManagerService
@@ -32,7 +31,7 @@ export class ToolHighlighterPanelComponent implements OnInit {
   }
 
   onStrokeWidthChanged() {
-    this.pointerModeManagerService.highlighter.setWidth(this.strokeWidth);
+    this.pointerModeManagerService.highlighter.setWidth(this.strokeWidth * 3);
   }
   colorToHTMLRGB(selectableColor: SelectableColor) {
     return "rgba(" + selectableColor.color.red + ", "
