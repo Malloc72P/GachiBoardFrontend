@@ -56,6 +56,13 @@ export class WhiteboardMinimapComponent implements OnInit {
         this.maplayer.removeChildren();
         this.maplayer.importJSON(projectData);
 
+        console.log("\n");
+        this.maplayer.children.forEach((value)=>{
+          if(value.data.type !== "minimap-user-view"){
+            value.style.strokeWidth = value.style.strokeWidth / 5;
+          }
+        });
+
         this.maplayer.addChild(this.createUserViewRect());
         this.maplayer.fitBounds(this.minimapProject.view.bounds);
 
@@ -67,7 +74,10 @@ export class WhiteboardMinimapComponent implements OnInit {
   createUserViewRect(){
     let userViewRect = new paper.Shape.Rectangle(this.currentProject.view.bounds);
     // @ts-ignore
+    userViewRect.data.type = "minimap-user-view";
+    // @ts-ignore
     userViewRect.strokeColor = "black";
+    // @ts-ignore
     userViewRect.strokeWidth = 5;
     return userViewRect;
   }
