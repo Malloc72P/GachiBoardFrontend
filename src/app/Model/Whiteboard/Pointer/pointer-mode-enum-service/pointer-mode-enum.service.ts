@@ -4,6 +4,7 @@ import {CommonEnum} from '../../../Helper/common-enum/common-enum';
 export enum PointerMode {
   MOVE,
   DRAW,
+  HIGHLIGHTER,
   ERASER,
   LASSO_SELECTOR,
 }
@@ -13,6 +14,7 @@ export enum PointerMode {
 export enum PointerIcon {
   move,
   brush,
+  highlighter,
   eraser,
   selector,
 }

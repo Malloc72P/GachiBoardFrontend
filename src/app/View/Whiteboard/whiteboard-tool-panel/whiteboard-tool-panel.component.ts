@@ -25,21 +25,25 @@ export class WhiteboardToolPanelComponent extends PopoverPanel implements OnInit
 
   onPanelStateChangeHandler() {
     this.pointerModeManagerService.currentPointerMode = this.currentSelectedMode;
-    console.log("WhiteboardToolPanelComponent >> onPanelStateChangeHandler >> pointerMode : ",this.pointerModeManagerService.currentPointerMode);
   }
   onClickPanelItem(panelItem: number) {
     switch (panelItem) {
       case PointerMode.MOVE:
-        this.panelManager.isHideBrushPanel = true;
+        this.panelManager.isHideBrushPanel = this.panelManager.isHideHighlighterPanel = true;
         break;
       case PointerMode.DRAW:
+        this.panelManager.isHideHighlighterPanel = true;
         this.panelManager.isHideBrushPanel = !this.panelManager.isHideBrushPanel;
         break;
-      case PointerMode.ERASER:
+      case PointerMode.HIGHLIGHTER:
         this.panelManager.isHideBrushPanel = true;
+        this.panelManager.isHideHighlighterPanel = !this.panelManager.isHideHighlighterPanel;
+        break;
+      case PointerMode.ERASER:
+        this.panelManager.isHideBrushPanel = this.panelManager.isHideHighlighterPanel = true;
         break;
       case PointerMode.LASSO_SELECTOR:
-        this.panelManager.isHideBrushPanel = true;
+        this.panelManager.isHideBrushPanel = this.panelManager.isHideHighlighterPanel = true;
         break;
       default:
         break;

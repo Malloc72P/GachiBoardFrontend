@@ -30,6 +30,8 @@ import { DebugingPannelComponent } from './View/debuging-pannel/debuging-pannel.
 import {DebugingService} from "./Model/Helper/DebugingHelper/debuging.service";
 import {MatExpansionModule} from "@angular/material/expansion";
 import {DragDropModule} from "@angular/cdk/drag-drop";
+import { ToolHighlighterPanelComponent } from './View/Whiteboard/whiteboard-tool-panel/tool-highlighter-panel/tool-highlighter-panel.component';
+import {HighlighterService} from './Model/Whiteboard/Pointer/highlighter-service/highlighter.service';
 
 const appRoutes: Routes = [
   {
@@ -68,6 +70,7 @@ const appRoutes: Routes = [
     WhiteboardToolPanelComponent,
     ToolBrushPanelComponent,
     DebugingPannelComponent,
+    ToolHighlighterPanelComponent,
   ],
   imports: [
     BrowserModule,
@@ -105,6 +108,7 @@ const appRoutes: Routes = [
     BrushService,
     EraserService,
     LassoSelectorService,
+    HighlighterService,
     DebugingService
   ],
   bootstrap: [AppComponent]
