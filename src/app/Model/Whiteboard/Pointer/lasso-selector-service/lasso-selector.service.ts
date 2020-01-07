@@ -22,9 +22,12 @@ export class LassoSelectorService {
   }
 
   public createPath(event) {
-    if(this.newPath) {
-      this.newPath.selected = false;
-      this.endPath(event);
+    // 올가미를 그려주는 패스(newPath)가 있거나 선택된 아이템이 있으면
+    if(this.newPath != null) {
+      if(!this.selectedGroup.hasChildren()) {
+        this.newPath.selected = false;
+        this.cancelSelect();
+      }
     }
 
     if(!this.selectedGroup){
@@ -51,12 +54,7 @@ export class LassoSelectorService {
         /* 선택 초기화 안함 */
       } else {
         /* 선택 초기화 함 */
-        const selectRange = this.selectedGroup.getItem({name: 'selectRange'});
-        if (selectRange) {
-          selectRange.remove();
-        }
-        this.selectedGroup.selected = false;
-        this.unGroup(this.selectedGroup);
+        this.cancelSelect();
       }
     }
 
@@ -114,38 +112,43 @@ export class LassoSelectorService {
     let selectRange;
     this.newPath.closed = true;
 
+    // selectedGroup에 자식 아이템들이 있을 때 == 아이템 옮김
     if (this.selectedGroup.hasChildren()) {
       this.selectedGroup.children.forEach(( segment )=>{
         // this.sendWbItemMovementData(segment);
       })
+    // selectedGroup에 자식 아이템들이 없을 때 == 올가미툴을 아이템 선택에 사용
     } else {
       this.selectedGroup = new paper.Group();
+      // 올가미로 범위 지정해서 여러 아이템 묶는 경우
       if (this.newPath.segments.length > 1) {
         for (const item of this.currentProject.activeLayer.children) {
           if (item instanceof paper.Path || item instanceof paper.Raster) {
             if (this.isInside(this.newPath, item)) {
-              //console.log("PointerModeManager >> onMouseUp >> path-item : ",item);
               this.selectedItems.push(item);
             }
           }
         }
+      // 올가미로 클릭해서 하나의 아이템만 선택하는 경우 (가장 먼저 HitTest에 걸리는 아이템이 선택됨)
       } else {
-        const hitResult = this.currentProject.hitTestAll(point, this.hitOption)[1];
-        let segment = null;
-
+        const hitResult = this.currentProject.activeLayer.hitTestAll(point, this.hitOption)[1];
+        let segment;
         // 세그먼트 디버깅용 해당 세그먼트의 타입이 뭔지 알기위해 사용
-        // if(!(segment = this.segmentParser(hitResult))){
-        //   return;
-        // }
+        if(!(segment = this.segmentParser(hitResult))){
+          this.cancelSelect();
+          return;
+        }
         if(!this.segmentVerifier(segment)){
-          this.newPath.remove();
+          this.cancelSelect();
           return null;
         }
+        // hitResult에 걸린 아이템이 있으면 selectedItems에 넣음
         if (hitResult) {
           this.selectedItems.push(hitResult.item);
         }
       }
 
+      // 선택 아이템들을 temp 영역이었던 selectedItems에서 Group으로 옮겨주는 과정
       this.selectedItems.forEach((value) => {
         this.selectedGroup.addChild(value);
       });
@@ -157,9 +160,10 @@ export class LassoSelectorService {
       selectRange.dashArray = [5, 5];
 
       this.selectedGroup.addChild(selectRange);
+
+      // selectedItems의 모든 아이템 제거
       this.selectedItems.splice(0, this.selectedItems.length);
     }
-
     this.newPath.remove();
   }
 
@@ -170,6 +174,7 @@ export class LassoSelectorService {
         selectRange.remove();
       }
       this.selectedGroup.selected = false;
+
       this.unGroup(this.selectedGroup);
       this.newPath.remove();
     }
@@ -179,6 +184,7 @@ export class LassoSelectorService {
     if(this.selectedGroup) {
       this.selectedGroup.removeChildren();
       this.selectedGroup.remove();
+      this.newPath.remove();
     }
   }
 
@@ -194,28 +200,27 @@ export class LassoSelectorService {
     }
   }
   private segmentParser(hitResult){
-    let segment = null;
     //디버깅용. 해당 세그먼트의 타입이 뭔지 알기 위해 사용
     // if (hitResult !== null) {
     //   console.log("PointerModeManager >> segmentParser >> hitResult : ", hitResult.type);
     // }
-    if (hitResult.type === 'segment') {//세그먼트를 선택한 경우
-      //segment = hitResult.segment;
+    if (hitResult == null) {
+      return null;
+    } else if (hitResult.type === 'segment') {//세그먼트를 선택한 경우
+      return hitResult.segment;
       // this.debugService.openSnackBar("hitResult.type === 'segment'");
-    }
-    else if (hitResult.type === 'stroke') {//스트로크를 선택한 경우
-      segment = hitResult.item;
+    } else if (hitResult.type === 'stroke') {//스트로크를 선택한 경우
+      return hitResult.item;
       // this.debugService.openSnackBar("hitResult.type === 'stroke'");
-    }
-    else if(hitResult.type === 'pixel'){//레스터 이미지를 선택한 경우
-      segment = hitResult.item;
+    } else if(hitResult.type === 'pixel'){//레스터 이미지를 선택한 경우
+      return hitResult.item;
       // this.debugService.openSnackBar("hitResult.type === 'pixel'");
-    }
-    else if(hitResult.type === 'fill'){//PointText를 선택한 경우
-      segment = hitResult.item;
+    } else if(hitResult.type === 'fill'){//PointText를 선택한 경우
+      return hitResult.item;
       // this.debugService.openSnackBar("hitResult.type === 'fill'");
     }
-    return segment;
+
+    return null;
   }
   private segmentVerifier(segment){
     if(!segment){
