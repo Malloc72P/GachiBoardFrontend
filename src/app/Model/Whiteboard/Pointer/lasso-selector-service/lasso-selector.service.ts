@@ -24,6 +24,7 @@ export class LassoSelectorService {
   public createPath(event) {
     if(this.newPath) {
       this.newPath.selected = false;
+      this.endPath(event);
     }
 
     if(!this.selectedGroup){

@@ -26,6 +26,10 @@ export class EraserService {
   public createPath(event) {
     let point: paper.Point;
 
+    if(this.newPath){
+      this.endPath();
+    }
+
     if(event instanceof MouseEvent) {
       point = new paper.Point(event.x, event.y);
     } else if (event instanceof TouchEvent) {
