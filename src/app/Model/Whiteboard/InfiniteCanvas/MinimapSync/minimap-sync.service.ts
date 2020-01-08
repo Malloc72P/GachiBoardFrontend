@@ -15,6 +15,7 @@ import Rectangle = paper.Path.Rectangle;
 import Circle = paper.Path.Circle;
 // @ts-ignore
 import Layer = paper.Layer;
+import {DataType} from '../../../Helper/data-type-enum/data-type.enum';
 @Injectable({
   providedIn: 'root'
 })
@@ -29,7 +30,7 @@ export class MinimapSyncService {
   }
   public syncMinimap(){
     this.currentProject.layers.forEach((value)=>{
-      if(value.data.type == 'drawing-canvas'){
+      if(value.data.type == DataType.DRAWING_CANVAS){
         this.changeMinimap.emit(value.exportJSON());
       }
     });

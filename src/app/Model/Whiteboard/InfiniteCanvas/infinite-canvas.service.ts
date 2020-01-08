@@ -22,6 +22,7 @@ import Size = paper.Size;
 import * as paper from 'paper';
 import {PositionCalcService} from "../PositionCalc/position-calc.service";
 import {MinimapSyncService} from './MinimapSync/minimap-sync.service';
+import {DataType} from '../../Helper/data-type-enum/data-type.enum';
 
 interface BoundaryObserver {
   position: Point;
@@ -95,7 +96,7 @@ export class InfiniteCanvasService {
 
 
     this.whiteboardLayer = new Layer();
-    this.whiteboardLayer.data.type = "infinite-canvas";
+    this.whiteboardLayer.data.type = DataType.INFINITE_CANVAS;
     this.whiteboardLayer.data.isMovable = false;
 
     this.posCalcService.initializePositionCalcService(this.currentProject);
@@ -322,14 +323,14 @@ export class InfiniteCanvasService {
     // console.log("InfiniteCanvasService >> resetInfiniteCanvas >> 진입함");
     this.initFlag = false;
     this.currentProject.layers.forEach( (value, index) => {
-      if(value.data.type === "infinite-canvas"){
+      if(value.data.type === DataType.INFINITE_CANVAS){
         value.removeChildren();
         value.remove();
       }
     } );
     this.initWhiteboardVariable();
     this.currentProject.layers.forEach((value, index) => {
-      if(value.data.type === "drawing-canvas"){
+      if(value.data.type === DataType.DRAWING_CANVAS){
         value.activate();
       }
     });
@@ -338,7 +339,7 @@ export class InfiniteCanvasService {
   private initializeDrawingLayer(){
     if(!this.isDrawingLayerExist){
       this.drawingLayer = new Layer();
-      this.drawingLayer.data.type = "drawing-canvas";
+      this.drawingLayer.data.type = DataType.DRAWING_CANVAS;
       this.drawingLayer.data.isMovable = false;
       this.isDrawingLayerExist = true;
       this.drawingLayer.activate();

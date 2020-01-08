@@ -23,6 +23,7 @@ import Circle = paper.Path.Circle;
 import Rectangle = paper.Path.Rectangle;
 // @ts-ignore
 import Layer = paper.Layer;
+import {DataType} from '../../../Model/Helper/data-type-enum/data-type.enum';
 
 @Component({
   selector: 'app-whiteboard-minimap',
@@ -58,7 +59,7 @@ export class WhiteboardMinimapComponent implements OnInit {
 
         console.log("\n");
         this.maplayer.children.forEach((value)=>{
-          if(value.data.type !== "minimap-user-view"){
+          if(value.data.type !== DataType.MINIMAP_USER_VIEW){
             value.style.strokeWidth = value.style.strokeWidth / 5;
           }
         });
@@ -74,7 +75,7 @@ export class WhiteboardMinimapComponent implements OnInit {
   createUserViewRect(){
     let userViewRect = new paper.Shape.Rectangle(this.currentProject.view.bounds);
     // @ts-ignore
-    userViewRect.data.type = "minimap-user-view";
+    userViewRect.data.type = DataType.MINIMAP_USER_VIEW;
     // @ts-ignore
     userViewRect.strokeColor = "black";
     // @ts-ignore
@@ -92,10 +93,10 @@ export class WhiteboardMinimapComponent implements OnInit {
     this.minimapProject.setup(this.htmlCanvasObject);
 
     let mapLayer = new Layer();
-    mapLayer.data.type = "minimap-map-layer";
+    mapLayer.data.type = DataType.MINIMAP_MAP_LAYER;
 
     let cursorLayer = new Layer();
-    cursorLayer.data.type = "minimap-cursor-layer";
+    cursorLayer.data.type = DataType.MINIMAP_CURSOR_LAYER;
 
     this.minimapProject.project.addLayer(mapLayer);
     this.minimapProject.project.addLayer(cursorLayer);

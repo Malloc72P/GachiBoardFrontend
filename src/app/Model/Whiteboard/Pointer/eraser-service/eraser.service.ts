@@ -1,13 +1,13 @@
 import { Injectable } from '@angular/core';
 import * as paper from 'paper';
 import {PositionCalcService} from "../../PositionCalc/position-calc.service";
+import {DataType} from '../../../Helper/data-type-enum/data-type.enum';
 
 @Injectable({
   providedIn: 'root'
 })
 export class EraserService {
   private strokeWidth = 10;
-  private eraserType = "eraser-trail";
   private newPath: paper.Path;
   private currentProject: paper.Project;
 
@@ -45,7 +45,7 @@ export class EraserService {
       strokeCap: 'round',
       strokeJoin: 'round',
     });
-    this.newPath.data.type = this.eraserType;
+    this.newPath.data.type = DataType.EREASER;
     this.removeProcess(this.newPath);
   }
   public drawPath(event) {
@@ -69,7 +69,7 @@ export class EraserService {
   private removeProcess(path: paper.Path) {
     for(const item of this.currentProject.activeLayer.children) {
       if(path.intersects(item)) {
-        if(!(item.data.type === this.eraserType)){
+        if(!(item.data.type === DataType.EREASER)){
           item.remove();
         }
       }
