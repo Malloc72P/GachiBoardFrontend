@@ -1,0 +1,25 @@
+.icon-tools-kanban {
+  background-image: url("/assets/images/supporter/kanban.svg");
+}
+.icon-tools-time_timer {
+  background-image: url("/assets/images/supporter/timetimer.svg");
+}
+.icon-tools-cloud_storage {
+  background-image: url("/assets/images/supporter/cloudStorage.svg");
+}
+.icon-tools-import {
+  background-image: url("/assets/images/supporter/import.svg");
+}
+.icon-tools-export {
+  background-image: url("/assets/images/supporter/export.svg");
+}
+.icon-tools-text_chat {
+  background-image: url("/assets/images/supporter/textChat.svg");
+}
+.selectable-icon {
+  cursor: pointer;
+  display: inline-block;
+  width: 24px;
+  height: 24px;
+  background-size: cover;
+}

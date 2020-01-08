@@ -17,3 +17,9 @@ app-tool-brush-panel, app-tool-highlighter-panel {
   left: 62px;
   top: 50%;
 }
+app-project-supporter-pannel {
+  position: absolute;
+  left: 6px;
+  bottom: 6px;
+  transform: translate(0, 0);
+}

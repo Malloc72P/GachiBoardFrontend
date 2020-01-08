@@ -34,6 +34,7 @@ import { WhiteboardMinimapComponent } from './View/Whiteboard/whiteboard-minimap
 import {MinimapSyncService} from './Model/Whiteboard/InfiniteCanvas/MinimapSync/minimap-sync.service';
 import { ToolHighlighterPanelComponent } from './View/Whiteboard/whiteboard-tool-panel/tool-highlighter-panel/tool-highlighter-panel.component';
 import {HighlighterService} from './Model/Whiteboard/Pointer/highlighter-service/highlighter.service';
+import { ProjectSupporterPannelComponent } from './View/Whiteboard/project-supporter-pannel/project-supporter-pannel.component';
 
 
 const appRoutes: Routes = [
@@ -75,6 +76,7 @@ const appRoutes: Routes = [
     DebugingPannelComponent,
     WhiteboardMinimapComponent,
     ToolHighlighterPanelComponent,
+    ProjectSupporterPannelComponent,
   ],
   imports: [
     BrowserModule,
