@@ -10,6 +10,7 @@ import {PanelManagerService} from '../../../Model/Whiteboard/Panel/panel-manager
   styleUrls: ['./whiteboard-tool-panel.component.css']
 })
 export class WhiteboardToolPanelComponent extends PopoverPanel implements OnInit {
+
   constructor(
     private pointerModeEnumService: PointerModeEnumService,
     public pointerModeManagerService: PointerModeManagerService,

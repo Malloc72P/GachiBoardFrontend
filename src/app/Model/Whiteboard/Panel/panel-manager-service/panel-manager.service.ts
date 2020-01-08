@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import {PointerMode} from '../../Pointer/pointer-mode-enum-service/pointer-mode-enum.service';
 
 @Injectable({
   providedIn: 'root'
@@ -10,7 +11,15 @@ export class PanelManagerService {
   public isHideBrushPanel: boolean = true;
   public isHideHighlighterPanel: boolean = true;
 
-  constructor() { }
+  public toolIconColor = new Array<string>();
+
+  constructor() {
+    this.toolIconColor[PointerMode.MOVE] = '#000';
+    this.toolIconColor[PointerMode.DRAW] = '#000';
+    this.toolIconColor[PointerMode.HIGHLIGHTER] = '#ff0';
+    this.toolIconColor[PointerMode.ERASER] = '#000';
+    this.toolIconColor[PointerMode.LASSO_SELECTOR] = '#000';
+  }
 
   private onClickOutsidePanel(event) {
     this.HTMLBrushPanel = document.getElementById("brushPanel");

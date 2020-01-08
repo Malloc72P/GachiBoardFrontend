@@ -43,7 +43,10 @@ export class PointerModeEnumService implements CommonEnum {
   getEnumArray(){
     return this.enumData;
   }
+  // getPointerIcon(pointerMode) {
+  //   return "/assets/images/tools/" + PointerIcon[pointerMode].toLowerCase() + ".svg#" + PointerIcon[pointerMode].toLowerCase();
+  // }
   getPointerIcon(pointerMode) {
-    return "icon-tools-" + PointerIcon[pointerMode].toLowerCase();
+    return PointerIcon[pointerMode].toLowerCase();
   }
 }

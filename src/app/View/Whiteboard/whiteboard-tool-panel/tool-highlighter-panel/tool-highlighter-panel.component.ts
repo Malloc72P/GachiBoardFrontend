@@ -3,6 +3,8 @@ import * as paper from 'paper'
 // @ts-ignore
 import Color = paper.Color;
 import {PointerModeManagerService} from '../../../../Model/Whiteboard/Pointer/pointer-mode-manager-service/pointer-mode-manager.service';
+import {PanelManagerService} from '../../../../Model/Whiteboard/Panel/panel-manager-service/panel-manager.service';
+import {PointerMode} from '../../../../Model/Whiteboard/Pointer/pointer-mode-enum-service/pointer-mode-enum.service';
 
 type SelectableColor = {
   isSelect: boolean;
@@ -24,7 +26,8 @@ export class ToolHighlighterPanelComponent implements OnInit {
     {isSelect: false, color: new Color(255, 0, 0, this.highlighterAlpha)}];
 
   constructor(
-    private pointerModeManagerService: PointerModeManagerService
+    private pointerModeManagerService: PointerModeManagerService,
+    private panelManger: PanelManagerService
   ) { }
 
   ngOnInit() {
@@ -49,6 +52,9 @@ export class ToolHighlighterPanelComponent implements OnInit {
     this.unSelectAllColor();
     selectableColor.isSelect = true;
     this.pointerModeManagerService.highlighter.setColor(selectableColor.color);
+    let color = selectableColor.color.clone();
+    color.alpha = 1;
+    this.panelManger.toolIconColor[PointerMode.HIGHLIGHTER] = color.toCSS(false);
   }
   unSelectAllColor() {
     for(let color of this.strokeColors) {

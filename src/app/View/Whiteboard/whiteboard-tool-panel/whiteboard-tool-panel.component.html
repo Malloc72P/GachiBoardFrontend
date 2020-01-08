@@ -2,6 +2,12 @@
                          (change)="onPanelStateChangeHandler()"
                          [(ngModel)]="currentSelectedMode">
   <mat-button-toggle *ngFor="let mode of selectableMode" [value]="mode" (click)="onClickPanelItem(mode)">
-    <span class="selectable-icon {{pointerModeEnumService.getPointerIcon(mode)}}"></span>
+<!--    {{pointerModeEnumService.getPointerIcon(mode)}}-->
+    <svg class="tool-icon" [style.fill]="panelManager.toolIconColor[mode]">
+      <use [attr.xlink:href]="'/assets/images/tools/' + pointerModeEnumService.getPointerIcon(mode) + '.svg#' + pointerModeEnumService.getPointerIcon(mode)"/>
+    </svg>
+<!--        <svg>-->
+<!--          <use xlink:href="/assets/images/tools/highlighter.svg#highlighter"/>-->
+<!--        </svg>-->
   </mat-button-toggle>
 </mat-button-toggle-group>

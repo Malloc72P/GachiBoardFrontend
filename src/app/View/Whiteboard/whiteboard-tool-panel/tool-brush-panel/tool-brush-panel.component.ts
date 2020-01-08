@@ -3,6 +3,8 @@ import {PointerModeManagerService} from '../../../../Model/Whiteboard/Pointer/po
 import * as paper from 'paper'
 // @ts-ignore
 import Color = paper.Color;
+import {PanelManagerService} from '../../../../Model/Whiteboard/Panel/panel-manager-service/panel-manager.service';
+import {PointerMode} from '../../../../Model/Whiteboard/Pointer/pointer-mode-enum-service/pointer-mode-enum.service';
 
 type SelectableColor = {
   isSelect: boolean;
@@ -27,7 +29,8 @@ export class ToolBrushPanelComponent implements OnInit {
 
 
   constructor(
-    private pointerModeManagerService: PointerModeManagerService
+    private pointerModeManagerService: PointerModeManagerService,
+    private panelManger: PanelManagerService
   ) { }
 
   ngOnInit() {
@@ -52,6 +55,7 @@ export class ToolBrushPanelComponent implements OnInit {
     this.unSelectAllColor();
     selectableColor.isSelect = true;
     this.pointerModeManagerService.brushService.setColor(selectableColor.color);
+    this.panelManger.toolIconColor[PointerMode.DRAW] = selectableColor.color.toCSS(false);
   }
   unSelectAllColor() {
     for(let color of this.strokeColors) {
