@@ -13,7 +13,10 @@ export class LassoSelectorService {
   private selectedItems = Array<paper.Item>();
   private previousPoint: paper.Point;
   private currentProject: paper.Project;
+  private selectRange: paper.Path;
   private hitOption = { segments: true, stroke: true, fill: true, tolerance: 3 };
+  private isSelected = false;
+  private handleOption = {strokeWidth: 1, handleRadius: 4, dashLength: 5};
 
   constructor(
     private posCalcService: PositionCalcService,
@@ -52,7 +55,7 @@ export class LassoSelectorService {
     // 선택 그룹이 있는지 확인
     if (this.selectedGroup.hasChildren()) {
       // 클릭 시작 포인트가 선택그룹 안쪽인지 확인
-      if(this.selectedGroup.hitTest(point, {segments: true, tolerance: 10})) {
+      if(this.selectedGroup.hitTest(point, {segments: true, tolerance: 3})) {
         this.selectedGroup.data.state = DataState.RESIZING;
 
         let i;
@@ -184,8 +187,8 @@ export class LassoSelectorService {
 
       // 선택된 Item이 있을때만 그림
       if(this.selectedGroup.hasChildren()) {
-        let selectRange = this.createSelectRangePath();
-        this.selectedGroup.addChild(selectRange);
+        this.createSelectRangePath();
+        this.selectedGroup.addChild(this.selectRange);
         this.createHandler();
       }
 
@@ -196,8 +199,22 @@ export class LassoSelectorService {
     this.newPath.remove();
   }
 
+  public lassoHandleResizeForZooming(zoomValue) {
+    if(this.isSelected) {
+      this.selectRange.strokeWidth = this.handleOption.strokeWidth / zoomValue;
+      this.selectRange.dashArray = [this.handleOption.dashLength / zoomValue, this.handleOption.dashLength / zoomValue];
+
+      this.handlerGroup.children.forEach(value => {
+        const diameter = this.handleOption.handleRadius / zoomValue * 2;
+        const center = value.position;
+        value.strokeWidth = this.handleOption.strokeWidth / zoomValue;
+        value.bounds = new paper.Rectangle(value.bounds.topLeft, new paper.Size(diameter, diameter));
+        value.position = center;
+      });
+    }
+  }
+
   private createHandler(){
-    let handlerRadius = 4;
     let handlerName = 'selectHandler';
     let handlerFillColor = 'white';
     let handlerStrokeColor = 'black';
@@ -211,46 +228,49 @@ export class LassoSelectorService {
     }
     this.handlerGroup.addChild(new paper.Path.Circle({
       name: handlerName,
-      center: this.selectedGroup.strokeBounds.topLeft,
-      radius: handlerRadius,
+      center: this.selectRange.bounds.topLeft,
+      radius: this.handleOption.handleRadius / this.currentProject.view.zoom,
+      strokeWidth: this.handleOption.strokeWidth / this.currentProject.view.zoom,
       fillColor: handlerFillColor,
       strokeColor: handlerStrokeColor
     }));
     this.handlerGroup.addChild(new paper.Path.Circle({
       name: handlerName,
-      center: this.selectedGroup.strokeBounds.topRight,
-      radius: handlerRadius,
+      center: this.selectRange.bounds.topRight,
+      radius: this.handleOption.handleRadius / this.currentProject.view.zoom,
+      strokeWidth: this.handleOption.strokeWidth / this.currentProject.view.zoom,
       fillColor: handlerFillColor,
       strokeColor: handlerStrokeColor
     }));
     this.handlerGroup.addChild(new paper.Path.Circle({
       name: handlerName,
-      center: this.selectedGroup.strokeBounds.bottomRight,
-      radius: handlerRadius,
+      center: this.selectRange.bounds.bottomRight,
+      radius: this.handleOption.handleRadius / this.currentProject.view.zoom,
+      strokeWidth: this.handleOption.strokeWidth / this.currentProject.view.zoom,
       fillColor: handlerFillColor,
       strokeColor: handlerStrokeColor
     }));
     this.handlerGroup.addChild(new paper.Path.Circle({
       name: handlerName,
-      center: this.selectedGroup.strokeBounds.bottomLeft,
-      radius: handlerRadius,
+      center: this.selectRange.bounds.bottomLeft,
+      radius: this.handleOption.handleRadius / this.currentProject.view.zoom,
+      strokeWidth: this.handleOption.strokeWidth / this.currentProject.view.zoom,
       fillColor: handlerFillColor,
       strokeColor: handlerStrokeColor
     }));
   }
 
-  private createSelectRangePath(): paper.Path.Rectangle {
-    const selectRange = new paper.Path.Rectangle(this.selectedGroup.strokeBounds);
-    selectRange.name = DataName.SELECT_RANGE;
-    selectRange.strokeColor = new paper.Color('blue');
-    selectRange.dashArray = [5, 5];
+  private createSelectRangePath(){
 
-    return selectRange;
+    this.selectRange = new paper.Path.Rectangle(this.selectedGroup.strokeBounds);
+    this.selectRange.name = DataName.SELECT_RANGE;
+    this.selectRange.strokeWidth = this.handleOption.strokeWidth / this.currentProject.view.zoom;
+    this.selectRange.strokeColor = new paper.Color('blue');
+    this.selectRange.dashArray = [this.handleOption.dashLength / this.currentProject.view.zoom, this.handleOption.dashLength / this.currentProject.view.zoom];
   }
 
   private selectPoint(point) {
     const hitResult = this.currentProject.activeLayer.hitTestAll(point, this.hitOption)[1];
-    console.log('LassoSelectorService >> selectPoint >> hitResult : ', hitResult);
     let segment;
     // 세그먼트 디버깅용 해당 세그먼트의 타입이 뭔지 알기위해 사용
     if(!(segment = this.segmentParser(hitResult))){
@@ -265,6 +285,7 @@ export class LassoSelectorService {
     if (hitResult) {
       this.selectedItems.push(hitResult.item);
     }
+    this.isSelected = true;
   }
 
   private selectBound() {
@@ -275,13 +296,13 @@ export class LassoSelectorService {
         }
       }
     }
+    this.isSelected = true;
   }
 
   public cancelSelect() {
     if (this.selectedGroup) {
-      const selectRange = this.selectedGroup.getItem({name: DataName.SELECT_RANGE});
-      if (selectRange) {
-        selectRange.remove();
+      if (this.selectRange) {
+        this.selectRange.remove();
       }
       // this.selectedGroup.selected = false;
 
@@ -291,6 +312,7 @@ export class LassoSelectorService {
     if (this.handlerGroup) {
       this.handlerGroup.removeChildren();
     }
+    this.isSelected = false;
   }
 
   public removeSelectedItem() {
@@ -299,6 +321,7 @@ export class LassoSelectorService {
       this.handlerGroup.removeChildren();
       this.selectedGroup.remove();
       this.newPath.remove();
+      this.isSelected = false;
     }
   }
 

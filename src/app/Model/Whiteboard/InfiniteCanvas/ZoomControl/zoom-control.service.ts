@@ -19,6 +19,7 @@ import Layer = paper.Layer;
 
 import * as paper from 'paper';
 import {InfiniteCanvasService} from "../infinite-canvas.service";
+import {LassoSelectorService} from '../../Pointer/lasso-selector-service/lasso-selector.service';
 
 @Injectable({
   providedIn: 'root'
@@ -40,6 +41,7 @@ export class ZoomControlService {
   constructor(
     private infiniteCanvasService   : InfiniteCanvasService,
     private posCalcService          : PositionCalcService,
+    private lassoSelectorService    : LassoSelectorService,
   ) {
 
   }
@@ -52,6 +54,7 @@ export class ZoomControlService {
     // //console.log("WhiteboardMainComponent >> zoomControl >> event : ",event);
     event.preventDefault();
 
+
     if (!event.ctrlKey) {//컨트롤키 안 누르고 휠 돌리는 경우
       let ngCanvasCenter = this.posCalcService.getCenterOfBrowser();
 
@@ -60,6 +63,7 @@ export class ZoomControlService {
         ngCanvasCenter,
         new Point(event.x, event.y),
         event.deltaY);
+      this.lassoSelectorService.lassoHandleResizeForZooming(this.currentProject.view.zoom)
     }
   }
 
