@@ -76,6 +76,9 @@ export class HighlighterService {
     this.newPath.add(new Point(point.x, point.y));
   }
   public endPath() {
-    this.newPath.simplify(3);
+    if(this.newPath != null) {
+      this.newPath.simplify(3);
+      this.newPath = null;
+    }
   }
 }

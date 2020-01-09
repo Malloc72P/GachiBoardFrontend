@@ -118,6 +118,7 @@ export class WhiteboardMainComponent implements OnInit {
       case PointerMode.LASSO_SELECTOR:
         if(event.code === "Delete") {
           this.pointerModeManager.lassoSelector.removeSelectedItem();
+          this.minimapSyncService.syncMinimap();
         }
         break;
       default:
