@@ -101,5 +101,12 @@ export class PositionCalcService {
     return new Point(point.x, point.y);
   }
 
+  public calcPopupPanelLeftMargin(){
+    return (this.getWidthOfBrowser() - this.getWidthOfBrowser() * 0.9 - 32) / 2
+  }
+  public calcPopupPanelRightMargin(){
+    return (this.getHeightOfBrowser() - this.getHeightOfBrowser() * 0.9 - 32) / 2
+  }
+
 
 }

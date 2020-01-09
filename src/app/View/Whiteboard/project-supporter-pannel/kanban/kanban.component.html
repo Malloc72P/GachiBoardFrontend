@@ -1,0 +1,88 @@
+<div class="popup-main-panel popup-panel-box popup-commons-panel"
+          [ngStyle]="{
+            'left' :  posCalcService.calcPopupPanelLeftMargin() + 'px',
+            'top' :  posCalcService.calcPopupPanelRightMargin() + 'px'
+            }"
+          id="supporter-KANBAN">
+  <div class="popup-main-background"
+        (click)="popupManagerService.emitBgClickedEvent()">
+  </div>
+  <mat-card class="popup-panel-box popup-card-wrapper panel-main">
+    <mat-card-header class="popup-panel-row header">
+      <div style="float: left; width: 100%;">
+        <div class="title-left-color"></div>
+        <div class="popup-title-wrapper">
+          <mat-card-title class="project-supporter-card-title popup-title">Kanban</mat-card-title>
+          <br>
+          <mat-card-subtitle class="popup-title">Project Supporter</mat-card-subtitle>
+        </div>
+      </div>
+      <button class="popup-close-btn"
+              mat-button
+              (click)="popupManagerService.emitBgClickedEvent()">
+        <i class="im im-x-mark"></i>
+      </button>
+    </mat-card-header>
+    <mat-card-content class="popup-panel-row content">
+      <hr>
+      <!--#####여기서 팝업패널 내용 작성할 것######-->
+      <div class="popup-panel-content">
+        <div class="kanban-grid">
+          <!--######칸반 셀 - 1-->
+          <div class="kanban-grid-cell">
+            <mat-card style="text-align: center;">
+              <mat-card-title class="kanban-title">
+                {{kanbanCellArray[0]}}
+                <hr>
+              </mat-card-title>
+              <mat-card-content>
+                <!--그리드 셀 컨텐츠( 여기서 칸반 아이템 출력 )-->
+                <app-kanban-item></app-kanban-item>
+                <app-kanban-item></app-kanban-item>
+              </mat-card-content>
+            </mat-card>
+          </div>
+
+          <!--######칸반 셀 - 2-->
+          <div class="kanban-grid-cell">
+            <mat-card style="text-align: center;">
+              <mat-card-title class="kanban-title">
+                {{kanbanCellArray[0]}}
+                <hr>
+              </mat-card-title>
+              <mat-card-content>
+                <!--그리드 셀 컨텐츠( 여기서 칸반 아이템 출력 )-->
+                <app-kanban-item></app-kanban-item>
+                <app-kanban-item></app-kanban-item>
+                <app-kanban-item></app-kanban-item>
+                <app-kanban-item></app-kanban-item>
+                <app-kanban-item></app-kanban-item>
+              </mat-card-content>
+            </mat-card>
+          </div>
+
+          <!--######칸반 셀 - 3-->
+          <div class="kanban-grid-cell">
+            <mat-card style="text-align: center;">
+              <mat-card-title class="kanban-title">
+                {{kanbanCellArray[0]}}
+                <hr>
+              </mat-card-title>
+              <mat-card-content>
+                <!--그리드 셀 컨텐츠( 여기서 칸반 아이템 출력 )-->
+                <app-kanban-item></app-kanban-item>
+                <app-kanban-item></app-kanban-item>
+                <app-kanban-item></app-kanban-item>
+              </mat-card-content>
+            </mat-card>
+          </div>
+
+        </div>
+      </div>
+      <!--####################################-->
+    </mat-card-content>
+
+  </mat-card>
+
+
+</div>
