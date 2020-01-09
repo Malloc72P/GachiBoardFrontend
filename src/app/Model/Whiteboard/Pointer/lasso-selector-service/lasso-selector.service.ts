@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import * as paper from 'paper';
 import {PositionCalcService} from "../../PositionCalc/position-calc.service";
+import {DataName, DataState, DataType} from '../../../Helper/data-type-enum/data-type.enum';
 
 @Injectable({
   providedIn: 'root'
@@ -8,6 +9,7 @@ import {PositionCalcService} from "../../PositionCalc/position-calc.service";
 export class LassoSelectorService {
   private newPath: paper.Path;
   private selectedGroup: paper.Group;
+  private handlerGroup: paper.Group;
   private selectedItems = Array<paper.Item>();
   private previousPoint: paper.Point;
   private currentProject: paper.Project;
@@ -50,10 +52,28 @@ export class LassoSelectorService {
     // 선택 그룹이 있는지 확인
     if (this.selectedGroup.hasChildren()) {
       // 클릭 시작 포인트가 선택그룹 안쪽인지 확인
-      if (this.selectedGroup.contains(point)) {
+      if(this.selectedGroup.hitTest(point, {segments: true, tolerance: 10})) {
+        this.selectedGroup.data.state = DataState.RESIZING;
+
+        let i;
+        for(i = 0; i < this.handlerGroup.children.length; i++){
+          let p = this.handlerGroup.children[i].position;
+          if(p.isClose(point, 10)){
+            break;
+          }
+        }
+
+        console.log('LassoSelectorService >> createPath >> i : ', i);
+        let opposite = (i + 2) % 4;
+        console.log('LassoSelectorService >> createPath >> opposite : ', opposite);
+        this.selectedGroup.data.from = this.handlerGroup.children[opposite].position;
+        this.selectedGroup.data.to = this.handlerGroup.children[i].position;
+      } else if (this.selectedGroup.contains(point)) {
+        this.selectedGroup.data.state = DataState.MOVING;
         /* 선택 초기화 안함 */
       } else {
         /* 선택 초기화 함 */
+        this.selectedGroup.data.state = "";
         this.cancelSelect();
       }
     }
@@ -88,8 +108,39 @@ export class LassoSelectorService {
 
     // 선택 그룹 객체 있는지 확인
     if (this.selectedGroup.hasChildren()) {
-      this.selectedGroup.position.x += delta.x;
-      this.selectedGroup.position.y += delta.y;
+      if(this.selectedGroup.data.state === DataState.MOVING) {
+        this.selectedGroup.position.x += delta.x;
+        this.handlerGroup.position.x += delta.x;
+        this.selectedGroup.position.y += delta.y;
+        this.handlerGroup.position.y += delta.y;
+      } else if (this.selectedGroup.data.state === DataState.RESIZING) {
+        let resizePoint = point;
+        let minSize = 5;
+
+        const width = this.selectedGroup.data.from.x - resizePoint.x;
+        if(width < minSize && width >= 0) {
+          resizePoint.x = this.selectedGroup.data.from.x - minSize;
+        } else if (width > -minSize && width < 0) {
+          resizePoint.x = this.selectedGroup.data.from.x + minSize;
+        }
+
+
+        const height = this.selectedGroup.data.from.y - resizePoint.y;
+        if(height < minSize && height >= 0) {
+          resizePoint.y = this.selectedGroup.data.from.y - minSize;
+        } else if (height > -minSize && height < 0) {
+          resizePoint.y = this.selectedGroup.data.from.y + minSize;
+        }
+
+        let bound = new paper.Rectangle(this.selectedGroup.data.from, resizePoint);
+
+        this.selectedGroup.bounds = bound;
+        this.handlerGroup.children[0].position = bound.bottomLeft;
+        this.handlerGroup.children[1].position = bound.topLeft;
+        this.handlerGroup.children[2].position = bound.topRight;
+        this.handlerGroup.children[3].position = bound.bottomRight;
+      }
+
     } else {
       this.newPath.add(point);
     }
@@ -109,7 +160,6 @@ export class LassoSelectorService {
     }
     point = this.posCalcService.advConvertNgToPaper(point);
 
-    let selectRange;
     this.newPath.closed = true;
 
     // selectedGroup에 자식 아이템들이 있을 때 == 아이템 옮김
@@ -122,44 +172,25 @@ export class LassoSelectorService {
       this.selectedGroup = new paper.Group();
       // 올가미로 범위 지정해서 여러 아이템 묶는 경우
       if (this.newPath.segments.length > 1) {
-        for (const item of this.currentProject.activeLayer.children) {
-          if (item instanceof paper.Path || item instanceof paper.Raster) {
-            if (this.isInside(this.newPath, item)) {
-              this.selectedItems.push(item);
-            }
-          }
-        }
+        this.selectBound();
       // 올가미로 클릭해서 하나의 아이템만 선택하는 경우 (가장 먼저 HitTest에 걸리는 아이템이 선택됨)
       } else {
-        const hitResult = this.currentProject.activeLayer.hitTestAll(point, this.hitOption)[1];
-        let segment;
-        // 세그먼트 디버깅용 해당 세그먼트의 타입이 뭔지 알기위해 사용
-        if(!(segment = this.segmentParser(hitResult))){
-          this.cancelSelect();
-          return;
-        }
-        if(!this.segmentVerifier(segment)){
-          this.cancelSelect();
-          return null;
-        }
-        // hitResult에 걸린 아이템이 있으면 selectedItems에 넣음
-        if (hitResult) {
-          this.selectedItems.push(hitResult.item);
-        }
+        this.selectPoint(point);
       }
 
       // 선택 아이템들을 temp 영역이었던 selectedItems에서 Group으로 옮겨주는 과정
       this.selectedItems.forEach((value) => {
         this.selectedGroup.addChild(value);
       });
-      this.selectedGroup.selected = true;
+      // this.selectedGroup.selected = true;
 
-      selectRange = new paper.Path.Rectangle(this.selectedGroup.strokeBounds);
-      selectRange.name = 'selectRange';
-      selectRange.strokeColor = 'blue';
-      selectRange.dashArray = [5, 5];
+      // 선택된 Item이 있을때만 그림
+      if(this.selectedGroup.hasChildren()) {
+        let selectRange = this.createSelectRangePath();
+        this.selectedGroup.addChild(selectRange);
+        this.createHandler();
+      }
 
-      this.selectedGroup.addChild(selectRange);
 
       // selectedItems의 모든 아이템 제거
       this.selectedItems.splice(0, this.selectedItems.length);
@@ -167,22 +198,108 @@ export class LassoSelectorService {
     this.newPath.remove();
   }
 
+  private createHandler(){
+    console.log('LassoSelectorService >> createHandler >> 진입 : ', this.selectedGroup);
+    let handlerRadius = 4;
+    let handlerName = 'selectHandler';
+    let handlerFillColor = 'white';
+    let handlerStrokeColor = 'black';
+
+    if(this.selectedGroup.getItem({name: DataName.SELECT_RANGE}) == null) {
+      console.log('LassoSelectorService >> createHandler >> getItem is null');
+      return;
+    }
+
+    if(!this.handlerGroup) {
+      this.handlerGroup = new paper.Group();
+    }
+    this.handlerGroup.addChild(new paper.Path.Circle({
+      name: handlerName,
+      center: this.selectedGroup.strokeBounds.topLeft,
+      radius: handlerRadius,
+      fillColor: handlerFillColor,
+      strokeColor: handlerStrokeColor
+    }));
+    this.handlerGroup.addChild(new paper.Path.Circle({
+      name: handlerName,
+      center: this.selectedGroup.strokeBounds.topRight,
+      radius: handlerRadius,
+      fillColor: handlerFillColor,
+      strokeColor: handlerStrokeColor
+    }));
+    this.handlerGroup.addChild(new paper.Path.Circle({
+      name: handlerName,
+      center: this.selectedGroup.strokeBounds.bottomRight,
+      radius: handlerRadius,
+      fillColor: handlerFillColor,
+      strokeColor: handlerStrokeColor
+    }));
+    this.handlerGroup.addChild(new paper.Path.Circle({
+      name: handlerName,
+      center: this.selectedGroup.strokeBounds.bottomLeft,
+      radius: handlerRadius,
+      fillColor: handlerFillColor,
+      strokeColor: handlerStrokeColor
+    }));
+  }
+
+  private createSelectRangePath(): paper.Path.Rectangle {
+    const selectRange = new paper.Path.Rectangle(this.selectedGroup.strokeBounds);
+    selectRange.name = DataName.SELECT_RANGE;
+    selectRange.strokeColor = new paper.Color('blue');
+    selectRange.dashArray = [5, 5];
+
+    return selectRange;
+  }
+
+  private selectPoint(point) {
+    const hitResult = this.currentProject.activeLayer.hitTestAll(point, this.hitOption)[1];
+    let segment;
+    // 세그먼트 디버깅용 해당 세그먼트의 타입이 뭔지 알기위해 사용
+    if(!(segment = this.segmentParser(hitResult))){
+      this.cancelSelect();
+      return;
+    }
+    if(!this.segmentVerifier(segment)){
+      this.cancelSelect();
+      return null;
+    }
+    // hitResult에 걸린 아이템이 있으면 selectedItems에 넣음
+    if (hitResult) {
+      this.selectedItems.push(hitResult.item);
+    }
+  }
+
+  private selectBound() {
+    for (const item of this.currentProject.activeLayer.children) {
+      if (item instanceof paper.Path || item instanceof paper.Raster) {
+        if (this.isInside(this.newPath, item)) {
+          this.selectedItems.push(item);
+        }
+      }
+    }
+  }
+
   public cancelSelect() {
     if (this.selectedGroup) {
-      const selectRange = this.selectedGroup.getItem({name: 'selectRange'});
+      const selectRange = this.selectedGroup.getItem({name: DataName.SELECT_RANGE});
       if (selectRange) {
         selectRange.remove();
       }
-      this.selectedGroup.selected = false;
+      // this.selectedGroup.selected = false;
 
       this.unGroup(this.selectedGroup);
       this.newPath.remove();
+    }
+    if (this.handlerGroup) {
+      this.handlerGroup.removeChildren();
     }
   }
 
   public removeSelectedItem() {
     if(this.selectedGroup) {
       this.selectedGroup.removeChildren();
+      this.handlerGroup.removeChildren();
       this.selectedGroup.remove();
       this.newPath.remove();
     }

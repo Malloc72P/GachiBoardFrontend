@@ -6,3 +6,13 @@ export enum DataType {
   DRAWING_CANVAS,
   EREASER,
 }
+
+export enum DataState {
+  MOVING,
+  RESIZING,
+}
+
+export enum DataName {
+  SELECT_RANGE = "SelectRange",
+  SELECT_HANDLER = "SelectHandler",
+}
