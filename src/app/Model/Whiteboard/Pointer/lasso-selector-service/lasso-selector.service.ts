@@ -63,9 +63,7 @@ export class LassoSelectorService {
           }
         }
 
-        console.log('LassoSelectorService >> createPath >> i : ', i);
         let opposite = (i + 2) % 4;
-        console.log('LassoSelectorService >> createPath >> opposite : ', opposite);
         this.selectedGroup.data.from = this.handlerGroup.children[opposite].position;
         this.selectedGroup.data.to = this.handlerGroup.children[i].position;
       } else if (this.selectedGroup.contains(point)) {
@@ -199,14 +197,12 @@ export class LassoSelectorService {
   }
 
   private createHandler(){
-    console.log('LassoSelectorService >> createHandler >> 진입 : ', this.selectedGroup);
     let handlerRadius = 4;
     let handlerName = 'selectHandler';
     let handlerFillColor = 'white';
     let handlerStrokeColor = 'black';
 
     if(this.selectedGroup.getItem({name: DataName.SELECT_RANGE}) == null) {
-      console.log('LassoSelectorService >> createHandler >> getItem is null');
       return;
     }
 
@@ -254,6 +250,7 @@ export class LassoSelectorService {
 
   private selectPoint(point) {
     const hitResult = this.currentProject.activeLayer.hitTestAll(point, this.hitOption)[1];
+    console.log('LassoSelectorService >> selectPoint >> hitResult : ', hitResult);
     let segment;
     // 세그먼트 디버깅용 해당 세그먼트의 타입이 뭔지 알기위해 사용
     if(!(segment = this.segmentParser(hitResult))){
@@ -324,7 +321,7 @@ export class LassoSelectorService {
     if (hitResult == null) {
       return null;
     } else if (hitResult.type === 'segment') {//세그먼트를 선택한 경우
-      return hitResult.segment;
+      return hitResult.item;
       // this.debugService.openSnackBar("hitResult.type === 'segment'");
     } else if (hitResult.type === 'stroke') {//스트로크를 선택한 경우
       return hitResult.item;
