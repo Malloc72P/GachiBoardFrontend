@@ -7,7 +7,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import {
   MatButtonModule,
   MatButtonToggleModule,
-  MatCardModule, MatChipsModule,
+  MatCardModule, MatChipsModule, MatDialogModule,
   MatDividerModule, MatGridListModule,
   MatRadioModule,
   MatRippleModule,
@@ -45,7 +45,6 @@ import {HighlighterService} from './Model/Whiteboard/Pointer/highlighter-service
 import { ProjectSupporterPannelComponent } from './View/Whiteboard/project-supporter-pannel/project-supporter-pannel.component';
 import { KanbanComponent } from './View/Whiteboard/project-supporter-pannel/kanban/kanban.component';
 import {PopupManagerService} from './Model/PopupManager/popup-manager.service';
-import { KanbanItemComponent } from './View/Whiteboard/project-supporter-pannel/kanban/kanban-item/kanban-item.component';
 
 
 const appRoutes: Routes = [
@@ -89,7 +88,9 @@ const appRoutes: Routes = [
     ToolHighlighterPanelComponent,
     ProjectSupporterPannelComponent,
     KanbanComponent,
-    KanbanItemComponent,
+  ],
+  entryComponents: [
+    KanbanComponent
   ],
   imports: [
     BrowserModule,
@@ -112,7 +113,8 @@ const appRoutes: Routes = [
     DragDropModule,
     MatDividerModule,
     MatGridListModule,
-    MatChipsModule
+    MatChipsModule,
+    MatDialogModule
   ],
   providers: [
     RouterHelperService,

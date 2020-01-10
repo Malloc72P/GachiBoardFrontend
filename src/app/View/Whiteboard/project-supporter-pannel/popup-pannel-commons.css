@@ -1,12 +1,12 @@
 /*=====popup pannel commons=====*/
 .popup-main-panel{
-  position: absolute;
+  /*position: absolute;
   left: 0;
   top: 0;
   visibility: visible;
   transform: scale(1) rotate(0deg);
   margin: 0;
-  padding: 0;
+  padding: 0;*/
 }
 .popup-close-btn{
   display: inline-block;
@@ -22,8 +22,8 @@
   height: 100%;
 }
 .popup-commons-panel{
-  width: 100%;
-  height: 100%;
+  /*width: 100%;
+  height: 100%;*/
 }
 .panel-main{
   z-index: 100;
@@ -31,8 +31,8 @@
 }
 .popup-card-wrapper{
   /*width: 90%;
-  height: 90%;*/
-  overflow-y: auto;
+  height: 90%;
+  overflow-y: auto;*/
 }
 .popup-main-background{
   position: absolute;
@@ -50,8 +50,8 @@
 }
 
 .popup-panel-box {
-  display: flex;
-  flex-flow: column;
+  /*display: flex;
+  flex-flow: column;*/
 }
 
 .popup-panel-box .popup-panel-row {
@@ -78,7 +78,6 @@
 }
 .header{
   width: 100%;
-  cursor: move;
 }
 .do-anime-popup-appear{
   animation-name:anime-popup-appear-keyframe;

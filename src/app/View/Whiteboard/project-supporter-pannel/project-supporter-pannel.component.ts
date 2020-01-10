@@ -8,6 +8,8 @@ import {
 import {PopoverPanel} from '../CommonClass/popover-panel/popover-panel';
 import {PositionCalcService} from '../../../Model/Whiteboard/PositionCalc/position-calc.service';
 import {PopupManagerService} from '../../../Model/PopupManager/popup-manager.service';
+import {KanbanComponent} from './kanban/kanban.component';
+import {MatDialog} from '@angular/material';
 
 @Component({
   selector: 'app-project-supporter-pannel',
@@ -22,7 +24,9 @@ export class ProjectSupporterPannelComponent extends PopoverPanel  implements On
     projectSupporterEnumService: ProjectSupporterEnumService,
     posCalcService :PositionCalcService,
     private renderer2:Renderer2,
-    private popupManagerService:PopupManagerService
+    private popupManagerService:PopupManagerService,
+    public dialog: MatDialog,
+    private positionCalcService:PositionCalcService
   ) {
     super(projectSupporterEnumService);
     this.projectSupporterEnumService = projectSupporterEnumService;
@@ -49,7 +53,7 @@ export class ProjectSupporterPannelComponent extends PopoverPanel  implements On
   }
   onClickPanelItem(panelItem: number) {
     console.log("ProjectSupporterPannelComponent >> onClickPanelItem >> this.prevPopup : ",this.prevPopup);
-    if(this.prevPopup){
+    /*if(this.prevPopup){
       this.renderer2.removeClass(this.prevPopup, "do-anime-popup-appear");
       this.renderer2.addClass(this.prevPopup,"do-anime-popup-disappear");
     }
@@ -60,7 +64,19 @@ export class ProjectSupporterPannelComponent extends PopoverPanel  implements On
     }
     this.renderer2.removeClass(itemElement, "do-anime-popup-disappear");
     this.renderer2.addClass(itemElement,"do-anime-popup-appear");
-    this.prevPopup = itemElement;
+    this.prevPopup = itemElement;*/
+
+    const dialogRef = this.dialog.open(KanbanComponent, {
+      width: this.positionCalcService.getWidthOfBrowser()+"px",
+      height: this.positionCalcService.getHeightOfBrowser()+"px",
+      maxWidth: this.positionCalcService.getWidthOfBrowser()+"px",
+      data: {}
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      console.log('The dialog was closed');
+
+    });
   }
 
 
