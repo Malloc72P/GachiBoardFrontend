@@ -60,7 +60,7 @@ export class KanbanComponent implements OnInit {
     this.todoGroup = new KanbanGroup("TODO", "danger");
     this.inProgressGroup = new KanbanGroup("In Progress", "warning");
     this.doneGroup = new KanbanGroup("DONE", "primary");
-    for(let i = 0 ; i < 8 ; i++){
+    for(let i = 0 ; i < 12 ; i++){
       let kanbanItem = new KanbanItem("Kanban" + i, null, "red");
       this.todoGroup.kanbanItemList.push(
         kanbanItem
