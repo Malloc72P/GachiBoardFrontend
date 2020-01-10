@@ -12,7 +12,7 @@
   display: inline-block;
   position: fixed;
   left: 12px;
-  bottom: 4px;
+  top: 12px;
   width: 250px;
   font-size: 11px;
 }

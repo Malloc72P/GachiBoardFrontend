@@ -1,0 +1,104 @@
+.icon-tools-kanban {
+  background-image: url("/assets/images/supporter/kanban.svg");
+}
+.icon-tools-time_timer {
+  background-image: url("/assets/images/supporter/timetimer.svg");
+}
+.icon-tools-cloud_storage {
+  background-image: url("/assets/images/supporter/cloudStorage.svg");
+}
+.icon-tools-import {
+  background-image: url("/assets/images/supporter/import.svg");
+}
+.icon-tools-export {
+  background-image: url("/assets/images/supporter/export.svg");
+}
+.icon-tools-text_chat {
+  background-image: url("/assets/images/supporter/textChat.svg");
+}
+.selectable-icon {
+  cursor: pointer;
+  display: inline-block;
+  width: 24px;
+  height: 24px;
+  background-size: cover;
+}
+.supporterBtnToolbarWrapper{
+  display: contents;
+}
+.supportBtnWrapper{
+
+}
+.supportBtnWrapper{
+
+}
+.buttonSummary{
+  /*display: none;*/
+  opacity: 0;
+  position: absolute;
+  border-radius: 5px;
+  padding: 0 4px;
+}
+.supportBtn{
+  display: block;
+}
+.bubble
+{
+  z-index:100;
+  position: relative;
+  height: auto;
+  padding: 10px 10px 10px 10px;
+  background: #FFFFFF;
+  border-radius: 5px;
+  border: #7F7F7F solid 1px;
+  position: absolute;
+  font-size: 16px;
+  text-align: left;
+}
+
+.bubble:after
+{
+  content: '';
+  position: absolute;
+  border-style: solid;
+  border-width: 20px 14px 0 14px;
+  border-color: #FFFFFF transparent;
+  display: block;
+  width: 0;
+  z-index: 1;
+  top: 39px;
+  left: 18px;
+}
+
+.bubble:before
+{
+  content: '';
+  position: absolute;
+  border-style: solid;
+  border-width: 20px 14px 0 14px;
+  border-color: #7F7F7F transparent;
+  display: block;
+  width: 0;
+  z-index: 0;
+  top: 41px;
+  left: 18px;
+}
+
+.do-anime-btn-appear{
+  animation-name:anime-btn-appear-keyframe;
+  animation-iteration-count:1;
+  animation-duration: 0.1s;
+  animation-timing-function: ease-in;
+  animation-fill-mode:forwards;
+}
+@keyframes anime-btn-appear-keyframe {
+  0%{
+    opacity: 0;
+    transform: translate(24px, 24px) scale(0.1);
+  }
+  100%{
+    opacity: 1;
+    transform: translate(0, 0)  scale(1);
+  }
+}
+

@@ -1,0 +1,47 @@
+.kanban-item-card{
+  min-height: 110px;
+  text-align: left;
+  margin-bottom: 30px;
+}
+.kanban-item-title-left-color{
+  display: inline-block;
+  width: 8px;
+  height: 100%;
+  background-color: red;
+  border-radius: 15%;
+  position: absolute;
+  left: 0;
+  top: 0;
+}
+.kanban-item-title{
+  position: relative;
+  left: 0;
+  top: 0;
+  width: 50%;
+  padding: 3px 3px 1px 3px;
+  border-bottom: 3px solid #c9c9c9;
+  border-radius: 5%;
+}
+.kanban-item-profile-image{
+  position: absolute;
+  background-image: url("/assets/images/supporter/kanban/male.jpg");
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  right: 16px;
+  top: 0;
+  width: 80px;
+  height: 80px;
+  border: 2px solid #cecece;
+  border-radius: 50%;
+}
+.kanban-item-tagWrapper{
+  position: relative;
+  left: 0;
+  top: 0;
+  width: 92%;
+  height: 20px;
+}
+.kanban-item-tag{
+  display: inline-block;
+}

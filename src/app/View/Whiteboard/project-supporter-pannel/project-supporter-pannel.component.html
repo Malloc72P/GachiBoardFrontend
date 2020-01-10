@@ -1,0 +1,35 @@
+<div>
+  <div *ngFor="let mode of selectableMode" class="supporterBtnToolbarWrapper">
+    <p class="buttonSummary bubble"
+       [ngClass]="{
+          'do-anime-btn-appear' : isHovered[mode]
+       }"
+       [ngStyle]="{
+             'top'  : -77   + 'px',
+             'left' : 48 * mode - 4 + 'px'
+          }">
+      {{projectSupporterEnumService.getEnumArray()[mode]}}
+    </p>
+  </div>
+  <mat-button-toggle-group class="ctrl-pannel-wrapper"
+                           (change)="onPanelStateChangeHandler()"
+                           [(ngModel)]="currentSelectedMode">
+    <div *ngFor="let mode of selectableMode" class="supporterBtnToolbarWrapper">
+
+      <div class="supportBtnWrapper"
+           (pointerenter)="isHovered[mode] = true"
+           (pointerleave)="isHovered[mode] = false"
+           [ngStyle]="{
+         'width' : 100 / selectableMode.length + '%'
+         }">
+        <mat-button-toggle [value]="mode"
+                           class="supportBtn"
+                           (click)="onClickPanelItem(mode)">
+          <span class="selectable-icon {{projectSupporterEnumService.getSupporterIcon(mode)}}"></span>
+        </mat-button-toggle>
+      </div>
+    </div>
+
+  </mat-button-toggle-group>
+</div>
+

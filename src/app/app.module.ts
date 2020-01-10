@@ -4,7 +4,15 @@ import { NgModule } from '@angular/core';
 import { AppComponent } from './app.component';
 import { LoginPageComponent } from './View/SocialLogin/login-page/login-page.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import {MatButtonModule, MatButtonToggleModule, MatCardModule, MatRadioModule, MatRippleModule, MatSliderModule} from '@angular/material';
+import {
+  MatButtonModule,
+  MatButtonToggleModule,
+  MatCardModule, MatChipsModule,
+  MatDividerModule, MatGridListModule,
+  MatRadioModule,
+  MatRippleModule,
+  MatSliderModule
+} from '@angular/material';
 import { RouterModule, Routes } from '@angular/router';
 import { WhiteboardMainComponent } from './View/Whiteboard/whiteboard-main/whiteboard-main.component';
 import { ParticlesModule } from 'angular-particle';
@@ -34,6 +42,10 @@ import { WhiteboardMinimapComponent } from './View/Whiteboard/whiteboard-minimap
 import {MinimapSyncService} from './Model/Whiteboard/InfiniteCanvas/MinimapSync/minimap-sync.service';
 import { ToolHighlighterPanelComponent } from './View/Whiteboard/whiteboard-tool-panel/tool-highlighter-panel/tool-highlighter-panel.component';
 import {HighlighterService} from './Model/Whiteboard/Pointer/highlighter-service/highlighter.service';
+import { ProjectSupporterPannelComponent } from './View/Whiteboard/project-supporter-pannel/project-supporter-pannel.component';
+import { KanbanComponent } from './View/Whiteboard/project-supporter-pannel/kanban/kanban.component';
+import {PopupManagerService} from './Model/PopupManager/popup-manager.service';
+import { KanbanItemComponent } from './View/Whiteboard/project-supporter-pannel/kanban/kanban-item/kanban-item.component';
 
 
 const appRoutes: Routes = [
@@ -75,6 +87,9 @@ const appRoutes: Routes = [
     DebugingPannelComponent,
     WhiteboardMinimapComponent,
     ToolHighlighterPanelComponent,
+    ProjectSupporterPannelComponent,
+    KanbanComponent,
+    KanbanItemComponent,
   ],
   imports: [
     BrowserModule,
@@ -94,7 +109,10 @@ const appRoutes: Routes = [
     MatSliderModule,
     ColorPickerModule,
     MatExpansionModule,
-    DragDropModule
+    DragDropModule,
+    MatDividerModule,
+    MatGridListModule,
+    MatChipsModule
   ],
   providers: [
     RouterHelperService,
@@ -114,7 +132,8 @@ const appRoutes: Routes = [
     LassoSelectorService,
     DebugingService,
     MinimapSyncService,
-    HighlighterService
+    HighlighterService,
+    PopupManagerService
   ],
   bootstrap: [AppComponent]
 })
