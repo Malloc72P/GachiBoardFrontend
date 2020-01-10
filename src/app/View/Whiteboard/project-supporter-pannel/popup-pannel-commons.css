@@ -3,7 +3,7 @@
   position: absolute;
   left: 0;
   top: 0;
-  visibility: hidden;
+  visibility: visible;
   transform: scale(1) rotate(0deg);
   margin: 0;
   padding: 0;
@@ -30,17 +30,14 @@
   background: white;
 }
 .popup-card-wrapper{
-  width: 90%;
-  height: 90%;
+  /*width: 90%;
+  height: 90%;*/
+  overflow-y: auto;
 }
 .popup-main-background{
   position: absolute;
-  left: -50%;
-  top: -50%;
   margin: 0;
-  padding: 8px;
-  width: 200%;
-  height: 200%;
+  padding: 0;
   z-index: 50;
   opacity: 0.5;
   border-radius: 15%;
@@ -94,12 +91,14 @@
   0%{
     opacity: 0;
     visibility: visible;
-    transform: scale(0.1) translate(200%, 200%) rotate(45deg);
+    transform: scale(0.1) rotate(45deg);
+    /*translate(200%, 200%)*/
   }
   100%{
     opacity: 1;
     visibility: visible;
-    transform: scale(1) translate(0, 0) rotate(0deg);
+    transform: scale(1) rotate(0deg);
+    /*translate(0, 0)*/
   }
 }
 .do-anime-popup-disappear{
@@ -113,12 +112,14 @@
   0%{
     opacity: 1;
     visibility: visible;
-    transform: scale(1) translate(0, 0) rotate(0deg);
+    transform: scale(1) rotate(0deg);
+    /*transform: scale(1) translate(0, 0) rotate(0deg);*/
   }
   100%{
     opacity: 0;
     visibility: hidden;
-    transform: scale(0.1) translate(200%, 200%) rotate(45deg);
+    transform: scale(0.1) rotate(45deg);
+    /*transform: scale(0.1) translate(200%, 200%) rotate(45deg);*/
   }
 }
 .title-left-color{
