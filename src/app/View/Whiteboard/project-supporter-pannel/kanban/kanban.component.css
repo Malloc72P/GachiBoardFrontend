@@ -7,12 +7,9 @@
 .kanban-grid-cell{
   display: inline-block;
   width: 33%;
-  /*overflow-y: auto;*/
   overflow: hidden;
   height: 100%;
-  padding: 12px;
   text-align: center;
-  /*box-shadow: 0 0 0 1px black;*/
 }
 /*.kanban-grid-cell:after{
   clear: both;
@@ -27,7 +24,7 @@
   height: 30px;
   margin-bottom: 40px;
 }
-.popup-kanban-kard-wrapper{
+.popup-kanban-card-wrapper{
   /*width: 90%;
   height: 90%;*/
 }
@@ -89,8 +86,8 @@
   transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
 }
 .kanban-drop-zone{
-  height: 100%;
   overflow-y: auto;
+  padding: 0 12px 24px 0;
 }
 .mat-dialog-container{
   overflow: hidden !important;
@@ -125,10 +122,12 @@
   position: relative;
   left: 0;
   top: 0;
-  width: 30%;
+  width: 70%;
+  font-size: initial;
   padding: 3px 3px 1px 3px;
   border-bottom: 3px solid #c9c9c9;
   border-radius: 5%;
+  text-overflow: ellipsis;
 }
 .kanban-item-manager-wrapper{
   /*border: 1px solid black;*/
@@ -151,14 +150,4 @@
   /*border: 1px solid black;*/
   text-align: center;
   margin: 0;
-}
-.kanban-item-tagWrapper{
-  position: relative;
-  left: 0;
-  top: 0;
-  width: 92%;
-  height: 20px;
-}
-.kanban-item-tag{
-  display: inline-block;
 }

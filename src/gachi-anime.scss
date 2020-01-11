@@ -1,0 +1,26 @@
+$box-shadow-unavail-1 : 0px 0px 0px 0px rgba(255,0,0,1);
+$box-shadow-unavail-2 : 0px 0px 34px 13px rgba(255,0,0,1);
+.do-anime-unavailable{
+  animation-name:anime-unavailable-keyframe;
+  animation-iteration-count:1;
+  animation-duration: 0.8s;
+  animation-timing-function: ease-in-out;
+  animation-fill-mode:forwards;
+}
+@keyframes anime-unavailable-keyframe {
+  0%{
+    box-shadow: $box-shadow-unavail-1;
+  }
+  25%{
+    box-shadow: $box-shadow-unavail-2;
+  }
+  50%{
+    box-shadow: $box-shadow-unavail-1;
+  }
+  75%{
+    box-shadow: $box-shadow-unavail-2;
+  }
+  100%{
+    box-shadow: $box-shadow-unavail-1;
+  }
+}

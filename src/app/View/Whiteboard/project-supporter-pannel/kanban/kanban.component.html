@@ -1,7 +1,7 @@
 <div class="popup-main-panel popup-panel-box popup-commons-panel"
      id="supporter-KANBAN">
 
-  <mat-card class="popup-kanban-kard-wrapper
+  <mat-card class="popup-kanban-card-wrapper
                     popup-panel-box popup-card-wrapper panel-main">
     <mat-card-header class="popup-panel-row header">
       <div>
@@ -43,7 +43,7 @@
             <mat-card-content class="kanban-drop-zone "
                               cdkDropList
                               [ngStyle]="{
-                'min-height' : posCalcService.getHeightOfBrowser() - 330 + 'px'
+                'height' : posCalcService.getHeightOfBrowser() - 330 + 'px'
                }"
                               [cdkDropListData]="group.kanbanItemList"
                               (cdkDropListDropped)="drop($event)">
@@ -55,7 +55,7 @@
                 <mat-card class="example-custom-placeholder" *cdkDragPlaceholder></mat-card>
                 <div class="kanban-item-title-left-color"></div>
 
-                <mat-card-title class="kanban-item-title"
+                <mat-card-title class="kanban-item-title text-ellipsis"
                                 style="margin-bottom: 20px">
                   {{item.title}}
                 </mat-card-title>
@@ -68,14 +68,9 @@
                     사용자
                   </mat-card-subtitle>
                 </mat-card>
-
-                <mat-chip-list aria-label="Fish selection"
-                               class="kanban-item-tagWrapper">
-                  <mat-chip class="kanban-item-tag"
-                            *ngFor="let tag of item.tagList">
-                    {{tag.title}}
-                  </mat-chip>
-                </mat-chip-list>
+                <!--마테리얼 칩 영역-->
+                <app-kanban-tag-list [kanbanItem]="item">
+                </app-kanban-tag-list>
               </mat-card>
               <!--칸반 아이템-->
 

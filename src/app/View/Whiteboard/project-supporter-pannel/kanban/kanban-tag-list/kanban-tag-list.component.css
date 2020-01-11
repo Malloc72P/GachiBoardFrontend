@@ -1,0 +1,11 @@
+.kanban-item-tagWrapper{
+  display: contents;
+  position: relative;
+  left: 0;
+  top: 0;
+  width: 92%;
+  height: 20px;
+}
+.kanban-item-tag{
+  display: inline-block;
+}

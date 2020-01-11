@@ -1,10 +1,15 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import {PopupManagerService} from '../../../../Model/PopupManager/popup-manager.service';
 import {PositionCalcService} from '../../../../Model/Whiteboard/PositionCalc/position-calc.service';
 import {CdkDragDrop, moveItemInArray, transferArrayItem} from '@angular/cdk/drag-drop';
 import {MatDialogRef} from '@angular/material';
+import {
+  KanbanTagListManagerService,
+  TagItem
+} from '../../../../Model/Whiteboard/ProjectSupporter/Kanban/KanbanTagListManager/kanban-tag-list-manager.service';
 
 export class KanbanItem {
+  id:number;
   title:string;
   userInfo;
   color:string;
@@ -16,14 +21,7 @@ export class KanbanItem {
     this.tagList = new Array<TagItem>();
   }
 }
-export class TagItem{
-  title:string;
-  color:string;
-  constructor(title, color){
-    this.title = title;
-    this.color = color;
-  }
-}
+// ##### TagListControl
 export class KanbanGroup {
   title:string;
   scrollbarColor:string;
@@ -53,23 +51,21 @@ export class KanbanComponent implements OnInit {
   constructor(
     private popupManagerService:PopupManagerService,
     private posCalcService:PositionCalcService,
-    public dialogRef: MatDialogRef<KanbanComponent>
+    public dialogRef: MatDialogRef<KanbanComponent>,
+    private tagListMgrService:KanbanTagListManagerService
   ) {
     this.kanbanGroupWrapper = new Array<KanbanGroup>();
 
     this.todoGroup = new KanbanGroup("TODO", "danger");
     this.inProgressGroup = new KanbanGroup("In Progress", "warning");
     this.doneGroup = new KanbanGroup("DONE", "primary");
-    for(let i = 0 ; i < 12 ; i++){
+    for(let i = 0 ; i < 24 ; i++){
       let kanbanItem = new KanbanItem("Kanban" + i, null, "red");
       this.todoGroup.kanbanItemList.push(
         kanbanItem
       );
       for(let j = 0; j < i + 1; j++){
-        kanbanItem.tagList.push(
-          new TagItem("hello" + (j + 1),"red")
-        );
-
+        tagListMgrService.insertTagInTaglist(kanbanItem, "tag"+j, "red");
       }
     }
 
