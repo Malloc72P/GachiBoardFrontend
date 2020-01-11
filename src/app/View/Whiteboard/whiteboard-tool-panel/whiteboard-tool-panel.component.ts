@@ -50,4 +50,8 @@ export class WhiteboardToolPanelComponent extends PopoverPanel implements OnInit
         break;
     }
   }
+
+  get PointerModeEnum() {
+    return PointerMode;
+  }
 }

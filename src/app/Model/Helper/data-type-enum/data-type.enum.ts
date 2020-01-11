@@ -16,3 +16,9 @@ export enum DataName {
   SELECT_RANGE = "SelectRange",
   SELECT_HANDLER = "SelectHandler",
 }
+
+export enum ShapeStyle {
+  RECTANGLE,
+  CIRCLE,
+  TRIANGLE,
+}
