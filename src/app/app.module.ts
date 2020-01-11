@@ -12,7 +12,7 @@ import {
   MatDividerModule, MatFormFieldModule, MatGridListModule, MatIconModule,
   MatRadioModule,
   MatRippleModule,
-  MatSliderModule
+  MatSliderModule, MatToolbarModule
 } from '@angular/material';
 import { RouterModule, Routes } from '@angular/router';
 import { WhiteboardMainComponent } from './View/Whiteboard/whiteboard-main/whiteboard-main.component';
@@ -126,6 +126,7 @@ const appRoutes: Routes = [
     MatIconModule,
     ReactiveFormsModule,
     MatAutocompleteModule,
+    MatToolbarModule,
   ],
   providers: [
     RouterHelperService,

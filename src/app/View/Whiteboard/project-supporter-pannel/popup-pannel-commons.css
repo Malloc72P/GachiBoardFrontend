@@ -48,6 +48,12 @@
 .project-supporter-card-title{
   font-size: 42px;
 }
+.project-supporter-card-title-icon{
+  display: inline-block;
+  width: 32px;
+  height: 32px;
+  filter: invert(100%);
+}
 
 .popup-panel-box {
   /*display: flex;

@@ -48,6 +48,8 @@ button.ctrl-panel-button-horizontal{
 }
 mat-dialog-container{
   overflow: hidden !important;
+  padding: 0px !important;
+  border-radius: 0 !important;
 }
 .text-ellipsis{
   text-overflow: ellipsis;

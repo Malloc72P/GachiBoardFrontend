@@ -24,13 +24,13 @@ export class KanbanItem {
 // ##### TagListControl
 export class KanbanGroup {
   title:string;
-  scrollbarColor:string;
+  groupColor:string;
   kanbanItemList:Array<KanbanItem>;
   isFocused:Boolean;
-  constructor(title, scrollbarColor){
+  constructor(title, groupColor){
     this.title = title;
     this.kanbanItemList = new Array<KanbanItem>();
-    this.scrollbarColor = scrollbarColor;
+    this.groupColor = groupColor;
     this.isFocused = false;
   }
 }
@@ -38,13 +38,17 @@ export class KanbanGroup {
 @Component({
   selector: 'app-kanban',
   templateUrl: './kanban.component.html',
-  styleUrls: ['./kanban.component.css','./../popup-pannel-commons.css', '../../../../../scrolling.scss']
+  styleUrls: ['./kanban.component.css',
+    './../popup-pannel-commons.css',
+    '../../../../../scrolling.scss',
+    '../../project-supporter-pannel/project-supporter-pannel.component.css']
 })
 export class KanbanComponent implements OnInit {
 
   todoGroup:KanbanGroup;
   inProgressGroup:KanbanGroup;
   doneGroup:KanbanGroup;
+  isDragging:Boolean = false;
 
   kanbanGroupWrapper:Array<KanbanGroup>;
 
@@ -56,9 +60,9 @@ export class KanbanComponent implements OnInit {
   ) {
     this.kanbanGroupWrapper = new Array<KanbanGroup>();
 
-    this.todoGroup = new KanbanGroup("TODO", "danger");
-    this.inProgressGroup = new KanbanGroup("In Progress", "warning");
-    this.doneGroup = new KanbanGroup("DONE", "primary");
+    this.todoGroup = new KanbanGroup("TODO", "primary");
+    this.inProgressGroup = new KanbanGroup("In Progress", "accent");
+    this.doneGroup = new KanbanGroup("DONE", "warn");
     for(let i = 0 ; i < 24 ; i++){
       let kanbanItem = new KanbanItem("Kanban" + i, null, "red");
       this.todoGroup.kanbanItemList.push(

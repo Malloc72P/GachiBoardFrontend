@@ -1,52 +1,59 @@
 <div class="popup-main-panel popup-panel-box popup-commons-panel"
      id="supporter-KANBAN">
 
-  <mat-card class="popup-kanban-card-wrapper
+  <div class="popup-kanban-card-wrapper
                     popup-panel-box popup-card-wrapper panel-main">
-    <mat-card-header class="popup-panel-row header">
-      <div>
-        <div class="title-left-color"></div>
-        <div class="popup-title-wrapper">
-          <mat-card-title class="project-supporter-card-title popup-title">Kanban</mat-card-title>
-          <br>
-          <mat-card-subtitle class="popup-title">칸반을 움직이려면 프로필 이미지를 잡고 움직여주세요</mat-card-subtitle>
-        </div>
-      </div>
-      <button class="popup-close-btn"
-              mat-button
-              (click)="onNoClick()">
-        <i class="im im-x-mark"></i>
-      </button>
-    </mat-card-header>
+    <mat-toolbar color="primary" class="panel-main-header-wrapper">
+      <mat-toolbar-row class="panel-main-header">
+        <span class="project-supporter-card-title">
+          <!--<mat-icon class="example-icon" aria-hidden="false"
+                    aria-label="Example user verified icon">verified_user</mat-icon>-->
+          <span class="icon-tools-kanban project-supporter-card-title-icon"></span>
+          KANBAN
+        </span>
+        <span class="example-spacer"></span>
+        <button mat-button color="Basic"
+                (click)="onNoClick()">
+          <mat-icon class="example-icon" aria-hidden="false" aria-label="kanban close button">close</mat-icon>
+        </button>
+      </mat-toolbar-row>
+    </mat-toolbar>
+
     <mat-card-content class="popup-panel-row content">
-      <hr>
       <!--#####여기서 팝업패널 내용 작성할 것######-->
       <div class="popup-panel-content">
-        <div class="kanban-grid"
-             cdkDropListGroup>
+        <mat-card class="kanban-grid"
+                  cdkDropListGroup>
           <!--######칸반 셀 - 1-->
           <mat-card *ngFor="let group of kanbanGroupWrapper"
                     class="kanban-grid-cell card-1"
-                    (pointerenter)="group.isFocused = true"
-                    (pointerleave)="group.isFocused = false"
-                    [ngClass]="{
-                  'card-1-focused' : group.isFocused
-                }"
                     [ngStyle]="{
-                'height' : posCalcService.getHeightOfBrowser() - 220 + 'px'
+                'height' : posCalcService.getHeightOfBrowser() - 160 + 'px'
                }">
 
-            <mat-card-title class="kanban-title">
-              {{group.title}}
-              <hr>
-            </mat-card-title>
-            <mat-card-content class="kanban-drop-zone "
-                              cdkDropList
-                              [ngStyle]="{
-                'height' : posCalcService.getHeightOfBrowser() - 330 + 'px'
-               }"
-                              [cdkDropListData]="group.kanbanItemList"
-                              (cdkDropListDropped)="drop($event)">
+            <mat-toolbar color="{{group.groupColor}}" class="kanban-group-header">
+              <mat-toolbar-row>
+                <span class="example-spacer"></span>
+                <span>
+                  <span style="margin-right: 8px">(</span>
+                   {{group.title}} : {{group.kanbanItemList.length}}
+                  <span style="margin-left: 8px">)</span>
+                </span>
+                <span class="example-spacer"></span>
+              </mat-toolbar-row>
+            </mat-toolbar>
+
+
+            <mat-card class="kanban-drop-zone "
+                      cdkDropList
+                      (pointerdown)="isDragging = true"
+                      (pointerup)="isDragging = false"
+                      (pointerenter)="group.isFocused = true"
+                      (pointerleave)="group.isFocused = false"
+                      [ngClass]="{'card-1-focused' : group.isFocused && isDragging}"
+                      [ngStyle]="{'height' : posCalcService.getHeightOfBrowser() - 270 + 'px'}"
+                      [cdkDropListData]="group.kanbanItemList"
+                      (cdkDropListDropped)="drop($event)">
               <!--그리드 셀 컨텐츠( 여기서 칸반 아이템 출력 )-->
               <!--칸반 아이템-->
               <mat-card *ngFor="let item of group.kanbanItemList"
@@ -74,16 +81,16 @@
               </mat-card>
               <!--칸반 아이템-->
 
-            </mat-card-content>
+            </mat-card>
 
           </mat-card>
 
-        </div>
+        </mat-card>
       </div>
       <!--####################################-->
     </mat-card-content>
 
-  </mat-card>
+  </div>
 
 
 </div>

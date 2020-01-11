@@ -30,7 +30,7 @@ export class KanbanTagListComponent implements OnInit {
 
   private static idGenerator = 0;
   id = 0;
-  selectable = true;
+  selectable = false;
   removable = true;
   addOnBlur = true;
 
