@@ -41,7 +41,6 @@ export class PanelManagerService {
     // ToolPanel 이나 ShapePanel 을 누르지 않은경우 ShapePanel 숨김
     if (!(this.HTMLToolPanel.contains(event.target) || this.HTMLShapePanel.contains(event.target))) {
       this.isHideShapePanel = true;
-      console.log('PanelManagerService >> onClickOutsidePanel >> Hi');
     }
   }
 

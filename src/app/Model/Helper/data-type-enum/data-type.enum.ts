@@ -21,4 +21,5 @@ export enum ShapeStyle {
   RECTANGLE,
   CIRCLE,
   TRIANGLE,
+  ROUND_RECTANGLE,
 }

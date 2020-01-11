@@ -2,6 +2,7 @@ import {Injectable} from '@angular/core';
 import * as paper from 'paper';
 import {PositionCalcService} from '../../PositionCalc/position-calc.service';
 import {ShapeStyle} from '../../../Helper/data-type-enum/data-type.enum';
+import {min} from 'rxjs/operators';
 
 interface Points {
   point: paper.Point,
@@ -64,7 +65,25 @@ export class ShapeService {
 
     let bound = new paper.Rectangle(this.fromPoint, points.point);
     this.handlePath.bounds = bound;
-    this.newPath.bounds = bound;
+
+    if(this._shapeStyle === ShapeStyle.ROUND_RECTANGLE) {
+      this.newPath.remove();
+      this.redrawRoundRectangle(bound);
+      // let cornerWidth = Math.abs(this.newPath.bounds.bottomLeft.x - this.newPath.segments[0].point.x);
+      // let cornerHeight = Math.abs(this.newPath.bounds.bottomLeft.y - this.newPath.segments[1].point.y);
+      //
+      // let min = Math.min(cornerWidth, cornerHeight);
+      // this.newPath.segments[0].point.x = this.newPath.segments[0].point.x - (cornerWidth - min);
+      // this.newPath.segments[1].point.y = this.newPath.segments[1].point.y + (cornerHeight - min);
+      // this.newPath.segments[2].point.y = this.newPath.segments[2].point.y - (cornerHeight - min);
+      // this.newPath.segments[3].point.x = this.newPath.segments[3].point.x - (cornerWidth - min);
+      // this.newPath.segments[4].point.x = this.newPath.segments[4].point.x + (cornerWidth - min);
+      // this.newPath.segments[5].point.y = this.newPath.segments[5].point.y - (cornerHeight - min);
+      // this.newPath.segments[6].point.y = this.newPath.segments[6].point.y + (cornerHeight - min);
+      // this.newPath.segments[7].point.x = this.newPath.segments[7].point.x + (cornerWidth - min);
+    } else {
+      this.newPath.bounds = bound;
+    }
   }
 
   public endPath() {
@@ -102,8 +121,13 @@ export class ShapeService {
         this.createRectangle(point);
         break;
       case ShapeStyle.CIRCLE:
+        this.createCircle(point);
         break;
       case ShapeStyle.TRIANGLE:
+        this.createTriAngle(point);
+        break;
+      case ShapeStyle.ROUND_RECTANGLE:
+        this.createRoundRectangle(point);
         break;
       default:
         break;
@@ -119,6 +143,43 @@ export class ShapeService {
       strokeWidth: this._strokeWidth,
     });
   }
+  private createCircle(point: paper.Point) {
+    let center = new paper.Point(point.x + this.minSize / 2, point.y + this.minSize / 2);
+    this.newPath = new paper.Path.Circle({
+      center: center,
+      radius: this.minSize / 2,
+      strokeColor: this._strokeColor,
+      strokeWidth: this._strokeWidth,
+    });
+  }
+  private createTriAngle(point: paper.Point) {
+    let center = new paper.Point(point.x + this.minSize / 2, point.y + this.minSize / 2);
+    this.newPath = new paper.Path.RegularPolygon({
+      center: center,
+      sides: 3,
+      radius: this.minSize / 2,
+      strokeColor: this._strokeColor,
+      strokeWidth: this._strokeWidth,
+    });
+  }
+  private createRoundRectangle(point: paper.Point) {
+    let toPoint = new paper.Point(point.x + this.minSize, point.y + this.minSize);
+    let cornerSize = new paper.Size(this.minSize * 0.2, this.minSize * 0.2);
+    this.newPath = new paper.Path.Rectangle({
+      from: point,
+      to: toPoint,
+      radius: cornerSize,
+      strokeColor: this._strokeColor,
+      strokeWidth: this._strokeWidth,
+    });
+  }
+  private redrawRoundRectangle(bound: paper.Rectangle) {
+    let min = Math.min(bound.width, bound.height);
+    this.newPath = new paper.Path.Rectangle(bound, new paper.Size(min * 0.1, min * 0.1));
+    this.newPath.strokeColor = this._strokeColor;
+    this.newPath.strokeWidth = this._strokeWidth;
+  }
+
   private createHandleRectangle(point: paper.Point) {
     let toPoint = new paper.Point(point.x + this.minSize, point.y + this.minSize);
     this.handlePath = new paper.Path.Rectangle({

@@ -3,6 +3,7 @@ import * as paper from 'paper'
 import {PointerModeManagerService} from '../../../../Model/Whiteboard/Pointer/pointer-mode-manager-service/pointer-mode-manager.service';
 import {PanelManagerService} from '../../../../Model/Whiteboard/Panel/panel-manager-service/panel-manager.service';
 import {PointerMode} from '../../../../Model/Whiteboard/Pointer/pointer-mode-enum-service/pointer-mode-enum.service';
+import {ShapeStyle} from '../../../../Model/Helper/data-type-enum/data-type.enum';
 
 type SelectableColor = {
   isSelect: boolean;
@@ -60,5 +61,20 @@ export class ToolShapePanelComponent implements OnInit {
     let color = new paper.Color(this.colorPickerPicked);
     this.strokeColors.push({isSelect: false, color: color});
     this.onColorPickerClicked(this.strokeColors[this.strokeColors.length - 1]);
+  }
+  onShapePickerClicked(shape: string) {
+    this.pointerModeManagerService.shape.shapeStyle = ShapeStyle[shape];
+  }
+
+  get shapes() {
+    let shapeList = new Array<string>();
+    for (let shapeStyleKey in ShapeStyle) {
+      if(ShapeStyle.hasOwnProperty(shapeStyleKey)) {
+        if(parseInt(shapeStyleKey) >= 0) {
+          shapeList.push(ShapeStyle[shapeStyleKey]);
+        }
+      }
+    }
+    return shapeList;
   }
 }

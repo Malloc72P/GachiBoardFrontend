@@ -28,15 +28,17 @@ export enum PointerIcon {
 
 export class PointerModeEnumService implements CommonEnum {
   private enumData = PointerMode;
-  private selectableMode:Array<any>;
+  private selectableMode:Array<string>;
 
   constructor() {
     this.selectableMode = new Array<any>();
 
     for( let key in this.enumData ){
-      let iterItem = this.enumData[key];
-      if(!isNaN(Number(iterItem))){
-        this.selectableMode.splice(this.selectableMode.length, 0, iterItem);
+      if(this.enumData.hasOwnProperty(key)) {
+        let iterItem = this.enumData[key];
+        if(!isNaN(Number(iterItem))){
+          this.selectableMode.splice(this.selectableMode.length, 0, iterItem);
+        }
       }
     }
   }
