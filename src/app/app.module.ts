@@ -46,6 +46,7 @@ import { ProjectSupporterPannelComponent } from './View/Whiteboard/project-suppo
 import { KanbanComponent } from './View/Whiteboard/project-supporter-pannel/kanban/kanban.component';
 import {PopupManagerService} from './Model/PopupManager/popup-manager.service';
 import { KanbanItemComponent } from './View/Whiteboard/project-supporter-pannel/kanban/kanban-item/kanban-item.component';
+import { ToolShapePanelComponent } from './View/Whiteboard/whiteboard-tool-panel/tool-shape-panel/tool-shape-panel.component';
 
 
 const appRoutes: Routes = [
@@ -90,6 +91,7 @@ const appRoutes: Routes = [
     ProjectSupporterPannelComponent,
     KanbanComponent,
     KanbanItemComponent,
+    ToolShapePanelComponent,
   ],
   imports: [
     BrowserModule,

@@ -13,7 +13,7 @@ interface Points {
 })
 export class ShapeService {
   private currentProject: paper.Project;
-  private previousPoint: paper.Point;
+  private previousPoint: paper.Point = new paper.Point(0, 0);
   private newPath: paper.Path;
   private handlePath: paper.Path;
   private fromPoint: paper.Point;
@@ -85,7 +85,7 @@ export class ShapeService {
     } else if (event instanceof TouchEvent) {
       points = {
         point: new paper.Point(event.touches[0].clientX, event.touches[0].clientY),
-        delta: new paper.Point(points.point.x - this.previousPoint.x, points.point.y - this.previousPoint.y)
+        delta: new paper.Point(event.touches[0].clientX - this.previousPoint.x, event.touches[0].clientY - this.previousPoint.y)
       };
       this.previousPoint = new paper.Point(points.point);
     }
@@ -116,7 +116,7 @@ export class ShapeService {
       from: point,
       to: toPoint,
       strokeColor: this._strokeColor,
-      strokeWidth: this.strokeWidth,
+      strokeWidth: this._strokeWidth,
     });
   }
   private createHandleRectangle(point: paper.Point) {
@@ -125,7 +125,7 @@ export class ShapeService {
       from: point,
       to: toPoint,
       strokeColor: this.handlePathColor,
-      strokeWidth: this.strokeWidth,
+      strokeWidth: 1,
     })
   }
 

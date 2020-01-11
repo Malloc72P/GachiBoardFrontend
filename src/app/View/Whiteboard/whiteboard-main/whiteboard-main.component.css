@@ -12,7 +12,7 @@ app-whiteboard-tool-panel {
   top: 50%;
   transform: translate(0, -50%);
 }
-app-tool-brush-panel, app-tool-highlighter-panel {
+app-tool-brush-panel, app-tool-highlighter-panel, app-tool-shape-panel {
   position: absolute;
   left: 62px;
   top: 50%;
