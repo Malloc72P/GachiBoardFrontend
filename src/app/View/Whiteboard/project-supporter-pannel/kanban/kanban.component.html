@@ -11,7 +11,7 @@
           <span class="icon-tools-kanban project-supporter-card-title-icon"></span>
           KANBAN
         </span>
-        <span class="example-spacer"></span>
+        <span class="flex-spacer"></span>
         <button mat-button color="Basic"
                 (click)="onNoClick()">
           <mat-icon class="example-icon" aria-hidden="false" aria-label="kanban close button">close</mat-icon>
@@ -27,24 +27,29 @@
           <!--######칸반 셀 - 1-->
           <mat-card *ngFor="let group of kanbanGroupWrapper"
                     class="kanban-grid-cell card-1"
-                    [ngStyle]="{
-                'height' : posCalcService.getHeightOfBrowser() - 160 + 'px'
-               }">
-
+                    [ngStyle]="{'height' : posCalcService.getHeightOfBrowser() - 160 + 'px'}">
             <mat-toolbar color="{{group.groupColor}}" class="kanban-group-header">
               <mat-toolbar-row>
-                <span class="example-spacer"></span>
+                <span class="flex-spacer"></span>
                 <span>
                   <span style="margin-right: 8px">(</span>
                    {{group.title}} : {{group.kanbanItemList.length}}
                   <span style="margin-left: 8px">)</span>
                 </span>
-                <span class="example-spacer"></span>
+                <span class="flex-spacer"></span>
+                <button mat-button
+                        (click)="onCreateItem(group)"
+                        class="kanban-create-item-btn">
+                  <mat-icon class="example-icon"
+                            aria-hidden="false"
+                            aria-label="kanban title add button">add_circle
+                  </mat-icon>
+                </button>
               </mat-toolbar-row>
             </mat-toolbar>
 
 
-            <mat-card class="kanban-drop-zone "
+            <mat-card class="kanban-drop-zone scrollbar-{{group.groupColor}}"
                       cdkDropList
                       (pointerdown)="isDragging = true"
                       (pointerup)="isDragging = false"
@@ -60,19 +65,35 @@
                         cdkDrag
                         class="kanban-item-card">
                 <mat-card class="example-custom-placeholder" *cdkDragPlaceholder></mat-card>
-                <div class="kanban-item-title-left-color"></div>
 
-                <mat-card-title class="kanban-item-title text-ellipsis"
-                                style="margin-bottom: 20px">
-                  {{item.title}}
+                <div class="kanban-item-title-left-color"
+                     [ngStyle]="{ 'background-color' : item.getColor() }"></div>
+
+                <mat-card-title class="kanban-item-title text-ellipsis">
+                  <p>{{item.title}}</p>
+                  <span class="flex-spacer"></span>
+                  <button mat-button
+                          [matMenuTriggerFor]="menu"
+                          class="kanban-item-title-edit-btn">
+                    <mat-icon class="example-icon"
+                              aria-hidden="false"
+                              aria-label="kanban title edit button">more_vert
+                    </mat-icon>
+                  </button>
+                  <mat-menu #menu="matMenu">
+                    <button mat-menu-item
+                            (click)="onEditBtnClick(item)">Edit</button>
+                    <button mat-menu-item
+                            (click)="deleteFrom( item, group )">Delete</button>
+                  </mat-menu>
                 </mat-card-title>
 
                 <mat-card class="kanban-item-manager-wrapper" cdkDragHandle>
                   <img mat-card-image
                        class="kanban-item-manager-image"
                        src="/assets/images/supporter/kanban/male.jpg"/>
-                  <mat-card-subtitle class="kanban-item-manager-name">
-                    사용자
+                  <mat-card-subtitle class="kanban-item-manager-name text-ellipsis">
+                    {{item.userInfo.name}}
                   </mat-card-subtitle>
                 </mat-card>
                 <!--마테리얼 칩 영역-->

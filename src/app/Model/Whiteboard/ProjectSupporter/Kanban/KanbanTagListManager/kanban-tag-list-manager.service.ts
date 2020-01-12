@@ -1,5 +1,5 @@
 import {EventEmitter, Injectable, Output} from '@angular/core';
-import {KanbanItem} from '../../../../../View/Whiteboard/project-supporter-pannel/kanban/kanban.component';
+import {KanbanItem} from '../KanbanItem/kanban-item';
 
 export class TagItem{
   title:string;

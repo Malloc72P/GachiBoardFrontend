@@ -2,38 +2,15 @@ import {Component, OnInit} from '@angular/core';
 import {PopupManagerService} from '../../../../Model/PopupManager/popup-manager.service';
 import {PositionCalcService} from '../../../../Model/Whiteboard/PositionCalc/position-calc.service';
 import {CdkDragDrop, moveItemInArray, transferArrayItem} from '@angular/cdk/drag-drop';
-import {MatDialogRef} from '@angular/material';
-import {
-  KanbanTagListManagerService,
-  TagItem
+import {MatDialog, MatDialogRef} from '@angular/material';
+import {KanbanTagListManagerService,TagItem
 } from '../../../../Model/Whiteboard/ProjectSupporter/Kanban/KanbanTagListManager/kanban-tag-list-manager.service';
-
-export class KanbanItem {
-  id:number;
-  title:string;
-  userInfo;
-  color:string;
-  tagList:Array<TagItem>;
-  constructor(title, userInfo, color){
-    this.title = title;
-    this.userInfo = userInfo;
-    this.color = color;
-    this.tagList = new Array<TagItem>();
-  }
-}
-// ##### TagListControl
-export class KanbanGroup {
-  title:string;
-  groupColor:string;
-  kanbanItemList:Array<KanbanItem>;
-  isFocused:Boolean;
-  constructor(title, groupColor){
-    this.title = title;
-    this.kanbanItemList = new Array<KanbanItem>();
-    this.groupColor = groupColor;
-    this.isFocused = false;
-  }
-}
+import {KanbanItemEditComponent} from './kanban-item-edit/kanban-item-edit.component';
+import {UserManagerService} from '../../../../Model/UserManager/user-manager.service';
+import {KanbanItemColor} from '../../../../Model/Whiteboard/ProjectSupporter/Kanban/KanbanItemColorEnumManager/kanban-item-color.service';
+import {KanbanItemCreateComponent} from './kanban-item-create/kanban-item-create.component';
+import {KanbanGroup} from '../../../../Model/Whiteboard/ProjectSupporter/Kanban/KanbanGroup/kanban-group';
+import {KanbanItem} from '../../../../Model/Whiteboard/ProjectSupporter/Kanban/KanbanItem/kanban-item';
 
 @Component({
   selector: 'app-kanban',
@@ -56,7 +33,9 @@ export class KanbanComponent implements OnInit {
     private popupManagerService:PopupManagerService,
     private posCalcService:PositionCalcService,
     public dialogRef: MatDialogRef<KanbanComponent>,
-    private tagListMgrService:KanbanTagListManagerService
+    private tagListMgrService:KanbanTagListManagerService,
+    private userManagerService:UserManagerService,
+    public dialog: MatDialog
   ) {
     this.kanbanGroupWrapper = new Array<KanbanGroup>();
 
@@ -64,10 +43,9 @@ export class KanbanComponent implements OnInit {
     this.inProgressGroup = new KanbanGroup("In Progress", "accent");
     this.doneGroup = new KanbanGroup("DONE", "warn");
     for(let i = 0 ; i < 24 ; i++){
-      let kanbanItem = new KanbanItem("Kanban" + i, null, "red");
-      this.todoGroup.kanbanItemList.push(
-        kanbanItem
-      );
+      let kanbanItem = new KanbanItem("Kanban" + i, null, KanbanItemColor.RED);
+      kanbanItem.userInfo = this.userManagerService.getUserList()[0];
+      this.addTo(kanbanItem, this.todoGroup);
       for(let j = 0; j < i + 1; j++){
         tagListMgrService.insertTagInTaglist(kanbanItem, "tag"+j, "red");
       }
@@ -77,6 +55,20 @@ export class KanbanComponent implements OnInit {
     this.kanbanGroupWrapper.push(this.todoGroup);
     this.kanbanGroupWrapper.push(this.inProgressGroup);
     this.kanbanGroupWrapper.push(this.doneGroup);
+  }
+
+  addTo(kanbanItem:KanbanItem, kanbanGroup:KanbanGroup){
+    kanbanGroup.kanbanItemList.push(kanbanItem)
+  }
+  enqueueTo(kanbanItem:KanbanItem, kanbanGroup:KanbanGroup){
+    kanbanGroup.kanbanItemList.splice(0, 0, kanbanItem);
+  }
+  deleteFrom(kanbanItem:KanbanItem, kanbanGroup:KanbanGroup){
+    let index = -1;
+    index = kanbanGroup.kanbanItemList.indexOf(kanbanItem);
+    if(index >= 0){
+      kanbanGroup.kanbanItemList.splice(index, 1);
+    }
   }
 
   ngOnInit() {
@@ -98,6 +90,28 @@ export class KanbanComponent implements OnInit {
 
   onNoClick(): void {
     this.dialogRef.close();
+  }
+  onEditBtnClick(item){
+    const dialogRef = this.dialog.open(KanbanItemEditComponent, {
+      width: '480px',
+      data: {kanbanItem: item}
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      console.log("KanbanComponent >>  >> result : ",result);
+    });
+  }
+  onCreateItem(group){
+    const dialogRef = this.dialog.open(KanbanItemCreateComponent, {
+      width: '480px',
+      data: {kanbanGroup: group}
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      console.log("KanbanComponent >>  >> result : ",result);
+      this.enqueueTo(result.kanbanItem, result.kanbanGroup);
+    });
+
   }
 
 

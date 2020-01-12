@@ -1,5 +1,5 @@
 import { BrowserModule } from '@angular/platform-browser';
-import {NgModule, Renderer2} from '@angular/core';
+import {NgModule} from '@angular/core';
 
 import { AppComponent } from './app.component';
 import { LoginPageComponent } from './View/SocialLogin/login-page/login-page.component';
@@ -9,9 +9,9 @@ import {
   MatButtonModule,
   MatButtonToggleModule,
   MatCardModule, MatChipsModule, MatDialogModule,
-  MatDividerModule, MatFormFieldModule, MatGridListModule, MatIconModule,
+  MatDividerModule, MatFormFieldModule, MatGridListModule, MatIconModule, MatInputModule, MatMenuModule,
   MatRadioModule,
-  MatRippleModule,
+  MatRippleModule, MatSelectModule,
   MatSliderModule, MatToolbarModule
 } from '@angular/material';
 import { RouterModule, Routes } from '@angular/router';
@@ -50,6 +50,9 @@ import { KanbanTagListComponent } from './View/Whiteboard/project-supporter-pann
 import {KanbanTagListManagerService} from './Model/Whiteboard/ProjectSupporter/Kanban/KanbanTagListManager/kanban-tag-list-manager.service';
 import {AnimeManagerService} from './Model/AnimeManager/anime-manager.service';
 import { KanbanItemEditComponent } from './View/Whiteboard/project-supporter-pannel/kanban/kanban-item-edit/kanban-item-edit.component';
+import {UserManagerService} from './Model/UserManager/user-manager.service';
+import {KanbanItemColorService} from './Model/Whiteboard/ProjectSupporter/Kanban/KanbanItemColorEnumManager/kanban-item-color.service';
+import { KanbanItemCreateComponent } from './View/Whiteboard/project-supporter-pannel/kanban/kanban-item-create/kanban-item-create.component';
 
 
 const appRoutes: Routes = [
@@ -95,9 +98,12 @@ const appRoutes: Routes = [
     KanbanComponent,
     KanbanTagListComponent,
     KanbanItemEditComponent,
+    KanbanItemCreateComponent,
   ],
   entryComponents: [
-    KanbanComponent
+    KanbanComponent,
+    KanbanItemEditComponent,
+    KanbanItemCreateComponent
   ],
   imports: [
     BrowserModule,
@@ -127,6 +133,9 @@ const appRoutes: Routes = [
     ReactiveFormsModule,
     MatAutocompleteModule,
     MatToolbarModule,
+    MatInputModule,
+    MatSelectModule,
+    MatMenuModule
   ],
   providers: [
     RouterHelperService,
@@ -149,7 +158,9 @@ const appRoutes: Routes = [
     HighlighterService,
     PopupManagerService,
     KanbanTagListManagerService,
-    AnimeManagerService
+    AnimeManagerService,
+    UserManagerService,
+    KanbanItemColorService
   ],
   bootstrap: [AppComponent]
 })

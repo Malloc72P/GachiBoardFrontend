@@ -131,11 +131,18 @@
   left: 0;
   top: 0;
 }
+.kanban-create-item-btn{
+  position: absolute;
+  padding: 0;
+  right: 34px;
+}
 .kanban-item-title{
   position: relative;
+  display: flex;
+  flex-flow: row;
   left: 0;
   top: 0;
-  width: 70%;
+  width: 75%;
   font-size: initial;
   padding: 3px 3px 1px 3px;
   border-bottom: 3px solid #c9c9c9;
@@ -147,10 +154,14 @@
   position: absolute;
   right: 0px;
   top: 0px;
+  width: 23%;
   padding: 2px 3px;
   margin: 0;
   text-align: center;
   cursor: move;
+}
+.kanban-item-title-edit-btn{
+  padding: 0;
 }
 .kanban-item-manager-image{
   margin: 0;
@@ -167,7 +178,22 @@
 .example-icon {
   padding: 0 14px;
 }
-
-.example-spacer {
-  flex: 1 1 auto;
+.kanban-trash-bin{
+  width: 40%;
+  height: 40px;
+  position: absolute;
+  left: 50%;
+  transform: translate(-50%, 0);
+  display: block;
 }
+.kanban-trash-bin-content{
+  display: flex;
+  flex-flow: row;
+
+  height: 100%;
+}
+.kanban-trash-bin-icon{
+  height: 100%;
+  line-height: inherit;
+}
+

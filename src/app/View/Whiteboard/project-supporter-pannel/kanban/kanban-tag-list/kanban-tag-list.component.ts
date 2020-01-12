@@ -9,7 +9,8 @@ import {
   TagItem
 } from '../../../../../Model/Whiteboard/ProjectSupporter/Kanban/KanbanTagListManager/kanban-tag-list-manager.service';
 import {AnimeManagerService, AnimeName} from '../../../../../Model/AnimeManager/anime-manager.service';
-import {KanbanItem} from '../kanban.component';
+import {KanbanItem} from '../../../../../Model/Whiteboard/ProjectSupporter/Kanban/KanbanItem/kanban-item';
+
 
 @Component({
   selector: 'app-kanban-tag-list',
