@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import * as paper from 'paper';
 import {PositionCalcService} from "../../PositionCalc/position-calc.service";
-import {DataName, DataState, DataType} from '../../../Helper/data-type-enum/data-type.enum';
+import {DataName, DataState} from '../../../Helper/data-type-enum/data-type.enum';
 
 @Injectable({
   providedIn: 'root'
@@ -188,7 +188,7 @@ export class LassoSelectorService {
       this.selectedItems.forEach((value) => {
         this.selectedGroup.addChild(value);
       });
-      this.selectedGroup.selected = true;
+      // this.selectedGroup.selected = true;
 
       // 선택된 Item이 있을때만 그림
       if(this.selectedGroup.hasChildren()) {
@@ -311,7 +311,7 @@ export class LassoSelectorService {
       if (this.selectRange) {
         this.selectRange.remove();
       }
-      this.selectedGroup.selected = false;
+      // this.selectedGroup.selected = false;
 
       this.unGroup(this.selectedGroup);
       this.newPath.remove();

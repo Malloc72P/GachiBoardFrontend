@@ -171,7 +171,7 @@ export class PointerModeManagerService {
           this.highlighter.endPath();
           break;
         case PointerMode.SHAPE:
-          this.shape.endPath();
+          this.shape.endPath(event);
           break;
         case PointerMode.ERASER:
           this.eraser.endPath();
@@ -259,7 +259,7 @@ export class PointerModeManagerService {
         this.highlighter.endPath();
         break;
       case PointerMode.SHAPE:
-        this.shape.endPath();
+        this.shape.endPath(event);
         break;
       case PointerMode.ERASER:
         this.eraser.endPath();

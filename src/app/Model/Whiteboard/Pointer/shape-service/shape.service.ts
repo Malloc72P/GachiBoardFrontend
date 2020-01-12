@@ -25,6 +25,9 @@ export class ShapeService {
   private _strokeWidth = 1;
   private _shapeStyle: number = ShapeStyle.RECTANGLE;
 
+  private lastClickTime = 0;
+  private isCreated = false;
+
   constructor(
     private positionCalcService: PositionCalcService,
   ) { }
@@ -40,7 +43,6 @@ export class ShapeService {
     let points: Points;
     points = this.initEvent(event);
 
-    this.createSelectedShape(points.point);
     this.createHandleRectangle(points.point);
 
     this.fromPoint = points.point;
@@ -50,18 +52,26 @@ export class ShapeService {
     let points: Points;
     points = this.initEvent(event);
 
+    if(!this.isCreated){
+      this.createSelectedShape(points.point);
+      this.isCreated = true;
+    }
+
     const width = this.fromPoint.x - points.point.x;
     if(width < this.minSize && width >= 0) {
       points.point.x = this.fromPoint.x - this.minSize;
     } else if (width > -this.minSize && width < 0) {
       points.point.x = this.fromPoint.x + this.minSize;
     }
-
-    const height = this.fromPoint.y - points.point.y;
-    if(height < this.minSize && height >= 0) {
-      points.point.y = this.fromPoint.y - this.minSize;
-    } else if (height > -this.minSize && height < 0) {
-      points.point.y = this.fromPoint.y + this.minSize;
+    if(!event.shiftKey) {
+      const height = this.fromPoint.y - points.point.y;
+      if(height < this.minSize && height >= 0) {
+        points.point.y = this.fromPoint.y - this.minSize;
+      } else if (height > -this.minSize && height < 0) {
+        points.point.y = this.fromPoint.y + this.minSize;
+      }
+    } else {
+      // 정방형
     }
 
     let bound = new paper.Rectangle(this.fromPoint, points.point);
@@ -69,16 +79,30 @@ export class ShapeService {
 
     if(this._shapeStyle === ShapeStyle.ROUND_RECTANGLE) {
       this.newPath.remove();
-      this.redrawRoundRectangle(bound);
+      this.drawRoundRectangle(bound);
     } else {
       this.newPath.bounds = bound;
     }
   }
 
-  public endPath() {
+  public endPath(event) {
+    let points = this.initEvent(event);
+
     if(this.handlePath) {
       this.handlePath.remove();
     }
+
+    if(this.fromPoint.equals(points.point)) {
+      if(Date.now() - this.lastClickTime < 300) {
+        if(this.newPath) {
+          console.log('ShapeService >> endPath >> Double Click Occurred');
+        }
+      }
+    }
+    this.lastClickTime = Date.now();
+    this.setEditable(this.newPath);
+
+    this.isCreated = false;
   }
 
   private initEvent(event: MouseEvent | TouchEvent): Points {
@@ -91,10 +115,17 @@ export class ShapeService {
         delta : new paper.Point(event.movementX, event.movementY)
       };
     } else if (event instanceof TouchEvent) {
-      points = {
-        point: new paper.Point(event.touches[0].clientX, event.touches[0].clientY),
-        delta: new paper.Point(event.touches[0].clientX - this.previousPoint.x, event.touches[0].clientY - this.previousPoint.y)
-      };
+      if(event.touches.length > 0) {
+        points = {
+          point: new paper.Point(event.touches[0].clientX, event.touches[0].clientY),
+          delta: new paper.Point(event.touches[0].clientX - this.previousPoint.x, event.touches[0].clientY - this.previousPoint.y)
+        };
+      } else {
+        points = {
+          point: new paper.Point(event.changedTouches[0].clientX, event.changedTouches[0].clientY),
+          delta: new paper.Point(event.changedTouches[0].clientX - this.previousPoint.x, event.changedTouches[0].clientY - this.previousPoint.y)
+        }
+      }
       this.previousPoint = new paper.Point(points.point);
     }
 
@@ -166,7 +197,7 @@ export class ShapeService {
       strokeWidth: this._strokeWidth,
     });
   }
-  private redrawRoundRectangle(bound: paper.Rectangle) {
+  private drawRoundRectangle(bound: paper.Rectangle) {
     let min = Math.min(bound.width, bound.height);
     this.newPath = new paper.Path.Rectangle(bound, new paper.Size(min * 0.1, min * 0.1));
     this.newPath.strokeColor = this._strokeColor;
@@ -182,6 +213,23 @@ export class ShapeService {
       strokeColor: this.handlePathColor,
       strokeWidth: 1,
     })
+  }
+
+  private setEditable(path: paper.Path) {
+    // path.data.lastClickTime = 0;
+    // path.data.doubleClick = false;
+    // path.onMouseDown = (event) => {
+    //   if(Date.now() - path.data.lastClickTime < 300) {
+    //     path.data.doubleClick = true;
+    //   }
+    // };
+    // path.onMouseUp = (event) => {
+    //   if(path.data.doubleClick) {
+    //     console.log('ShapeService >> Double Click Occurred');
+    //     path.data.doubleClick = false;
+    //   }
+    // };
+    path.data.type = "EditText";
   }
 
   set strokeColor(value: paper.Color) {
