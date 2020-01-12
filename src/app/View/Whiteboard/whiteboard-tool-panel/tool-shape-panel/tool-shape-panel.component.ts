@@ -10,6 +10,11 @@ type SelectableColor = {
   color: paper.Color;
 }
 
+enum ColorMode {
+  STROKE,
+  FILL,
+}
+
 @Component({
   selector: 'app-tool-shape-panel',
   templateUrl: './tool-shape-panel.component.html',
@@ -19,11 +24,15 @@ export class ToolShapePanelComponent implements OnInit {
   private strokeWidth: number;
   private colorPickerPicked: string;
 
-  private strokeColors = [
-    {isSelect: true, color: new paper.Color(0, 0, 0)},
-    {isSelect: false, color: new paper.Color(255, 0, 0)},
-    {isSelect: false, color: new paper.Color(0, 255, 0)},
-    {isSelect: false, color: new paper.Color(0, 0, 255)}];
+  private colorSelectMode: number = 0;
+  private strokeColorIndex: number = 1;
+  private fillColorIndex: number = -1;
+  private colors = [
+    new paper.Color(0, 0, 0),
+    new paper.Color(255, 0, 0),
+    new paper.Color(0, 255, 0),
+    new paper.Color(0, 0, 255),
+  ];
 
   constructor(
     private pointerModeManagerService: PointerModeManagerService,
@@ -36,34 +45,77 @@ export class ToolShapePanelComponent implements OnInit {
   onStrokeWidthChanged() {
     this.pointerModeManagerService.shape.strokeWidth = this.strokeWidth;
   }
-  colorToHTMLRGB(selectableColor: SelectableColor) {
-    return selectableColor.color.toCSS(false);
+  colorToHTMLRGB(color: paper.Color) {
+    if(color != null) {
+      return color.toCSS(false);
+    } else {
+      return ;
+    }
   }
-  selectedToCSSClass(selectableColor: SelectableColor) {
-    if(selectableColor.isSelect) {
+
+  selectedToHTML(index: number) {
+    if(this.colorSelectMode === ColorMode.STROKE) {
+      if(index === this.strokeColorIndex) {
+        if(index === -1) {
+          return "/assets/images/tools/color_none.svg#color_none_selected";
+        }
+        return "selected";
+      }
+      if(index === -1) {
+        return "/assets/images/tools/color_none.svg#color_none";
+      }
+      return;
+    } else {
+      if(index === this.fillColorIndex) {
+        if(index === -1) {
+          return "/assets/images/tools/color_none.svg#color_none_selected";
+        }
+        return "selected";
+      } else {
+        if(index === -1) {
+          return "/assets/images/tools/color_none.svg#color_none";
+        }
+        return;
+      }
+    }
+  }
+  selectedModeToCSSClass(index: number) {
+    if(index === this.colorSelectMode) {
       return "selected";
     } else {
       return;
     }
   }
-  onColorPickerClicked(selectableColor: SelectableColor) {
-    this.unSelectAllColor();
-    selectableColor.isSelect = true;
-    this.pointerModeManagerService.shape.strokeColor = selectableColor.color;
-    this.panelManagerService.toolIconColor[PointerMode.SHAPE] = selectableColor.color.toCSS(false);
-  }
-  unSelectAllColor() {
-    for(let color of this.strokeColors) {
-      color.isSelect = false;
+  onColorPickerClicked(index: number) {
+    if(this.colorSelectMode === ColorMode.STROKE) {
+      this.strokeColorIndex = index;
+      if(index === -1) {
+        this.pointerModeManagerService.shape.strokeColor = null;
+        this.panelManagerService.toolIconColor[PointerMode.SHAPE] = "none";
+        return;
+      }
+      this.pointerModeManagerService.shape.strokeColor = this.colors[index];
+      this.panelManagerService.toolIconColor[PointerMode.SHAPE] = this.colors[index].toCSS(false);
+    } else {
+      this.fillColorIndex = index;
+      if(index === -1) {
+        this.pointerModeManagerService.shape.fillColor = null;
+        return;
+      }
+      this.pointerModeManagerService.shape.fillColor = this.colors[index];
+      // this.panelManagerService.toolIconColor[PointerMode.SHAPE] = this.colors[index].toCSS(false);
     }
   }
   onAddColorClicked() {
     let color = new paper.Color(this.colorPickerPicked);
-    this.strokeColors.push({isSelect: false, color: color});
-    this.onColorPickerClicked(this.strokeColors[this.strokeColors.length - 1]);
+    this.colors.push(color);
+    this.onColorPickerClicked(this.colors.length - 1);
   }
   onShapePickerClicked(shape: string) {
     this.pointerModeManagerService.shape.shapeStyle = ShapeStyle[shape];
+  }
+  onColorSelectModeChangeClicked(mode: number) {
+    this.colorSelectMode = mode;
   }
 
   get shapes() {
@@ -76,5 +128,9 @@ export class ToolShapePanelComponent implements OnInit {
       }
     }
     return shapeList;
+  }
+
+  get colorMode() {
+    return ColorMode;
   }
 }

@@ -1,10 +1,32 @@
-<div class="ctrl-pannel-wrapper brush-panel-wrapper">
+<div class="ctrl-pannel-wrapper panel-wrapper">
   <div>
     <mat-slider min="1" max="25" step="1" value="1" (change)="onStrokeWidthChanged()"
                 [(ngModel)]="strokeWidth"></mat-slider>
-    <div *ngFor="let color of strokeColors" class="color-selector {{selectedToCSSClass(color)}}"
+  </div>
+  <div class="color-selector-mode-wrap">
+    <span class="color-selector-mode mat-caption">Stroke</span>
+    <span class="color-selector-mode mat-caption">Fill</span>
+  </div>
+  <div class="color-selector-mode-wrap">
+    <div class="color-selector-mode">
+      <div id="strokeSelector" class="color-selector {{selectedModeToCSSClass(colorMode.STROKE)}}"
+           [style.background-color]="colorToHTMLRGB(colors[strokeColorIndex])"
+           (click)="onColorSelectModeChangeClicked(colorMode.STROKE)"></div>
+    </div>
+    <div class="color-selector-mode">
+      <div id="fillSelector" class="color-selector {{selectedModeToCSSClass(colorMode.FILL)}}"
+           [style.background-color]="colorToHTMLRGB(colors[fillColorIndex])"
+           (click)="onColorSelectModeChangeClicked(colorMode.FILL)"></div>
+    </div>
+  </div>
+  <hr>
+  <div>
+    <svg class="color-selector-svg">
+      <use [attr.xlink:href]="selectedToHTML(-1)" (click)="onColorPickerClicked(-1)"/>
+    </svg>
+    <div *ngFor="let color of colors; index as i" class="color-selector {{selectedToHTML(i)}}"
          [style.background-color]="colorToHTMLRGB(color)"
-         (click)="onColorPickerClicked(color)">
+         (click)="onColorPickerClicked(i)">
     </div>
     <div class="color-selector-add"
          [cpOKButton]="true"
@@ -18,6 +40,7 @@
       </svg>
     </div>
   </div>
+  <hr>
   <div>
     <div class="shape-selector" *ngFor="let key of shapes" (click)="onShapePickerClicked(key)">
       <svg class="tool-icon">

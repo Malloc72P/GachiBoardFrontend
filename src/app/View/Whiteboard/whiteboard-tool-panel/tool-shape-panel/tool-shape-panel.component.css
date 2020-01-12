@@ -1,4 +1,8 @@
-.brush-panel-wrapper {
+hr {
+  border: 1px solid #cecece;
+  border-bottom: none;
+}
+.panel-wrapper {
   padding: 8px;
   transform: translate(0, -50%);
 }
@@ -10,6 +14,27 @@
   border-radius: 15px;
   cursor: pointer;
   margin: 5px;
+}
+.color-selector-mode-wrap {
+  display: -webkit-box;
+  display: -moz-box;
+  display: -ms-flexbox;
+  display: -webkit-flex;
+  display: flex;
+}
+.color-selector-mode {
+  -webkit-box-flex: 1;
+  -moz-box-flex: 1;
+  width: 50%;
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+}
+.color-selector-svg {
+  width: 28px;
+  height: 28px;
+  margin: 1px;
+  cursor: pointer;
 }
 .color-selector-add {
   transform: translate(0, -5px);

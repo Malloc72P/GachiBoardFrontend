@@ -177,11 +177,11 @@ export class LassoSelectorService {
       // 올가미로 클릭해서 하나의 아이템만 선택하는 경우 (가장 먼저 HitTest에 걸리는 아이템이 선택됨)
       } else {
         this.selectPoint(point);
-        console.log('LassoSelectorService >> endPath >> selectPoint', );
-        if(this.selectedItems != null && this.selectedItems.length > 0) {
-          console.log('LassoSelectorService >> endPath >> debugSegment', );
-          this.debugSegment(this.selectedItems[0] as paper.Path);
-        }
+
+        // Segments Debug
+        // if(this.selectedItems != null && this.selectedItems.length > 0) {
+        //   this.debugSegment(this.selectedItems[0] as paper.Path);
+        // }
       }
 
       // 선택 아이템들을 temp 영역이었던 selectedItems에서 Group으로 옮겨주는 과정

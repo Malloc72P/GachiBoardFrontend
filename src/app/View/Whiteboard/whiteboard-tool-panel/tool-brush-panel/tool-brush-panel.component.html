@@ -1,9 +1,11 @@
-<div class="ctrl-pannel-wrapper brush-panel-wrapper">
+<div class="ctrl-pannel-wrapper panel-wrapper">
   <mat-slider min="1" max="25" step="1" value="1" (change)="onStrokeWidthChanged()"
               [(ngModel)]="strokeWidth"></mat-slider>
-  <div *ngFor="let color of strokeColors" class="color-selector {{selectedToCSSClass(color)}}"
-       [style.background-color]="colorToHTMLRGB(color)"
-       (click)="onColorPickerClicked(color)">
+  <div>
+    <div *ngFor="let color of strokeColors" class="color-selector {{selectedToCSSClass(color)}}"
+         [style.background-color]="colorToHTMLRGB(color)"
+         (click)="onColorPickerClicked(color)">
+    </div>
   </div>
   <div class="color-selector-add"
        [cpOKButton]="true"

@@ -21,6 +21,7 @@ export class ShapeService {
   private minSize = 5;
   private _strokeColor = new paper.Color(0, 0, 0);
   private handlePathColor = new paper.Color(0, 0, 255, 0);
+  private _fillColor: paper.Color = null;
   private _strokeWidth = 1;
   private _shapeStyle: number = ShapeStyle.RECTANGLE;
 
@@ -69,18 +70,6 @@ export class ShapeService {
     if(this._shapeStyle === ShapeStyle.ROUND_RECTANGLE) {
       this.newPath.remove();
       this.redrawRoundRectangle(bound);
-      // let cornerWidth = Math.abs(this.newPath.bounds.bottomLeft.x - this.newPath.segments[0].point.x);
-      // let cornerHeight = Math.abs(this.newPath.bounds.bottomLeft.y - this.newPath.segments[1].point.y);
-      //
-      // let min = Math.min(cornerWidth, cornerHeight);
-      // this.newPath.segments[0].point.x = this.newPath.segments[0].point.x - (cornerWidth - min);
-      // this.newPath.segments[1].point.y = this.newPath.segments[1].point.y + (cornerHeight - min);
-      // this.newPath.segments[2].point.y = this.newPath.segments[2].point.y - (cornerHeight - min);
-      // this.newPath.segments[3].point.x = this.newPath.segments[3].point.x - (cornerWidth - min);
-      // this.newPath.segments[4].point.x = this.newPath.segments[4].point.x + (cornerWidth - min);
-      // this.newPath.segments[5].point.y = this.newPath.segments[5].point.y - (cornerHeight - min);
-      // this.newPath.segments[6].point.y = this.newPath.segments[6].point.y + (cornerHeight - min);
-      // this.newPath.segments[7].point.x = this.newPath.segments[7].point.x + (cornerWidth - min);
     } else {
       this.newPath.bounds = bound;
     }
@@ -140,6 +129,7 @@ export class ShapeService {
       from: point,
       to: toPoint,
       strokeColor: this._strokeColor,
+      fillColor: this._fillColor,
       strokeWidth: this._strokeWidth,
     });
   }
@@ -149,6 +139,7 @@ export class ShapeService {
       center: center,
       radius: this.minSize / 2,
       strokeColor: this._strokeColor,
+      fillColor: this._fillColor,
       strokeWidth: this._strokeWidth,
     });
   }
@@ -159,6 +150,7 @@ export class ShapeService {
       sides: 3,
       radius: this.minSize / 2,
       strokeColor: this._strokeColor,
+      fillColor: this._fillColor,
       strokeWidth: this._strokeWidth,
     });
   }
@@ -170,6 +162,7 @@ export class ShapeService {
       to: toPoint,
       radius: cornerSize,
       strokeColor: this._strokeColor,
+      fillColor: this._fillColor,
       strokeWidth: this._strokeWidth,
     });
   }
@@ -177,6 +170,7 @@ export class ShapeService {
     let min = Math.min(bound.width, bound.height);
     this.newPath = new paper.Path.Rectangle(bound, new paper.Size(min * 0.1, min * 0.1));
     this.newPath.strokeColor = this._strokeColor;
+    this.newPath.fillColor = this._fillColor;
     this.newPath.strokeWidth = this._strokeWidth;
   }
 
@@ -192,6 +186,10 @@ export class ShapeService {
 
   set strokeColor(value: paper.Color) {
     this._strokeColor = value;
+  }
+
+  set fillColor(value: paper.Color) {
+    this._fillColor = value;
   }
 
   set strokeWidth(value: number) {
