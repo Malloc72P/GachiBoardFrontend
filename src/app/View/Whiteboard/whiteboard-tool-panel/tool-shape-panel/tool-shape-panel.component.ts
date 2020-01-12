@@ -5,11 +5,6 @@ import {PanelManagerService} from '../../../../Model/Whiteboard/Panel/panel-mana
 import {PointerMode} from '../../../../Model/Whiteboard/Pointer/pointer-mode-enum-service/pointer-mode-enum.service';
 import {ShapeStyle} from '../../../../Model/Helper/data-type-enum/data-type.enum';
 
-type SelectableColor = {
-  isSelect: boolean;
-  color: paper.Color;
-}
-
 enum ColorMode {
   STROKE,
   FILL,
@@ -25,7 +20,7 @@ export class ToolShapePanelComponent implements OnInit {
   private colorPickerPicked: string;
 
   private colorSelectMode: number = 0;
-  private strokeColorIndex: number = 1;
+  private strokeColorIndex: number = 0;
   private fillColorIndex: number = -1;
   private colors = [
     new paper.Color(0, 0, 0),
@@ -53,33 +48,34 @@ export class ToolShapePanelComponent implements OnInit {
     }
   }
 
-  selectedToHTML(index: number) {
+  transparencySelectedToHTML() {
+    if(this.colorSelectMode === ColorMode.STROKE) {
+      if(this.strokeColorIndex === -1) {
+        return "/assets/images/tools/color_none.svg#color_none_selected";
+      }
+      return "/assets/images/tools/color_none.svg#color_none";
+    }
+    if(this.fillColorIndex === -1) {
+      return "/assets/images/tools/color_none.svg#color_none_selected";
+    }
+    return "/assets/images/tools/color_none.svg#color_none";
+  }
+
+  colorSelectedToHTML(index: number) {
     if(this.colorSelectMode === ColorMode.STROKE) {
       if(index === this.strokeColorIndex) {
-        if(index === -1) {
-          return "/assets/images/tools/color_none.svg#color_none_selected";
-        }
         return "selected";
-      }
-      if(index === -1) {
-        return "/assets/images/tools/color_none.svg#color_none";
       }
       return;
     } else {
       if(index === this.fillColorIndex) {
-        if(index === -1) {
-          return "/assets/images/tools/color_none.svg#color_none_selected";
-        }
         return "selected";
       } else {
-        if(index === -1) {
-          return "/assets/images/tools/color_none.svg#color_none";
-        }
         return;
       }
     }
   }
-  selectedModeToCSSClass(index: number) {
+  colorChangeModeSelectedToHTML(index: number) {
     if(index === this.colorSelectMode) {
       return "selected";
     } else {

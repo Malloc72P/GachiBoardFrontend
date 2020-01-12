@@ -9,12 +9,12 @@
   </div>
   <div class="color-selector-mode-wrap">
     <div class="color-selector-mode">
-      <div id="strokeSelector" class="color-selector {{selectedModeToCSSClass(colorMode.STROKE)}}"
+      <div id="strokeSelector" class="color-selector {{colorChangeModeSelectedToHTML(colorMode.STROKE)}}"
            [style.background-color]="colorToHTMLRGB(colors[strokeColorIndex])"
            (click)="onColorSelectModeChangeClicked(colorMode.STROKE)"></div>
     </div>
     <div class="color-selector-mode">
-      <div id="fillSelector" class="color-selector {{selectedModeToCSSClass(colorMode.FILL)}}"
+      <div id="fillSelector" class="color-selector {{colorChangeModeSelectedToHTML(colorMode.FILL)}}"
            [style.background-color]="colorToHTMLRGB(colors[fillColorIndex])"
            (click)="onColorSelectModeChangeClicked(colorMode.FILL)"></div>
     </div>
@@ -22,9 +22,9 @@
   <hr>
   <div>
     <svg class="color-selector-svg">
-      <use [attr.xlink:href]="selectedToHTML(-1)" (click)="onColorPickerClicked(-1)"/>
+      <use [attr.xlink:href]="transparencySelectedToHTML()" (click)="onColorPickerClicked(-1)"/>
     </svg>
-    <div *ngFor="let color of colors; index as i" class="color-selector {{selectedToHTML(i)}}"
+    <div *ngFor="let color of colors; index as i" class="color-selector {{colorSelectedToHTML(i)}}"
          [style.background-color]="colorToHTMLRGB(color)"
          (click)="onColorPickerClicked(i)">
     </div>

@@ -6,10 +6,6 @@ import Color = paper.Color;
 import {PanelManagerService} from '../../../../Model/Whiteboard/Panel/panel-manager-service/panel-manager.service';
 import {PointerMode} from '../../../../Model/Whiteboard/Pointer/pointer-mode-enum-service/pointer-mode-enum.service';
 
-type SelectableColor = {
-  isSelect: boolean;
-  color: Color;
-}
 
 @Component({
   selector: 'app-tool-brush-panel',
@@ -20,12 +16,14 @@ type SelectableColor = {
 export class ToolBrushPanelComponent implements OnInit {
   private strokeWidth: number;
   private colorPickerPicked: string;
-  private strokeColors = [
-    {isSelect: true, color: new Color(0, 0, 0)},
-    {isSelect: false, color: new Color(255, 0, 0)},
-    {isSelect: false, color: new Color(0, 255, 0)},
-    {isSelect: false, color: new Color(0, 0, 255)}];
 
+  private strokeColorIndex: number = 0;
+  private colors = [
+    new Color(0, 0, 0),
+    new Color(255, 0, 0),
+    new Color(0, 255, 0),
+    new Color(0, 0, 255),
+  ];
 
   constructor(
     private pointerModeManagerService: PointerModeManagerService,
@@ -38,30 +36,24 @@ export class ToolBrushPanelComponent implements OnInit {
   onStrokeWidthChanged() {
     this.pointerModeManagerService.brushService.setWidth(this.strokeWidth);
   }
-  colorToHTMLRGB(selectableColor: SelectableColor) {
-    return selectableColor.color.toCSS(false);
+  colorToHTMLRGB(index: number) {
+    return this.colors[index].toCSS(false);
   }
-  selectedToCSSClass(selectableColor: SelectableColor) {
-    if(selectableColor.isSelect) {
+  colorSelectedToHTML(index: number) {
+    if(index === this.strokeColorIndex) {
       return "selected";
     } else {
       return;
     }
   }
-  onColorPickerClicked(selectableColor: SelectableColor) {
-    this.unSelectAllColor();
-    selectableColor.isSelect = true;
-    this.pointerModeManagerService.brushService.setColor(selectableColor.color);
-    this.panelManger.toolIconColor[PointerMode.DRAW] = selectableColor.color.toCSS(false);
-  }
-  unSelectAllColor() {
-    for(let color of this.strokeColors) {
-      color.isSelect = false;
-    }
+  onColorPickerClicked(index: number) {
+    this.strokeColorIndex = index;
+    this.pointerModeManagerService.brushService.setColor(this.colors[index]);
+    this.panelManger.toolIconColor[PointerMode.DRAW] = this.colors[index].toCSS(false);
   }
   onAddColorClicked() {
     let color = new Color(this.colorPickerPicked);
-    this.strokeColors.push({isSelect: false, color: color});
-    this.onColorPickerClicked(this.strokeColors[this.strokeColors.length - 1]);
+    this.colors.push(color);
+    this.onColorPickerClicked(this.colors.length - 1);
   }
 }
