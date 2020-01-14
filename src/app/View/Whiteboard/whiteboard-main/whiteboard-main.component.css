@@ -23,3 +23,18 @@ app-project-supporter-pannel {
   bottom: 6px;
   transform: translate(0, 0);
 }
+#textEditor {
+  display: block;
+  background: transparent;
+  position: absolute;
+  font-family: sans-serif;
+  font-weight: bold;
+  font-size: 12px;
+  text-align: left;
+  overflow: hidden;
+  padding: 5px;
+}
+
+#textEditor:focus {
+  outline: none;
+}

@@ -32,7 +32,7 @@ export class ToolHighlighterPanelComponent implements OnInit {
   }
 
   onStrokeWidthChanged() {
-    this.pointerModeManagerService.highlighter.setWidth(this.strokeWidth * 3);
+    this.pointerModeManagerService.highlighter.setWidth(this.strokeWidth * 20);
   }
   colorToHTMLRGB(index: number) {
     let tempColor = this.colors[index].clone();

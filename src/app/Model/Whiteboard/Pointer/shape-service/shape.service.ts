@@ -2,7 +2,7 @@ import {Injectable} from '@angular/core';
 import * as paper from 'paper';
 import {PositionCalcService} from '../../PositionCalc/position-calc.service';
 import {ShapeStyle} from '../../../Helper/data-type-enum/data-type.enum';
-import {min} from 'rxjs/operators';
+
 
 interface Points {
   point: paper.Point,
@@ -14,16 +14,21 @@ interface Points {
 })
 export class ShapeService {
   private currentProject: paper.Project;
+  private HTMLTextEditorElement;
+  private HTMLCanvasElement;
   private previousPoint: paper.Point = new paper.Point(0, 0);
   private newPath: paper.Path;
   private handlePath: paper.Path;
   private fromPoint: paper.Point;
+
   private minSize = 5;
+  private textEditorPadding = 5;
   private _strokeColor = new paper.Color(0, 0, 0);
   private handlePathColor = new paper.Color(0, 0, 255, 0);
   private _fillColor: paper.Color = null;
   private _strokeWidth = 1;
   private _shapeStyle: number = ShapeStyle.RECTANGLE;
+  private _isHiddenEditText = true;
 
   private lastClickTime = 0;
   private isCreated = false;
@@ -34,6 +39,8 @@ export class ShapeService {
 
   public initializeShapeService(project: paper.Project) {
     this.currentProject = project;
+    this.HTMLTextEditorElement = document.getElementById("textEditor");
+    this.HTMLCanvasElement = document.getElementById("cv1");
   }
 
   public createPath(event) {
@@ -86,6 +93,9 @@ export class ShapeService {
   }
 
   public endPath(event) {
+    if(this.newPath == null) {
+      return;
+    }
     let points = this.initEvent(event);
 
     if(this.handlePath) {
@@ -94,15 +104,79 @@ export class ShapeService {
 
     if(this.fromPoint.equals(points.point)) {
       if(Date.now() - this.lastClickTime < 300) {
-        if(this.newPath) {
-          console.log('ShapeService >> endPath >> Double Click Occurred');
-        }
+        const item = this.currentProject.activeLayer.getItems({
+          match: (item) => {
+            return item.contains(points.point);
+          }
+        }).pop();
+        this.textEditStart(item.bounds);
+        console.log('ShapeService >> endPath >> Double Click Occurred');
       }
     }
     this.lastClickTime = Date.now();
     this.setEditable(this.newPath);
 
     this.isCreated = false;
+  }
+
+  private textEditStart(bound: paper.Rectangle) {
+    let topLeftPoint = this.positionCalcService.advConvertPaperToNg(bound.topLeft);
+
+    let top = topLeftPoint.y;
+    let left = topLeftPoint.x;
+
+    let width = Math.min(this.getWidthOfHTMLElement(this.HTMLCanvasElement) - left, bound.width);
+    let height = Math.min(this.getHeightOfHTMLElement(this.HTMLCanvasElement) - top, bound.height);
+
+    this.HTMLTextEditorElement.style.top = top + "px";
+    this.HTMLTextEditorElement.style.left = left + "px";
+    this.HTMLTextEditorElement.style.width = width - 10 + "px";
+    this.HTMLTextEditorElement.style.height = height - 10 + "px";
+
+    this._isHiddenEditText = false;
+    this.HTMLTextEditorElement.focus();
+
+    document.addEventListener("mousedown", (event) => {
+      this.onClickOutsidePanel(event, this.HTMLCanvasElement, topLeftPoint, bound.width);
+    });
+    document.addEventListener("touchstart", (event) => {
+      this.onClickOutsidePanel(event, this.HTMLCanvasElement, topLeftPoint, bound.width);
+    });
+  }
+
+  private textEditEnd(topLeftPoint: paper.Point, width) {
+    this.HTMLTextEditorElement.blur();
+    this._isHiddenEditText = true;
+    this.calcPointTextRange(
+      this.HTMLTextEditorElement.innerHTML.replace(/<div>([^<>]*)<\/div>/g, "\n$1"),
+      this.positionCalcService.advConvertNgToPaper(topLeftPoint),
+      width,
+    );
+  }
+
+  private calcPointTextRange(text: string, topLeftPoint: paper.Point, width) {
+    let startPoint = topLeftPoint;
+    let calcText = "";
+    let charWidth = 0;
+    let calcWidth = 0;
+
+    text.match(/./g).forEach(value => {
+      charWidth = this.calcStringWidth(value);
+      console.log('ShapeService >> match >> charWidth : ', charWidth);
+      calcWidth += charWidth;
+
+      if(calcWidth > width) {
+        calcText += '\n';
+        calcWidth = charWidth;
+      }
+
+      calcText += value;
+    });
+
+    return new paper.PointText({
+      point: startPoint,
+      content: calcText,
+    });
   }
 
   private initEvent(event: MouseEvent | TouchEvent): Points {
@@ -215,20 +289,31 @@ export class ShapeService {
     })
   }
 
+  private getWidthOfHTMLElement(element) {
+    return parseFloat(getComputedStyle(element, null).width.replace("px", ""));
+  }
+  private getHeightOfHTMLElement(element) {
+    return parseFloat(getComputedStyle(element, null).height.replace("px", ""));
+  }
+
+  private onClickOutsidePanel(event, element, topLeftPoint: paper.Point, width) {
+    if(element.contains(event.target)) {
+      this.textEditEnd(topLeftPoint, width);
+    }
+  }
+
+  private calcStringWidth(input: string): number {
+    let tempPointText = new paper.PointText({
+      content: input,
+      fillColor: 'transparent',
+    });
+    let width = tempPointText.bounds.width;
+    tempPointText.remove();
+
+    return width;
+  }
+
   private setEditable(path: paper.Path) {
-    // path.data.lastClickTime = 0;
-    // path.data.doubleClick = false;
-    // path.onMouseDown = (event) => {
-    //   if(Date.now() - path.data.lastClickTime < 300) {
-    //     path.data.doubleClick = true;
-    //   }
-    // };
-    // path.onMouseUp = (event) => {
-    //   if(path.data.doubleClick) {
-    //     console.log('ShapeService >> Double Click Occurred');
-    //     path.data.doubleClick = false;
-    //   }
-    // };
     path.data.type = "EditText";
   }
 
@@ -250,5 +335,9 @@ export class ShapeService {
 
   get shapeStyle(): number {
     return this._shapeStyle;
+  }
+
+  get isHiddenEditText(): boolean {
+    return this._isHiddenEditText;
   }
 }

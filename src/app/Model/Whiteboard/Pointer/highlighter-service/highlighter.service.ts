@@ -24,7 +24,7 @@ import {PositionCalcService} from "../../PositionCalc/position-calc.service";
 })
 export class HighlighterService {
   private strokeColor = new paper.Color(255, 255, 0, 0.3);
-  private strokeWidth = 3;
+  private strokeWidth = 20;
   private newPath: paper.Path;
   private currentProject: paper.Project;
 

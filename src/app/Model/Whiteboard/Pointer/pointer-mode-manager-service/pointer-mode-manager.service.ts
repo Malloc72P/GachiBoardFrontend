@@ -12,10 +12,10 @@ import {CanvasMoverService} from "../CanvasMover/canvas-mover.service";
 import {PositionCalcService} from "../../PositionCalc/position-calc.service";
 import {MinimapSyncService} from '../../InfiniteCanvas/MinimapSync/minimap-sync.service';
 import {HighlighterService} from '../highlighter-service/highlighter.service';
+import {ShapeService} from '../shape-service/shape.service';
 
 // @ts-ignore
 import Point = paper.Point;
-import {ShapeService} from '../shape-service/shape.service';
 
 @Injectable({
   providedIn: 'root'
