@@ -53,14 +53,11 @@ export class KanbanTagListComponent implements OnInit {
     //태그 생성시 해당 이벤트 발생시킴
     this.tagListMgrService.getOnTagAddEvent()
       .subscribe(()=>{
-        console.log("KanbanTagListComponent >> OnTagAddEvent >> 진입함");
         this.refreshAutoCompleteList();
       });
     //태그 제거시 해당 이벤트 발생시킴
     this.tagListMgrService.getOnTagDeleteEvent()
       .subscribe((data)=>{
-        console.log("KanbanTagListComponent >> OnTagDeleteEvent >> 진입함");
-        console.log("KanbanTagListComponent >> OnTagDeleteEvent >> data : ",data);
         this.refreshAutoCompleteList();
         this.removeTagLocally(data);
       })
@@ -76,7 +73,6 @@ export class KanbanTagListComponent implements OnInit {
 
   add(event: MatChipInputEvent): void {
     if (!this.matAutocomplete.isOpen) {
-      console.log("KanbanTagListComponent >> add >> 진입함");
       const input = event.input;
       const value = event.value;
 
@@ -87,7 +83,6 @@ export class KanbanTagListComponent implements OnInit {
       if(!this.isDuplicated(newTagItem)){
         /*태그 추가*/
         if ((value || '').trim()) {
-          console.log("KanbanTagListComponent >> add >> newTagItem : ",newTagItem);
           this.tagListMgrService.insertTagInTaglist(this.kanbanItem, newTagItem.title, newTagItem.color);
         }
       }
@@ -157,9 +152,7 @@ export class KanbanTagListComponent implements OnInit {
     let dupFlag = false;
     for(let i = 0 ; i < this.kanbanItem.tagList.length; i++){
       let currentTag = this.kanbanItem.tagList[i];
-      console.log("KanbanTagListComponent >> isDuplicated >> currentTag : ",currentTag);
       if(currentTag.title === tagItem.title){
-        console.log("KanbanTagListComponent >> isDuplicated >> 중복 발견됨");
         dupFlag = true;
         break;
       }
@@ -168,7 +161,6 @@ export class KanbanTagListComponent implements OnInit {
   }
   showUnavailable(tagItem){
     this.tagViewList.forEach((value)=>{
-      console.log("KanbanTagListComponent >>  >> value : ",value.nativeElement.title);
       let elTitle = value.nativeElement.title;
       if( tagItem.title === elTitle ){
         let tgtEl = value.nativeElement;

@@ -8,13 +8,28 @@
         <span class="project-supporter-card-title">
           <!--<mat-icon class="example-icon" aria-hidden="false"
                     aria-label="Example user verified icon">verified_user</mat-icon>-->
-          <span class="icon-tools-kanban project-supporter-card-title-icon"></span>
-          KANBAN
+          <div class="panel-main-header-left">
+            <div class="icon-tools-kanban project-supporter-card-title-icon"></div>
+          </div>
+          <div class="panel-main-header-left">KANBAN</div>
+          <button mat-button color="Basic"
+                  style="padding: 0;"
+                  [matMenuTriggerFor]="appMenuKanbanSetting"
+                  class="panel-main-header-left">
+            <mat-icon class="example-icon" aria-hidden="false" aria-label="kanban setting button">more_vert</mat-icon>
+          </button>
+          <mat-menu #appMenuKanbanSetting="matMenu">
+            <button mat-menu-item (click)="onTagManagement()">태그 관리</button>
+            <button mat-menu-item (click)="onKanbanGroupSetting()">칸반 그룹 설정</button>
+          </mat-menu>
+
         </span>
         <span class="flex-spacer"></span>
         <button mat-button color="Basic"
                 (click)="onNoClick()">
-          <mat-icon class="example-icon" aria-hidden="false" aria-label="kanban close button">close</mat-icon>
+          <mat-icon class="example-icon"
+                    aria-hidden="false"
+                    aria-label="kanban close button">close</mat-icon>
         </button>
       </mat-toolbar-row>
     </mat-toolbar>
@@ -82,9 +97,9 @@
                   </button>
                   <mat-menu #menu="matMenu">
                     <button mat-menu-item
-                            (click)="onEditBtnClick(item)">Edit</button>
+                            (click)="onEditBtnClick(item)">수정</button>
                     <button mat-menu-item
-                            (click)="deleteFrom( item, group )">Delete</button>
+                            (click)="deleteFrom( item, group )">삭제</button>
                   </mat-menu>
                 </mat-card-title>
 

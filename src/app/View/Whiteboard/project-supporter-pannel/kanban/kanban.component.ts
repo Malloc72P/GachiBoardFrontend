@@ -11,6 +11,8 @@ import {KanbanItemColor} from '../../../../Model/Whiteboard/ProjectSupporter/Kan
 import {KanbanItemCreateComponent} from './kanban-item-create/kanban-item-create.component';
 import {KanbanGroup} from '../../../../Model/Whiteboard/ProjectSupporter/Kanban/KanbanGroup/kanban-group';
 import {KanbanItem} from '../../../../Model/Whiteboard/ProjectSupporter/Kanban/KanbanItem/kanban-item';
+import {KanbanGroupSettingComponent} from './kanban-group-setting/kanban-group-setting.component';
+import {KanbanTagManagementComponent} from './kanban-tag-management/kanban-tag-management.component';
 
 @Component({
   selector: 'app-kanban',
@@ -110,6 +112,28 @@ export class KanbanComponent implements OnInit {
     dialogRef.afterClosed().subscribe((result) => {
       console.log("KanbanComponent >>  >> result : ",result);
       this.enqueueTo(result.kanbanItem, result.kanbanGroup);
+    });
+
+  }
+  onKanbanGroupSetting(){
+    const dialogRef = this.dialog.open(KanbanGroupSettingComponent, {
+      width: '480px',
+      data: {groups: this.kanbanGroupWrapper}
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      console.log("KanbanComponent >>  >> result : ",result);
+    });
+
+  }
+  onTagManagement(){
+    const dialogRef = this.dialog.open(KanbanTagManagementComponent, {
+      width: '540px',
+      data: {}
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      console.log("KanbanComponent >>  >> result : ",result);
     });
 
   }

@@ -1,0 +1,76 @@
+<div class="kanban-group-setting-wrapper scrollbar-warn"
+     [ngStyle]="{'max-height' : posCalcService.getKanbanGroupSettingPanelHeight() + 'px'}">
+  <mat-toolbar color="accent">
+    <mat-toolbar-row>
+        <span>
+          <mat-icon class="example-icon"
+                    aria-hidden="false"
+                    aria-label="kanban title edit button">edit
+          </mat-icon>
+          칸반 그룹 설정
+        </span>
+      <span class="flex-spacer"></span>
+      <button type="button" mat-button color="Basic"
+              (click)="onNoClick()">
+        <mat-icon class="example-icon"
+                  aria-hidden="false"
+                  aria-label="kanban close button">close</mat-icon>
+      </button>
+    </mat-toolbar-row>
+  </mat-toolbar>
+  <div class="kanban-item-edit-content">
+    <form class="example-form"
+          #kanbanCreateForm
+          (ngSubmit)="onSubmit()"
+          [formGroup]="kanbanGroupsFormGroup">
+
+      <!--#### 칸반 그룹 Wrapper-->
+      <mat-card *ngFor="let group of kanbanGroups; let i = index;"
+                class="kanban-group-section">
+        <mat-card-header style="display: flex; flex-flow: row;">
+          <mat-card-title>{{kanbanGroups[i].title}}</mat-card-title>
+          <span class="flex-spacer"></span>
+          <mat-checkbox class="example-margin"
+                        formControlName="isRemoved-{{i}}">삭제하기</mat-checkbox>
+        </mat-card-header>
+        <!--#1 타이틀 변경-->
+        <mat-form-field class="example-full-width">
+          <input matInput placeholder="Kanban Group title"
+                 formControlName="title-{{i}}">
+          <mat-error *ngIf="kanbanGroupsFormGroup.get('title-'+i).hasError('required')">
+            title is <strong>required</strong>
+          </mat-error>
+        </mat-form-field>
+
+        <!--#2 색상 변경-->
+        <mat-form-field>
+          <mat-label>Kanban Group Color</mat-label>
+          <mat-select formControlName="groupColor-{{i}}">
+            <mat-option value="primary">primary</mat-option>
+            <mat-option value="accent">accent</mat-option>
+            <mat-option value="warn">warn</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </mat-card>
+
+      <mat-card class="kanban-group-section">
+        <button type="button" mat-button color="Basic"
+                (click)="addGroup()">
+          칸반 그룹 추가하기
+          <mat-icon class="example-icon"
+                    aria-hidden="false"
+                    aria-label="kanban close button">add_circle</mat-icon>
+        </button>
+      </mat-card>
+      <!--#### 칸반 그룹 Wrapper-->
+
+      <!--#3 버튼-->
+      <mat-divider class="kanban-item-edit-divider"></mat-divider>
+      <div class="kanban-item-edit-button-wrapper">
+        <button mat-button (click)="onNoClick()">Cancel</button>
+        <button mat-button type="submit">Save</button>
+      </div>
+    </form>
+
+  </div>
+</div>

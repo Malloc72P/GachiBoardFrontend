@@ -42,23 +42,6 @@ export class KanbanItemCreateComponent implements OnInit {
   onNoClick(): void {
     this.dialogRef.close();
   }
-  onCreateClick(){
-    console.log("KanbanItemCreateComponent >> onCreateClick >> 진입함");
-    this.formEl.nativeElement.submit();
-    /*this.kanbanItem.userInfo = this.userManagerService.getUserDataByName(
-      this.userFormControl.value
-    );
-    this.kanbanItem.setColor(this.colorFormControl.value);
-    this.kanbanItem.title = this.titleFormControl.value;
-    this.dialogRef.close({
-      kanbanItem : this.kanbanItem
-    })*/
-    return false;
-  }
-  onResetClick(){
-    /*this.userFormControl.setValue(this.kanbanItem.userInfo.name);
-    this.titleFormControl.setValue(this.kanbanItem.title);*/
-  }
   onSubmit(){
     console.log("KanbanItemCreateComponent >> onSubmit >> 진입함");
     let title = this.kanbanCreateFormGroup.get("title").value;

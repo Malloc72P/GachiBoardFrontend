@@ -75,6 +75,7 @@ export class KanbanTagListManagerService {
     for(let i = 0 ; i < this.tagList.length; i++){
       if(this.tagList[i].title === tagItem.title){
         this.tagList.splice(i,1);
+        this.emitTagDeleteEvent(tagItem);
         return true;
       }
     }

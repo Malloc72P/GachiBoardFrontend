@@ -8,7 +8,7 @@ import {
   MatAutocompleteModule,
   MatButtonModule,
   MatButtonToggleModule,
-  MatCardModule, MatChipsModule, MatDialogModule,
+  MatCardModule, MatCheckboxModule, MatChipsModule, MatDialogModule,
   MatDividerModule, MatFormFieldModule, MatGridListModule, MatIconModule, MatInputModule, MatMenuModule,
   MatRadioModule,
   MatRippleModule, MatSelectModule,
@@ -53,6 +53,10 @@ import { KanbanItemEditComponent } from './View/Whiteboard/project-supporter-pan
 import {UserManagerService} from './Model/UserManager/user-manager.service';
 import {KanbanItemColorService} from './Model/Whiteboard/ProjectSupporter/Kanban/KanbanItemColorEnumManager/kanban-item-color.service';
 import { KanbanItemCreateComponent } from './View/Whiteboard/project-supporter-pannel/kanban/kanban-item-create/kanban-item-create.component';
+import { KanbanGroupSettingComponent } from './View/Whiteboard/project-supporter-pannel/kanban/kanban-group-setting/kanban-group-setting.component';
+import { KanbanTagManagementComponent } from './View/Whiteboard/project-supporter-pannel/kanban/kanban-tag-management/kanban-tag-management.component';
+import { AreYouSurePanelComponent } from './View/Commons/are-you-sure-panel/are-you-sure-panel.component';
+import {AreYouSurePanelService} from './Model/PopupManager/AreYouSurePanelManager/are-you-sure-panel.service';
 
 
 const appRoutes: Routes = [
@@ -99,11 +103,17 @@ const appRoutes: Routes = [
     KanbanTagListComponent,
     KanbanItemEditComponent,
     KanbanItemCreateComponent,
+    KanbanGroupSettingComponent,
+    KanbanTagManagementComponent,
+    AreYouSurePanelComponent,
   ],
   entryComponents: [
     KanbanComponent,
     KanbanItemEditComponent,
-    KanbanItemCreateComponent
+    KanbanItemCreateComponent,
+    KanbanGroupSettingComponent,
+    KanbanTagManagementComponent,
+    AreYouSurePanelComponent
   ],
   imports: [
     BrowserModule,
@@ -135,7 +145,8 @@ const appRoutes: Routes = [
     MatToolbarModule,
     MatInputModule,
     MatSelectModule,
-    MatMenuModule
+    MatMenuModule,
+    MatCheckboxModule
   ],
   providers: [
     RouterHelperService,
@@ -160,7 +171,8 @@ const appRoutes: Routes = [
     KanbanTagListManagerService,
     AnimeManagerService,
     UserManagerService,
-    KanbanItemColorService
+    KanbanItemColorService,
+    AreYouSurePanelService
   ],
   bootstrap: [AppComponent]
 })

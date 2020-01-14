@@ -16,6 +16,9 @@
 .panel-main-header{
   margin: 16px 6px;
 }
+.panel-main-header-left{
+  display: inline-block;
+}
 .panel-main-header-wrapper{
   /*margin-bottom: 30px;*/
 }
