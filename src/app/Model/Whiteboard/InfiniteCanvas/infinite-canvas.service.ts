@@ -334,7 +334,7 @@ export class InfiniteCanvasService {
         value.activate();
       }
     });
-    this.minimapSyncService.syncMinimap();
+    //this.minimapSyncService.syncMinimap();
   }
   private initializeDrawingLayer(){
     if(!this.isDrawingLayerExist){

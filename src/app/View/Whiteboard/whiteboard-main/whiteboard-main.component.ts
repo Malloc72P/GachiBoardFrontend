@@ -19,6 +19,8 @@ import Point = paper.Point;
 import Size = paper.Size;
 // @ts-ignore
 import Path = paper.Path;
+// @ts-ignore
+import Circle = paper.Path.Circle;
 import {DebugingService} from "../../../Model/Helper/DebugingHelper/debuging.service";
 import {MinimapSyncService} from '../../../Model/Whiteboard/InfiniteCanvas/MinimapSync/minimap-sync.service';
 
@@ -35,6 +37,8 @@ export class WhiteboardMainComponent implements OnInit {
   private currentPointerMode;
   private htmlCanvasObject: HTMLCanvasElement;
   private htmlCanvasWrapperObject: HTMLDivElement;
+
+  private drawingLayer;
 
   cursorX = 0;
   cursorY = 0;
@@ -97,14 +101,24 @@ export class WhiteboardMainComponent implements OnInit {
     this.debugingService.initializeDebugingService(this.paperProject);
     this.minimapSyncService.initializePositionCalcService(this.paperProject);
 
+    this.drawingLayer = this.paperProject.activeLayer;
+
 
     this.paperProject.view.onMouseMove = (event) => {
       this.debugingService.cursorX = event.point.x;
       this.debugingService.cursorY = event.point.y;
     };
-    setTimeout(()=>{
+
+    /*for(let i = 0 ;i < 500; i++) {
+      this.onFrameHandler();
+    }*/
+
+    this.paperProject.activeLayer.onFrame = (event)=>{
+      /*if(event.count % 10 === 0){
+        this.minimapSyncService.syncMinimap();
+      }*/
       this.minimapSyncService.syncMinimap();
-    },100);
+    }
   }
   @HostListener('document:keydown', ['$event'])
   keydownHandler(event) {
@@ -118,11 +132,67 @@ export class WhiteboardMainComponent implements OnInit {
       case PointerMode.LASSO_SELECTOR:
         if(event.code === "Delete") {
           this.pointerModeManager.lassoSelector.removeSelectedItem();
-          this.minimapSyncService.syncMinimap();
+          //this.minimapSyncService.syncMinimap();
         }
         break;
       default:
         break;
+    }
+  }
+  getRndInteger(min, max) {
+    return Math.floor(Math.random() * (max - min + 1) ) + min;
+  }
+  public onFrameHandler(){
+    let activeCircle = new Circle(new Point(this.posCalcService.getWidthOfBrowser()/2, this.posCalcService.getHeightOfBrowser()/2), 30);
+    // @ts-ignore
+    activeCircle.style.fillColor = "black";
+    let directionX = !!(this.getRndInteger(0, 1));
+    let directionY = !!(this.getRndInteger(0, 1));
+
+    let  deltaX = this.getRndInteger(5, 10);
+    let  deltaY = this.getRndInteger(5, 10);
+
+    activeCircle.onFrame = (event)=>{
+      let bottomRight = this.paperProject.view.bounds.bottomRight;
+      let topLeft = this.paperProject.view.bounds.topLeft;
+      //console.log("WhiteboardMainComponent >> onFrame >> event : ",event);
+
+
+      if(directionX){
+        activeCircle.position.x += deltaX;
+      }
+      else{
+        activeCircle.position.x -= deltaX;
+      }
+
+      if(directionY){
+        activeCircle.position.y += deltaY;
+      }
+      else{
+        activeCircle.position.y -= deltaY;
+      }
+
+      if(activeCircle.position.x > bottomRight.x){
+        directionX = false;
+        deltaX = this.getRndInteger(5, 10);
+        deltaY = this.getRndInteger(5, 10);
+      }
+      if(activeCircle.position.x < topLeft.x){
+        directionX = true;
+        deltaX = this.getRndInteger(5, 10);
+        deltaY = this.getRndInteger(5, 10);
+      }
+      if(activeCircle.position.y > bottomRight.y){
+        directionY = false;
+        deltaX = this.getRndInteger(5, 10);
+        deltaY = this.getRndInteger(5, 10);
+      }
+      if(activeCircle.position.y < topLeft.y){
+        directionY = true;
+        deltaX = this.getRndInteger(5, 10);
+        deltaY = this.getRndInteger(5, 10);
+      }
+      //activeCircle.scale(1.02, activeCircle.bounds.center);
     }
   }
 }

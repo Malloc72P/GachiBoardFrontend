@@ -172,7 +172,7 @@ export class PointerModeManagerService {
       }
 
     }
-    this.minimapSyncService.syncMinimap();
+    /*this.minimapSyncService.syncMinimap();*/
   }
 
   // Mouse - Down Listener
@@ -249,7 +249,7 @@ export class PointerModeManagerService {
       default:
         break;
     }
-    this.minimapSyncService.syncMinimap();
+    /*this.minimapSyncService.syncMinimap();*/
   }
 
 
