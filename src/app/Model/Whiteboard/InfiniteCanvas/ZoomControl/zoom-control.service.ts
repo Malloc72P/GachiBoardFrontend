@@ -31,10 +31,6 @@ export class ZoomControlService {
   private prevDistance = 0;
   private currentDistance = 0;
   private midPoint = new Point(0,0);
-  private pinchZoomSlower = 0;
-
-  private readonly pinchZoomInSlowerLimit = 2;
-  private readonly pinchZoomOutSlowerLimit = -2;
 
   public isZooming = 0;
 
@@ -76,15 +72,7 @@ export class ZoomControlService {
       let ngCanvasCenter = this.posCalcService.getCenterOfBrowser();
 
       if(this.prevDistance <= currentDistance){//줌 인
-        if( this.pinchZoomSlower < this.pinchZoomInSlowerLimit  ){
-          if(this.pinchZoomSlower < 0){
-            this.pinchZoomSlower = 0;
-          }
-          this.pinchZoomSlower++;
-          return;
-        }
 
-        this.pinchZoomSlower = 0;
         this.currentProject.view.zoom = this.infiniteCanvasService.changeZoom(
           this.currentProject.view.zoom,
           ngCanvasCenter,
@@ -93,15 +81,6 @@ export class ZoomControlService {
         this.prevDistance = currentDistance;
       }
       else{//줌 아웃
-        if( this.pinchZoomSlower > this.pinchZoomOutSlowerLimit  ){
-          if(this.pinchZoomSlower > 0){
-            this.pinchZoomSlower = 0;
-          }
-          this.pinchZoomSlower--;
-          return;
-        }
-
-        this.pinchZoomSlower = 0;
         this.currentProject.view.zoom = this.infiniteCanvasService.changeZoom(
           this.currentProject.view.zoom,
           ngCanvasCenter,

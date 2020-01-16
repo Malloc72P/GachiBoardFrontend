@@ -31,7 +31,7 @@ export class MinimapSyncService {
   public syncMinimap(){
     this.currentProject.layers.forEach((value)=>{
       if(value.data.type == DataType.DRAWING_CANVAS){
-        this.changeMinimap.emit(value.exportJSON());
+        this.changeMinimap.emit(value);
       }
     });
   }

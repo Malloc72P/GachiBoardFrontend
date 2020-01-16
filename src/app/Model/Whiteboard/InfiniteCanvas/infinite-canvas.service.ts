@@ -46,7 +46,7 @@ export class InfiniteCanvasService {
   private whiteboardRect;
   private whiteboardLayer:Layer;
   private isDrawingLayerExist = false;
-  private drawingLayer: Layer;
+  public drawingLayer: Layer;
 
   zoomDepth = 0;
   zoomRatio = 0.0;

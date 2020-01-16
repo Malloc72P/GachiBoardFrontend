@@ -5,6 +5,7 @@ export enum DataType {
   MINIMAP_CURSOR_LAYER,
   DRAWING_CANVAS,
   EREASER,
+  LASSO_HANDLER
 }
 
 export enum DataState {
