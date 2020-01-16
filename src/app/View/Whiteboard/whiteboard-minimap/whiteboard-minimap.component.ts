@@ -55,9 +55,9 @@ export class WhiteboardMinimapComponent implements OnInit {
         this.minimapProject.activate();
 
         this.maplayer.removeChildren();
-        let tempRaster = projectData.exportJSON();
-        //this.maplayer.addChild(tempRaster);
-        this.maplayer.importJSON(tempRaster);
+        let tempJSON = projectData.exportJSON();
+        //this.maplayer.addChild(tempJSON);
+        this.maplayer.importJSON(tempJSON);
 
         this.maplayer.children.forEach((value)=>{
           if(value.data.type !== DataType.MINIMAP_USER_VIEW){
