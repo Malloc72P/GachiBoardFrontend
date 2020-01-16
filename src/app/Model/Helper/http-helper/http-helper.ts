@@ -16,10 +16,10 @@ export enum ApiRequestTypeEnum {
 
 export class HttpHelper {
   //TODO 이런거 json으로 뽑을 수 있으면 뽑아야 함.
-  private static readonly ngDomainName        =   "http://localhost";
-  private static readonly ngPort              =   ":4200";
-  private static readonly apiServerDomainName =   "http://localhost";
-  private static readonly apiServerPort       =   ":5200";
+  private static readonly ngDomainName        =   "http://skynet765.iptime.org";
+  private static readonly ngPort              =   ":44172";
+  private static readonly apiServerDomainName =   "http://skynet765.iptime.org";
+  private static readonly apiServerPort       =   ":44174";
   // private static readonly apiServerPort       =   ":5858";
   private static readonly contentType         =   'application/json; charset=utf-8';
   private static readonly tokenType           =   'bearer ';
