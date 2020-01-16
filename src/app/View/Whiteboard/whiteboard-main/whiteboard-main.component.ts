@@ -102,9 +102,12 @@ export class WhiteboardMainComponent implements OnInit {
       this.debugingService.cursorX = event.point.x;
       this.debugingService.cursorY = event.point.y;
     };
-    setTimeout(()=>{
-      this.minimapSyncService.syncMinimap();
-    },100);
+
+    this.paperProject.activeLayer.onFrame = (event)=>{
+      if(event.count%6 === 0){
+        this.minimapSyncService.syncMinimap();
+      }
+    }
   }
   @HostListener('document:keydown', ['$event'])
   keydownHandler(event) {

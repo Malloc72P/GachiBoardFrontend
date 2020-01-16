@@ -55,9 +55,10 @@ export class WhiteboardMinimapComponent implements OnInit {
         this.minimapProject.activate();
 
         this.maplayer.removeChildren();
-        this.maplayer.importJSON(projectData);
+        let tempJSON = projectData.exportJSON();
+        //this.maplayer.addChild(tempJSON);
+        this.maplayer.importJSON(tempJSON);
 
-        console.log("\n");
         this.maplayer.children.forEach((value)=>{
           if(value.data.type !== DataType.MINIMAP_USER_VIEW){
             value.style.strokeWidth = value.style.strokeWidth / 5;

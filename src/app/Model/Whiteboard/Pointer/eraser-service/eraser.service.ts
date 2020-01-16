@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import * as paper from 'paper';
 import {PositionCalcService} from "../../PositionCalc/position-calc.service";
 import {DataType} from '../../../Helper/data-type-enum/data-type.enum';
+import {InfiniteCanvasService} from '../../InfiniteCanvas/infinite-canvas.service';
 
 @Injectable({
   providedIn: 'root'
@@ -11,8 +12,16 @@ export class EraserService {
   private newPath: paper.Path;
   private currentProject: paper.Project;
 
+  private hitOptions = {
+    segments: true,
+    stroke: true,
+    fill: true,
+    tolerance: 5
+  };
+
   constructor(
     private posCalcService: PositionCalcService,
+    private infiniteCanvasService:InfiniteCanvasService
   ) { }
 
   public initializeEraserService(project: paper.Project) {
@@ -46,7 +55,7 @@ export class EraserService {
       strokeJoin: 'round',
     });
     this.newPath.data.type = DataType.EREASER;
-    this.removeProcess(this.newPath);
+    this.removeProcess(point);
   }
   public drawPath(event) {
     let point: paper.Point;
@@ -60,13 +69,27 @@ export class EraserService {
     }
     point = this.posCalcService.advConvertNgToPaper(point);
     this.newPath.add(new paper.Point(point.x, point.y));
-    this.removeProcess(this.newPath);
+    this.removeProcess(point);
   }
   public endPath() {
     this.newPath.remove();
   }
 
-  private removeProcess(path: paper.Path) {
+  private removeProcess(point:paper.Point) {
+
+    let hitResults = this.infiniteCanvasService.drawingLayer.hitTestAll(point,this.hitOptions);
+
+    hitResults.forEach((value, index, array)=>{
+      if(value.item.data.type !== DataType.EREASER){
+        value.item.remove();
+      }
+    });
+
+    console.log("EraserService >> removeProcess >> newPath : ",this.newPath.segments.length);
+    if(this.newPath.segments.length > 20){
+      this.newPath.removeSegments(this.newPath.firstSegment.index,this.newPath.lastSegment.index - 20);
+    }
+/*
     for(const item of this.currentProject.activeLayer.children) {
       if(path.intersects(item)) {
         if(!(item.data.type === DataType.EREASER)){
@@ -74,5 +97,6 @@ export class EraserService {
         }
       }
     }
+*/
   }
 }

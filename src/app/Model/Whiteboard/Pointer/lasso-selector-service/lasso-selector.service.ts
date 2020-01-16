@@ -14,9 +14,12 @@ export class LassoSelectorService {
   private previousPoint: paper.Point;
   private currentProject: paper.Project;
   private selectRange: paper.Path;
-  private hitOption = { segments: true, stroke: true, fill: true, tolerance: 3 };
+  private hitOption = { segments: true, stroke: true, fill: true, tolerance: 20 };
   private isSelected = false;
-  private handleOption = {strokeWidth: 1, handleRadius: 4, dashLength: 5};
+  private handleOption = {strokeWidth: 1, handleRadius: 6, dashLength: 5};
+
+  private readonly MOUSE_TOLERANCE = 5;
+  private readonly TOUCH_TOLERANCE = 10;
 
   constructor(
     private posCalcService: PositionCalcService,
@@ -27,6 +30,8 @@ export class LassoSelectorService {
   }
 
   public createPath(event) {
+
+    let advHitOption;
     // 올가미를 그려주는 패스(newPath)가 있거나 선택된 아이템이 있으면
     if(this.newPath != null) {
       if(!this.selectedGroup.hasChildren()) {
@@ -43,8 +48,10 @@ export class LassoSelectorService {
 
     // 입력 타입에 맞게 필요한 값들 초기화
     if(event instanceof MouseEvent) {
+      advHitOption = { segments: true, stroke: true, fill: true, tolerance: this.MOUSE_TOLERANCE };
       point = new paper.Point(event.x, event.y);
     } else if (event instanceof TouchEvent) {
+      advHitOption = { segments: true, stroke: true, fill: true, tolerance: this.TOUCH_TOLERANCE };
       point = new paper.Point(event.touches[0].clientX, event.touches[0].clientY);
       this.previousPoint = new paper.Point(point);
     } else {
@@ -55,16 +62,30 @@ export class LassoSelectorService {
     // 선택 그룹이 있는지 확인
     if (this.selectedGroup.hasChildren()) {
       // 클릭 시작 포인트가 선택그룹 안쪽인지 확인
-      if(this.selectedGroup.hitTest(point, {segments: true, tolerance: 3})) {
+      let tempTest;
+      /*for(let i = 0 ; i < this.handlerGroup.children.length; i++){
+        let testCircle = this.handlerGroup.children[i];
+        tempTest = testCircle.hitTest(point, this.hitOption);
+        if(tempTest){
+          break;
+        }
+      }*/
+
+      tempTest = this.handlerGroup.hitTest(point, advHitOption);
+
+      if(tempTest && tempTest.item.data.type == DataType.LASSO_HANDLER) {
         this.selectedGroup.data.state = DataState.RESIZING;
 
-        let i;
+        let i = tempTest.item.data.handlerIndex;
+/*
         for(i = 0; i < this.handlerGroup.children.length; i++){
           let p = this.handlerGroup.children[i].position;
           if(p.isClose(point, 10)){
             break;
           }
         }
+*/
+        console.log("LassoSelectorService >> createPath >> tempTest : ",tempTest);
 
         let opposite = (i + 2) % 4;
         this.selectedGroup.data.from = this.handlerGroup.children[opposite].position;
@@ -149,11 +170,14 @@ export class LassoSelectorService {
 
   public endPath(event) {
     // 입력 타입에 맞게 필요한 값들 초기화
+    let advHitOption;
     let point: paper.Point;
 
     if(event instanceof MouseEvent) {
+      advHitOption = { segments: true, stroke: true, fill: true, tolerance: this.MOUSE_TOLERANCE };
       point = new paper.Point(event.x, event.y);
     } else if (event instanceof TouchEvent) {
+      advHitOption = { segments: true, stroke: true, fill: true, tolerance: this.TOUCH_TOLERANCE };
       point = new paper.Point(event.changedTouches[0].clientX, event.changedTouches[0].clientY);
       this.previousPoint = new paper.Point(point);
     } else {
@@ -162,21 +186,26 @@ export class LassoSelectorService {
     point = this.posCalcService.advConvertNgToPaper(point);
 
     this.newPath.closed = true;
-
+    console.log("LassoSelectorService >> endPath >> selectedGroup : ",this.selectedGroup.children.length);
     // selectedGroup에 자식 아이템들이 있을 때 == 아이템 옮김
     if (this.selectedGroup.hasChildren()) {
+      console.log("LassoSelectorService >> endPath >> this.selectedGroup.hasChildren()");
       this.selectedGroup.children.forEach(( segment )=>{
         // this.sendWbItemMovementData(segment);
       })
     // selectedGroup에 자식 아이템들이 없을 때 == 올가미툴을 아이템 선택에 사용
     } else {
+      console.log("LassoSelectorService >> endPath >> this.selectedGroup.hasChildren() else");
       this.selectedGroup = new paper.Group();
       // 올가미로 범위 지정해서 여러 아이템 묶는 경우
-      if (this.newPath.segments.length > 1) {
+      console.log("LassoSelectorService >> endPath >> this.newPath.segments.length : ",this.newPath.segments.length);
+      if (this.newPath.segments.length > 20) {
+        console.log("LassoSelectorService >> endPath >> this.newPath.segments.length > 1");
         this.selectBound();
       // 올가미로 클릭해서 하나의 아이템만 선택하는 경우 (가장 먼저 HitTest에 걸리는 아이템이 선택됨)
       } else {
-        this.selectPoint(point);
+        console.log("LassoSelectorService >> endPath >> this.newPath.segments.length > 1 else");
+        this.selectPoint(point, advHitOption);
       }
 
       // 선택 아이템들을 temp 영역이었던 selectedItems에서 Group으로 옮겨주는 과정
@@ -232,7 +261,7 @@ export class LassoSelectorService {
       radius: this.handleOption.handleRadius / this.currentProject.view.zoom,
       strokeWidth: this.handleOption.strokeWidth / this.currentProject.view.zoom,
       fillColor: handlerFillColor,
-      strokeColor: handlerStrokeColor
+      strokeColor: handlerStrokeColor,
     }));
     this.handlerGroup.addChild(new paper.Path.Circle({
       name: handlerName,
@@ -258,6 +287,11 @@ export class LassoSelectorService {
       fillColor: handlerFillColor,
       strokeColor: handlerStrokeColor
     }));
+    this.handlerGroup.children.forEach((value, index, array)=>{
+      value.data.type = DataType.LASSO_HANDLER;
+      value.data.handlerIndex = index;
+    });
+    this.handlerGroup.bringToFront();
   }
 
   private createSelectRangePath(){
@@ -269,8 +303,8 @@ export class LassoSelectorService {
     this.selectRange.dashArray = [this.handleOption.dashLength / this.currentProject.view.zoom, this.handleOption.dashLength / this.currentProject.view.zoom];
   }
 
-  private selectPoint(point) {
-    const hitResult = this.currentProject.activeLayer.hitTestAll(point, this.hitOption)[1];
+  private selectPoint(point, advHitOption) {
+    const hitResult = this.currentProject.activeLayer.hitTestAll(point, advHitOption)[1];
     let segment;
     // 세그먼트 디버깅용 해당 세그먼트의 타입이 뭔지 알기위해 사용
     if(!(segment = this.segmentParser(hitResult))){
