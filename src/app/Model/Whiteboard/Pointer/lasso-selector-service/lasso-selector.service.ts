@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import * as paper from 'paper';
 import {PositionCalcService} from "../../PositionCalc/position-calc.service";
-import {DataName, DataState, DataType} from '../../../Helper/data-type-enum/data-type.enum';
+import {DataName, DataState, DataType, ItemName} from '../../../Helper/data-type-enum/data-type.enum';
 
 @Injectable({
   providedIn: 'root'
@@ -85,7 +85,6 @@ export class LassoSelectorService {
           }
         }
 */
-        console.log("LassoSelectorService >> createPath >> tempTest : ",tempTest);
 
         let opposite = (i + 2) % 4;
         this.selectedGroup.data.from = this.handlerGroup.children[opposite].position;
@@ -186,25 +185,19 @@ export class LassoSelectorService {
     point = this.posCalcService.advConvertNgToPaper(point);
 
     this.newPath.closed = true;
-    console.log("LassoSelectorService >> endPath >> selectedGroup : ",this.selectedGroup.children.length);
     // selectedGroup에 자식 아이템들이 있을 때 == 아이템 옮김
     if (this.selectedGroup.hasChildren()) {
-      console.log("LassoSelectorService >> endPath >> this.selectedGroup.hasChildren()");
       this.selectedGroup.children.forEach(( segment )=>{
         // this.sendWbItemMovementData(segment);
       })
     // selectedGroup에 자식 아이템들이 없을 때 == 올가미툴을 아이템 선택에 사용
     } else {
-      console.log("LassoSelectorService >> endPath >> this.selectedGroup.hasChildren() else");
       this.selectedGroup = new paper.Group();
       // 올가미로 범위 지정해서 여러 아이템 묶는 경우
-      console.log("LassoSelectorService >> endPath >> this.newPath.segments.length : ",this.newPath.segments.length);
       if (this.newPath.segments.length > 20) {
-        console.log("LassoSelectorService >> endPath >> this.newPath.segments.length > 1");
         this.selectBound();
       // 올가미로 클릭해서 하나의 아이템만 선택하는 경우 (가장 먼저 HitTest에 걸리는 아이템이 선택됨)
       } else {
-        console.log("LassoSelectorService >> endPath >> this.newPath.segments.length > 1 else");
         this.selectPoint(point, advHitOption);
       }
 
@@ -226,6 +219,7 @@ export class LassoSelectorService {
       this.selectedItems.splice(0, this.selectedItems.length);
     }
     this.newPath.remove();
+
   }
 
   public lassoHandleResizeForZooming(zoomValue) {
@@ -375,21 +369,27 @@ export class LassoSelectorService {
     // if (hitResult !== null) {
     //   console.log("PointerModeManager >> segmentParser >> hitResult : ", hitResult.type);
     // }
+    //TODO : name 으로 전부 바꾸고 특정 타입은 선택할 수 없도록 만드는 함수로 바꾸기
     if (hitResult == null) {
       return null;
     } else if (hitResult.type === 'segment') {//세그먼트를 선택한 경우
+      console.log("LassoSelectorService >> segmentParser >> hitResult.type : ", hitResult.type);
       return hitResult.item;
       // this.debugService.openSnackBar("hitResult.type === 'segment'");
     } else if (hitResult.type === 'stroke') {//스트로크를 선택한 경우
+      console.log("LassoSelectorService >> segmentParser >> hitResult.type : ", hitResult.type);
       return hitResult.item;
       // this.debugService.openSnackBar("hitResult.type === 'stroke'");
     } else if(hitResult.type === 'pixel'){//레스터 이미지를 선택한 경우
+      console.log("LassoSelectorService >> segmentParser >> hitResult.type : ", hitResult.type);
       return hitResult.item;
       // this.debugService.openSnackBar("hitResult.type === 'pixel'");
     } else if(hitResult.type === 'fill'){//PointText를 선택한 경우
+      console.log("LassoSelectorService >> segmentParser >> hitResult.type : ", hitResult.type);
       return hitResult.item;
       // this.debugService.openSnackBar("hitResult.type === 'fill'");
     }
+    console.log("LassoSelectorService >> segmentParser >> hitResult.type : ", hitResult.type);
 
     return null;
   }
@@ -404,5 +404,15 @@ export class LassoSelectorService {
     }
     return true;
     // return segment.parent.name !== 'mainframeMatrix';
+  }
+
+  private debugSegment(path: paper.Path) {
+    path.segments.forEach((value, index) => {
+      let point;
+      point = new paper.Point(value.point.x,value.point.y);
+
+      let text = new paper.PointText(point);
+      text.content = index + '';
+    });
   }
 }

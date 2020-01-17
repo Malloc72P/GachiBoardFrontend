@@ -12,7 +12,7 @@ app-whiteboard-tool-panel {
   top: 50%;
   transform: translate(0, -50%);
 }
-app-tool-brush-panel, app-tool-highlighter-panel {
+app-tool-brush-panel, app-tool-highlighter-panel, app-tool-shape-panel {
   position: absolute;
   left: 62px;
   top: 50%;
@@ -22,4 +22,22 @@ app-project-supporter-pannel {
   left: 6px;
   bottom: 6px;
   transform: translate(0, 0);
+}
+
+#textEditor {
+  z-index: 10000;
+  display: block;
+  background: transparent;
+  position: absolute;
+  font-family: sans-serif;
+  font-weight: bold;
+  font-size: 12px;
+  line-height: 1.2;
+  text-align: left;
+  overflow: hidden;
+  padding: 5px;
+}
+
+#textEditor:focus {
+  outline: none;
 }

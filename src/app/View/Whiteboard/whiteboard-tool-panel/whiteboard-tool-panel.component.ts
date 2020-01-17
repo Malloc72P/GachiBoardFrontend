@@ -30,24 +30,32 @@ export class WhiteboardToolPanelComponent extends PopoverPanel implements OnInit
   onClickPanelItem(panelItem: number) {
     switch (panelItem) {
       case PointerMode.MOVE:
-        this.panelManager.isHideBrushPanel = this.panelManager.isHideHighlighterPanel = true;
+        this.panelManager.isHideBrushPanel = this.panelManager.isHideHighlighterPanel = this.panelManager.isHideShapePanel = true;
         break;
       case PointerMode.DRAW:
-        this.panelManager.isHideHighlighterPanel = true;
+        this.panelManager.isHideHighlighterPanel = this.panelManager.isHideShapePanel = true;
         this.panelManager.isHideBrushPanel = !this.panelManager.isHideBrushPanel;
         break;
       case PointerMode.HIGHLIGHTER:
-        this.panelManager.isHideBrushPanel = true;
+        this.panelManager.isHideBrushPanel = this.panelManager.isHideShapePanel = true;
         this.panelManager.isHideHighlighterPanel = !this.panelManager.isHideHighlighterPanel;
         break;
-      case PointerMode.ERASER:
+      case PointerMode.SHAPE:
         this.panelManager.isHideBrushPanel = this.panelManager.isHideHighlighterPanel = true;
+        this.panelManager.isHideShapePanel = !this.panelManager.isHideShapePanel;
+        break;
+      case PointerMode.ERASER:
+        this.panelManager.isHideBrushPanel = this.panelManager.isHideHighlighterPanel = this.panelManager.isHideShapePanel = true;
         break;
       case PointerMode.LASSO_SELECTOR:
-        this.panelManager.isHideBrushPanel = this.panelManager.isHideHighlighterPanel = true;
+        this.panelManager.isHideBrushPanel = this.panelManager.isHideHighlighterPanel = this.panelManager.isHideShapePanel = true;
         break;
       default:
         break;
     }
+  }
+
+  get PointerModeEnum() {
+    return PointerMode;
   }
 }

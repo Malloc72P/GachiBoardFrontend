@@ -6,11 +6,6 @@ import {PointerModeManagerService} from '../../../../Model/Whiteboard/Pointer/po
 import {PanelManagerService} from '../../../../Model/Whiteboard/Panel/panel-manager-service/panel-manager.service';
 import {PointerMode} from '../../../../Model/Whiteboard/Pointer/pointer-mode-enum-service/pointer-mode-enum.service';
 
-type SelectableColor = {
-  isSelect: boolean;
-  color: Color;
-}
-
 @Component({
   selector: 'app-tool-highlighter-panel',
   templateUrl: './tool-highlighter-panel.component.html',
@@ -20,10 +15,13 @@ export class ToolHighlighterPanelComponent implements OnInit {
   private strokeWidth: number;
   private colorPickerPicked: string;
   private highlighterAlpha = 0.3;
-  private strokeColors = [
-    {isSelect: true, color: new Color(255, 255, 0, this.highlighterAlpha)},
-    {isSelect: false, color: new Color(0, 255, 0, this.highlighterAlpha)},
-    {isSelect: false, color: new Color(255, 0, 0, this.highlighterAlpha)}];
+
+  private strokeColorIndex: number = 0;
+  private colors = [
+    new Color(255, 255, 0, this.highlighterAlpha),
+    new Color(0, 255, 0, this.highlighterAlpha),
+    new Color(255, 0, 0, this.highlighterAlpha),
+  ];
 
   constructor(
     private pointerModeManagerService: PointerModeManagerService,
@@ -34,37 +32,29 @@ export class ToolHighlighterPanelComponent implements OnInit {
   }
 
   onStrokeWidthChanged() {
-    this.pointerModeManagerService.highlighter.setWidth(this.strokeWidth * 3);
+    this.pointerModeManagerService.highlighter.setWidth(this.strokeWidth);
   }
-  colorToHTMLRGB(selectableColor: SelectableColor) {
-    let tempColor = selectableColor.color.clone();
+  colorToHTMLRGB(index: number) {
+    let tempColor = this.colors[index].clone();
     tempColor.alpha = 1;
     return tempColor.toCSS(false);
   }
-  selectedToCSSClass(selectableColor: SelectableColor) {
-    if(selectableColor.isSelect) {
+  colorSelectedToHTML(index: number) {
+    if(index === this.strokeColorIndex) {
       return "selected";
     } else {
       return;
     }
   }
-  onColorPickerClicked(selectableColor: SelectableColor) {
-    this.unSelectAllColor();
-    selectableColor.isSelect = true;
-    this.pointerModeManagerService.highlighter.setColor(selectableColor.color);
-    let color = selectableColor.color.clone();
-    color.alpha = 1;
-    this.panelManger.toolIconColor[PointerMode.HIGHLIGHTER] = color.toCSS(false);
-  }
-  unSelectAllColor() {
-    for(let color of this.strokeColors) {
-      color.isSelect = false;
-    }
+  onColorPickerClicked(index: number) {
+    this.strokeColorIndex = index;
+    this.pointerModeManagerService.highlighter.setColor(this.colors[index]);
+    this.panelManger.toolIconColor[PointerMode.HIGHLIGHTER] = this.colorToHTMLRGB(index);
   }
   onAddColorClicked() {
     let color = new Color(this.colorPickerPicked);
     color.alpha = this.highlighterAlpha;
-    this.strokeColors.push({isSelect: false, color: color});
-    this.onColorPickerClicked(this.strokeColors[this.strokeColors.length - 1]);
+    this.colors.push(color);
+    this.onColorPickerClicked(this.colors.length - 1);
   }
 }
