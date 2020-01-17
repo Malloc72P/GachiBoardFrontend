@@ -104,7 +104,7 @@ export class WhiteboardMainComponent implements OnInit {
     };
 
     this.paperProject.activeLayer.onFrame = (event)=>{
-      if(event.count%6 === 0){
+      if(event.count%10 === 0){
         this.minimapSyncService.syncMinimap();
       }
     }

@@ -299,6 +299,7 @@ export class LassoSelectorService {
 
   private selectPoint(point, advHitOption) {
     const hitResult = this.currentProject.activeLayer.hitTestAll(point, advHitOption)[1];
+    console.log("LassoSelectorService >> selectPoint >> hitResult : ",hitResult);
     let segment;
     // 세그먼트 디버깅용 해당 세그먼트의 타입이 뭔지 알기위해 사용
     if(!(segment = this.segmentParser(hitResult))){

@@ -85,7 +85,6 @@ export class EraserService {
       }
     });
 
-    console.log("EraserService >> removeProcess >> newPath : ",this.newPath.segments.length);
     if(this.newPath.segments.length > 20){
       this.newPath.removeSegments(this.newPath.firstSegment.index,this.newPath.lastSegment.index - 20);
     }
