@@ -25,6 +25,7 @@ app-project-supporter-pannel {
 }
 
 #textEditor {
+  z-index: 10000;
   display: block;
   background: transparent;
   position: absolute;

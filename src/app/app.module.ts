@@ -12,7 +12,7 @@ import {
   MatDividerModule, MatFormFieldModule, MatGridListModule, MatIconModule, MatInputModule, MatMenuModule,
   MatRadioModule,
   MatRippleModule, MatSelectModule,
-  MatSliderModule, MatToolbarModule
+  MatSliderModule, MatToolbarModule, MatTooltipModule
 } from '@angular/material';
 import { RouterModule, Routes } from '@angular/router';
 import { WhiteboardMainComponent } from './View/Whiteboard/whiteboard-main/whiteboard-main.component';
@@ -148,7 +148,8 @@ const appRoutes: Routes = [
     MatInputModule,
     MatSelectModule,
     MatMenuModule,
-    MatCheckboxModule
+    MatCheckboxModule,
+    MatTooltipModule
   ],
   providers: [
     RouterHelperService,

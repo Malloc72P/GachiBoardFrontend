@@ -85,7 +85,6 @@ export class LassoSelectorService {
           }
         }
 */
-        console.log("LassoSelectorService >> createPath >> tempTest : ",tempTest);
 
         let opposite = (i + 2) % 4;
         this.selectedGroup.data.from = this.handlerGroup.children[opposite].position;
@@ -186,25 +185,19 @@ export class LassoSelectorService {
     point = this.posCalcService.advConvertNgToPaper(point);
 
     this.newPath.closed = true;
-    console.log("LassoSelectorService >> endPath >> selectedGroup : ",this.selectedGroup.children.length);
     // selectedGroup에 자식 아이템들이 있을 때 == 아이템 옮김
     if (this.selectedGroup.hasChildren()) {
-      console.log("LassoSelectorService >> endPath >> this.selectedGroup.hasChildren()");
       this.selectedGroup.children.forEach(( segment )=>{
         // this.sendWbItemMovementData(segment);
       })
     // selectedGroup에 자식 아이템들이 없을 때 == 올가미툴을 아이템 선택에 사용
     } else {
-      console.log("LassoSelectorService >> endPath >> this.selectedGroup.hasChildren() else");
       this.selectedGroup = new paper.Group();
       // 올가미로 범위 지정해서 여러 아이템 묶는 경우
-      console.log("LassoSelectorService >> endPath >> this.newPath.segments.length : ",this.newPath.segments.length);
       if (this.newPath.segments.length > 20) {
-        console.log("LassoSelectorService >> endPath >> this.newPath.segments.length > 1");
         this.selectBound();
       // 올가미로 클릭해서 하나의 아이템만 선택하는 경우 (가장 먼저 HitTest에 걸리는 아이템이 선택됨)
       } else {
-        console.log("LassoSelectorService >> endPath >> this.newPath.segments.length > 1 else");
         this.selectPoint(point, advHitOption);
       }
 
@@ -227,7 +220,6 @@ export class LassoSelectorService {
     }
     this.newPath.remove();
 
-    console.log('LassoSelectorService >> endPath >> SelectedItem : ', this.selectedGroup);
   }
 
   public lassoHandleResizeForZooming(zoomValue) {

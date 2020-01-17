@@ -27,11 +27,11 @@
   display: contents;
 }
 .supportBtnWrapper{
-
+  display: flex;
+  flex-flow: row;
+  padding: 6px 0;
 }
-.supportBtnWrapper{
 
-}
 .buttonSummary{
   /*display: none;*/
   opacity: 0;
@@ -41,6 +41,10 @@
 }
 .supportBtn{
   display: block;
+  width: 48px !important;
+  min-width: unset !important;
+
+  padding: 0;
 }
 .bubble
 {
