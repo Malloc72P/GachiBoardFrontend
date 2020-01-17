@@ -1,23 +1,7 @@
 import { Injectable } from '@angular/core';
+import {PositionCalcService} from "../../PositionCalc/position-calc.service";
 
 import * as paper from 'paper';
-// @ts-ignore
-import Path = paper.Path;
-// @ts-ignore
-import Point = paper.Point;
-// @ts-ignore
-import PointText = paper.PointText;
-// @ts-ignore
-import Group = paper.Group;
-// @ts-ignore
-import Project = paper.Project;
-// @ts-ignore
-import Rectangle = paper.Path.Rectangle;
-// @ts-ignore
-import Circle = paper.Path.Circle;
-// @ts-ignore
-import Layer = paper.Layer;
-import {PositionCalcService} from "../../PositionCalc/position-calc.service";
 
 @Injectable({
   providedIn: 'root'
@@ -25,6 +9,7 @@ import {PositionCalcService} from "../../PositionCalc/position-calc.service";
 export class HighlighterService {
   private strokeColor = new paper.Color(255, 255, 0, 0.3);
   private strokeWidth = 20;
+  private strokeWidthStep = 20;
   private newPath: paper.Path;
   private currentProject: paper.Project;
 
@@ -40,22 +25,22 @@ export class HighlighterService {
     this.strokeColor = color;
   }
   public setWidth(width: number) {
-    this.strokeWidth = width;
+    this.strokeWidth = width * this.strokeWidthStep;
   }
   public createPath(event) {
     let point: paper.Point;
 
     if(event instanceof MouseEvent) {
-      point = new Point(event.x, event.y);
+      point = new paper.Point(event.x, event.y);
     } else if (event instanceof TouchEvent) {
-      point = new Point(event.touches[0].clientX, event.touches[0].clientY);
+      point = new paper.Point(event.touches[0].clientX, event.touches[0].clientY);
     } else {
       return;
     }
 
     point = this.posCalcService.advConvertNgToPaper(point);
     this.newPath =  new paper.Path({
-      segments: [new Point(point.x, point.y)],
+      segments: [new paper.Point(point.x, point.y)],
       strokeColor: this.strokeColor,
       strokeWidth: this.strokeWidth,
       strokeCap: 'round',
@@ -63,17 +48,17 @@ export class HighlighterService {
     });
   }
   public drawPath(event) {
-    let point: Point;
+    let point: paper.Point;
 
     if(event instanceof MouseEvent) {
-      point = new Point(event.x, event.y);
+      point = new paper.Point(event.x, event.y);
     } else if (event instanceof TouchEvent) {
-      point = new Point(event.touches[0].clientX, event.touches[0].clientY);
+      point = new paper.Point(event.touches[0].clientX, event.touches[0].clientY);
     } else {
       return;
     }
     point = this.posCalcService.advConvertNgToPaper(point);
-    this.newPath.add(new Point(point.x, point.y));
+    this.newPath.add(new paper.Point(point.x, point.y));
   }
   public endPath() {
     if(this.newPath != null) {

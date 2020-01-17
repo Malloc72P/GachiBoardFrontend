@@ -5,7 +5,7 @@
           (mousewheel)="zoomControlService.zoomControl($event)">
   </canvas>
   <div [hidden]="pointerModeManager.shape.isHiddenEditText">
-    <div id="textEditor" contenteditable="true"></div>
+      <div id="textEditor" contenteditable="true"></div>
   </div>
   <app-whiteboard-tool-panel id="toolPanel"></app-whiteboard-tool-panel>
   <app-tool-brush-panel [hidden]="panelManager.isHideBrushPanel" id="brushPanel"></app-tool-brush-panel>

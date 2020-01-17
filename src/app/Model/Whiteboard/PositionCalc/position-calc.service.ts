@@ -113,8 +113,14 @@ export class PositionCalcService {
   public advConvertPaperToNg(point: paper.Point) {
     point = this.canvasPointToNgPoint(point);
     point = this.restoreZoomWithPoint(point);
-
     return point.clone();
+  }
+
+  public advConvertLengthPaperToNg(length: number) {
+    return length * this.getZoomState();
+  }
+  public  advConvertLengthNgToPaper(length: number) {
+    return length / this.getZoomState();
   }
 
   public calcPopupPanelLeftMargin(){
