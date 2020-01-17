@@ -88,6 +88,9 @@ export class PositionCalcService {
   public reflectZoomWithPoint(point){
     return new Point( point.x / this.getZoomState(), point.y / this.getZoomState() );
   }
+  public restoreZoomWithPoint(point) {
+    return new Point(point.x * this.getZoomState(), point.y * this.getZoomState());
+  }
   public ngPointToCanvas(point){
     let paperLeftTop = this.currentProject.view.bounds.topLeft;
     return new Point(
@@ -95,10 +98,29 @@ export class PositionCalcService {
       paperLeftTop.y + point.y
     );
   }
-  public advConvertNgToPaper(point){
+  public canvasPointToNgPoint(point) {
+    let paperLeftTop = this.currentProject.view.bounds.topLeft;
+    return new Point(
+      point.x - paperLeftTop.x,
+      point.y - paperLeftTop.y
+    );
+  }
+  public advConvertNgToPaper(point: paper.Point){
     point = this.reflectZoomWithPoint(point);
     point = this.ngPointToCanvas(point);
     return new Point(point.x, point.y);
+  }
+  public advConvertPaperToNg(point: paper.Point) {
+    point = this.canvasPointToNgPoint(point);
+    point = this.restoreZoomWithPoint(point);
+    return point.clone();
+  }
+
+  public advConvertLengthPaperToNg(length: number) {
+    return length * this.getZoomState();
+  }
+  public  advConvertLengthNgToPaper(length: number) {
+    return length / this.getZoomState();
   }
 
   public getKanbanGroupSettingPanelHeight(){

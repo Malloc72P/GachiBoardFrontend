@@ -1,10 +1,12 @@
 import { Injectable } from '@angular/core';
 import {CommonEnum} from '../../../Helper/common-enum/common-enum';
+import {ShapeStyle} from '../../../Helper/data-type-enum/data-type.enum';
 
 export enum PointerMode {
   MOVE,
   DRAW,
   HIGHLIGHTER,
+  SHAPE,
   ERASER,
   LASSO_SELECTOR,
 }
@@ -15,6 +17,7 @@ export enum PointerIcon {
   move,
   brush,
   highlighter,
+  shape,
   eraser,
   selector,
 }
@@ -25,15 +28,17 @@ export enum PointerIcon {
 
 export class PointerModeEnumService implements CommonEnum {
   private enumData = PointerMode;
-  private selectableMode:Array<any>;
+  private selectableMode:Array<string>;
 
   constructor() {
     this.selectableMode = new Array<any>();
 
     for( let key in this.enumData ){
-      let iterItem = this.enumData[key];
-      if(!isNaN(Number(iterItem))){
-        this.selectableMode.splice(this.selectableMode.length, 0, iterItem);
+      if(this.enumData.hasOwnProperty(key)) {
+        let iterItem = this.enumData[key];
+        if(!isNaN(Number(iterItem))){
+          this.selectableMode.splice(this.selectableMode.length, 0, iterItem);
+        }
       }
     }
   }
@@ -46,7 +51,12 @@ export class PointerModeEnumService implements CommonEnum {
   // getPointerIcon(pointerMode) {
   //   return "/assets/images/tools/" + PointerIcon[pointerMode].toLowerCase() + ".svg#" + PointerIcon[pointerMode].toLowerCase();
   // }
-  getPointerIcon(pointerMode) {
-    return PointerIcon[pointerMode].toLowerCase();
+  getPointerIcon(pointerMode, shapeStyle?: number) {
+    let iconName = PointerIcon[pointerMode].toLowerCase();
+    if(pointerMode === PointerMode.SHAPE) {
+      let shapeName = ShapeStyle[shapeStyle].toLowerCase();
+      return iconName + '/' + shapeName + '.svg#' + shapeName;
+    }
+    return iconName + '.svg#' + iconName;
   }
 }

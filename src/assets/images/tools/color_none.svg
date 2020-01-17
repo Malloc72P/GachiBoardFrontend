@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 28 28">
+  <defs>
+    <path id="b" d="M28 14c0 7.73-6.27 14-14 14S0 21.73 0 14 6.27 0 14 0s14 6.27 14 14z"/>
+    <path id="c" d="M26 14c0 6.62-5.38 12-12 12S2 20.62 2 14 7.38 2 14 2s12 5.38 12 12z"/>
+    <path id="a" d="M23.5 14c0 5.24-4.26 9.5-9.5 9.5S4.5 19.24 4.5 14 8.76 4.5 14 4.5s9.5 4.26 9.5 9.5z"/>
+    <path id="e" d="M20.52 7.48L7.7 20.3"/>
+    <clipPath id="d">
+      <use xlink:href="#a"/>
+    </clipPath>
+  </defs>
+  <g id="color_none_selected">
+    <use fill="#4252ff" xlink:href="#b"/>
+    <use fill="#fff" xlink:href="#c"/>
+    <g clip-path="url(#d)">
+      <use fill-opacity="0" stroke="#000" stroke-width="2" xlink:href="#a"/>
+    </g>
+    <use fill-opacity="0" stroke="#000" xlink:href="#e"/>
+  </g>
+  <g id="color_none">
+    <use fill="#fff" xlink:href="#c"/>
+    <g clip-path="url(#d)">
+      <use fill-opacity="0" stroke="#000" stroke-width="2" xlink:href="#a"/>
+    </g>
+    <use fill-opacity="0" stroke="#000" xlink:href="#e"/>
+  </g>
+</svg>

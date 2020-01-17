@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import * as paper from 'paper';
 import {PositionCalcService} from "../../PositionCalc/position-calc.service";
-import {DataName, DataState, DataType} from '../../../Helper/data-type-enum/data-type.enum';
+import {DataName, DataState, DataType, ItemName} from '../../../Helper/data-type-enum/data-type.enum';
 
 @Injectable({
   providedIn: 'root'
@@ -226,6 +226,8 @@ export class LassoSelectorService {
       this.selectedItems.splice(0, this.selectedItems.length);
     }
     this.newPath.remove();
+
+    console.log('LassoSelectorService >> endPath >> SelectedItem : ', this.selectedGroup);
   }
 
   public lassoHandleResizeForZooming(zoomValue) {
@@ -375,21 +377,27 @@ export class LassoSelectorService {
     // if (hitResult !== null) {
     //   console.log("PointerModeManager >> segmentParser >> hitResult : ", hitResult.type);
     // }
+    //TODO : name 으로 전부 바꾸고 특정 타입은 선택할 수 없도록 만드는 함수로 바꾸기
     if (hitResult == null) {
       return null;
     } else if (hitResult.type === 'segment') {//세그먼트를 선택한 경우
+      console.log("LassoSelectorService >> segmentParser >> hitResult.type : ", hitResult.type);
       return hitResult.item;
       // this.debugService.openSnackBar("hitResult.type === 'segment'");
     } else if (hitResult.type === 'stroke') {//스트로크를 선택한 경우
+      console.log("LassoSelectorService >> segmentParser >> hitResult.type : ", hitResult.type);
       return hitResult.item;
       // this.debugService.openSnackBar("hitResult.type === 'stroke'");
     } else if(hitResult.type === 'pixel'){//레스터 이미지를 선택한 경우
+      console.log("LassoSelectorService >> segmentParser >> hitResult.type : ", hitResult.type);
       return hitResult.item;
       // this.debugService.openSnackBar("hitResult.type === 'pixel'");
     } else if(hitResult.type === 'fill'){//PointText를 선택한 경우
+      console.log("LassoSelectorService >> segmentParser >> hitResult.type : ", hitResult.type);
       return hitResult.item;
       // this.debugService.openSnackBar("hitResult.type === 'fill'");
     }
+    console.log("LassoSelectorService >> segmentParser >> hitResult.type : ", hitResult.type);
 
     return null;
   }
@@ -404,5 +412,15 @@ export class LassoSelectorService {
     }
     return true;
     // return segment.parent.name !== 'mainframeMatrix';
+  }
+
+  private debugSegment(path: paper.Path) {
+    path.segments.forEach((value, index) => {
+      let point;
+      point = new paper.Point(value.point.x,value.point.y);
+
+      let text = new paper.PointText(point);
+      text.content = index + '';
+    });
   }
 }

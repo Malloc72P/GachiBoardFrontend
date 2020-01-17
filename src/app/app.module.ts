@@ -57,6 +57,7 @@ import { KanbanGroupSettingComponent } from './View/Whiteboard/project-supporter
 import { KanbanTagManagementComponent } from './View/Whiteboard/project-supporter-pannel/kanban/kanban-tag-management/kanban-tag-management.component';
 import { AreYouSurePanelComponent } from './View/Commons/are-you-sure-panel/are-you-sure-panel.component';
 import {AreYouSurePanelService} from './Model/PopupManager/AreYouSurePanelManager/are-you-sure-panel.service';
+import { ToolShapePanelComponent } from './View/Whiteboard/whiteboard-tool-panel/tool-shape-panel/tool-shape-panel.component';
 
 
 const appRoutes: Routes = [
@@ -106,6 +107,7 @@ const appRoutes: Routes = [
     KanbanGroupSettingComponent,
     KanbanTagManagementComponent,
     AreYouSurePanelComponent,
+    ToolShapePanelComponent,
   ],
   entryComponents: [
     KanbanComponent,
@@ -113,7 +115,7 @@ const appRoutes: Routes = [
     KanbanItemCreateComponent,
     KanbanGroupSettingComponent,
     KanbanTagManagementComponent,
-    AreYouSurePanelComponent
+    AreYouSurePanelComponent,
   ],
   imports: [
     BrowserModule,
