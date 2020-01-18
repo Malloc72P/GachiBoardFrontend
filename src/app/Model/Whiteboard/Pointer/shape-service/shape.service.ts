@@ -154,7 +154,9 @@ export class ShapeService {
 
     // 숨겨져있던 Editable 영역 표시
     this._isHiddenEditText = false;
-    this.HTMLTextEditorElement.focus(); // TODO : 포커스 안잡힘 이유 찾아야함
+    window.setTimeout(() => {
+      this.HTMLTextEditorElement.focus();
+    }, 0);
     this.HTMLTextEditorElement.innerText = item.data.rawText;
 
     this.outsideHandler = (event) => this.onClickOutsidePanel(event, this.HTMLCanvasElement, item);
