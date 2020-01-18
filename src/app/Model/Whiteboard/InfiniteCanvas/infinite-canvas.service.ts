@@ -336,6 +336,7 @@ export class InfiniteCanvasService {
         value.activate();
       }
     });
+    this.whiteboardLayer.sendToBack();
     this.minimapSyncService.syncMinimap();
   }
   private initializeDrawingLayer(){
@@ -345,6 +346,7 @@ export class InfiniteCanvasService {
       this.drawingLayer.data.isMovable = false;
       this.isDrawingLayerExist = true;
       this.drawingLayerManagerService.drawingLayer = this.drawingLayer;
+      this.whiteboardLayer.sendToBack();
       this.drawingLayer.activate();
 
     }

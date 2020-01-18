@@ -2,6 +2,10 @@ import { Injectable } from '@angular/core';
 import * as paper from 'paper';
 import {PositionCalcService} from "../../PositionCalc/position-calc.service";
 import {DataName, DataState, DataType, ItemName} from '../../../Helper/data-type-enum/data-type.enum';
+import {DrawingLayerManagerService} from '../../InfiniteCanvas/DrawingLayerManager/drawing-layer-manager.service';
+// @ts-ignore
+import Group = paper.Group;
+import {WhiteboardItem} from '../../Whiteboard-Item/whiteboard-item';
 
 @Injectable({
   providedIn: 'root'
@@ -23,6 +27,7 @@ export class LassoSelectorService {
 
   constructor(
     private posCalcService: PositionCalcService,
+    private layerService: DrawingLayerManagerService,
   ) { }
 
   public initializeLassoSelectorService(project: paper.Project) {
@@ -185,10 +190,15 @@ export class LassoSelectorService {
     point = this.posCalcService.advConvertNgToPaper(point);
 
     this.newPath.closed = true;
-    // selectedGroup에 자식 아이템들이 있을 때 == 아이템 옮김
+    // selectedGroup에 자식 아이템들이 있을 때 == 아이템 옮김 + 크기 조정된 경우
     if (this.selectedGroup.hasChildren()) {
-      this.selectedGroup.children.forEach(( segment )=>{
+      this.selectedGroup.children.forEach(( value, index, array)=>{
         // this.sendWbItemMovementData(segment);
+        console.log("LassoSelectorService >>  >> value : ",value);
+        if(value instanceof Group){
+          let whiteboardItem:WhiteboardItem = value.data.struct as WhiteboardItem;
+          whiteboardItem.refreshItem();
+        }
       })
     // selectedGroup에 자식 아이템들이 없을 때 == 올가미툴을 아이템 선택에 사용
     } else {
@@ -209,6 +219,7 @@ export class LassoSelectorService {
 
       // 선택된 Item이 있을때만 그림
       if(this.selectedGroup.hasChildren()) {
+        console.log("LassoSelectorService >> endPath >> 진입함");
         this.createSelectRangePath();
         this.selectedGroup.addChild(this.selectRange);
         this.createHandler();
@@ -298,11 +309,11 @@ export class LassoSelectorService {
   }
 
   private selectPoint(point, advHitOption) {
-    const hitResult = this.currentProject.activeLayer.hitTestAll(point, advHitOption)[1];
-    console.log("LassoSelectorService >> selectPoint >> hitResult : ",hitResult);
-    let segment;
+    //const hitResult = this.currentProject.activeLayer.hitTestAll(point, advHitOption)[1];
+    //console.log("LassoSelectorService >> selectPoint >> hitResult : ",hitResult);
+    //let segment;
     // 세그먼트 디버깅용 해당 세그먼트의 타입이 뭔지 알기위해 사용
-    if(!(segment = this.segmentParser(hitResult))){
+    /*if(!(segment = this.segmentParser(hitResult))){
       this.cancelSelect();
       return;
     }
@@ -313,11 +324,25 @@ export class LassoSelectorService {
     // hitResult에 걸린 아이템이 있으면 selectedItems에 넣음
     if (hitResult) {
       this.selectedItems.push(hitResult.item);
+    }*/
+    let found = this.layerService.getHittedItem(point);
+    if(found){
+      console.log("LassoSelectorService >> selectPoint >> found : ",found);
+      this.selectedItems.push(found);
     }
+
     this.isSelected = true;
   }
 
   private selectBound() {
+    console.log("LassoSelectorService >> selectBound >> this.newPath : ",this.newPath);
+    for(let i = 0; i < this.layerService.whiteboardItemArray.length; i++){
+      let value = this.layerService.whiteboardItemArray[i].group;
+      if(this.isInside(this.newPath, value)){
+        this.selectedItems.push(value);
+      }
+    }
+/*
     for (const item of this.currentProject.activeLayer.children) {
       if (item instanceof paper.Path || item instanceof paper.Raster) {
         if (this.isInside(this.newPath, item)) {
@@ -325,6 +350,7 @@ export class LassoSelectorService {
         }
       }
     }
+*/
     this.isSelected = true;
   }
 
@@ -362,6 +388,7 @@ export class LassoSelectorService {
   }
   private isInside(selection, item) {
     if(selection.contains(item.bounds.center)){
+      console.log("LassoSelectorService >> isInside >> item : ",item.data.wbID);
       return item.data.wbID !== 1;
     }
   }

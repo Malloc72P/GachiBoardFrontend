@@ -3,7 +3,7 @@ import {Injectable} from '@angular/core';
 import * as paper from 'paper';
 import {PositionCalcService} from '../../PositionCalc/position-calc.service';
 import {WhiteboardItemType} from '../../../Helper/data-type-enum/data-type.enum';
-import {SimpleStroke} from '../../Whiteboard-Item/editable-shape/SimpleStroke/simple-stroke';
+import {SimpleStroke} from '../../Whiteboard-Item/editable-stroke/SimpleStroke/simple-stroke';
 // @ts-ignore
 import Point = paper.Point;
 // @ts-ignore
@@ -75,7 +75,7 @@ export class BrushService {
       this.newPath.simplify(3);
 
       //addToDrawingLayer를 이용하여 아이템 append
-      this.layerService.addToDrawingLayer(this.newPath);
+      this.layerService.addToDrawingLayer(this.newPath, WhiteboardItemType.SIMPLE_STROKE);
 
       this.newPath = null;
     }

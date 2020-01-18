@@ -3,18 +3,36 @@ import * as paper from 'paper';
 import Item = paper.Item;
 // @ts-ignore
 import Group = paper.Group;
+// @ts-ignore
+import Point = paper.Point;
 
 export abstract class WhiteboardItem {
   private _id;
   private _groupId;
   private _type;
+  private _group;
+  private _topLeft: Point;
+  private _coreItem:Item;
 
   private static idGenerator:number = 0;
 
-  protected constructor(group, type){
+  protected constructor(group, type, item){
     this.id = WhiteboardItem.idGenerator++;
     this.groupId = group.id;
+    this.group = group;
     this.type = type;
+    this.coreItem = item;
+    this.topLeft = item.bounds.topLeft;
+  }
+
+  public abstract refreshItem();
+
+  get coreItem(): paper.Item {
+    return this._coreItem;
+  }
+
+  set coreItem(value: paper.Item) {
+    this._coreItem = value;
   }
 
   get id() {
@@ -23,6 +41,22 @@ export abstract class WhiteboardItem {
 
   set id(value) {
     this._id = value;
+  }
+
+  get topLeft(): paper.Point {
+    return this._topLeft;
+  }
+
+  set topLeft(value: paper.Point) {
+    this._topLeft = value;
+  }
+
+  get group() {
+    return this._group;
+  }
+
+  set group(value) {
+    this._group = value;
   }
 
   get groupId() {

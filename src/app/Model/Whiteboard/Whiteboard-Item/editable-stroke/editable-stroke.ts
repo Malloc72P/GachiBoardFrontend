@@ -17,11 +17,15 @@ export abstract class EditableStroke extends WhiteboardItem {
   private _strokeWidth: number;
   private _strokeColor: Color;
 
-  constructor(group, type, path:Path){
-    super(group, type);
+  protected constructor(group, type, path:Path){
+    super(group, type, path);
     this.segments = path.segments;
     this.strokeWidth = path.strokeWidth;
     this.strokeColor = path.strokeColor
+  }
+
+  public refreshItem() {
+
   }
 
   get segments(): Array<Segment> {

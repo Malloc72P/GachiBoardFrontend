@@ -26,17 +26,28 @@ app-project-supporter-pannel {
 
 #textEditor {
   z-index: 10000;
-  display: block;
+  text-align: center;
+  display: inline-block;
+
   background: transparent;
-  position: absolute;
   font-family: sans-serif;
   font-weight: bold;
   font-size: 12px;
   line-height: 1.2;
-  text-align: left;
   overflow: hidden;
   padding: 5px;
 }
+.verticalSpacer{
+  flex: 1 1 auto;
+}
+#textEditorWrapper{
+  text-align: center;
+  display: flex;
+  flex-flow: column;
+  position: absolute;
+}
+
+
 
 #textEditor:focus {
   outline: none;

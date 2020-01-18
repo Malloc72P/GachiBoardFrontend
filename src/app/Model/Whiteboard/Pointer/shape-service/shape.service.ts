@@ -1,8 +1,17 @@
 import {Injectable} from '@angular/core';
 import * as paper from 'paper';
 import {PositionCalcService} from '../../PositionCalc/position-calc.service';
-import {ShapeStyle} from '../../../Helper/data-type-enum/data-type.enum';
+import {ShapeStyle, WhiteboardItemType} from '../../../Helper/data-type-enum/data-type.enum';
 import {TextStyle} from "./text-style";
+import {DrawingLayerManagerService} from '../../InfiniteCanvas/DrawingLayerManager/drawing-layer-manager.service';
+import {WhiteboardItem} from '../../Whiteboard-Item/whiteboard-item';
+import {EditableShape} from '../../Whiteboard-Item/editable-shape/editable-shape';
+// @ts-ignore
+import PointText = paper.PointText;
+// @ts-ignore
+import Group = paper.Group;
+// @ts-ignore
+import Point = paper.Point;
 
 
 interface Points {
@@ -16,6 +25,7 @@ interface Points {
 export class ShapeService {
   private currentProject: paper.Project;
   private HTMLTextEditorElement: HTMLElement;
+  private HTMLTextEditorWrapper: HTMLElement;
   private HTMLCanvasElement: HTMLElement;
   private previousPoint: paper.Point = new paper.Point(0, 0);
   private newPath: paper.Path;
@@ -25,7 +35,7 @@ export class ShapeService {
   private minSize = 5;
   private _strokeColor = new paper.Color(0, 0, 0);
   private handlePathColor = new paper.Color(0, 0, 255, 0);
-  private _fillColor: paper.Color = null;
+  private _fillColor: paper.Color = new paper.Color(255, 255, 255, 1);
   private _strokeWidth = 1;
   private _shapeStyle: number = ShapeStyle.RECTANGLE;
   private _isHiddenEditText = true;
@@ -36,12 +46,14 @@ export class ShapeService {
   private isCreated = false;
 
   constructor(
-    private positionCalcService: PositionCalcService,
+    private posCalcService: PositionCalcService,
+    private layerService: DrawingLayerManagerService,
   ) { }
 
   public initializeShapeService(project: paper.Project) {
     this.currentProject = project;
     this.HTMLTextEditorElement = document.getElementById("textEditor");
+    this.HTMLTextEditorWrapper = document.getElementById("textEditorWrapper");
     this.HTMLCanvasElement = document.getElementById("cv1");
   }
 
@@ -106,48 +118,82 @@ export class ShapeService {
 
     if(this.fromPoint.equals(points.point)) {
       if(Date.now() - this.lastClickTime < 300) {
-        const item = this.currentProject.activeLayer.getItems({
-          match: (item) => {
-            if(item.contains(points.point)){
-              return item.data.type === "EditText";
-            }
-            return false;
-          }
-        }).pop();
-        if(item != null) {
-          this.textEditStart(item, item.data.textStyle);
+        let selectedItem = this.layerService.getHittedItem(points.point);
+        let editableShape = selectedItem.data.struct as EditableShape;
+
+        if( editableShape.editText != null) {
+          this.textEditStart(editableShape.editText);
         }
-        console.log('ShapeService >> endPath >> Double Click Occurred');
       }
     }
     this.lastClickTime = Date.now();
 
     this.isCreated = false;
+
+
+  }
+  private createShapeItem(){
+    //#1 PointText 생성
+    let newTextStyle = new TextStyle();
+    let tempPointText = new PointText(
+      {
+        fontFamily: newTextStyle.fontFamily,
+        fontSize: newTextStyle.fontSize,
+        fontWeight: newTextStyle.fontWeight,
+        point: this.newPath.bounds.topLeft,
+        content: "",
+      }
+    );
+
+    switch ( this.shapeStyle ) {
+      case ShapeStyle.RECTANGLE :
+        this.layerService.addToDrawingLayer(this.newPath,
+          WhiteboardItemType.EDITABLE_RECTANGLE,
+          tempPointText, newTextStyle);
+        break;
+      case ShapeStyle.CIRCLE :
+        this.layerService.addToDrawingLayer(this.newPath,
+          WhiteboardItemType.EDITABLE_CIRCLE,
+          tempPointText, newTextStyle);
+        break;
+      case ShapeStyle.ROUND_RECTANGLE :
+        this.layerService.addToDrawingLayer(this.newPath,
+          WhiteboardItemType.EDITABLE_CARD,
+          tempPointText, newTextStyle);
+        break;
+      case ShapeStyle.TRIANGLE :
+        this.layerService.addToDrawingLayer(this.newPath,
+          WhiteboardItemType.EDITABLE_TRIANGLE,
+          tempPointText, newTextStyle);
+        break;
+    }
   }
 
-  private textEditStart(item: paper.Item, textStyle: TextStyle) {
+  private textEditStart(pointTextItem) {
+
+    let shapeGroup:Group = pointTextItem.parent as Group;
     // 기존 텍스트 제거
-    if(item.data.pointTextId != undefined) {
-      this.currentProject.activeLayer.getItem({
-        id: item.data.pointTextId
-      }).remove();
-    }
+    //WhiteboardItem정보 가져오기
+    let shapeItem = this.layerService.getWhiteboardItem(pointTextItem) as EditableShape;
+    shapeItem.isEditing = true;
 
     // EditText bound 계산
-    let bound = item.bounds;
-    item.data.editTextTopLeft = this.positionCalcService.advConvertPaperToNg(bound.topLeft);
-    let top = item.data.editTextTopLeft.y;
-    let left = item.data.editTextTopLeft.x;
-    item.data.editTextWidth = Math.min(this.getWidthOfHTMLElement(this.HTMLCanvasElement) - left - this.padding * 2, bound.width) - this.padding * 2;
-    item.data.editTextHeight = Math.min(this.getHeightOfHTMLElement(this.HTMLCanvasElement) - top - this.padding * 2, bound.height - this.padding * 2);
-    item.data.editTextWidth = this.positionCalcService.advConvertLengthPaperToNg(item.data.editTextWidth);
-    item.data.editTextHeight = this.positionCalcService.advConvertLengthPaperToNg(item.data.editTextHeight);
+    let bound = shapeItem.coreItem.bounds;
+
+    let htmlEditorPoint = this.posCalcService.advConvertPaperToNg(new Point(shapeItem.topLeft.x, shapeItem.topLeft.y));
+
+    let edtWidth = this.posCalcService.advConvertLengthPaperToNg(bound.width);
+    let edtHeight = this.posCalcService.advConvertLengthPaperToNg(bound.height);
+
+    let textStyle = new TextStyle();
 
     // EditText HTML Element 스타일 설정
-    this.HTMLTextEditorElement.style.top = top + "px";
-    this.HTMLTextEditorElement.style.left = left + "px";
-    this.HTMLTextEditorElement.style.width = item.data.editTextWidth + "px";
-    this.HTMLTextEditorElement.style.height = item.data.editTextHeight + "px";
+    this.HTMLTextEditorWrapper.style.left = htmlEditorPoint.x + "px";
+    this.HTMLTextEditorWrapper.style.top = htmlEditorPoint.y  + "px";
+    this.HTMLTextEditorWrapper.style.width = edtWidth - this.padding * 2 + "px";
+    this.HTMLTextEditorWrapper.style.height = edtHeight - this.padding * 2 + "px";
+
+    this.HTMLTextEditorElement.style.width = edtWidth - this.padding * 2 + "px";
     this.HTMLTextEditorElement.style.fontFamily = textStyle.fontFamily;
     this.HTMLTextEditorElement.style.fontSize = textStyle.fontSize + "px";
     this.HTMLTextEditorElement.style.fontWeight = textStyle.fontWeight;
@@ -157,54 +203,66 @@ export class ShapeService {
     window.setTimeout(() => {
       this.HTMLTextEditorElement.focus();
     }, 0);
-    this.HTMLTextEditorElement.innerText = item.data.rawText;
 
-    this.outsideHandler = (event) => this.onClickOutsidePanel(event, this.HTMLCanvasElement, item);
+
+    this.HTMLTextEditorElement.innerText = shapeItem.rawTextContent;
+
+    this.outsideHandler = (event) => this.onClickOutsidePanel(event, this.HTMLCanvasElement, pointTextItem);
 
     document.addEventListener("mousedown", this.outsideHandler);
     document.addEventListener("touchstart", this.outsideHandler);
+
+    shapeItem.editText.sendToBack();
   }
 
-  private textEditEnd(item) {
+
+  //===============================================
+  private textEditEnd(firedPointText) {
+    console.log("ShapeService >> textEditEnd >> firedPointText : ",firedPointText);
     this.HTMLTextEditorElement.blur();
     this._isHiddenEditText = true;
 
-    let topleft = this.positionCalcService.advConvertNgToPaper(item.data.editTextTopLeft);
+    // #1 Shape 아이템 변수 찾아옴
+    let shapeItem:EditableShape = this.layerService.getWhiteboardItem(firedPointText.parent) as EditableShape;
 
-    let temp = this.calcPointTextRange(
-      // TODO div, br 태그 두가지 발견되는데 이거 처리할 표현식 만들어야함
+    let adjustedContent = this.getAdjustedTextContent(
       this.HTMLTextEditorElement.innerHTML.replace(/<div>([^<>]*)<\/div>/g, "\n$1"),
-      topleft,
-      this.positionCalcService.advConvertLengthNgToPaper(item.data.editTextWidth),
-      this.positionCalcService.advConvertLengthNgToPaper(item.data.editTextHeight),
+      this.posCalcService.advConvertLengthNgToPaper(shapeItem.coreItem.bounds.width),
+      this.posCalcService.advConvertLengthNgToPaper(shapeItem.coreItem.bounds.height)
     );
 
-    temp.bounds.topLeft = new paper.Point(
-      topleft.x + this.padding,
-      topleft.y + this.padding);
-    item.data.rawText = this.HTMLTextEditorElement.innerText;
+
+    //에디트 텍스트 값 변경
+    console.log("ShapeService >> textEditEnd >> adjustedContent : ",adjustedContent);
+    //####### 이걸로 ShapeItem의 값도 바꾸고 그쪽 설정도 다시 해줌
+    shapeItem.modifyEditText(adjustedContent,this.HTMLTextEditorElement.innerText);
+
     this.HTMLTextEditorElement.innerText = "";
-    item.data.pointTextId = temp.id;
+    //item.data.pointTextId = shapeItem.editTextID;
+
     document.removeEventListener("mousedown", this.outsideHandler);
     document.removeEventListener("touchstart", this.outsideHandler);
+    shapeItem.isEditing = false;
   }
 
-  private calcPointTextRange(text: string, topLeftPoint: paper.Point, width: number, height: number) {
+  private getAdjustedTextContent(text: string, width: number, height: number) {
     let calcText = "";
     let charWidth;
     let calcWidth = 0;
     let charHeight;
     let calcHeight = 0;
 
+    width -= this.padding;
+    height -= this.padding;
+
     let textStyle = new TextStyle();
 
-    if(text == "") {
+    if(text === "") {
       calcText = "";
     } else {
       let tokenizedText = text.match(/./g);
 
       charHeight = this.calcStringHeight(tokenizedText[0], textStyle);
-      calcHeight += charHeight; // 첫줄 계산 하고 시작
       for(let i = 0; i < tokenizedText.length; i++) {
         charWidth = this.calcStringWidth(tokenizedText[i], textStyle);
 
@@ -224,14 +282,7 @@ export class ShapeService {
       }
     }
 
-    console.log("ShapeService >> calcPointTextRange >> topLeftPoint : ", topLeftPoint);
-    return new paper.PointText({
-      fontFamily: textStyle.fontFamily,
-      fontSize: textStyle.fontSize,
-      fontWeight: textStyle.fontWeight,
-      point: topLeftPoint,
-      content: calcText,
-    });
+    return calcText;
   }
 
   private initEvent(event: MouseEvent | TouchEvent): Points {
@@ -258,8 +309,8 @@ export class ShapeService {
       this.previousPoint = new paper.Point(points.point);
     }
 
-    points.point = this.positionCalcService.advConvertNgToPaper(points.point);
-    points.delta = this.positionCalcService.reflectZoomWithPoint(points.delta);
+    points.point = this.posCalcService.advConvertNgToPaper(points.point);
+    points.delta = this.posCalcService.reflectZoomWithPoint(points.delta);
 
     return points;
   }
@@ -281,7 +332,8 @@ export class ShapeService {
       default:
         break;
     }
-    this.setEditable(this.newPath);
+    //this.setEditable(this.newPath);
+    this.createShapeItem();
   }
 
   private createRectangle(point: paper.Point) {
@@ -333,7 +385,8 @@ export class ShapeService {
     this.newPath.strokeColor = this._strokeColor;
     this.newPath.fillColor = this._fillColor;
     this.newPath.strokeWidth = this._strokeWidth;
-    this.setEditable(this.newPath);
+    this.createShapeItem();
+    //this.setEditable(this.newPath);
   }
 
   private createHandleRectangle(point: paper.Point) {
@@ -346,12 +399,6 @@ export class ShapeService {
     })
   }
 
-  private getWidthOfHTMLElement(element) {
-    return parseFloat(getComputedStyle(element, null).width.replace("px", ""));
-  }
-  private getHeightOfHTMLElement(element) {
-    return parseFloat(getComputedStyle(element, null).height.replace("px", ""));
-  }
 
   private onClickOutsidePanel(event, element, item) {
     if(element.contains(event.target)) {
@@ -360,7 +407,7 @@ export class ShapeService {
   }
 
   private calcStringWidth(input: string, style: TextStyle): number {
-    let tempPointText = new paper.PointText({
+    let tempPointText = new PointText({
       fontFamily: style.fontFamily,
       fontSize: style.fontSize,
       fontWeight: style.fontWeight,
@@ -373,7 +420,8 @@ export class ShapeService {
     return width;
   }
   private calcStringHeight(input: string, style: TextStyle): number {
-    let tempPointText = new paper.PointText({
+    console.log("ShapeService >> calcStringHeight >> style.fontSize : ",style.fontSize);
+    let tempPointText = new PointText({
       fontFamily: style.fontFamily,
       fontSize: style.fontSize,
       fontWeight: style.fontWeight,

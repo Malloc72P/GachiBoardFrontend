@@ -47,9 +47,7 @@ export class DebugingService {
 
   constructor(
     private pointerModeManager      : PointerModeManagerService,
-    private infiniteCanvasService   : InfiniteCanvasService,
-    private posCalcService          : PositionCalcService,
-    private zoomControlService      : ZoomControlService,
+    private infiniteCanvasService   : InfiniteCanvasService
   ) {
 
   }
@@ -57,10 +55,22 @@ export class DebugingService {
     this.paperProject = currentProject;
   }
   public logDrawingLayer(){
-    console.log("\n\n");
+    console.log("\n\n=============\n");
+    console.log("DebugingService >> logDrawingLayer >> layer Origin : ",this.infiniteCanvasService.drawingLayer.children);
+    console.log("\n");
     this.infiniteCanvasService.drawingLayer.children.forEach((value, index, array)=>{
       let testScope = new TestScope(value);
       console.log("DebugingService >> drawingLayer >> value : ",testScope);
+    });
+    console.log("\n\n");
+  }
+  public logChildren(){
+    console.log("\n\n=============\n");
+    this.infiniteCanvasService.drawingLayer.children.forEach((value, index, array)=>{
+      console.log("DebugingService >> logChildren [ "+index+" ]  : ",value.children);
+      value.children.forEach((value, index, array)=>{
+        console.log("DebugingService >> value >>  : ",value.bounds);
+      })
     });
     console.log("\n\n");
   }
