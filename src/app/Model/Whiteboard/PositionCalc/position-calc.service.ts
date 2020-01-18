@@ -42,6 +42,9 @@ export class PositionCalcService {
   public getCenterOfBrowser(){
     return this.getCenterPosition( this.htmlCanvasWrapperObject );
   }
+  public getCenterOfPaperView() {
+    return this.currentProject.view.center;
+  }
   public getBottomRightPositionOfBrowser(){
     return this.getBottomRightPosition( this.htmlCanvasWrapperObject );
   }

@@ -75,7 +75,7 @@ export class WhiteboardMainComponent implements OnInit {
     private panelManager            : PanelManagerService,
     private zoomControlService      : ZoomControlService,
     private debugingService         : DebugingService,
-    private minimapSyncService      : MinimapSyncService
+    private minimapSyncService      : MinimapSyncService,
   ) {
   }
 

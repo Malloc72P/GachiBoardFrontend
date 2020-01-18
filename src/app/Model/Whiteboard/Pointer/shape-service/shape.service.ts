@@ -379,7 +379,7 @@ export class ShapeService {
 
   private createDrawMinBoundRectangle(point: Point) {
     this.minDrawBound = new Path.Rectangle({
-      point: point,
+      point: new Point(point.x - this.minSize, point.y - this.minSize),
       size: new Size(this.minSize * 2, this.minSize * 2),
       strokeColor: this.transparentColor,
       strokeWidth: 1,
