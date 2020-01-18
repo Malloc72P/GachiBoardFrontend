@@ -17,6 +17,8 @@ export class LassoSelectorService {
   private hitOption = { segments: true, stroke: true, fill: true, tolerance: 20 };
   private isSelected = false;
   private handleOption = {strokeWidth: 1, handleRadius: 6, dashLength: 5};
+  private dashLength = 5;
+  private strokeWidth = 1;
 
   private readonly MOUSE_TOLERANCE = 5;
   private readonly TOUCH_TOLERANCE = 10;
@@ -99,12 +101,15 @@ export class LassoSelectorService {
       }
     }
 
+    let zoomFactor = this.currentProject.view.zoom;
+
     this.newPath = new paper.Path({
       segments: [point],
       strokeColor: 'blue',
       strokeCap: 'round',
       strokeJoin: 'round',
-      dashArray: [5, 5],
+      dashArray: [this.dashLength / zoomFactor, this.dashLength / zoomFactor],
+      strokeWidth: this.strokeWidth / zoomFactor,
       data : { wbID : 1 }
     });
   }
