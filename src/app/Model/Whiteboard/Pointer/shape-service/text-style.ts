@@ -1,11 +1,19 @@
+export enum Align {
+  LEFT,
+  CENTER,
+  RIGHT,
+}
+
 export class TextStyle {
   private _fontFamily: string;
   private _fontSize: number;
   private _fontWeight: string;
   private _isItalic;
   private _isUnderline;
+  private _horizontalAlign: Align;
+  private _verticalAlign: Align;
 
-  constructor(fontFamily?: string, fontSize?: number) {
+  constructor(fontFamily?: string, fontSize?: number, horizontalAlign?: Align, verticalAlign?: Align) {
     if(fontFamily) {
       this._fontFamily = fontFamily;
     } else {
@@ -15,6 +23,16 @@ export class TextStyle {
       this._fontSize = fontSize;
     } else {
       this._fontSize = 12;
+    }
+    if(horizontalAlign) {
+      this._horizontalAlign = horizontalAlign;
+    } else {
+      this._horizontalAlign = Align.CENTER;
+    }
+    if(verticalAlign) {
+      this._verticalAlign = verticalAlign;
+    } else {
+      this._verticalAlign = Align.CENTER;
     }
     this._fontWeight = 'normal';
     this._isItalic = false;
@@ -59,5 +77,21 @@ export class TextStyle {
 
   set isUnderline(value) {
     this._isUnderline = value;
+  }
+
+  get horizontalAlign() {
+    return this._horizontalAlign;
+  }
+
+  set horizontalAlign(value) {
+    this._horizontalAlign = value;
+  }
+
+  get verticalAlign() {
+    return this._verticalAlign;
+  }
+
+  set verticalAlign(value) {
+    this._verticalAlign = value;
   }
 }

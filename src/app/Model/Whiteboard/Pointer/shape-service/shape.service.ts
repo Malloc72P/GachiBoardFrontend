@@ -1,9 +1,15 @@
 import {Injectable} from '@angular/core';
-import * as paper from 'paper';
 import {PositionCalcService} from '../../PositionCalc/position-calc.service';
 import {ShapeStyle} from '../../../Helper/data-type-enum/data-type.enum';
 import {TextStyle} from "./text-style";
 
+import * as paper from 'paper';
+// @ts-ignore
+import Point = paper.Point;
+// @ts-ignore
+import Path = paper.Path;
+// @ts-ignore
+import Size = paper.Size;
 
 interface Points {
   point: paper.Point,
@@ -20,11 +26,12 @@ export class ShapeService {
   private previousPoint: paper.Point = new paper.Point(0, 0);
   private newPath: paper.Path;
   private handlePath: paper.Path;
+  private minDrawBound: Path;
   private fromPoint: paper.Point;
 
   private minSize = 5;
   private _strokeColor = new paper.Color(0, 0, 0);
-  private handlePathColor = new paper.Color(0, 0, 255, 0);
+  private transparentColor = new paper.Color(0, 0, 255, 0);
   private _fillColor: paper.Color = null;
   private _strokeWidth = 1;
   private _shapeStyle: number = ShapeStyle.RECTANGLE;
@@ -34,6 +41,7 @@ export class ShapeService {
   private outsideHandler;
   private lastClickTime = 0;
   private isCreated = false;
+  private toolState = 'normal';
 
   constructor(
     private positionCalcService: PositionCalcService,
@@ -53,6 +61,7 @@ export class ShapeService {
     points = this.initEvent(event);
 
     this.createHandleRectangle(points.point);
+    this.createDrawMinBoundRectangle(points.point);
 
     this.fromPoint = points.point;
   }
@@ -60,6 +69,17 @@ export class ShapeService {
   public drawPath(event) {
     let points: Points;
     points = this.initEvent(event);
+
+    // 시작 지점부터 가로, 세로가 minSize * 2인 크기 밖으로 넘어가지 않으면 도형 그리지 않음.
+    // 결과적으로 클릭하고 조금만 드래그되어도 도형이 생성되는 문제 제어
+    if(this.toolState === 'normal') {
+      if(!this.minDrawBound.contains(points.point)) {
+        this.toolState = 'draw';
+      }
+    }
+    if(this.toolState !== 'draw') {
+      return;
+    }
 
     if(!this.isCreated){
       this.createSelectedShape(points.point);
@@ -104,7 +124,7 @@ export class ShapeService {
       this.handlePath.remove();
     }
 
-    if(this.fromPoint.equals(points.point)) {
+    // if(this.fromPoint.equals(points.point)) {
       if(Date.now() - this.lastClickTime < 300) {
         const item = this.currentProject.activeLayer.getItems({
           match: (item) => {
@@ -119,10 +139,12 @@ export class ShapeService {
         }
         console.log('ShapeService >> endPath >> Double Click Occurred');
       }
-    }
+    // }
     this.lastClickTime = Date.now();
 
     this.isCreated = false;
+    this.minDrawBound.remove();
+    this.toolState = 'normal';
   }
 
   private textEditStart(item: paper.Item, textStyle: TextStyle) {
@@ -170,10 +192,15 @@ export class ShapeService {
     this._isHiddenEditText = true;
 
     let topleft = this.positionCalcService.advConvertNgToPaper(item.data.editTextTopLeft);
+    let convertedText = this.HTMLTextEditorElement.innerHTML.replace(
+      /<(div|br)([^>]*)>/g, "\n"  // <div> <br> -> \n
+    ).replace(
+      /(<([^>]+)>)/ig, ""         // <*> -> empty
+    );
 
     let temp = this.calcPointTextRange(
       // TODO div, br 태그 두가지 발견되는데 이거 처리할 표현식 만들어야함
-      this.HTMLTextEditorElement.innerHTML.replace(/<div>([^<>]*)<\/div>/g, "\n$1"),
+      convertedText,
       topleft,
       this.positionCalcService.advConvertLengthNgToPaper(item.data.editTextWidth),
       this.positionCalcService.advConvertLengthNgToPaper(item.data.editTextHeight),
@@ -198,39 +225,43 @@ export class ShapeService {
 
     let textStyle = new TextStyle();
 
+    // 텍스트 없음
     if(text == "") {
       calcText = "";
+    // 텍스트 있음
     } else {
-      let tokenizedText = text.match(/./g);
-
-      charHeight = this.calcStringHeight(tokenizedText[0], textStyle);
-      calcHeight += charHeight; // 첫줄 계산 하고 시작
-      for(let i = 0; i < tokenizedText.length; i++) {
-        charWidth = this.calcStringWidth(tokenizedText[i], textStyle);
-
+      // 첫줄 계산 하고 시작
+      charHeight = this.calcStringHeight(text[0], textStyle);
+      calcHeight += charHeight;
+      // 계산 시작
+      for(let i = 0; i < text.length; i++) {
+        if(text[i] === '\n') {
+          calcText += text[i];
+          calcHeight += charHeight;
+          calcWidth = 0;
+          i++;
+        }
+        charWidth = this.calcStringWidth(text[i], textStyle);
         calcWidth += charWidth;
-
         if(calcWidth > width) {
           calcHeight += charHeight;
-          if(calcHeight > height) {
-            break;
-          }
-
           calcText += '\n';
           calcWidth = charWidth;
         }
-
-        calcText += tokenizedText[i];
+        if(calcHeight > height) {
+          break;
+        }
+        calcText += text[i];
       }
     }
 
-    console.log("ShapeService >> calcPointTextRange >> topLeftPoint : ", topLeftPoint);
     return new paper.PointText({
       fontFamily: textStyle.fontFamily,
       fontSize: textStyle.fontSize,
       fontWeight: textStyle.fontWeight,
       point: topLeftPoint,
       content: calcText,
+      // justification: 'center', // TODO : 텍스트 정렬
     });
   }
 
@@ -341,7 +372,16 @@ export class ShapeService {
     this.handlePath = new paper.Path.Rectangle({
       from: point,
       to: toPoint,
-      strokeColor: this.handlePathColor,
+      strokeColor: this.transparentColor,
+      strokeWidth: 1,
+    })
+  }
+
+  private createDrawMinBoundRectangle(point: Point) {
+    this.minDrawBound = new Path.Rectangle({
+      point: point,
+      size: new Size(this.minSize * 2, this.minSize * 2),
+      strokeColor: this.transparentColor,
       strokeWidth: 1,
     })
   }
