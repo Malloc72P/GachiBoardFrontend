@@ -1,4 +1,5 @@
-import {TextStyle} from "../../../Pointer/shape-service/text-style";
+import {TextStyle} from "../../Pointer/shape-service/text-style";
+import {WhiteboardItem} from '../whiteboard-item';
 
 export abstract class EditableShape extends WhiteboardItem {
   private _topLeft: paper.Point;

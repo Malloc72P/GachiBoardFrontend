@@ -1,8 +1,4 @@
-import {EditableStroke} from "./whiteboard-item/editable-stroke/editable-stroke";
-
-export class SimpleStroke extends EditableStroke {
-
-}
+import {EditableStroke} from '../../editable-stroke/editable-stroke';
 
 export class HighlightStroke extends EditableStroke {
   private _opacity: number;

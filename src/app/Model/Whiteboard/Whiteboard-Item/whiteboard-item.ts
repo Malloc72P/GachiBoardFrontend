@@ -1,8 +1,21 @@
-abstract class WhiteboardItem {
+import * as paper from 'paper';
+// @ts-ignore
+import Item = paper.Item;
+// @ts-ignore
+import Group = paper.Group;
+
+export abstract class WhiteboardItem {
   private _id;
   private _groupId;
   private _type;
 
+  private static idGenerator:number = 0;
+
+  protected constructor(group, type){
+    this.id = WhiteboardItem.idGenerator++;
+    this.groupId = group.id;
+    this.type = type;
+  }
 
   get id() {
     return this._id;

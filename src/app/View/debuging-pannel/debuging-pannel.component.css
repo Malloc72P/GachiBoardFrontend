@@ -11,7 +11,7 @@
 .debugTableWrapper{
   display: inline-block;
   position: fixed;
-  left: 12px;
+  right: 12px;
   top: 12px;
   width: 250px;
   font-size: 11px;
