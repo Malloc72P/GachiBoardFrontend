@@ -1,5 +1,5 @@
-import {TextStyle} from "../../Pointer/shape-service/text-style";
-import {WhiteboardItem} from '../whiteboard-item';
+import {TextStyle} from "../../../Pointer/shape-service/text-style";
+import {WhiteboardItem} from '../../whiteboard-item';
 
 import * as paper from 'paper';
 // @ts-ignore
@@ -18,19 +18,13 @@ import PointText = paper.PointText;
 import Group = paper.Group;
 // @ts-ignore
 import Rectangle = paper.Rectangle;
-import {ShapeService} from '../../Pointer/shape-service/shape.service';
-import {PositionCalcService} from '../../PositionCalc/position-calc.service';
+import {ShapeService} from '../../../Pointer/shape-service/shape.service';
+import {PositionCalcService} from '../../../PositionCalc/position-calc.service';
 import {EventEmitter} from '@angular/core';
-import {ItemLifeCycleEnum, ItemLifeCycleEvent} from '../WhiteboardItemLifeCycle/WhiteboardItemLifeCycle';
+import {ItemLifeCycleEnum, ItemLifeCycleEvent} from '../../WhiteboardItemLifeCycle/WhiteboardItemLifeCycle';
+import {WhiteboardShape} from '../whiteboard-shape';
 
-export abstract class EditableShape extends WhiteboardItem {
-
-  private _width: number;
-  private _height: number;
-  private _borderColor;
-  private _borderWidth: number;
-  private _fillColor: paper.Color;
-  private _opacity: number;
+export abstract class EditableShape extends WhiteboardShape {
   private _textContent: string;
   private _rawTextContent: string;
   private _textStyle: TextStyle;
@@ -40,9 +34,9 @@ export abstract class EditableShape extends WhiteboardItem {
   private _isEditing:boolean;
 
   protected constructor(group, type, item:Item, textStyle, editText,
-                        private posCalcService:PositionCalcService,
+                        posCalcService,
                         eventEmitter:EventEmitter<any>) {
-    super(group, type, item, eventEmitter);
+    super(group, type, item, posCalcService, eventEmitter);
     this.topLeft  = item.bounds.topLeft;
     this.width    = item.bounds.width;
     this.height    = item.bounds.height;
@@ -225,80 +219,11 @@ export abstract class EditableShape extends WhiteboardItem {
     return this.posCalcService.advConvertLengthNgToPaper(width);
   }
 
-
-  get isEditing(): boolean {
-    return this._isEditing;
-  }
-
-  set isEditing(value: boolean) {
-    this._isEditing = value;
-  }
-
-  get editText() {
-    return this._editText;
-  }
-
-  set editText(value) {
-    this._editText = value;
-  }
-
-
-  get width(): number {
-    return this._width;
-  }
-
-  set width(value: number) {
-    this._width = value;
-  }
-
-  get height(): number {
-    return this._height;
-  }
-
-  set height(value: number) {
-    this._height = value;
-  }
-
-  get borderColor() {
-    return this._borderColor;
-  }
-
-  set borderColor(value) {
-    this._borderColor = value;
-  }
-
-  get borderWidth(): number {
-    return this._borderWidth;
-  }
-
-  set borderWidth(value: number) {
-    this._borderWidth = value;
-  }
-
-  get fillColor(): paper.Color {
-    return this._fillColor;
-  }
-
-  set fillColor(value: paper.Color) {
-    this._fillColor = value;
-  }
-
-  get opacity(): number {
-    return this._opacity;
-  }
-
-  set opacity(value: number) {
-    this._opacity = value;
-  }
-
   get textContent(): string {
     return this._textContent;
   }
 
   set textContent(value: string) {
-    if (this.editText) {
-      this.textBound = new Rectangle(this.editText.bounds);
-    }
     this._textContent = value;
   }
 
@@ -324,5 +249,21 @@ export abstract class EditableShape extends WhiteboardItem {
 
   set textBound(value: paper.Rectangle) {
     this._textBound = value;
+  }
+
+  get editText(): paper.PointText {
+    return this._editText;
+  }
+
+  set editText(value: paper.PointText) {
+    this._editText = value;
+  }
+
+  get isEditing(): boolean {
+    return this._isEditing;
+  }
+
+  set isEditing(value: boolean) {
+    this._isEditing = value;
   }
 }

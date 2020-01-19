@@ -4,7 +4,7 @@ import {ShapeStyle, WhiteboardItemType} from '../../../Helper/data-type-enum/dat
 import {TextStyle} from "./text-style";
 import {DrawingLayerManagerService} from '../../InfiniteCanvas/DrawingLayerManager/drawing-layer-manager.service';
 import {WhiteboardItem} from '../../Whiteboard-Item/whiteboard-item';
-import {EditableShape} from '../../Whiteboard-Item/editable-shape/editable-shape';
+import {EditableShape} from '../../Whiteboard-Item/Whiteboard-Shape/EditableShape/editable-shape';
 // @ts-ignore
 import PointText = paper.PointText;
 // @ts-ignore

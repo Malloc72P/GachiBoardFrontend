@@ -14,7 +14,7 @@ export enum WhiteboardItemType {
   EDITABLE_CIRCLE,
   EDITABLE_TRIANGLE,
   EDITABLE_CARD,
-  EDITABLE_RASTER
+  SIMPLE_RASTER
 }
 
 export enum DataState {

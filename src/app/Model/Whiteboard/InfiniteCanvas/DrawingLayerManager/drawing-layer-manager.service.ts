@@ -5,12 +5,10 @@ import {SimpleStroke} from '../../Whiteboard-Item/editable-stroke/SimpleStroke/s
 import {WhiteboardItemType} from '../../../Helper/data-type-enum/data-type.enum';
 import {WhiteboardItem} from '../../Whiteboard-Item/whiteboard-item';
 import {HighlightStroke} from '../../Whiteboard-Item/editable-stroke/HighlightStroke/highlight-stroke';
-import {EditableRectangle} from '../../Whiteboard-Item/editable-shape/EditableRectangle/editable-rectangle';
-import {EditableCircle} from '../../Whiteboard-Item/editable-shape/EditableCircle/editable-circle';
-import {EditableTriangle} from '../../Whiteboard-Item/editable-shape/EditableTriangle/editable-triangle';
-import {EditableCard} from '../../Whiteboard-Item/editable-shape/EditableCard/editable-card';
-import {EditableRaster} from '../../Whiteboard-Item/editable-shape/EditableRaster/editable-raster';
-import {EditableShape} from '../../Whiteboard-Item/editable-shape/editable-shape';
+import {EditableRectangle} from '../../Whiteboard-Item/Whiteboard-Shape/EditableShape/EditableRectangle/editable-rectangle';
+import {EditableCircle} from '../../Whiteboard-Item/Whiteboard-Shape/EditableShape/EditableCircle/editable-circle';
+import {EditableTriangle} from '../../Whiteboard-Item/Whiteboard-Shape/EditableShape/EditableTriangle/editable-triangle';
+import {EditableCard} from '../../Whiteboard-Item/Whiteboard-Shape/EditableShape/EditableCard/editable-card';
 // @ts-ignore
 import Layer = paper.Layer;
 // @ts-ignore
@@ -22,6 +20,7 @@ import Point = paper.Point;
 import {TextStyle} from '../../Pointer/shape-service/text-style';
 import {PositionCalcService} from '../../PositionCalc/position-calc.service';
 import {ItemLifeCycleEnum, ItemLifeCycleEvent} from '../../Whiteboard-Item/WhiteboardItemLifeCycle/WhiteboardItemLifeCycle';
+import {SimpleRaster} from '../../Whiteboard-Item/Whiteboard-Shape/editable-raster/SimpleRaster/simple-raster';
 
 
 @Injectable({
@@ -90,9 +89,9 @@ export class DrawingLayerManagerService {
     item.data.myGroup = newGroup;
 
     //Stroke 형태인 경우
-    if(WhiteboardItemType.SIMPLE_STROKE === type
+    if(type === WhiteboardItemType.SIMPLE_STROKE
       ||
-      WhiteboardItemType.HIGHLIGHT_STROKE === type){
+      type === WhiteboardItemType.HIGHLIGHT_STROKE){
       switch (type) {
         case WhiteboardItemType.SIMPLE_STROKE :
           newWhiteboardItem = new SimpleStroke(newGroup, type, item, this.itemLifeCycleEventEmitter);
@@ -103,6 +102,10 @@ export class DrawingLayerManagerService {
         default:
           return false;
       }
+    }
+    else if(type === WhiteboardItemType.SIMPLE_RASTER){
+      newWhiteboardItem = new SimpleRaster(newGroup, type, item,
+        this.positionCalcService, this.itemLifeCycleEventEmitter);
     }
     else{//Shape 형태인 경우
       let editText:PointText      = extras[0];
@@ -124,10 +127,6 @@ export class DrawingLayerManagerService {
           newWhiteboardItem = new EditableCard(newGroup,
             type, item, newTextStyle, editText, this.positionCalcService, this.itemLifeCycleEventEmitter);
           break;
-        case WhiteboardItemType.EDITABLE_RASTER :
-          newWhiteboardItem = new EditableRaster(newGroup,
-            type, item, newTextStyle, editText, this.positionCalcService, this.itemLifeCycleEventEmitter);
-          break;
         default:
           return false;
       }
@@ -141,7 +140,6 @@ export class DrawingLayerManagerService {
 
     newGroup.data.struct = newWhiteboardItem;
     newGroup.addChild(item);
-    let originScale:Point = newWhiteboardItem.group.scaling;
 
 
     this.drawingLayer.addChild(newGroup);
