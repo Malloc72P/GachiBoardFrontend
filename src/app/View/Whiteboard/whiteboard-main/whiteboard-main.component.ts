@@ -131,11 +131,6 @@ export class WhiteboardMainComponent implements OnInit {
     }
   }
 
-  // @HostListener('contextmenu', ['$event'])
-  // onRightClick(event) {
-  //   return false;
-  // }
-
   openContextMenu(event) {
     this.contextOpenEmitter.emit(event);
   }
