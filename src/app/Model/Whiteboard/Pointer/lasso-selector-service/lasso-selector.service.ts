@@ -3,6 +3,9 @@ import * as paper from 'paper';
 import {PositionCalcService} from "../../PositionCalc/position-calc.service";
 import {DataName, DataState, DataType, ItemName} from '../../../Helper/data-type-enum/data-type.enum';
 
+// @ts-ignore
+import Point = paper.Point;
+
 @Injectable({
   providedIn: 'root'
 })
@@ -210,6 +213,7 @@ export class LassoSelectorService {
       this.selectedItems.forEach((value) => {
         this.selectedGroup.addChild(value);
       });
+      this.selectedGroup.data.type = "selectedGroup";
       // this.selectedGroup.selected = true;
 
       // 선택된 Item이 있을때만 그림
@@ -420,5 +424,18 @@ export class LassoSelectorService {
       let text = new paper.PointText(point);
       text.content = index + '';
     });
+  }
+
+  public getItem(point: Point) {
+    point = this.posCalcService.advConvertNgToPaper(point);
+    let hitOption = { segments: true, stroke: true, fill: true, tolerance: 5 };
+    let hitResult = this.currentProject.activeLayer.hitTestAll(point, hitOption);
+
+    if(hitResult[0]) {
+      if(hitResult[0].item) {
+        return hitResult[0].item;
+      }
+    }
+    return null;
   }
 }
