@@ -23,6 +23,7 @@ import * as paper from 'paper';
 import {PositionCalcService} from "../PositionCalc/position-calc.service";
 import {MinimapSyncService} from './MinimapSync/minimap-sync.service';
 import {DataType} from '../../Helper/data-type-enum/data-type.enum';
+import {DrawingLayerManagerService} from './DrawingLayerManager/drawing-layer-manager.service';
 
 interface BoundaryObserver {
   position: Point;
@@ -68,6 +69,7 @@ export class InfiniteCanvasService {
   constructor(
     private posCalcService  : PositionCalcService,
     private minimapSyncService  : MinimapSyncService,
+    private drawingLayerManagerService  : DrawingLayerManagerService,
 
   ) {
 
@@ -334,6 +336,7 @@ export class InfiniteCanvasService {
         value.activate();
       }
     });
+    this.whiteboardLayer.sendToBack();
     this.minimapSyncService.syncMinimap();
   }
   private initializeDrawingLayer(){
@@ -342,7 +345,10 @@ export class InfiniteCanvasService {
       this.drawingLayer.data.type = DataType.DRAWING_CANVAS;
       this.drawingLayer.data.isMovable = false;
       this.isDrawingLayerExist = true;
+      this.drawingLayerManagerService.drawingLayer = this.drawingLayer;
+      this.whiteboardLayer.sendToBack();
       this.drawingLayer.activate();
+
     }
   }
 

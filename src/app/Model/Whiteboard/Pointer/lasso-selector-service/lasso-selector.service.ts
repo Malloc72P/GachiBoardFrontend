@@ -2,6 +2,13 @@ import { Injectable } from '@angular/core';
 import * as paper from 'paper';
 import {PositionCalcService} from "../../PositionCalc/position-calc.service";
 import {DataName, DataState, DataType, ItemName} from '../../../Helper/data-type-enum/data-type.enum';
+import {DrawingLayerManagerService} from '../../InfiniteCanvas/DrawingLayerManager/drawing-layer-manager.service';
+// @ts-ignore
+import Group = paper.Group;
+import {WhiteboardItem} from '../../Whiteboard-Item/whiteboard-item';
+
+// @ts-ignore
+import Point = paper.Point;
 
 @Injectable({
   providedIn: 'root'
@@ -17,12 +24,15 @@ export class LassoSelectorService {
   private hitOption = { segments: true, stroke: true, fill: true, tolerance: 20 };
   private isSelected = false;
   private handleOption = {strokeWidth: 1, handleRadius: 6, dashLength: 5};
+  private dashLength = 5;
+  private strokeWidth = 1;
 
   private readonly MOUSE_TOLERANCE = 5;
   private readonly TOUCH_TOLERANCE = 10;
 
   constructor(
     private posCalcService: PositionCalcService,
+    private layerService: DrawingLayerManagerService,
   ) { }
 
   public initializeLassoSelectorService(project: paper.Project) {
@@ -63,13 +73,6 @@ export class LassoSelectorService {
     if (this.selectedGroup.hasChildren()) {
       // 클릭 시작 포인트가 선택그룹 안쪽인지 확인
       let tempTest;
-      /*for(let i = 0 ; i < this.handlerGroup.children.length; i++){
-        let testCircle = this.handlerGroup.children[i];
-        tempTest = testCircle.hitTest(point, this.hitOption);
-        if(tempTest){
-          break;
-        }
-      }*/
 
       tempTest = this.handlerGroup.hitTest(point, advHitOption);
 
@@ -77,14 +80,6 @@ export class LassoSelectorService {
         this.selectedGroup.data.state = DataState.RESIZING;
 
         let i = tempTest.item.data.handlerIndex;
-/*
-        for(i = 0; i < this.handlerGroup.children.length; i++){
-          let p = this.handlerGroup.children[i].position;
-          if(p.isClose(point, 10)){
-            break;
-          }
-        }
-*/
 
         let opposite = (i + 2) % 4;
         this.selectedGroup.data.from = this.handlerGroup.children[opposite].position;
@@ -99,12 +94,15 @@ export class LassoSelectorService {
       }
     }
 
+    let zoomFactor = this.currentProject.view.zoom;
+
     this.newPath = new paper.Path({
       segments: [point],
       strokeColor: 'blue',
       strokeCap: 'round',
       strokeJoin: 'round',
-      dashArray: [5, 5],
+      dashArray: [this.dashLength / zoomFactor, this.dashLength / zoomFactor],
+      strokeWidth: this.strokeWidth / zoomFactor,
       data : { wbID : 1 }
     });
   }
@@ -185,10 +183,13 @@ export class LassoSelectorService {
     point = this.posCalcService.advConvertNgToPaper(point);
 
     this.newPath.closed = true;
-    // selectedGroup에 자식 아이템들이 있을 때 == 아이템 옮김
+    // selectedGroup에 자식 아이템들이 있을 때 == 아이템 옮김 + 크기 조정된 경우
     if (this.selectedGroup.hasChildren()) {
-      this.selectedGroup.children.forEach(( segment )=>{
-        // this.sendWbItemMovementData(segment);
+      this.selectedGroup.children.forEach(( value, index, array)=>{
+        if(value instanceof Group){
+          let whiteboardItem:WhiteboardItem = value.data.struct as WhiteboardItem;
+          whiteboardItem.refreshItem();
+        }
       })
     // selectedGroup에 자식 아이템들이 없을 때 == 올가미툴을 아이템 선택에 사용
     } else {
@@ -198,13 +199,14 @@ export class LassoSelectorService {
         this.selectBound();
       // 올가미로 클릭해서 하나의 아이템만 선택하는 경우 (가장 먼저 HitTest에 걸리는 아이템이 선택됨)
       } else {
-        this.selectPoint(point, advHitOption);
+        this.selectPoint(point);
       }
 
       // 선택 아이템들을 temp 영역이었던 selectedItems에서 Group으로 옮겨주는 과정
       this.selectedItems.forEach((value) => {
         this.selectedGroup.addChild(value);
       });
+      this.selectedGroup.data.type = "selectedGroup";
       // this.selectedGroup.selected = true;
 
       // 선택된 Item이 있을때만 그림
@@ -217,6 +219,7 @@ export class LassoSelectorService {
 
       // selectedItems의 모든 아이템 제거
       this.selectedItems.splice(0, this.selectedItems.length);
+      console.log("LassoSelectorService >> endPath >> this.selectedGroup : ", this.selectedGroup);
     }
     this.newPath.remove();
 
@@ -297,31 +300,20 @@ export class LassoSelectorService {
     this.selectRange.dashArray = [this.handleOption.dashLength / this.currentProject.view.zoom, this.handleOption.dashLength / this.currentProject.view.zoom];
   }
 
-  private selectPoint(point, advHitOption) {
-    const hitResult = this.currentProject.activeLayer.hitTestAll(point, advHitOption)[1];
-    let segment;
-    // 세그먼트 디버깅용 해당 세그먼트의 타입이 뭔지 알기위해 사용
-    if(!(segment = this.segmentParser(hitResult))){
-      this.cancelSelect();
-      return;
+  private selectPoint(point) {
+    let found = this.layerService.getHittedItem(point);
+    if(found){
+      this.selectedItems.push(found.group);
     }
-    if(!this.segmentVerifier(segment)){
-      this.cancelSelect();
-      return null;
-    }
-    // hitResult에 걸린 아이템이 있으면 selectedItems에 넣음
-    if (hitResult) {
-      this.selectedItems.push(hitResult.item);
-    }
+
     this.isSelected = true;
   }
 
   private selectBound() {
-    for (const item of this.currentProject.activeLayer.children) {
-      if (item instanceof paper.Path || item instanceof paper.Raster) {
-        if (this.isInside(this.newPath, item)) {
-          this.selectedItems.push(item);
-        }
+    for(let i = 0; i < this.layerService.whiteboardItemArray.length; i++){
+      let value = this.layerService.whiteboardItemArray[i].group;
+      if(this.isInside(this.newPath, value)){
+        this.selectedItems.push(value);
       }
     }
     this.isSelected = true;
@@ -345,10 +337,15 @@ export class LassoSelectorService {
 
   public removeSelectedItem() {
     if(this.selectedGroup) {
-      this.selectedGroup.removeChildren();
-      this.handlerGroup.removeChildren();
+      let length = this.selectedGroup.children.length;
+      for(let i = 0; i < length - 1; i++) {
+        this.layerService.getWhiteboardItem(this.selectedGroup.children[0]).destroyItem();
+      }
+      if(this.handlerGroup) {
+        this.handlerGroup.removeChildren();
+      }
       this.selectedGroup.remove();
-      this.newPath.remove();
+      // this.newPath.remove();
       this.isSelected = false;
     }
   }
@@ -363,56 +360,5 @@ export class LassoSelectorService {
     if(selection.contains(item.bounds.center)){
       return item.data.wbID !== 1;
     }
-  }
-  private segmentParser(hitResult){
-    //디버깅용. 해당 세그먼트의 타입이 뭔지 알기 위해 사용
-    // if (hitResult !== null) {
-    //   console.log("PointerModeManager >> segmentParser >> hitResult : ", hitResult.type);
-    // }
-    //TODO : name 으로 전부 바꾸고 특정 타입은 선택할 수 없도록 만드는 함수로 바꾸기
-    if (hitResult == null) {
-      return null;
-    } else if (hitResult.type === 'segment') {//세그먼트를 선택한 경우
-      console.log("LassoSelectorService >> segmentParser >> hitResult.type : ", hitResult.type);
-      return hitResult.item;
-      // this.debugService.openSnackBar("hitResult.type === 'segment'");
-    } else if (hitResult.type === 'stroke') {//스트로크를 선택한 경우
-      console.log("LassoSelectorService >> segmentParser >> hitResult.type : ", hitResult.type);
-      return hitResult.item;
-      // this.debugService.openSnackBar("hitResult.type === 'stroke'");
-    } else if(hitResult.type === 'pixel'){//레스터 이미지를 선택한 경우
-      console.log("LassoSelectorService >> segmentParser >> hitResult.type : ", hitResult.type);
-      return hitResult.item;
-      // this.debugService.openSnackBar("hitResult.type === 'pixel'");
-    } else if(hitResult.type === 'fill'){//PointText를 선택한 경우
-      console.log("LassoSelectorService >> segmentParser >> hitResult.type : ", hitResult.type);
-      return hitResult.item;
-      // this.debugService.openSnackBar("hitResult.type === 'fill'");
-    }
-    console.log("LassoSelectorService >> segmentParser >> hitResult.type : ", hitResult.type);
-
-    return null;
-  }
-  private segmentVerifier(segment){
-    if(!segment){
-      //hit했지만, item을 못불러온 경우 리턴
-      return false;
-    }
-    if(!segment.parent){
-      //item은 있지만, 부모레이어가 없는 경우 리턴
-      return  false;
-    }
-    return true;
-    // return segment.parent.name !== 'mainframeMatrix';
-  }
-
-  private debugSegment(path: paper.Path) {
-    path.segments.forEach((value, index) => {
-      let point;
-      point = new paper.Point(value.point.x,value.point.y);
-
-      let text = new paper.PointText(point);
-      text.content = index + '';
-    });
   }
 }

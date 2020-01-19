@@ -42,6 +42,9 @@ export class PositionCalcService {
   public getCenterOfBrowser(){
     return this.getCenterPosition( this.htmlCanvasWrapperObject );
   }
+  public getCenterOfPaperView() {
+    return this.currentProject.view.center;
+  }
   public getBottomRightPositionOfBrowser(){
     return this.getBottomRightPosition( this.htmlCanvasWrapperObject );
   }
@@ -101,8 +104,8 @@ export class PositionCalcService {
   public canvasPointToNgPoint(point) {
     let paperLeftTop = this.currentProject.view.bounds.topLeft;
     return new Point(
-      point.x - paperLeftTop.x,
-      point.y - paperLeftTop.y
+      Math.abs(paperLeftTop.x - point.x),
+      Math.abs(paperLeftTop.y - point.y)
     );
   }
   public advConvertNgToPaper(point: paper.Point){
@@ -113,6 +116,7 @@ export class PositionCalcService {
   public advConvertPaperToNg(point: paper.Point) {
     point = this.canvasPointToNgPoint(point);
     point = this.restoreZoomWithPoint(point);
+    console.log("PositionCalcService >> advConvertPaperToNg >> point : ",point);
     return point.clone();
   }
 

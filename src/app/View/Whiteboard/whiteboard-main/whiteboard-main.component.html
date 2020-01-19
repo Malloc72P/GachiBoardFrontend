@@ -2,10 +2,16 @@
     style="height: 100%;">
   <canvas id="cv1" class="mainCanvas"
           (mousemove)="ngCursorTracker($event)"
-          (mousewheel)="zoomControlService.zoomControl($event)">
+          (mousewheel)="zoomControlService.zoomControl($event)"
+          (contextmenu)="openContextMenu($event)">
   </canvas>
+  <app-whiteboard-context-menu [openEmitter]="contextOpenEmitter"></app-whiteboard-context-menu>
   <div [hidden]="pointerModeManager.shape.isHiddenEditText">
+    <div id="textEditorWrapper">
+      <div class="verticalSpacer"></div>
       <div id="textEditor" contenteditable="true"></div>
+      <div class="verticalSpacer"></div>
+    </div>
   </div>
   <app-whiteboard-tool-panel id="toolPanel"></app-whiteboard-tool-panel>
   <app-tool-brush-panel [hidden]="panelManager.isHideBrushPanel" id="brushPanel"></app-tool-brush-panel>

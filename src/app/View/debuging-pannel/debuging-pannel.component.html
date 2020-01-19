@@ -63,6 +63,10 @@
               <td>{{debugingService.ngTouchCursorY.toFixed()}}</td>
             </tr>
           </table>
+          <button mat-raised-button
+                  (click)="debugingService.logDrawingLayer()">DrawingLayer</button>
+          <button mat-raised-button
+                  (click)="debugingService.logChildren()">Children</button>
         </div>
 
       </mat-expansion-panel>

@@ -1,4 +1,4 @@
-import {Component, HostListener, OnInit} from '@angular/core';
+import {Component, EventEmitter, Host, HostListener, OnInit, ViewChild} from '@angular/core';
 import { AuthRequestService } from '../../../Controller/SocialLogin/auth-request/auth-request.service';
 import { RouterHelperService } from '../../../Model/Helper/router-helper-service/router-helper.service';
 import {UserDTO} from '../../../DTO/user-dto';
@@ -21,6 +21,7 @@ import Size = paper.Size;
 import Path = paper.Path;
 import {DebugingService} from "../../../Model/Helper/DebugingHelper/debuging.service";
 import {MinimapSyncService} from '../../../Model/Whiteboard/InfiniteCanvas/MinimapSync/minimap-sync.service';
+import {WhiteboardContextMenuComponent} from "../whiteboard-context-menu/whiteboard-context-menu.component";
 
 
 @Component({
@@ -30,6 +31,7 @@ import {MinimapSyncService} from '../../../Model/Whiteboard/InfiniteCanvas/Minim
 })
 export class WhiteboardMainComponent implements OnInit {
   private paperProject: Project;
+  private contextOpenEmitter = new EventEmitter<any>();
 
   private isMouseDown = false;
   private currentPointerMode;
@@ -75,7 +77,7 @@ export class WhiteboardMainComponent implements OnInit {
     private panelManager            : PanelManagerService,
     private zoomControlService      : ZoomControlService,
     private debugingService         : DebugingService,
-    private minimapSyncService      : MinimapSyncService
+    private minimapSyncService      : MinimapSyncService,
   ) {
   }
 
@@ -104,7 +106,7 @@ export class WhiteboardMainComponent implements OnInit {
     };
 
     this.paperProject.activeLayer.onFrame = (event)=>{
-      if(event.count%6 === 0){
+      if(event.count%10 === 0){
         this.minimapSyncService.syncMinimap();
       }
     }
@@ -127,5 +129,9 @@ export class WhiteboardMainComponent implements OnInit {
       default:
         break;
     }
+  }
+
+  openContextMenu(event) {
+    this.contextOpenEmitter.emit(event);
   }
 }

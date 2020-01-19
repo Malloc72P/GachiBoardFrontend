@@ -9,6 +9,7 @@
             (click)="onClickPanelItem(mode)">
       <span class="selectable-icon {{projectSupporterEnumService.getSupporterIcon(mode)}}"></span>
     </button>
+    <input #fileInput type="file" id="fileInput" (change)="onFileChange($event)" style="display: none"/>
   </mat-card>
 </div>
 

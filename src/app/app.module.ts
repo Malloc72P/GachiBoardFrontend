@@ -58,6 +58,9 @@ import { KanbanTagManagementComponent } from './View/Whiteboard/project-supporte
 import { AreYouSurePanelComponent } from './View/Commons/are-you-sure-panel/are-you-sure-panel.component';
 import {AreYouSurePanelService} from './Model/PopupManager/AreYouSurePanelManager/are-you-sure-panel.service';
 import { ToolShapePanelComponent } from './View/Whiteboard/whiteboard-tool-panel/tool-shape-panel/tool-shape-panel.component';
+import {DrawingLayerManagerService} from './Model/Whiteboard/InfiniteCanvas/DrawingLayerManager/drawing-layer-manager.service';
+import {ImportFileService} from "./Model/Whiteboard/ImportFile/import-file.service";
+import { WhiteboardContextMenuComponent } from './View/Whiteboard/whiteboard-context-menu/whiteboard-context-menu.component';
 
 
 const appRoutes: Routes = [
@@ -108,6 +111,7 @@ const appRoutes: Routes = [
     KanbanTagManagementComponent,
     AreYouSurePanelComponent,
     ToolShapePanelComponent,
+    WhiteboardContextMenuComponent,
   ],
   entryComponents: [
     KanbanComponent,
@@ -175,7 +179,9 @@ const appRoutes: Routes = [
     AnimeManagerService,
     UserManagerService,
     KanbanItemColorService,
-    AreYouSurePanelService
+    AreYouSurePanelService,
+    DrawingLayerManagerService,
+    ImportFileService,
   ],
   bootstrap: [AppComponent]
 })

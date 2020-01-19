@@ -1,23 +1,16 @@
-import { Injectable } from '@angular/core';
+import {Injectable} from '@angular/core';
 
 import * as paper from 'paper';
-// @ts-ignore
-import Path = paper.Path;
+import {PositionCalcService} from '../../PositionCalc/position-calc.service';
+import {WhiteboardItemType} from '../../../Helper/data-type-enum/data-type.enum';
+import {SimpleStroke} from '../../Whiteboard-Item/editable-stroke/SimpleStroke/simple-stroke';
 // @ts-ignore
 import Point = paper.Point;
 // @ts-ignore
-import PointText = paper.PointText;
-// @ts-ignore
 import Group = paper.Group;
-// @ts-ignore
-import Project = paper.Project;
-// @ts-ignore
-import Rectangle = paper.Path.Rectangle;
-// @ts-ignore
-import Circle = paper.Path.Circle;
-// @ts-ignore
-import Layer = paper.Layer;
-import {PositionCalcService} from "../../PositionCalc/position-calc.service";
+import {InfiniteCanvasService} from '../../InfiniteCanvas/infinite-canvas.service';
+import {DrawingLayerManagerService} from '../../InfiniteCanvas/DrawingLayerManager/drawing-layer-manager.service';
+
 
 @Injectable({
   providedIn: 'root'
@@ -27,9 +20,11 @@ export class BrushService {
   private strokeWidth = 1;
   private newPath: paper.Path;
   private currentProject: paper.Project;
+  private newSimpleStroke;
 
   constructor(
     private posCalcService: PositionCalcService,
+    private layerService: DrawingLayerManagerService,
   ) { }
 
   public initializeBrushService(project: paper.Project) {
@@ -53,6 +48,7 @@ export class BrushService {
       return;
     }
     point = this.posCalcService.advConvertNgToPaper(point);
+
     this.newPath =  new paper.Path({
       segments: [new Point(point.x, point.y)],
       strokeColor: this.strokeColor,
@@ -77,7 +73,13 @@ export class BrushService {
   public endPath() {
     if(this.newPath != null) {
       this.newPath.simplify(3);
+
+      //addToDrawingLayer를 이용하여 아이템 append
+      this.layerService.addToDrawingLayer(this.newPath, WhiteboardItemType.SIMPLE_STROKE);
+
       this.newPath = null;
     }
   }
+
+
 }

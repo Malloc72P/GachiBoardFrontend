@@ -3,6 +3,8 @@ import * as paper from 'paper';
 import {PositionCalcService} from "../../PositionCalc/position-calc.service";
 import {DataType} from '../../../Helper/data-type-enum/data-type.enum';
 import {InfiniteCanvasService} from '../../InfiniteCanvas/infinite-canvas.service';
+import {DrawingLayerManagerService} from '../../InfiniteCanvas/DrawingLayerManager/drawing-layer-manager.service';
+import {WhiteboardItem} from '../../Whiteboard-Item/whiteboard-item';
 
 @Injectable({
   providedIn: 'root'
@@ -21,7 +23,7 @@ export class EraserService {
 
   constructor(
     private posCalcService: PositionCalcService,
-    private infiniteCanvasService:InfiniteCanvasService
+    private layerService:DrawingLayerManagerService,
   ) { }
 
   public initializeEraserService(project: paper.Project) {
@@ -77,26 +79,12 @@ export class EraserService {
 
   private removeProcess(point:paper.Point) {
 
-    let hitResults = this.infiniteCanvasService.drawingLayer.hitTestAll(point,this.hitOptions);
-
-    hitResults.forEach((value, index, array)=>{
-      if(value.item.data.type !== DataType.EREASER){
-        value.item.remove();
-      }
-    });
-
-    console.log("EraserService >> removeProcess >> newPath : ",this.newPath.segments.length);
+    let foundItem:WhiteboardItem = this.layerService.getHittedItem(point);
+    if(foundItem){
+      foundItem.destroyItem();
+    }
     if(this.newPath.segments.length > 20){
       this.newPath.removeSegments(this.newPath.firstSegment.index,this.newPath.lastSegment.index - 20);
     }
-/*
-    for(const item of this.currentProject.activeLayer.children) {
-      if(path.intersects(item)) {
-        if(!(item.data.type === DataType.EREASER)){
-          item.remove();
-        }
-      }
-    }
-*/
   }
 }

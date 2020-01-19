@@ -24,6 +24,16 @@ import Rectangle = paper.Path.Rectangle;
 // @ts-ignore
 import Layer = paper.Layer;
 import {DataType} from '../../../Model/Helper/data-type-enum/data-type.enum';
+import {DrawingLayerManagerService} from '../../../Model/Whiteboard/InfiniteCanvas/DrawingLayerManager/drawing-layer-manager.service';
+
+class MinimapElement{
+  id;
+  areaRect:Rectangle;
+  constructor(id, rect){
+    this.id = id;
+    this.areaRect = rect;
+  }
+}
 
 @Component({
   selector: 'app-whiteboard-minimap',
@@ -41,29 +51,35 @@ export class WhiteboardMinimapComponent implements OnInit {
   private cursorLayer;
 
   private isFullScreen = false;
+  private minimapElMap:Map<number,MinimapElement>;
 
   constructor(
     private infiniteCanvasService:InfiniteCanvasService,
     private zoomControlService:ZoomControlService,
     private posCalcService:PositionCalcService,
     private minimapSyncService: MinimapSyncService,
+    private layerService: DrawingLayerManagerService,
     @Inject(DOCUMENT) private document: any
   ) {
-    this.minimapSyncService.changeMinimap.subscribe((projectData)=>{
+    this.minimapSyncService.changeMinimap.subscribe(()=>{
 
       if(this.minimapProject){
         this.minimapProject.activate();
 
         this.maplayer.removeChildren();
-        let tempJSON = projectData.exportJSON();
-        //this.maplayer.addChild(tempJSON);
-        this.maplayer.importJSON(tempJSON);
 
-        this.maplayer.children.forEach((value)=>{
-          if(value.data.type !== DataType.MINIMAP_USER_VIEW){
-            value.style.strokeWidth = value.style.strokeWidth / 5;
-          }
-        });
+
+        let originChildren = this.layerService.whiteboardItemArray;
+
+        for(let i = originChildren.length - 1 ; i >= 0 ; i-- ){
+          let originEl = originChildren[i].group;
+          let newRect = new Rectangle(originEl.bounds);
+          // @ts-ignore
+          newRect.fillColor = "blue";
+          newRect.opacity = 0.1;
+
+          this.maplayer.addChild(newRect);
+        }
 
         this.maplayer.addChild(this.createUserViewRect());
         this.maplayer.fitBounds(this.minimapProject.view.bounds);
@@ -71,6 +87,7 @@ export class WhiteboardMinimapComponent implements OnInit {
         this.currentProject.activate();
       }
     });
+    this.minimapElMap = new Map<number, MinimapElement>();
   }
 
   createUserViewRect(){

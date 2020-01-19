@@ -2,6 +2,8 @@ import { Injectable } from '@angular/core';
 import {PositionCalcService} from "../../PositionCalc/position-calc.service";
 
 import * as paper from 'paper';
+import {DrawingLayerManagerService} from '../../InfiniteCanvas/DrawingLayerManager/drawing-layer-manager.service';
+import {WhiteboardItemType} from '../../../Helper/data-type-enum/data-type.enum';
 
 @Injectable({
   providedIn: 'root'
@@ -15,6 +17,7 @@ export class HighlighterService {
 
   constructor(
     private posCalcService: PositionCalcService,
+    private layerService: DrawingLayerManagerService,
   ) { }
 
   public initializeHighLighterService(project: paper.Project) {
@@ -63,6 +66,7 @@ export class HighlighterService {
   public endPath() {
     if(this.newPath != null) {
       this.newPath.simplify(3);
+      this.layerService.addToDrawingLayer(this.newPath, WhiteboardItemType.HIGHLIGHT_STROKE);
       this.newPath = null;
     }
   }

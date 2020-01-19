@@ -7,6 +7,15 @@ export enum DataType {
   EREASER,
   LASSO_HANDLER
 }
+export enum WhiteboardItemType {
+  SIMPLE_STROKE,
+  HIGHLIGHT_STROKE,
+  EDITABLE_RECTANGLE,
+  EDITABLE_CIRCLE,
+  EDITABLE_TRIANGLE,
+  EDITABLE_CARD,
+  SIMPLE_RASTER
+}
 
 export enum DataState {
   MOVING,
