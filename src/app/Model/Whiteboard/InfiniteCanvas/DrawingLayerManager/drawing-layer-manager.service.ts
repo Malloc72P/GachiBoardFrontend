@@ -1,4 +1,4 @@
-import {Injectable} from '@angular/core';
+import {EventEmitter, Injectable, Output} from '@angular/core';
 import * as paper from 'paper';
 
 import {SimpleStroke} from '../../Whiteboard-Item/editable-stroke/SimpleStroke/simple-stroke';
@@ -21,6 +21,8 @@ import PointText = paper.PointText;
 import Point = paper.Point;
 import {TextStyle} from '../../Pointer/shape-service/text-style';
 import {PositionCalcService} from '../../PositionCalc/position-calc.service';
+import {ItemLifeCycleEnum, ItemLifeCycleEvent} from '../../Whiteboard-Item/WhiteboardItemLifeCycle/WhiteboardItemLifeCycle';
+
 
 @Injectable({
   providedIn: 'root'
@@ -29,6 +31,7 @@ export class DrawingLayerManagerService {
   private _drawingLayer:Layer;
 
   private _whiteboardItemArray:Array<WhiteboardItem>;
+  @Output() itemLifeCycleEventEmitter:EventEmitter<any> = new EventEmitter<any>();
 
   get whiteboardItemArray(): Array<WhiteboardItem> {
     return this._whiteboardItemArray;
@@ -42,6 +45,25 @@ export class DrawingLayerManagerService {
     private positionCalcService:PositionCalcService
   ) {
     this.whiteboardItemArray = new Array<WhiteboardItem>();
+    this.itemLifeCycleEventEmitter.subscribe((data:ItemLifeCycleEvent)=>{
+      if(!data){
+        return;
+      }
+
+      switch (data.action) {
+        case ItemLifeCycleEnum.CREATE:
+          console.log("DrawingLayerManagerService >> itemLifeCycleEventEmitter >> CREATE");
+          break;
+        case ItemLifeCycleEnum.MODIFY:
+          console.log("DrawingLayerManagerService >> itemLifeCycleEventEmitter >> MODIFY");
+          break;
+        case ItemLifeCycleEnum.DESTROY:
+          console.log("DrawingLayerManagerService >> itemLifeCycleEventEmitter >> DESTROY");
+          let removeIdx = this.indexOfWhiteboardArray(data.id);
+          this.whiteboardItemArray.splice(removeIdx, 1);
+          break;
+      }
+    })
   }
 
   get drawingLayer(): paper.Layer {
@@ -52,8 +74,16 @@ export class DrawingLayerManagerService {
     this._drawingLayer = value;
   }
 
+  public indexOfWhiteboardArray(id){
+    let children = this.whiteboardItemArray;
+    for(let i = 0 ; i < children.length; i++){
+      if(children[i].id === id){
+        return i
+      }
+    }
+  }
+
   public addToDrawingLayer(item, type, ...extras){
-    console.log("DrawingLayerManagerService >> addToDrawingLayer >> 진입함");
     let newGroup = new Group();
     newGroup.applyMatrix = false;
     let newWhiteboardItem:WhiteboardItem = null;
@@ -65,10 +95,10 @@ export class DrawingLayerManagerService {
       WhiteboardItemType.HIGHLIGHT_STROKE === type){
       switch (type) {
         case WhiteboardItemType.SIMPLE_STROKE :
-          newWhiteboardItem = new SimpleStroke(newGroup, type, item);
+          newWhiteboardItem = new SimpleStroke(newGroup, type, item, this.itemLifeCycleEventEmitter);
           break;
         case WhiteboardItemType.HIGHLIGHT_STROKE :
-          newWhiteboardItem = new HighlightStroke(newGroup, type, item);
+          newWhiteboardItem = new HighlightStroke(newGroup, type, item, this.itemLifeCycleEventEmitter);
           break;
         default:
           return false;
@@ -80,23 +110,23 @@ export class DrawingLayerManagerService {
       switch (type) {
         case WhiteboardItemType.EDITABLE_RECTANGLE :
           newWhiteboardItem = new EditableRectangle(newGroup,
-            type, item, newTextStyle, editText, this.positionCalcService);
+            type, item, newTextStyle, editText, this.positionCalcService, this.itemLifeCycleEventEmitter);
           break;
         case WhiteboardItemType.EDITABLE_CIRCLE :
           newWhiteboardItem = new EditableCircle(newGroup,
-            type, item, newTextStyle, editText, this.positionCalcService);
+            type, item, newTextStyle, editText, this.positionCalcService, this.itemLifeCycleEventEmitter);
           break;
         case WhiteboardItemType.EDITABLE_TRIANGLE :
           newWhiteboardItem = new EditableTriangle(newGroup,
-            type, item, newTextStyle, editText, this.positionCalcService);
+            type, item, newTextStyle, editText, this.positionCalcService, this.itemLifeCycleEventEmitter);
           break;
         case WhiteboardItemType.EDITABLE_CARD :
           newWhiteboardItem = new EditableCard(newGroup,
-            type, item, newTextStyle, editText, this.positionCalcService);
+            type, item, newTextStyle, editText, this.positionCalcService, this.itemLifeCycleEventEmitter);
           break;
         case WhiteboardItemType.EDITABLE_RASTER :
           newWhiteboardItem = new EditableRaster(newGroup,
-            type, item, newTextStyle, editText, this.positionCalcService);
+            type, item, newTextStyle, editText, this.positionCalcService, this.itemLifeCycleEventEmitter);
           break;
         default:
           return false;
@@ -114,32 +144,16 @@ export class DrawingLayerManagerService {
     let originScale:Point = newWhiteboardItem.group.scaling;
 
 
-    item.onFrame = (event)=>{
-      if(event.count % 15 === 0){
-        newWhiteboardItem.topLeft = item.bounds.topLeft;
-        if(newWhiteboardItem instanceof EditableShape){
-
-          let editText = newWhiteboardItem.editText;
-          editText.position = new Point(newWhiteboardItem.coreItem.bounds.center);
-          if(!newWhiteboardItem.isEditing){
-            editText.bringToFront();
-          }
-      }
-
-      }
-    };
-
     this.drawingLayer.addChild(newGroup);
+    newWhiteboardItem.notifyItemCreation();
   }
   public getItemById( paperId ){
 
     //let found = this.findItemById(paperId);
     let found = this.drawingLayer.getItem({id : paperId});
-    console.log("DrawingLayerManagerService >> getItemById >> found : ",found);
     return found;
   }
   private findItemById(id){
-    console.log("\n\nDrawingLayerManagerService >> findItemById >> 진입함");
     let children = this.drawingLayer.children;
     for(let i = children.length - 1; i >= 0; i--){
       let value = children[i];
@@ -158,7 +172,6 @@ export class DrawingLayerManagerService {
       return node;
     }
     if(node.children){
-      console.log("DrawingLayerManagerService >> recursiveItemFinder >> node : ",node);
       for(let i = node.children.length - 1 ; i >= 0; i--){
         let tempNode = this.itemFinder_recursion(node.children[i], id);
         if(tempNode){
@@ -180,21 +193,17 @@ export class DrawingLayerManagerService {
     return tgt.data.struct;
   }
 
-  public getHittedItem(point){
-    let children = this.drawingLayer.children;
+  public getHittedItem(point) : WhiteboardItem{
+    let children = this.whiteboardItemArray;
     for(let i = children.length - 1 ; i >= 0; i-- ){
       let value = children[i];
 
-      if(!(value instanceof Group)){
-        //그룹이 아닌게
-        value = value.data.myGroup;
-      }
-
-      if(value && value.hitTest(point)){
+      if(value.group.hitTest(point)){
         return value;
       }
     }
-    console.warn("DrawingLayerManagerService >> getHittedItem >> 못찾음 : ",point);
+    //못찾은 경우 null값 리턴
+    return null;
   }
 
 }

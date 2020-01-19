@@ -11,8 +11,8 @@ import Segment = paper.Segment;
 // @ts-ignore
 import Color = paper.Color;
 export class EditableTriangle extends EditableShape {
-  constructor(group, type, item:Item, textStyle, editText, posService) {
-    super(group, type, item, textStyle, editText, posService);
+  constructor(group, type, item:Item, textStyle, editText, posService, eventEmitter) {
+    super(group, type, item, textStyle, editText, posService, eventEmitter);
 
   }
 

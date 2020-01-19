@@ -29,11 +29,7 @@ export class MinimapSyncService {
     this.currentProject = currentProject;
   }
   public syncMinimap(){
-    this.currentProject.layers.forEach((value)=>{
-      if(value.data.type == DataType.DRAWING_CANVAS){
-        this.changeMinimap.emit(value);
-      }
-    });
+    this.changeMinimap.emit();
   }
 
 }

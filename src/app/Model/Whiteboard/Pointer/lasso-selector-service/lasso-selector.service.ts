@@ -68,13 +68,6 @@ export class LassoSelectorService {
     if (this.selectedGroup.hasChildren()) {
       // 클릭 시작 포인트가 선택그룹 안쪽인지 확인
       let tempTest;
-      /*for(let i = 0 ; i < this.handlerGroup.children.length; i++){
-        let testCircle = this.handlerGroup.children[i];
-        tempTest = testCircle.hitTest(point, this.hitOption);
-        if(tempTest){
-          break;
-        }
-      }*/
 
       tempTest = this.handlerGroup.hitTest(point, advHitOption);
 
@@ -82,14 +75,6 @@ export class LassoSelectorService {
         this.selectedGroup.data.state = DataState.RESIZING;
 
         let i = tempTest.item.data.handlerIndex;
-/*
-        for(i = 0; i < this.handlerGroup.children.length; i++){
-          let p = this.handlerGroup.children[i].position;
-          if(p.isClose(point, 10)){
-            break;
-          }
-        }
-*/
 
         let opposite = (i + 2) % 4;
         this.selectedGroup.data.from = this.handlerGroup.children[opposite].position;
@@ -193,8 +178,6 @@ export class LassoSelectorService {
     // selectedGroup에 자식 아이템들이 있을 때 == 아이템 옮김 + 크기 조정된 경우
     if (this.selectedGroup.hasChildren()) {
       this.selectedGroup.children.forEach(( value, index, array)=>{
-        // this.sendWbItemMovementData(segment);
-        console.log("LassoSelectorService >>  >> value : ",value);
         if(value instanceof Group){
           let whiteboardItem:WhiteboardItem = value.data.struct as WhiteboardItem;
           whiteboardItem.refreshItem();
@@ -219,7 +202,6 @@ export class LassoSelectorService {
 
       // 선택된 Item이 있을때만 그림
       if(this.selectedGroup.hasChildren()) {
-        console.log("LassoSelectorService >> endPath >> 진입함");
         this.createSelectRangePath();
         this.selectedGroup.addChild(this.selectRange);
         this.createHandler();
@@ -309,48 +291,21 @@ export class LassoSelectorService {
   }
 
   private selectPoint(point, advHitOption) {
-    //const hitResult = this.currentProject.activeLayer.hitTestAll(point, advHitOption)[1];
-    //console.log("LassoSelectorService >> selectPoint >> hitResult : ",hitResult);
-    //let segment;
-    // 세그먼트 디버깅용 해당 세그먼트의 타입이 뭔지 알기위해 사용
-    /*if(!(segment = this.segmentParser(hitResult))){
-      this.cancelSelect();
-      return;
-    }
-    if(!this.segmentVerifier(segment)){
-      this.cancelSelect();
-      return null;
-    }
-    // hitResult에 걸린 아이템이 있으면 selectedItems에 넣음
-    if (hitResult) {
-      this.selectedItems.push(hitResult.item);
-    }*/
     let found = this.layerService.getHittedItem(point);
     if(found){
-      console.log("LassoSelectorService >> selectPoint >> found : ",found);
-      this.selectedItems.push(found);
+      this.selectedItems.push(found.group);
     }
 
     this.isSelected = true;
   }
 
   private selectBound() {
-    console.log("LassoSelectorService >> selectBound >> this.newPath : ",this.newPath);
     for(let i = 0; i < this.layerService.whiteboardItemArray.length; i++){
       let value = this.layerService.whiteboardItemArray[i].group;
       if(this.isInside(this.newPath, value)){
         this.selectedItems.push(value);
       }
     }
-/*
-    for (const item of this.currentProject.activeLayer.children) {
-      if (item instanceof paper.Path || item instanceof paper.Raster) {
-        if (this.isInside(this.newPath, item)) {
-          this.selectedItems.push(item);
-        }
-      }
-    }
-*/
     this.isSelected = true;
   }
 
@@ -388,59 +343,8 @@ export class LassoSelectorService {
   }
   private isInside(selection, item) {
     if(selection.contains(item.bounds.center)){
-      console.log("LassoSelectorService >> isInside >> item : ",item.data.wbID);
       return item.data.wbID !== 1;
     }
   }
-  private segmentParser(hitResult){
-    //디버깅용. 해당 세그먼트의 타입이 뭔지 알기 위해 사용
-    // if (hitResult !== null) {
-    //   console.log("PointerModeManager >> segmentParser >> hitResult : ", hitResult.type);
-    // }
-    //TODO : name 으로 전부 바꾸고 특정 타입은 선택할 수 없도록 만드는 함수로 바꾸기
-    if (hitResult == null) {
-      return null;
-    } else if (hitResult.type === 'segment') {//세그먼트를 선택한 경우
-      console.log("LassoSelectorService >> segmentParser >> hitResult.type : ", hitResult.type);
-      return hitResult.item;
-      // this.debugService.openSnackBar("hitResult.type === 'segment'");
-    } else if (hitResult.type === 'stroke') {//스트로크를 선택한 경우
-      console.log("LassoSelectorService >> segmentParser >> hitResult.type : ", hitResult.type);
-      return hitResult.item;
-      // this.debugService.openSnackBar("hitResult.type === 'stroke'");
-    } else if(hitResult.type === 'pixel'){//레스터 이미지를 선택한 경우
-      console.log("LassoSelectorService >> segmentParser >> hitResult.type : ", hitResult.type);
-      return hitResult.item;
-      // this.debugService.openSnackBar("hitResult.type === 'pixel'");
-    } else if(hitResult.type === 'fill'){//PointText를 선택한 경우
-      console.log("LassoSelectorService >> segmentParser >> hitResult.type : ", hitResult.type);
-      return hitResult.item;
-      // this.debugService.openSnackBar("hitResult.type === 'fill'");
-    }
-    console.log("LassoSelectorService >> segmentParser >> hitResult.type : ", hitResult.type);
 
-    return null;
-  }
-  private segmentVerifier(segment){
-    if(!segment){
-      //hit했지만, item을 못불러온 경우 리턴
-      return false;
-    }
-    if(!segment.parent){
-      //item은 있지만, 부모레이어가 없는 경우 리턴
-      return  false;
-    }
-    return true;
-    // return segment.parent.name !== 'mainframeMatrix';
-  }
-
-  private debugSegment(path: paper.Path) {
-    path.segments.forEach((value, index) => {
-      let point;
-      point = new paper.Point(value.point.x,value.point.y);
-
-      let text = new paper.PointText(point);
-      text.content = index + '';
-    });
-  }
 }

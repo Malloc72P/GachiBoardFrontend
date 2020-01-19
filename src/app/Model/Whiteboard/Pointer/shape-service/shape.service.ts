@@ -119,7 +119,10 @@ export class ShapeService {
     if(this.fromPoint.equals(points.point)) {
       if(Date.now() - this.lastClickTime < 300) {
         let selectedItem = this.layerService.getHittedItem(points.point);
-        let editableShape = selectedItem.data.struct as EditableShape;
+        if(!selectedItem){
+          //오류 발생한 경우임. 있어야 할 아이템이 LayerService의 WhiteboardItemArray에 없는 경우 발생
+        }
+        let editableShape:EditableShape = selectedItem as EditableShape;
 
         if( editableShape.editText != null) {
           this.textEditStart(editableShape.editText);
@@ -127,6 +130,11 @@ export class ShapeService {
       }
     }
     this.lastClickTime = Date.now();
+
+    let whiteboardItem = this.layerService.getWhiteboardItem(this.newPath);
+    if(whiteboardItem){
+      whiteboardItem.notifyItemModified();
+    }
 
     this.isCreated = false;
 
@@ -176,6 +184,7 @@ export class ShapeService {
     //WhiteboardItem정보 가져오기
     let shapeItem = this.layerService.getWhiteboardItem(pointTextItem) as EditableShape;
     shapeItem.isEditing = true;
+    shapeItem.editText.sendToBack();
 
     // EditText bound 계산
     let bound = shapeItem.coreItem.bounds;
@@ -204,15 +213,13 @@ export class ShapeService {
       this.HTMLTextEditorElement.focus();
     }, 0);
 
-
-    this.HTMLTextEditorElement.innerText = shapeItem.rawTextContent;
+    //rawText를 넣으면 태그 문자열이 노출됨 <div>사쿠라</div>세이버  이런식으로 출력됨
+    this.HTMLTextEditorElement.innerText = shapeItem.textContent;
 
     this.outsideHandler = (event) => this.onClickOutsidePanel(event, this.HTMLCanvasElement, pointTextItem);
 
     document.addEventListener("mousedown", this.outsideHandler);
     document.addEventListener("touchstart", this.outsideHandler);
-
-    shapeItem.editText.sendToBack();
   }
 
 
@@ -225,65 +232,17 @@ export class ShapeService {
     // #1 Shape 아이템 변수 찾아옴
     let shapeItem:EditableShape = this.layerService.getWhiteboardItem(firedPointText.parent) as EditableShape;
 
-    let adjustedContent = this.getAdjustedTextContent(
-      this.HTMLTextEditorElement.innerHTML.replace(/<div>([^<>]*)<\/div>/g, "\n$1"),
-      this.posCalcService.advConvertLengthNgToPaper(shapeItem.coreItem.bounds.width),
-      this.posCalcService.advConvertLengthNgToPaper(shapeItem.coreItem.bounds.height)
-    );
-
-
-    //에디트 텍스트 값 변경
-    console.log("ShapeService >> textEditEnd >> adjustedContent : ",adjustedContent);
-    //####### 이걸로 ShapeItem의 값도 바꾸고 그쪽 설정도 다시 해줌
-    shapeItem.modifyEditText(adjustedContent,this.HTMLTextEditorElement.innerText);
+    //에디트 텍스트 값 변경 >>> rawTextContent만 수정하고 refreshItem을 호출하면 알아서 content수정하고 크기조절하고 다 해줌
+    shapeItem.rawTextContent = this.HTMLTextEditorElement.innerHTML;
+    shapeItem.refreshItem();
 
     this.HTMLTextEditorElement.innerText = "";
-    //item.data.pointTextId = shapeItem.editTextID;
 
     document.removeEventListener("mousedown", this.outsideHandler);
     document.removeEventListener("touchstart", this.outsideHandler);
     shapeItem.isEditing = false;
   }
 
-  private getAdjustedTextContent(text: string, width: number, height: number) {
-    let calcText = "";
-    let charWidth;
-    let calcWidth = 0;
-    let charHeight;
-    let calcHeight = 0;
-
-    width -= this.padding;
-    height -= this.padding;
-
-    let textStyle = new TextStyle();
-
-    if(text === "") {
-      calcText = "";
-    } else {
-      let tokenizedText = text.match(/./g);
-
-      charHeight = this.calcStringHeight(tokenizedText[0], textStyle);
-      for(let i = 0; i < tokenizedText.length; i++) {
-        charWidth = this.calcStringWidth(tokenizedText[i], textStyle);
-
-        calcWidth += charWidth;
-
-        if(calcWidth > width) {
-          calcHeight += charHeight;
-          if(calcHeight > height) {
-            break;
-          }
-
-          calcText += '\n';
-          calcWidth = charWidth;
-        }
-
-        calcText += tokenizedText[i];
-      }
-    }
-
-    return calcText;
-  }
 
   private initEvent(event: MouseEvent | TouchEvent): Points {
     let points: Points;
@@ -332,7 +291,6 @@ export class ShapeService {
       default:
         break;
     }
-    //this.setEditable(this.newPath);
     this.createShapeItem();
   }
 
@@ -386,7 +344,6 @@ export class ShapeService {
     this.newPath.fillColor = this._fillColor;
     this.newPath.strokeWidth = this._strokeWidth;
     this.createShapeItem();
-    //this.setEditable(this.newPath);
   }
 
   private createHandleRectangle(point: paper.Point) {
@@ -404,40 +361,6 @@ export class ShapeService {
     if(element.contains(event.target)) {
       this.textEditEnd(item);
     }
-  }
-
-  private calcStringWidth(input: string, style: TextStyle): number {
-    let tempPointText = new PointText({
-      fontFamily: style.fontFamily,
-      fontSize: style.fontSize,
-      fontWeight: style.fontWeight,
-      content: input,
-      fillColor: 'transparent',
-    });
-    let width = tempPointText.bounds.width;
-    tempPointText.remove();
-
-    return width;
-  }
-  private calcStringHeight(input: string, style: TextStyle): number {
-    console.log("ShapeService >> calcStringHeight >> style.fontSize : ",style.fontSize);
-    let tempPointText = new PointText({
-      fontFamily: style.fontFamily,
-      fontSize: style.fontSize,
-      fontWeight: style.fontWeight,
-      content: input,
-      fillColor: 'transparent',
-    });
-    let height = tempPointText.bounds.height;
-    tempPointText.remove();
-
-    return height;
-  }
-
-  private setEditable(path: paper.Path) {
-    path.data.type = "EditText";
-    path.data.textStyle = new TextStyle();
-    path.data.rawText = "";
   }
 
   set strokeColor(value: paper.Color) {

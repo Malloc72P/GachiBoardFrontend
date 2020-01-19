@@ -11,10 +11,11 @@ import Item = paper.Item;
 import Segment = paper.Segment;
 // @ts-ignore
 import Color = paper.Color;
+import {EventEmitter} from '@angular/core';
 
 export class SimpleStroke extends EditableStroke {
-  constructor(group, type, path:Path) {
-    super(group, type, path);
+  constructor(group, type, path:Path, eventEmitter:EventEmitter<any>) {
+    super(group, type, path, eventEmitter);
 
   }
 

@@ -12,8 +12,8 @@ import Segment = paper.Segment;
 import Color = paper.Color;
 
 export class EditableRectangle extends EditableShape {
-  constructor(group, type, item:Item, textStyle, editText, posService) {
-    super(group, type, item, textStyle, editText, posService);
+  constructor(group, type, item:Item, textStyle, editText, posService, eventEmitter) {
+    super(group, type, item, textStyle, editText, posService, eventEmitter);
 
   }
 }

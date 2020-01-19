@@ -20,6 +20,8 @@ import Group = paper.Group;
 import Rectangle = paper.Rectangle;
 import {ShapeService} from '../../Pointer/shape-service/shape.service';
 import {PositionCalcService} from '../../PositionCalc/position-calc.service';
+import {EventEmitter} from '@angular/core';
+import {ItemLifeCycleEnum, ItemLifeCycleEvent} from '../WhiteboardItemLifeCycle/WhiteboardItemLifeCycle';
 
 export abstract class EditableShape extends WhiteboardItem {
 
@@ -35,11 +37,12 @@ export abstract class EditableShape extends WhiteboardItem {
   private _textBound: Rectangle;
   private _editText:PointText;
   private static readonly EDIT_TEXT_PADDING = 5;
-  private _isEditing:boolean = false;
+  private _isEditing:boolean;
 
   protected constructor(group, type, item:Item, textStyle, editText,
-  private posCalcService:PositionCalcService) {
-    super(group, type, item);
+                        private posCalcService:PositionCalcService,
+                        eventEmitter:EventEmitter<any>) {
+    super(group, type, item, eventEmitter);
     this.topLeft  = item.bounds.topLeft;
     this.width    = item.bounds.width;
     this.height    = item.bounds.height;
@@ -60,6 +63,48 @@ export abstract class EditableShape extends WhiteboardItem {
     this.textBound = new Rectangle(editText.bounds);
     this.editText.justification = "center";
     this.posCalcService = posCalcService;
+    this.isEditing = false;
+
+    item.onFrame = (event)=>{
+      if(event.count % 15 === 0){
+        this.editText.position = new Point(this.coreItem.bounds.center);
+        if(!this.isEditing){
+          editText.bringToFront();
+        }
+      }
+    };//onFrame
+  }
+  public notifyItemModified(){
+    console.log("EditableShape >> notifyItemModified >> 진입함");
+
+    this.width = this.group.bounds.width;
+    this.height = this.group.bounds.height;
+    this.topLeft  = this.group.bounds.topLeft;
+
+    this.borderColor = this.coreItem.style.strokeColor;
+    this.borderWidth = this.coreItem.style.strokeWidth;
+    if(this.coreItem.style.fillColor){
+      this.fillColor = this.coreItem.style.fillColor;
+    }else{
+      // @ts-ignore
+      this.fillColor = "transparent";
+    }
+    this.opacity = this.coreItem.opacity;
+    this.textBound = new Rectangle(this.editText.bounds);
+
+    this.lifeCycleEventEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.MODIFY));
+  }
+  public notifyItemCreation() {
+    console.log("EditableShape >> createItem >> 진입함");
+    this.lifeCycleEventEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.CREATE));
+  }
+
+  public destroyItem() {
+    console.log("EditableShape >> destroyItem >> 진입함");
+    this.editText.remove();
+    this.coreItem.remove();
+    this.group.remove();
+    this.lifeCycleEventEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.DESTROY));
   }
 
   public refreshItem(){
@@ -71,10 +116,6 @@ export abstract class EditableShape extends WhiteboardItem {
 
     this.group.matrix.reset();
 
-    // this.editText.bounds.width = this.textBound.width;
-    // this.editText.bounds.height = this.textBound.height;
-    // this.editText.bounds.topLeft = newtopLeft;
-
 
     this.coreItem.bounds.width = newWidth;
     this.coreItem.bounds.height = newHeight;
@@ -83,20 +124,25 @@ export abstract class EditableShape extends WhiteboardItem {
     this.group.addChild(this.editText);
     this.group.addChild(this.coreItem);
 
-    console.log("EditableShape >> refreshItem >> this.editText.bounds.width : ",this.editText.bounds.width);
-    console.log("EditableShape >> refreshItem >> this.coreItem.bounds.width : ",this.coreItem.bounds.width);
+    let convertedText = this.rawTextContent.replace(
+      /<(div|br)([^>]*)>/g, '\n'  // <div> <br> -> \n
+    ).replace(
+      /(<([^>]+)>)/ig, ""         // <*> -> empty
+    );
 
     let adjustedTextContent = this.getAdjustedTextContent(
-      this.rawTextContent.replace(/<div>([^<>]*)<\/div>/g, "\n$1"),
+      convertedText,
       this.posCalcService.advConvertLengthNgToPaper(this.coreItem.bounds.width),
       this.posCalcService.advConvertLengthNgToPaper(this.coreItem.bounds.height));
 
     this.modifyEditText(adjustedTextContent,this.rawTextContent);
 
     this.editText.bringToFront();
+    this.lifeCycleEventEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.MODIFY));
   }
 
   public modifyEditText(content, rawContent ){
+
     this.textContent = content;
     this.rawTextContent = rawContent;
 
@@ -127,31 +173,32 @@ export abstract class EditableShape extends WhiteboardItem {
     if(text === "") {
       calcText = "";
     } else {
-      let tokenizedText = text.match(/./g);
 
-      charHeight = EditableShape.calcStringHeight(tokenizedText[0], textStyle);
-      for(let i = 0; i < tokenizedText.length; i++) {
-        charWidth = EditableShape.calcStringWidth(tokenizedText[i], textStyle);
-
+      charHeight = this.calcStringHeight(text[0], textStyle);
+      for(let i = 0; i < text.length; i++) {
+        if(text[i] === '\n') {
+          calcText += text[i];
+          calcHeight += charHeight;
+          calcWidth = 0;
+          i++;
+        }
+        charWidth = this.calcStringWidth(text[i], textStyle);
         calcWidth += charWidth;
 
         if(calcWidth > width) {
           calcHeight += charHeight;
-          if(calcHeight > height) {
-            break;
-          }
-
           calcText += '\n';
           calcWidth = charWidth;
         }
-
-        calcText += tokenizedText[i];
+        if(calcHeight > height) {
+          break;
+        }
+        calcText += text[i];
       }
     }
     return calcText;
   }
-  private static calcStringHeight(input: string, style: TextStyle): number {
-    console.log("ShapeService >> calcStringHeight >> style.fontSize : ",style.fontSize);
+  private calcStringHeight(input: string, style: TextStyle): number {
     let tempPointText = new PointText({
       fontFamily: style.fontFamily,
       fontSize: style.fontSize,
@@ -162,9 +209,9 @@ export abstract class EditableShape extends WhiteboardItem {
     let height = tempPointText.bounds.height;
     tempPointText.remove();
 
-    return height;
+    return this.posCalcService.advConvertLengthNgToPaper(height);
   }
-  private static calcStringWidth(input: string, style: TextStyle): number {
+  private calcStringWidth(input: string, style: TextStyle): number {
     let tempPointText = new PointText({
       fontFamily: style.fontFamily,
       fontSize: style.fontSize,
@@ -175,7 +222,7 @@ export abstract class EditableShape extends WhiteboardItem {
     let width = tempPointText.bounds.width;
     tempPointText.remove();
 
-    return width;
+    return this.posCalcService.advConvertLengthNgToPaper(width);
   }
 
 
@@ -249,7 +296,6 @@ export abstract class EditableShape extends WhiteboardItem {
   }
 
   set textContent(value: string) {
-    console.log("EditableShape >> textContent >> value : ",value);
     if (this.editText) {
       this.textBound = new Rectangle(this.editText.bounds);
     }

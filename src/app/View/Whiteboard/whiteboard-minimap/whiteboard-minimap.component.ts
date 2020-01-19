@@ -24,6 +24,7 @@ import Rectangle = paper.Path.Rectangle;
 // @ts-ignore
 import Layer = paper.Layer;
 import {DataType} from '../../../Model/Helper/data-type-enum/data-type.enum';
+import {DrawingLayerManagerService} from '../../../Model/Whiteboard/InfiniteCanvas/DrawingLayerManager/drawing-layer-manager.service';
 
 class MinimapElement{
   id;
@@ -57,36 +58,28 @@ export class WhiteboardMinimapComponent implements OnInit {
     private zoomControlService:ZoomControlService,
     private posCalcService:PositionCalcService,
     private minimapSyncService: MinimapSyncService,
+    private layerService: DrawingLayerManagerService,
     @Inject(DOCUMENT) private document: any
   ) {
-    this.minimapSyncService.changeMinimap.subscribe((projectData:Layer)=>{
+    this.minimapSyncService.changeMinimap.subscribe(()=>{
 
       if(this.minimapProject){
         this.minimapProject.activate();
 
         this.maplayer.removeChildren();
-        //let tempJSON = projectData.exportJSON();
-        //this.maplayer.addChild(tempJSON);
-        //this.maplayer.importJSON(tempJSON);
 
-        let originChildren = projectData.children;
+
+        let originChildren = this.layerService.whiteboardItemArray;
 
         for(let i = originChildren.length - 1 ; i >= 0 ; i-- ){
-          let originEl = originChildren[i];
+          let originEl = originChildren[i].group;
           let newRect = new Rectangle(originEl.bounds);
           // @ts-ignore
           newRect.fillColor = "blue";
-          newRect.opacity = 0.2;
+          newRect.opacity = 0.1;
 
           this.maplayer.addChild(newRect);
         }
-
-/*        projectData.children.forEach((value)=>{
-          value.selected = false;
-          if(value.data.type !== DataType.MINIMAP_USER_VIEW){
-            value.style.strokeWidth = value.style.strokeWidth / 5;
-          }
-        })*/
 
         this.maplayer.addChild(this.createUserViewRect());
         this.maplayer.fitBounds(this.minimapProject.view.bounds);

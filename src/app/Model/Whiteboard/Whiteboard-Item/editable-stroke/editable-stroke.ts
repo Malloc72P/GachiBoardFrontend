@@ -11,21 +11,40 @@ import Segment = paper.Segment;
 // @ts-ignore
 import Color = paper.Color;
 import {WhiteboardItem} from '../whiteboard-item';
+import {EventEmitter} from '@angular/core';
+import {ItemLifeCycleEnum, ItemLifeCycleEvent} from '../WhiteboardItemLifeCycle/WhiteboardItemLifeCycle';
 
 export abstract class EditableStroke extends WhiteboardItem {
   private _segments: Array<Segment>;
   private _strokeWidth: number;
   private _strokeColor: Color;
 
-  protected constructor(group, type, path:Path){
-    super(group, type, path);
+  protected constructor(group, type, path:Path, eventEmitter:EventEmitter<any>){
+    super(group, type, path, eventEmitter);
     this.segments = path.segments;
     this.strokeWidth = path.strokeWidth;
-    this.strokeColor = path.strokeColor
+    this.strokeColor = path.strokeColor;
+  }
+
+  public notifyItemModified() {
+    console.log("EditableStroke >> notifyItemModified >> 진입함");
+    this.lifeCycleEventEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.MODIFY));
+  }
+
+  public notifyItemCreation() {
+    console.log("EditableStroke >> createItem >> 진입함");
+    this.lifeCycleEventEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.CREATE));
   }
 
   public refreshItem() {
-
+    console.log("EditableStroke >> refreshItem >> 진입함");
+    this.lifeCycleEventEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.MODIFY));
+  }
+  public destroyItem() {
+    console.log("EditableStroke >> destroyItem >> 진입함");
+    this.coreItem.remove();
+    this.group.remove();
+    this.lifeCycleEventEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.DESTROY));
   }
 
   get segments(): Array<Segment> {
