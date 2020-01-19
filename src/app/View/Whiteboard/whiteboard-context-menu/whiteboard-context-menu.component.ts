@@ -39,7 +39,8 @@ export class WhiteboardContextMenuComponent implements OnInit {
 
       // 아이템 찾음
       if(item != null) {
-        this.item = item.group;
+        console.log("WhiteboardContextMenuComponent >> item : ", item);
+        this.item = item;
         this.setContextMenuToShape();
       // 아이템 찾지 못함
       } else {
@@ -93,6 +94,6 @@ export class WhiteboardContextMenuComponent implements OnInit {
   }
 
   private deleteItem() {
-    this.item.remove();
+    this.item.destroyItem();
   }
 }

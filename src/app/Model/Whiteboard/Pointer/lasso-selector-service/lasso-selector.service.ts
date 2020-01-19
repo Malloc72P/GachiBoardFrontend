@@ -219,6 +219,7 @@ export class LassoSelectorService {
 
       // selectedItems의 모든 아이템 제거
       this.selectedItems.splice(0, this.selectedItems.length);
+      console.log("LassoSelectorService >> endPath >> this.selectedGroup : ", this.selectedGroup);
     }
     this.newPath.remove();
 
@@ -336,10 +337,15 @@ export class LassoSelectorService {
 
   public removeSelectedItem() {
     if(this.selectedGroup) {
-      this.selectedGroup.removeChildren();
-      this.handlerGroup.removeChildren();
+      let length = this.selectedGroup.children.length;
+      for(let i = 0; i < length - 1; i++) {
+        this.layerService.getWhiteboardItem(this.selectedGroup.children[0]).destroyItem();
+      }
+      if(this.handlerGroup) {
+        this.handlerGroup.removeChildren();
+      }
       this.selectedGroup.remove();
-      this.newPath.remove();
+      // this.newPath.remove();
       this.isSelected = false;
     }
   }

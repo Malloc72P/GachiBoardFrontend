@@ -194,11 +194,12 @@ export class DrawingLayerManagerService {
   }
 
   public getHittedItem(point) : WhiteboardItem{
+    let hitOption = { segments: true, stroke: true, fill: true, tolerance: 5 };
     let children = this.whiteboardItemArray;
     for(let i = children.length - 1 ; i >= 0; i-- ){
       let value = children[i];
 
-      if(value.group.hitTest(point)){
+      if(value.group.hitTest(point, hitOption)){
         return value;
       }
     }
