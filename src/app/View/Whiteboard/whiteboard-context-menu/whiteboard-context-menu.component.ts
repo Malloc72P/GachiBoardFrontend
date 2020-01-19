@@ -6,6 +6,7 @@ import {ItemContextMenu} from "./context-menu.enum";
 import * as paper from 'paper';
 // @ts-ignore
 import Point = paper.Point;
+import {DrawingLayerManagerService} from '../../../Model/Whiteboard/InfiniteCanvas/DrawingLayerManager/drawing-layer-manager.service';
 
 @Component({
   selector: 'app-whiteboard-context-menu',
@@ -27,17 +28,18 @@ export class WhiteboardContextMenuComponent implements OnInit {
 
   constructor(
     private pointerModeManagerService: PointerModeManagerService,
+    private layerService: DrawingLayerManagerService,
   ) { }
 
   ngOnInit() {
     this.openEmitter.subscribe((event: MouseEvent) => {
       event.preventDefault();
 
-      let item = this.pointerModeManagerService.lassoSelector.getItem(new Point(event.x, event.y));
+      let item = this.layerService.getHittedItem(new Point(event.x, event.y));
 
       // 아이템 찾음
       if(item != null) {
-        this.item = item;
+        this.item = item.group;
         this.setContextMenuToShape();
       // 아이템 찾지 못함
       } else {
