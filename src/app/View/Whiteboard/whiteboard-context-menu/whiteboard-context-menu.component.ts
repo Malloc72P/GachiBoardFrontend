@@ -7,6 +7,7 @@ import * as paper from 'paper';
 // @ts-ignore
 import Point = paper.Point;
 import {DrawingLayerManagerService} from '../../../Model/Whiteboard/InfiniteCanvas/DrawingLayerManager/drawing-layer-manager.service';
+import {PositionCalcService} from "../../../Model/Whiteboard/PositionCalc/position-calc.service";
 
 @Component({
   selector: 'app-whiteboard-context-menu',
@@ -29,17 +30,19 @@ export class WhiteboardContextMenuComponent implements OnInit {
   constructor(
     private pointerModeManagerService: PointerModeManagerService,
     private layerService: DrawingLayerManagerService,
+    private positionCalcService: PositionCalcService,
   ) { }
 
   ngOnInit() {
     this.openEmitter.subscribe((event: MouseEvent) => {
       event.preventDefault();
 
-      let item = this.layerService.getHittedItem(new Point(event.x, event.y));
+      let convertedPoint = this.positionCalcService.advConvertNgToPaper(new Point(event.x, event.y));
+
+      let item = this.layerService.getHittedItem(convertedPoint);
 
       // 아이템 찾음
       if(item != null) {
-        console.log("WhiteboardContextMenuComponent >> item : ", item);
         this.item = item;
         this.setContextMenuToShape();
       // 아이템 찾지 못함
