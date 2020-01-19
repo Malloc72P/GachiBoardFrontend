@@ -18,6 +18,23 @@ export class ImportFileService {
     private positionCalcService: PositionCalcService,
   ) { }
 
+  importFile(object: File) {
+    switch (object.type) {
+      case "image/jpeg":
+      case "image/gif":
+      case "image/png":
+        console.log("ImportFileService >> importFile >> object.type : ", object.type);
+        this.drawImage(object);
+        break;
+      case "application/pdf":
+        console.log("ImportFileService >> importFile >> object : ", object);
+        console.log("ImportFileService >> importFile >> object.type : ", object.type);
+        break;
+      default:
+        break;
+    }
+  }
+
   drawImage(imageObject: File) {
     let reader = new FileReader();
     let base64Image: string;
@@ -28,6 +45,7 @@ export class ImportFileService {
       // @ts-ignore
       base64Image = reader.result;
       let raster = new Raster(base64Image);
+
       raster.position = this.positionCalcService.getCenterOfPaperView();
     };
   }

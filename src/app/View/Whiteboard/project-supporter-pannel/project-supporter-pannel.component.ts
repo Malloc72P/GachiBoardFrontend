@@ -99,10 +99,8 @@ export class ProjectSupporterPannelComponent extends PopoverPanel  implements On
   }
 
   onFileChange(event) {
-    console.log("ProjectSupporterPannelComponent >> onFileChange >> event : ", event);
-    console.log("ProjectSupporterPannelComponent >> onFileChange >> this.fileInput.nativeElement.files[0] : ", this.fileInput.nativeElement.files[0]);
     let fileObject = this.fileInput.nativeElement.files[0];
 
-    this.importFileService.drawImage(fileObject)
+    this.importFileService.importFile(fileObject)
   }
 }
