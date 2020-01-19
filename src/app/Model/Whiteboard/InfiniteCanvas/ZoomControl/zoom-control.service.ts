@@ -59,7 +59,7 @@ export class ZoomControlService {
         ngCanvasCenter,
         new Point(event.x, event.y),
         event.deltaY);
-      this.lassoSelectorService.lassoHandleResizeForZooming(this.currentProject.view.zoom)
+      this.lassoSelectorService.lassoHandleResizeForZooming(this.currentProject.view.zoom);
     }
   }
 
@@ -99,7 +99,7 @@ export class ZoomControlService {
       this.prevDistance = currentDistance;
 
     }//핀치줌 시작하는 경우#####
-
+    this.lassoSelectorService.lassoHandleResizeForZooming(this.currentProject.view.zoom);
   }
   onPinchZoomEnd(){
     this.isZooming--;

@@ -1,5 +1,4 @@
 import {Injectable} from '@angular/core';
-import * as paper from 'paper';
 import {PositionCalcService} from '../../PositionCalc/position-calc.service';
 import {ShapeStyle, WhiteboardItemType} from '../../../Helper/data-type-enum/data-type.enum';
 import {TextStyle} from "./text-style";
@@ -13,6 +12,13 @@ import Group = paper.Group;
 // @ts-ignore
 import Point = paper.Point;
 
+import * as paper from 'paper';
+// @ts-ignore
+import Point = paper.Point;
+// @ts-ignore
+import Path = paper.Path;
+// @ts-ignore
+import Size = paper.Size;
 
 interface Points {
   point: paper.Point,
@@ -30,12 +36,16 @@ export class ShapeService {
   private previousPoint: paper.Point = new paper.Point(0, 0);
   private newPath: paper.Path;
   private handlePath: paper.Path;
+  private minDrawBound: Path;
   private fromPoint: paper.Point;
+  private transparentColor = new paper.Color(0, 0, 255, 0);
 
   private minSize = 5;
   private _strokeColor = new paper.Color(0, 0, 0);
+
   private handlePathColor = new paper.Color(0, 0, 255, 0);
   private _fillColor: paper.Color = new paper.Color(255, 255, 255, 1);
+
   private _strokeWidth = 1;
   private _shapeStyle: number = ShapeStyle.RECTANGLE;
   private _isHiddenEditText = true;
@@ -44,6 +54,7 @@ export class ShapeService {
   private outsideHandler;
   private lastClickTime = 0;
   private isCreated = false;
+  private toolState = 'normal';
 
   constructor(
     private posCalcService: PositionCalcService,
@@ -65,6 +76,7 @@ export class ShapeService {
     points = this.initEvent(event);
 
     this.createHandleRectangle(points.point);
+    this.createDrawMinBoundRectangle(points.point);
 
     this.fromPoint = points.point;
   }
@@ -72,6 +84,17 @@ export class ShapeService {
   public drawPath(event) {
     let points: Points;
     points = this.initEvent(event);
+
+    // 시작 지점부터 가로, 세로가 minSize * 2인 크기 밖으로 넘어가지 않으면 도형 그리지 않음.
+    // 결과적으로 클릭하고 조금만 드래그되어도 도형이 생성되는 문제 제어
+    if(this.toolState === 'normal') {
+      if(!this.minDrawBound.contains(points.point)) {
+        this.toolState = 'draw';
+      }
+    }
+    if(this.toolState !== 'draw') {
+      return;
+    }
 
     if(!this.isCreated){
       this.createSelectedShape(points.point);
@@ -116,7 +139,7 @@ export class ShapeService {
       this.handlePath.remove();
     }
 
-    if(this.fromPoint.equals(points.point)) {
+    // if(this.fromPoint.equals(points.point)) {
       if(Date.now() - this.lastClickTime < 300) {
         let selectedItem = this.layerService.getHittedItem(points.point);
         if(!selectedItem){
@@ -128,7 +151,7 @@ export class ShapeService {
           this.textEditStart(editableShape.editText);
         }
       }
-    }
+    // }
     this.lastClickTime = Date.now();
 
     let whiteboardItem = this.layerService.getWhiteboardItem(this.newPath);
@@ -137,8 +160,8 @@ export class ShapeService {
     }
 
     this.isCreated = false;
-
-
+    this.minDrawBound.remove();
+    this.toolState = 'normal';
   }
   private createShapeItem(){
     //#1 PointText 생성
@@ -228,7 +251,6 @@ export class ShapeService {
     console.log("ShapeService >> textEditEnd >> firedPointText : ",firedPointText);
     this.HTMLTextEditorElement.blur();
     this._isHiddenEditText = true;
-
     // #1 Shape 아이템 변수 찾아옴
     let shapeItem:EditableShape = this.layerService.getWhiteboardItem(firedPointText.parent) as EditableShape;
 
@@ -351,7 +373,16 @@ export class ShapeService {
     this.handlePath = new paper.Path.Rectangle({
       from: point,
       to: toPoint,
-      strokeColor: this.handlePathColor,
+      strokeColor: this.transparentColor,
+      strokeWidth: 1,
+    })
+  }
+
+  private createDrawMinBoundRectangle(point: Point) {
+    this.minDrawBound = new Path.Rectangle({
+      point: new Point(point.x - this.minSize, point.y - this.minSize),
+      size: new Size(this.minSize * 2, this.minSize * 2),
+      strokeColor: this.transparentColor,
       strokeWidth: 1,
     })
   }

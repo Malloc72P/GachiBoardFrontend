@@ -1,4 +1,4 @@
-import {Component, OnInit, Renderer2} from '@angular/core';
+import {Component, ElementRef, OnInit, Renderer2, ViewChild} from '@angular/core';
 import {PointerMode, PointerModeEnumService} from '../../../Model/Whiteboard/Pointer/pointer-mode-enum-service/pointer-mode-enum.service';
 import {PointerModeManagerService} from '../../../Model/Whiteboard/Pointer/pointer-mode-manager-service/pointer-mode-manager.service';
 import {
@@ -10,6 +10,7 @@ import {PositionCalcService} from '../../../Model/Whiteboard/PositionCalc/positi
 import {PopupManagerService} from '../../../Model/PopupManager/popup-manager.service';
 import {KanbanComponent} from './kanban/kanban.component';
 import {MatDialog} from '@angular/material';
+import {ImportFileService} from "../../../Model/Whiteboard/ImportFile/import-file.service";
 
 @Component({
   selector: 'app-project-supporter-pannel',
@@ -17,6 +18,7 @@ import {MatDialog} from '@angular/material';
   styleUrls: ['./project-supporter-pannel.component.css',  './popup-pannel-commons.css']
 })
 export class ProjectSupporterPannelComponent extends PopoverPanel  implements OnInit {
+  @ViewChild('fileInput', {static: false}) fileInput: ElementRef;
   projectSupporterEnumService: ProjectSupporterEnumService;
   isHovered;
   private prevPopup = null;
@@ -26,7 +28,8 @@ export class ProjectSupporterPannelComponent extends PopoverPanel  implements On
     private renderer2:Renderer2,
     private popupManagerService:PopupManagerService,
     public dialog: MatDialog,
-    private positionCalcService:PositionCalcService
+    private positionCalcService:PositionCalcService,
+    private importFileService: ImportFileService,
   ) {
     super(projectSupporterEnumService);
     this.projectSupporterEnumService = projectSupporterEnumService;
@@ -65,20 +68,39 @@ export class ProjectSupporterPannelComponent extends PopoverPanel  implements On
     this.renderer2.removeClass(itemElement, "do-anime-popup-disappear");
     this.renderer2.addClass(itemElement,"do-anime-popup-appear");
     this.prevPopup = itemElement;*/
+    switch (panelItem) {
+      case SupportMode.KANBAN:
+        const dialogRef = this.dialog.open(KanbanComponent, {
+          width: this.positionCalcService.getWidthOfBrowser()+"px",
+          height: this.positionCalcService.getHeightOfBrowser()+"px",
+          maxWidth: this.positionCalcService.getWidthOfBrowser()+"px",
+          data: {}
+        });
 
-    const dialogRef = this.dialog.open(KanbanComponent, {
-      width: this.positionCalcService.getWidthOfBrowser()+"px",
-      height: this.positionCalcService.getHeightOfBrowser()+"px",
-      maxWidth: this.positionCalcService.getWidthOfBrowser()+"px",
-      data: {}
-    });
+        dialogRef.afterClosed().subscribe(result => {
+          console.log('The dialog was closed');
 
-    dialogRef.afterClosed().subscribe(result => {
-      console.log('The dialog was closed');
-
-    });
+        });
+        break;
+      case SupportMode.TIME_TIMER:
+        break;
+      case SupportMode.CLOUD_STORAGE:
+        break;
+      case SupportMode.IMPORT:
+        document.getElementById("fileInput").click();
+        break;
+      case SupportMode.EXPORT:
+        break;
+      case SupportMode.TEXT_CHAT:
+        break;
+      default:
+        break;
+    }
   }
 
+  onFileChange(event) {
+    let fileObject = this.fileInput.nativeElement.files[0];
 
-
+    this.importFileService.importFile(fileObject)
+  }
 }
