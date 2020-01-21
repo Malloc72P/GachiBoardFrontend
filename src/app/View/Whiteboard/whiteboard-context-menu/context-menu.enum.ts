@@ -4,5 +4,5 @@ export enum ItemContextMenu {
 }
 
 export enum ContextMenu {
-
+  ADD_IMAGE = "Add image",
 }

@@ -1,7 +1,7 @@
 import {Component, EventEmitter, Input, OnInit, ViewChild} from "@angular/core";
 import {MatMenuTrigger} from "@angular/material/menu";
 import {PointerModeManagerService} from "../../../Model/Whiteboard/Pointer/pointer-mode-manager-service/pointer-mode-manager.service";
-import {ItemContextMenu} from "./context-menu.enum";
+import {ContextMenu, ItemContextMenu} from "./context-menu.enum";
 
 import * as paper from 'paper';
 // @ts-ignore
@@ -50,7 +50,7 @@ export class WhiteboardContextMenuComponent implements OnInit {
         this.setContextMenuToDefault();
       }
 
-     this.contextMenuPosition.x = event.clientX + 'px';
+      this.contextMenuPosition.x = event.clientX + 'px';
       this.contextMenuPosition.y = event.clientY + 'px';
       this.matMenuTrigger.openMenu();
     });
@@ -81,6 +81,11 @@ export class WhiteboardContextMenuComponent implements OnInit {
 
   private setContextMenuToDefault() {
     this.contextMenuItems.splice(0, this.contextMenuItems.length);
+    for (let key in ContextMenu) {
+      if(ContextMenu.hasOwnProperty(key)) {
+        this.contextMenuItems.push(ContextMenu[key]);
+      }
+    }
   }
 
   private onClickContextMenu(menuItem: string) {
@@ -91,6 +96,10 @@ export class WhiteboardContextMenuComponent implements OnInit {
         break;
       case ItemContextMenu.EDIT:
         break;
+
+      case ContextMenu.ADD_IMAGE:
+        this.addImage();
+        break;
       default:
         break;
     }
@@ -98,5 +107,9 @@ export class WhiteboardContextMenuComponent implements OnInit {
 
   private deleteItem() {
     this.item.destroyItem();
+  }
+
+  private addImage() {
+    document.getElementById("fileInput").click();
   }
 }

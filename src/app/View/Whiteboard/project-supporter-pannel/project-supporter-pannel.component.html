@@ -9,7 +9,8 @@
             (click)="onClickPanelItem(mode)">
       <span class="selectable-icon {{projectSupporterEnumService.getSupporterIcon(mode)}}"></span>
     </button>
-    <input #fileInput type="file" id="fileInput" (change)="onFileChange($event)" style="display: none"/>
+    <input #fileInputMultiple type="file" multiple="multiple" id="fileInputMultiple" (change)="onFileChangeMultiple()" style="display: none"/>
+    <input #fileInput type="file" id="fileInput" (change)="onFileChange()" style="display: none" accept="image/gif, image/png, image/jpeg">
   </mat-card>
 </div>
 

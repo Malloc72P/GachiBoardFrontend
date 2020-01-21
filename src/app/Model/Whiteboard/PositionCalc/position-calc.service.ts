@@ -45,6 +45,15 @@ export class PositionCalcService {
   public getCenterOfPaperView() {
     return this.currentProject.view.center;
   }
+  public getTopLeftOfPaperView() {
+    return this.currentProject.view.bounds.topLeft;
+  }
+  public getWidthOfPaperView() {
+    return this.currentProject.view.size.width;
+  }
+  public getHeightOfPaperView() {
+    return this.currentProject.view.size.height;
+  }
   public getBottomRightPositionOfBrowser(){
     return this.getBottomRightPosition( this.htmlCanvasWrapperObject );
   }
