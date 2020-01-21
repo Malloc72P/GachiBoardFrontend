@@ -13,6 +13,7 @@ import {PositionCalcService} from "../../PositionCalc/position-calc.service";
 import {MinimapSyncService} from '../../InfiniteCanvas/MinimapSync/minimap-sync.service';
 import {HighlighterService} from '../highlighter-service/highlighter.service';
 import {ShapeService} from '../shape-service/shape.service';
+import {NormalPointerService} from '../normal-pointer-service/normal-pointer.service';
 
 // @ts-ignore
 import Point = paper.Point;
@@ -28,21 +29,22 @@ export class PointerModeManagerService {
 
 
   constructor(
-      public brushService             : BrushService,
-      public eraser                   : EraserService,
-      public shape                    : ShapeService,
-      public lassoSelector            : LassoSelectorService,
-      public highlighter              : HighlighterService,
-      private infiniteCanvasService   : InfiniteCanvasService,
-      private zoomCtrlService         : ZoomControlService,
-      private canvasMoverService      : CanvasMoverService,
-      private posCalcService          : PositionCalcService,
-      private minimapSyncService      : MinimapSyncService,
+      public brushService                 : BrushService,
+      public eraser                       : EraserService,
+      public shape                        : ShapeService,
+      public lassoSelector                : LassoSelectorService,
+      public highlighter                  : HighlighterService,
+      private infiniteCanvasService       : InfiniteCanvasService,
+      private zoomCtrlService             : ZoomControlService,
+      private canvasMoverService          : CanvasMoverService,
+      private posCalcService              : PositionCalcService,
+      private minimapSyncService          : MinimapSyncService,
+      private normalPointerService : NormalPointerService
     ) {
   }
 
   public initializePointerModeManagerService(currentProject) {
-    this.currentPointerMode = PointerMode.MOVE;
+    this.currentPointerMode = PointerMode.POINTER;
     const htmlCanvasObject = document.getElementById("cv1") as HTMLCanvasElement;
     this.currentProject = currentProject;
 
@@ -52,6 +54,7 @@ export class PointerModeManagerService {
     this.eraser.initializeEraserService(this.currentProject);
     this.lassoSelector.initializeLassoSelectorService(this.currentProject);
     this.shape.initializeShapeService(this.currentProject);
+    this.normalPointerService.initializeNormalPointerService(this.currentProject);
 
     htmlCanvasObject.addEventListener("mousedown", (event) => {
       this.onMouseDown(event);
@@ -93,6 +96,9 @@ export class PointerModeManagerService {
     event.preventDefault();
 
     switch (this.currentPointerMode) {
+      case PointerMode.POINTER:
+        this.normalPointerService.onTouchStart(event);
+        break;
       case PointerMode.MOVE:
         this.canvasMoverService.onTouchStart(event);
         break;
@@ -125,6 +131,9 @@ export class PointerModeManagerService {
         return;
       }
       switch (this.currentPointerMode) {
+        case PointerMode.POINTER:
+          this.normalPointerService.onTouchMove(event);
+          break;
         case PointerMode.MOVE:
           this.canvasMoverService.onTouchMove(event);
           break;
@@ -161,6 +170,9 @@ export class PointerModeManagerService {
       this.zoomCtrlService.onPinchZoomEnd();
     }else if ( this.zoomCtrlService.isZooming == 0){
       switch (this.currentPointerMode) {
+        case PointerMode.POINTER:
+          this.normalPointerService.onTouchEnd(event);
+          break;
         case PointerMode.MOVE:
           this.canvasMoverService.onTouchEnd(event);
           break;
@@ -192,6 +204,9 @@ export class PointerModeManagerService {
     event.preventDefault();
     this.mouseDown = true;
     switch (this.currentPointerMode) {
+      case PointerMode.POINTER:
+        this.normalPointerService.onMouseDown(event);
+        break;
       case PointerMode.MOVE:
         this.canvasMoverService.onMouseDown(event);
         break;
@@ -220,6 +235,9 @@ export class PointerModeManagerService {
     event.preventDefault();
     if(this.mouseDown) {
       switch (this.currentPointerMode) {
+        case PointerMode.POINTER:
+          this.normalPointerService.onMouseMove(event);
+          break;
         case PointerMode.MOVE:
           this.canvasMoverService.onMouseMove(event);
           break;
@@ -249,6 +267,9 @@ export class PointerModeManagerService {
     event.preventDefault();
     this.mouseDown = false;
     switch (this.currentPointerMode) {
+      case PointerMode.POINTER:
+        this.normalPointerService.onMouseUp(event);
+        break;
       case PointerMode.MOVE:
         this.canvasMoverService.onMouseUp(event);
         break;

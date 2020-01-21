@@ -53,7 +53,7 @@ export class InfiniteCanvasService {
   zoomRatio = 0.0;
   newZoom = 1;
 
-  private readonly zoomFactor = 1.04;
+  public readonly zoomFactor = 1.04;
   private readonly zoomInMax = 40;
   private readonly zoomOutMax = -40;
 
@@ -178,7 +178,7 @@ export class InfiniteCanvasService {
     });
   }
 
-  public movingAlg(){
+  public solveDangerState(){
     let tempView = this.currentProject.view.bounds;
 
     let widthMargin = tempView.width/10;

@@ -61,6 +61,7 @@ import { ToolShapePanelComponent } from './View/Whiteboard/whiteboard-tool-panel
 import {DrawingLayerManagerService} from './Model/Whiteboard/InfiniteCanvas/DrawingLayerManager/drawing-layer-manager.service';
 import {ImportFileService} from "./Model/Whiteboard/ImportFile/import-file.service";
 import { WhiteboardContextMenuComponent } from './View/Whiteboard/whiteboard-context-menu/whiteboard-context-menu.component';
+import {NormalPointerService} from './Model/Whiteboard/Pointer/normal-pointer-service/normal-pointer.service';
 
 
 const appRoutes: Routes = [
@@ -171,6 +172,7 @@ const appRoutes: Routes = [
     BrushService,
     EraserService,
     LassoSelectorService,
+    NormalPointerService,
     DebugingService,
     MinimapSyncService,
     HighlighterService,

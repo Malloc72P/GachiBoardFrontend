@@ -130,6 +130,39 @@ export class PositionCalcService {
   public getKanbanGroupSettingPanelHeight(){
     return this.getHeightOfBrowser() - this.getHeightOfBrowser() * 0.2;
   }
+  public downEventToPaperPoint(event){
+    let point:Point;
+    if(event instanceof MouseEvent) {
+      point = new Point(event.x, event.y);
+    } else if (event instanceof TouchEvent) {
+      point = new Point( event.touches[0].clientX, event.touches[0].clientY );
+    }
+    return this.advConvertNgToPaper(point);
+  }
+  public moveEventToPaperPoint(event){
+    let point:Point;
+    if(event instanceof MouseEvent) {
+      point = new Point(event.x, event.y);
+    } else if (event instanceof TouchEvent) {
+      point = new Point( event.changedTouches[0].clientX, event.changedTouches[0].clientY );
+    }
+    return this.advConvertNgToPaper(point);
+  }
+
+  public eventToPoint(event){
+    let point:Point;
+    if(event instanceof MouseEvent) {
+      point = new Point(event.x, event.y);
+    } else if (event instanceof TouchEvent) {
+      if(event.changedTouches.length === 0){
+        point = new Point( event.touches[0].clientX, event.touches[0].clientY );
+      }
+      else{
+        point = new Point( event.changedTouches[0].clientX, event.changedTouches[0].clientY );
+      }
+    }
+    return point;
+  }
 
 
 
