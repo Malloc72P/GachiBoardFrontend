@@ -1,11 +1,11 @@
 <div style="visibility: hidden; position: fixed"
-     [style.left]="contextMenuPosition.x"
-     [style.top]="contextMenuPosition.y"
+     [style.left]="contextMenuService.contextMenuPosition.x"
+     [style.top]="contextMenuService.contextMenuPosition.y"
      [matMenuTriggerFor]="contextMenu">
 </div>
 <mat-menu #contextMenu>
   <div id="contextMenu">
-    <button mat-menu-item *ngFor="let item of contextMenuItems"
-            (click)="onClickContextMenu(item)">{{item}}</button>
+    <button mat-menu-item *ngFor="let item of contextMenuService.contextMenuItems"
+            (click)="contextMenuService.onClickContextMenu(item)">{{item}}</button>
   </div>
 </mat-menu>

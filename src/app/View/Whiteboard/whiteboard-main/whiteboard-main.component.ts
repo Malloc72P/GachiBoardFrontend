@@ -22,6 +22,7 @@ import Path = paper.Path;
 import {DebugingService} from "../../../Model/Helper/DebugingHelper/debuging.service";
 import {MinimapSyncService} from '../../../Model/Whiteboard/InfiniteCanvas/MinimapSync/minimap-sync.service';
 import {WhiteboardContextMenuComponent} from "../whiteboard-context-menu/whiteboard-context-menu.component";
+import {ContextMenuService} from "../../../Model/Whiteboard/ContextMenu/context-menu-service/context-menu.service";
 
 
 @Component({
@@ -31,7 +32,6 @@ import {WhiteboardContextMenuComponent} from "../whiteboard-context-menu/whitebo
 })
 export class WhiteboardMainComponent implements OnInit {
   private paperProject: Project;
-  private contextOpenEmitter = new EventEmitter<any>();
 
   private isMouseDown = false;
   private currentPointerMode;
@@ -78,6 +78,7 @@ export class WhiteboardMainComponent implements OnInit {
     private zoomControlService      : ZoomControlService,
     private debugingService         : DebugingService,
     private minimapSyncService      : MinimapSyncService,
+    private contextMenuService      : ContextMenuService,
   ) {
   }
 
@@ -129,9 +130,5 @@ export class WhiteboardMainComponent implements OnInit {
       default:
         break;
     }
-  }
-
-  openContextMenu(event) {
-    this.contextOpenEmitter.emit(event);
   }
 }

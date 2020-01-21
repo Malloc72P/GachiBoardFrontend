@@ -61,6 +61,7 @@ import { ToolShapePanelComponent } from './View/Whiteboard/whiteboard-tool-panel
 import {DrawingLayerManagerService} from './Model/Whiteboard/InfiniteCanvas/DrawingLayerManager/drawing-layer-manager.service';
 import {ImportFileService} from "./Model/Whiteboard/ImportFile/import-file.service";
 import { WhiteboardContextMenuComponent } from './View/Whiteboard/whiteboard-context-menu/whiteboard-context-menu.component';
+import {ContextMenuService} from "./Model/Whiteboard/ContextMenu/context-menu-service/context-menu.service";
 
 
 const appRoutes: Routes = [
@@ -182,6 +183,7 @@ const appRoutes: Routes = [
     AreYouSurePanelService,
     DrawingLayerManagerService,
     ImportFileService,
+    ContextMenuService,
   ],
   bootstrap: [AppComponent]
 })
