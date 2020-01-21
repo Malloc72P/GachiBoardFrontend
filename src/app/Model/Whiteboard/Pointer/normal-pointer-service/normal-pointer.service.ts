@@ -21,6 +21,7 @@ import {PositionCalcService} from '../../PositionCalc/position-calc.service';
 import {InfiniteCanvasService} from '../../InfiniteCanvas/infinite-canvas.service';
 import {LassoSelectorService} from '../lasso-selector-service/lasso-selector.service';
 import {DrawingLayerManagerService} from '../../InfiniteCanvas/DrawingLayerManager/drawing-layer-manager.service';
+import {DataType} from '../../../Helper/data-type-enum/data-type.enum';
 
 enum NORMAL_POINTER_ACTIONS{
   SELECTED,
@@ -111,7 +112,15 @@ export class NormalPointerService {
         if(hitHandler){//반응한 핸들러가 존재한다면, 핸들링 아이템모드 실행
           console.log("링크포트 빌더모드 실행하기");
           //TODO 링크포트 빌더코드는 여기서 작성
-          this.setHandlingItemMode(hitHandler, point);
+
+          console.log("NormalPointerService >> onDown >> hitHandler : ",hitHandler);
+          if(hitHandler.data.type === DataType.LASSO_HANDLER){
+            this.setHandlingItemMode(hitHandler, point, hitHandler.data.type);
+          }else if(hitHandler.data.type === DataType.LASSO_LINK_PORT_HANDLER){
+            this.setHandlingItemMode(hitHandler, point, hitHandler.data.type);
+          }else{
+
+          }
         }else{//반응한 핸들러가 없으면서...
           if(hitItem && hitItem.id === selectedItem.id){//selectedItem 안의 영역을 클릭한 경우
             //드래그모드 실행
@@ -119,12 +128,10 @@ export class NormalPointerService {
           }else{//특수이동절차로 진입
             // Case 1 : 이동거리가 일정치보다 작다면 >>> LassoService에서 개체선택해제
             // Case 2 : 이동거리가 일정치보다 크다면 >>> 아무것도 안하고 이동만 함
-            console.log("NormalPointerService >> onDown >> 특수이동절차로");
             this.setMovingMode();
           }
         }//반응한 핸들러가 없다면, 드래그모드 실행 ###
       }else{//선택된 개체가 사용불가능한 ERROR상황
-        console.warn("NormalPointerService >> onDown >> 에러상황! 선택된 개체가 존재하지만 가져오지 못했음");
       }//선택된 개체가 사용불가능한 ERROR상황 ###
     }//선택된 개체 존재 ###
   }//onDown ###
@@ -202,9 +209,18 @@ export class NormalPointerService {
     this.lassoService.setDraggingItemMode(point);
 
   }
-  private setHandlingItemMode(hitHandler, point){
-    this.action = NORMAL_POINTER_ACTIONS.HANDLING_iTEM;
-    this.lassoService.setResizingMode(hitHandler, point);
+  private setHandlingItemMode(hitHandler, point, mode){
+    if(mode === DataType.LASSO_HANDLER){
+      this.action = NORMAL_POINTER_ACTIONS.HANDLING_iTEM;
+      this.lassoService.setWbItemHandlingMode(hitHandler, point, mode);
+    }
+    else if(mode === DataType.LASSO_LINK_PORT_HANDLER){
+      this.action = NORMAL_POINTER_ACTIONS.HANDLING_iTEM;
+      this.lassoService.setWbItemHandlingMode(hitHandler, point, mode);
+    }
+    else{
+
+    }
 
   }
   private setSelectedMode(selectedWbItem){

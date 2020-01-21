@@ -5,7 +5,8 @@ export enum DataType {
   MINIMAP_CURSOR_LAYER,
   DRAWING_CANVAS,
   EREASER,
-  LASSO_HANDLER
+  LASSO_HANDLER,
+  LASSO_LINK_PORT_HANDLER,
 }
 export enum WhiteboardItemType {
   SIMPLE_STROKE,
@@ -20,6 +21,7 @@ export enum WhiteboardItemType {
 export enum DataState {
   MOVING,
   RESIZING,
+  LINK_EDITING
 }
 
 export enum DataName {

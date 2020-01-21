@@ -163,6 +163,25 @@ export class PositionCalcService {
     }
     return point;
   }
+  pointMinus(point, value){
+    return new Point( point.x - value, point.y - value );
+  }
+  pointPlus(point, value){
+    return new Point( point.x + value, point.y + value );
+  }
+
+  movePointLeft(point, value){
+    return new Point( point.x - value, point.y );
+  }
+  movePointRight(point, value){
+    return new Point( point.x + value, point.y );
+  }
+  movePointTop(point, value){
+    return new Point( point.x, point.y - value );
+  }
+  movePointBottom(point, value){
+    return new Point( point.x, point.y + value );
+  }
 
 
 
