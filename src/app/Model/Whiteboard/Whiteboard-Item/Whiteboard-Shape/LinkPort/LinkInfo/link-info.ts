@@ -34,6 +34,7 @@ export class LinkInfo {
     this.linkObject.onFrame = ()=>{
       this.linkObject.firstSegment.point = this.fromLinkPort.calcLinkPortPosition();
       this.linkObject.lastSegment.point = this.toLinkPort.calcLinkPortPosition();
+      this.linkObject.sendToBack();
     }
   }
   get fromLinkPort(): LinkPort {
