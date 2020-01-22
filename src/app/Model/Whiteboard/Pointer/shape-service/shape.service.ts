@@ -129,10 +129,18 @@ export class ShapeService {
 
       // 부호가 다를때
       if(widthDelta.x > 0 !== widthDelta.y > 0) {
-        points.point.y = this.fromPoint.y - widthDelta.x;
+        if(Math.abs(widthDelta.x) > Math.abs(widthDelta.y)) {
+          points.point.y = this.fromPoint.y - widthDelta.x;
+        } else {
+          points.point.x = this.fromPoint.x - widthDelta.y;
+        }
       // 부호가 같을때
       } else {
-        points.point.y = this.fromPoint.y + widthDelta.x;
+        if(Math.abs(widthDelta.x) > Math.abs(widthDelta.y)) {
+          points.point.y = this.fromPoint.y + widthDelta.x;
+        } else {
+          points.point.x = this.fromPoint.x + widthDelta.y;
+        }
       }
     }
 
