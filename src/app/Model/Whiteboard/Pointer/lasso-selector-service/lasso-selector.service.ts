@@ -12,6 +12,7 @@ import Group = paper.Group;
 import Point = paper.Point;
 // @ts-ignore
 import Item = paper.Item;
+import {LinkPort} from '../../Whiteboard-Item/Whiteboard-Shape/LinkPort/link-port';
 
 
 @Injectable({
@@ -373,7 +374,7 @@ export class LassoSelectorService {
       this.createSelectRangePath();
       this.selectedGroup.addChild(this.selectRange);
       this.createHandler();
-      this.createLinkPortHandler();
+      this.createLinkPortHandler(wbItem);
     }
 
     // selectedItems의 모든 아이템 제거
@@ -382,7 +383,7 @@ export class LassoSelectorService {
     this.removeItem(this.newPath);
   }
 
-  private createLinkPortHandler(){
+  private createLinkPortHandler(wbItem){
     let handlerName = 'linkPortHandler';
     let handlerFillColor = 'skyblue';
     let handlerStrokeColor = 'black';
@@ -394,9 +395,28 @@ export class LassoSelectorService {
     if(!this.handlerGroup) {
       this.handlerGroup = new Group();
     }
-    //좌측
-
-    let pivot = this.selectRange.bounds.leftCenter;
+    //상
+    let pivot = this.selectRange.bounds.topCenter;
+    this.handlerGroup.addChild(new paper.Path.Circle({
+      name: handlerName,
+      center: this.posCalcService.movePointTop(pivot, this.LINK_PORT_HANDLER_DISTANCE),
+      radius: this.handleOption.handleRadius / this.currentProject.view.zoom,
+      strokeWidth: this.handleOption.strokeWidth / this.currentProject.view.zoom,
+      fillColor: handlerFillColor,
+      strokeColor: handlerStrokeColor
+    }));
+    //하
+    pivot = this.selectRange.bounds.bottomCenter;
+    this.handlerGroup.addChild(new paper.Path.Circle({
+      name: handlerName,
+      center: this.posCalcService.movePointBottom(pivot, this.LINK_PORT_HANDLER_DISTANCE),
+      radius: this.handleOption.handleRadius / this.currentProject.view.zoom,
+      strokeWidth: this.handleOption.strokeWidth / this.currentProject.view.zoom,
+      fillColor: handlerFillColor,
+      strokeColor: handlerStrokeColor
+    }));
+    //좌
+    pivot = this.selectRange.bounds.leftCenter;
     this.handlerGroup.addChild(new paper.Path.Circle({
       name: handlerName,
       center: this.posCalcService.movePointLeft(pivot, this.LINK_PORT_HANDLER_DISTANCE),
@@ -415,37 +435,17 @@ export class LassoSelectorService {
       fillColor: handlerFillColor,
       strokeColor: handlerStrokeColor
     }));
-    //아래
-    pivot = this.selectRange.bounds.bottomCenter;
-    this.handlerGroup.addChild(new paper.Path.Circle({
-      name: handlerName,
-      center: this.posCalcService.movePointBottom(pivot, this.LINK_PORT_HANDLER_DISTANCE),
-      radius: this.handleOption.handleRadius / this.currentProject.view.zoom,
-      strokeWidth: this.handleOption.strokeWidth / this.currentProject.view.zoom,
-      fillColor: handlerFillColor,
-      strokeColor: handlerStrokeColor
-    }));
-    //위
-    pivot = this.selectRange.bounds.topCenter;
-    this.handlerGroup.addChild(new paper.Path.Circle({
-      name: handlerName,
-      center: this.posCalcService.movePointTop(pivot, this.LINK_PORT_HANDLER_DISTANCE),
-      radius: this.handleOption.handleRadius / this.currentProject.view.zoom,
-      strokeWidth: this.handleOption.strokeWidth / this.currentProject.view.zoom,
-      fillColor: handlerFillColor,
-      strokeColor: handlerStrokeColor
-    }));
+    this.handlerGroup.bringToFront();
     this.handlerGroup.children.forEach((value, index, array)=>{
       if(0 <= index && index <= 3){
         value.data.type = DataType.LASSO_HANDLER;
       }
       else{
         value.data.type = DataType.LASSO_LINK_PORT_HANDLER;
+        value.data.tempLinkPort = new LinkPort( wbItem, index - 4, this.posCalcService );
       }
       value.data.handlerIndex = index;
     });
-    this.handlerGroup.bringToFront();
-
   }
 
   private refreshHandlerGroup(point){

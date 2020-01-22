@@ -87,6 +87,7 @@ export abstract class EditableShape extends WhiteboardShape {
     this.textBound = new Rectangle(this.editText.bounds);
 
     this.lifeCycleEventEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.MODIFY));
+    this.notifyOwnerChangeEventToLinkPort();
   }
   public notifyItemCreation() {
     console.log("EditableShape >> createItem >> 진입함");
@@ -133,6 +134,7 @@ export abstract class EditableShape extends WhiteboardShape {
 
     this.editText.bringToFront();
     this.lifeCycleEventEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.MODIFY));
+    this.notifyOwnerChangeEventToLinkPort();
   }
 
   public modifyEditText(content, rawContent ){

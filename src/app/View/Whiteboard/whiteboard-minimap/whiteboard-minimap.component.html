@@ -14,19 +14,19 @@
             [ngStyle]="isFullScreen === true && { 'opacity': 1, 'font-weight' : 'bold', 'background': 'rgba(0,0,0,0.14)' }"
             (click)="toggleFullScreen()"
             class="minimap-tool-btn minimap-tool-fullScreen">
-      <i class="im im-fullscreen"></i>
+      <span class="selectable-icon minimap-full-screen"></span>
     </button>
 
     <button mat-button
             (click)="zoomControlService.zoomOutToCenter()"
             class="minimap-tool-btn minimap-tool-zoomOut">
-      <i class="im im-magnifier-minus"></i>
+      <span class="selectable-icon minimap-mag-minus"></span>
     </button>
 
     <button mat-button
             (click)="zoomControlService.zoomInToCenter()"
             class="minimap-tool-btn minimap-tool-zoomIn">
-      <i class="im im-magnifier-plus"></i>
+      <span class="selectable-icon minimap-mag-plus"></span>
     </button>
 
   </div>

@@ -15,13 +15,15 @@ import Raster = paper.Raster;
 import {EventEmitter} from '@angular/core';
 import {WhiteboardShape} from '../whiteboard-shape';
 import {ItemLifeCycleEnum, ItemLifeCycleEvent} from '../../WhiteboardItemLifeCycle/WhiteboardItemLifeCycle';
+import {PositionCalcService} from '../../../PositionCalc/position-calc.service';
 
 export abstract class EditableRaster extends WhiteboardShape {
   private _imageBlob: string;
   protected constructor(group, type, item:Raster,
-                        posCalcService,
+                        posCalcService:PositionCalcService,
                         eventEmitter:EventEmitter<any>) {
     super(group, type, item, posCalcService, eventEmitter);
+    console.log("EditableRaster >> constructor >> posCalcService : ",posCalcService);
     // @ts-ignore
     this.imageBlob = item.image.src;
 
@@ -35,11 +37,13 @@ export abstract class EditableRaster extends WhiteboardShape {
   notifyItemModified() {
     console.log("EditableRaster >> notifyItemModified >> 진입함");
     this.lifeCycleEventEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.MODIFY));
+    this.notifyOwnerChangeEventToLinkPort();
   }
 
   refreshItem() {
     console.log("EditableRaster >> refreshItem >> 진입함");
     this.lifeCycleEventEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.MODIFY));
+    this.notifyOwnerChangeEventToLinkPort();
   }
 
   destroyItem() {

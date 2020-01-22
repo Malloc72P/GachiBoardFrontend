@@ -1,33 +1,24 @@
-import { Injectable } from '@angular/core';
-
-// @ts-ignore
-import Path = paper.Path;
-// @ts-ignore
-import Point = paper.Point;
-// @ts-ignore
-import PointText = paper.PointText;
-// @ts-ignore
-import Group = paper.Group;
-// @ts-ignore
-import Project = paper.Project;
-// @ts-ignore
-import Rectangle = paper.Path.Rectangle;
-// @ts-ignore
-import Circle = paper.Path.Circle;
-// @ts-ignore
-import Layer = paper.Layer;
-import * as paper from "paper";
+import {Injectable} from '@angular/core';
+import * as paper from 'paper';
 import {PositionCalcService} from '../../PositionCalc/position-calc.service';
 import {InfiniteCanvasService} from '../../InfiniteCanvas/infinite-canvas.service';
 import {LassoSelectorService} from '../lasso-selector-service/lasso-selector.service';
 import {DrawingLayerManagerService} from '../../InfiniteCanvas/DrawingLayerManager/drawing-layer-manager.service';
 import {DataType} from '../../../Helper/data-type-enum/data-type.enum';
+import {LinkPort} from '../../Whiteboard-Item/Whiteboard-Shape/LinkPort/link-port';
+
+// @ts-ignore
+import Point = paper.Point;
+// @ts-ignore
+import Project = paper.Project;
+import {WhiteboardShape} from '../../Whiteboard-Item/Whiteboard-Shape/whiteboard-shape';
 
 enum NORMAL_POINTER_ACTIONS{
   SELECTED,
   DRAGGING_ITEM,
   HANDLING_iTEM,
-  MOVING
+  MOVING,
+  LINK_EDITING
 }
 
 @Injectable({
@@ -42,6 +33,8 @@ export class NormalPointerService {
 
   private prevPoint = new Point(0,0);
   private trailDistance = 0;
+
+  private tempLinkPort:LinkPort;
 
   constructor(
     private positionCalcService   : PositionCalcService,
@@ -118,6 +111,9 @@ export class NormalPointerService {
             this.setHandlingItemMode(hitHandler, point, hitHandler.data.type);
           }else if(hitHandler.data.type === DataType.LASSO_LINK_PORT_HANDLER){
             this.setHandlingItemMode(hitHandler, point, hitHandler.data.type);
+
+            this.tempLinkPort = hitHandler.data.tempLinkPort;
+
           }else{
 
           }
@@ -137,6 +133,7 @@ export class NormalPointerService {
   }//onDown ###
 
   private onMove(event){
+    let point = this.posCalcService.moveEventToPaperPoint(event);
     switch (this.action) {
       case NORMAL_POINTER_ACTIONS.SELECTED:
         break;
@@ -149,10 +146,15 @@ export class NormalPointerService {
       case NORMAL_POINTER_ACTIONS.HANDLING_iTEM:
         this.lassoService.drawPath(event);
         break;
+      case NORMAL_POINTER_ACTIONS.LINK_EDITING:
+        this.createTempLink(point);
+        break;
       default:
     }
   }
+
   private onUp(event){
+    let point = this.posCalcService.moveEventToPaperPoint(event);
     switch (this.action) {
       case NORMAL_POINTER_ACTIONS.SELECTED:
         break;
@@ -168,9 +170,30 @@ export class NormalPointerService {
       case NORMAL_POINTER_ACTIONS.HANDLING_iTEM:
         this.lassoService.endPath(event);
         break;
+      case NORMAL_POINTER_ACTIONS.LINK_EDITING:
+        let fromWbShape:WhiteboardShape = this.tempLinkPort.owner;
+        let toWbShape:WhiteboardShape = this.layerService.getHittedItem(point) as WhiteboardShape;
+        let realLinkPort = fromWbShape.linkPortMap.get(this.tempLinkPort.direction);
+
+        realLinkPort.createLink(toWbShape, point);
+        break;
+
       default:
     }
 
+  }
+
+  private createTempLink(point){
+    let hitWbShape:WhiteboardShape = this.layerService.getHittedItem(point) as WhiteboardShape;
+    if(this.tempLinkPort){
+      let wbShape:WhiteboardShape = this.tempLinkPort.owner;
+      let realLinkPort = wbShape.linkPortMap.get(this.tempLinkPort.direction);
+      if(hitWbShape){
+        realLinkPort.tempLinkToWbItem(hitWbShape, point);
+      }else{
+        realLinkPort.tempLinkToEmptyField(point);
+      }
+    }
   }
 
   public moveTo(event){
@@ -215,7 +238,7 @@ export class NormalPointerService {
       this.lassoService.setWbItemHandlingMode(hitHandler, point, mode);
     }
     else if(mode === DataType.LASSO_LINK_PORT_HANDLER){
-      this.action = NORMAL_POINTER_ACTIONS.HANDLING_iTEM;
+      this.action = NORMAL_POINTER_ACTIONS.LINK_EDITING;
       this.lassoService.setWbItemHandlingMode(hitHandler, point, mode);
     }
     else{

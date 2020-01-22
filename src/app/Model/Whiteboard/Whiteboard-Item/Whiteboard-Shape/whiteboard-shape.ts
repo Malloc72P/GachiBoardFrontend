@@ -19,6 +19,8 @@ import PointText = paper.PointText;
 import Group = paper.Group;
 // @ts-ignore
 import Rectangle = paper.Rectangle;
+import {LinkPort} from './LinkPort/link-port';
+import {LinkPortDirectionEnum} from './LinkPort/LinkPortDirectionEnum/link-port-direction-enum.enum';
 
 export class WhiteboardShape extends WhiteboardItem {
   private _width: number;
@@ -28,6 +30,7 @@ export class WhiteboardShape extends WhiteboardItem {
   private _fillColor: paper.Color;
   private _opacity: number;
   private _posCalcService:PositionCalcService;
+  private _linkPortMap:Map<any,LinkPort>;
   protected constructor(group, type, item:Item,
                         posCalcService:PositionCalcService,
                         eventEmitter:EventEmitter<any>) {
@@ -37,6 +40,7 @@ export class WhiteboardShape extends WhiteboardItem {
     this.height    = item.bounds.height;
     this.borderColor = item.style.strokeColor;
     this.borderWidth = item.style.strokeWidth;
+    this.posCalcService = posCalcService;
     if(item.style.fillColor){
       this.fillColor = item.style.fillColor;
     }else{
@@ -44,7 +48,52 @@ export class WhiteboardShape extends WhiteboardItem {
       this.fillColor = "transparent";
     }
     this.opacity = item.opacity;
+    this._linkPortMap = new Map<any, LinkPort>();
+    for(let i = 0 ; i < 4; i++){
+      this._linkPortMap.set( i, new LinkPort(this,i, this.posCalcService) );
+    }
+  }
 
+
+  get linkPortMap(): Map<any, LinkPort> {
+    return this._linkPortMap;
+  }
+
+  set linkPortMap(value: Map<any, LinkPort>) {
+    this._linkPortMap = value;
+  }
+  public notifyOwnerChangeEventToLinkPort(){
+    this.linkPortMap.forEach((value, key, map)=>{
+      value.onOwnerChanged();
+    })
+  }
+  public getDirectionPoint(direction){
+    switch (direction) {
+      case LinkPortDirectionEnum.TOP :
+        return this.group.bounds.topCenter;
+      case LinkPortDirectionEnum.BOTTOM :
+        return this.group.bounds.bottomCenter;
+      case LinkPortDirectionEnum.LEFT :
+        return this.group.bounds.leftCenter;
+      case LinkPortDirectionEnum.RIGHT :
+        return this.group.bounds.rightCenter;
+    }
+  }
+  public getClosestLinkPort(point){
+    let centerOfToWbShape = point;
+
+    let closestDirection = 0;
+    let closestDistance = this.posCalcService
+      .calcPointDistanceOn2D(centerOfToWbShape, this.group.bounds.topCenter);
+    for(let i = 1 ; i < 4; i++){
+      let newDistance = this.posCalcService
+        .calcPointDistanceOn2D(centerOfToWbShape, this.getDirectionPoint(i));
+      if(newDistance < closestDistance){
+        closestDirection = i;
+        closestDistance = newDistance;
+      }
+    }
+    return closestDirection;
   }
 
   notifyItemCreation() {
