@@ -10,6 +10,7 @@ import {PanelManagerService} from '../../../Model/Whiteboard/Panel/panel-manager
   styleUrls: ['./whiteboard-tool-panel.component.css']
 })
 export class WhiteboardToolPanelComponent extends PopoverPanel implements OnInit {
+  private toolPanelToggleGroupValue;
 
   constructor(
     private pointerModeEnumService: PointerModeEnumService,
@@ -22,37 +23,45 @@ export class WhiteboardToolPanelComponent extends PopoverPanel implements OnInit
 
   ngOnInit() {
     this.panelManager.brushPanelOutsideClickListener();
+    this.modeChange(PointerMode.MOVE);
   }
 
-  onPanelStateChangeHandler() {
-    this.pointerModeManagerService.currentPointerMode = this.currentSelectedMode;
-  }
   onClickPanelItem(panelItem: number) {
     switch (panelItem) {
       case PointerMode.MOVE:
+        this.modeChange(panelItem);
         this.panelManager.isHideBrushPanel = this.panelManager.isHideHighlighterPanel = this.panelManager.isHideShapePanel = true;
         break;
       case PointerMode.DRAW:
+        this.modeChange(panelItem);
         this.panelManager.isHideHighlighterPanel = this.panelManager.isHideShapePanel = true;
         this.panelManager.isHideBrushPanel = !this.panelManager.isHideBrushPanel;
         break;
       case PointerMode.HIGHLIGHTER:
+        this.modeChange(panelItem);
         this.panelManager.isHideBrushPanel = this.panelManager.isHideShapePanel = true;
         this.panelManager.isHideHighlighterPanel = !this.panelManager.isHideHighlighterPanel;
         break;
       case PointerMode.SHAPE:
+        this.modeChange(panelItem);
         this.panelManager.isHideBrushPanel = this.panelManager.isHideHighlighterPanel = true;
         this.panelManager.isHideShapePanel = !this.panelManager.isHideShapePanel;
         break;
       case PointerMode.ERASER:
+        this.modeChange(panelItem);
         this.panelManager.isHideBrushPanel = this.panelManager.isHideHighlighterPanel = this.panelManager.isHideShapePanel = true;
         break;
       case PointerMode.LASSO_SELECTOR:
+        this.modeChange(panelItem);
         this.panelManager.isHideBrushPanel = this.panelManager.isHideHighlighterPanel = this.panelManager.isHideShapePanel = true;
         break;
       default:
         break;
     }
+  }
+
+  modeChange(mode: number) {
+    this.pointerModeManagerService.currentPointerMode = this.toolPanelToggleGroupValue = mode;
   }
 
   get PointerModeEnum() {

@@ -107,18 +107,36 @@ export class ShapeService {
     } else if (width > -this.minSize && width < 0) {
       points.point.x = this.fromPoint.x + this.minSize;
     }
-    if(!event.shiftKey) {
-      const height = this.fromPoint.y - points.point.y;
-      if(height < this.minSize && height >= 0) {
-        points.point.y = this.fromPoint.y - this.minSize;
-      } else if (height > -this.minSize && height < 0) {
-        points.point.y = this.fromPoint.y + this.minSize;
-      }
-    } else {
-      // 정방형
+    const height = this.fromPoint.y - points.point.y;
+    if(height < this.minSize && height >= 0) {
+      points.point.y = this.fromPoint.y - this.minSize;
+    } else if (height > -this.minSize && height < 0) {
+      points.point.y = this.fromPoint.y + this.minSize;
     }
 
-    let bound = new paper.Rectangle(this.fromPoint, points.point);
+    let widthDelta = new Point(0, 0);
+    if(event.shiftKey) {
+      widthDelta.x = points.point.x - this.fromPoint.x;
+      widthDelta.y = points.point.y - this.fromPoint.y;
+
+      // let delta;
+      // // 더 큰쪽 선택
+      // if(widthDelta.x > widthDelta.y) {
+      //   delta = widthDelta.x;
+      // } else {
+      //   delta = widthDelta.y;
+      // }
+
+      // 부호가 다를때
+      if(widthDelta.x > 0 !== widthDelta.y > 0) {
+        points.point.y = this.fromPoint.y - widthDelta.x;
+      // 부호가 같을때
+      } else {
+        points.point.y = this.fromPoint.y + widthDelta.x;
+      }
+    }
+
+      let bound = new paper.Rectangle(this.fromPoint, points.point);
     this.handlePath.bounds = bound;
 
     if(this._shapeStyle === ShapeStyle.ROUND_RECTANGLE) {

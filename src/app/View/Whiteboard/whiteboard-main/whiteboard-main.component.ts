@@ -114,6 +114,37 @@ export class WhiteboardMainComponent implements OnInit {
   }
   @HostListener('document:keydown', ['$event'])
   keydownHandler(event) {
+    // console.log("WhiteboardMainComponent >> keydownHandler >> keydown : ", event);
+
+    // textEditor 에선 스킵
+    if(event.target === document.getElementById("textEditor")) {
+      return;
+    }
+    // 전역
+    switch (event.code) {
+      case "KeyM":
+        document.getElementById(PointerMode[PointerMode.MOVE]).click();
+        break;
+      case "KeyB":
+        document.getElementById(PointerMode[PointerMode.DRAW]).click();
+        break;
+      case "KeyH":
+        document.getElementById(PointerMode[PointerMode.HIGHLIGHTER]).click();
+        break;
+      case "KeyS":
+        document.getElementById(PointerMode[PointerMode.SHAPE]).click();
+        break;
+      case "KeyE":
+        document.getElementById(PointerMode[PointerMode.ERASER]).click();
+        break;
+      case "KeyL":
+        document.getElementById(PointerMode[PointerMode.LASSO_SELECTOR]).click();
+        break;
+      default:
+        break;
+    }
+
+    // 모드 귀속
     switch (this.pointerModeManager.currentPointerMode) {
       case PointerMode.MOVE:
         break;

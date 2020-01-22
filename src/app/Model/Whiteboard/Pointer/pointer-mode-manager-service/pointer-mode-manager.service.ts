@@ -42,7 +42,6 @@ export class PointerModeManagerService {
   }
 
   public initializePointerModeManagerService(currentProject) {
-    this.currentPointerMode = PointerMode.MOVE;
     const htmlCanvasObject = document.getElementById("cv1") as HTMLCanvasElement;
     this.currentProject = currentProject;
 
