@@ -114,46 +114,12 @@ export class ShapeService {
       points.point.y = this.fromPoint.y + this.minSize;
     }
 
-    let widthDelta = new Point(0, 0);
+
     if(event.shiftKey) {
-      widthDelta.x = points.point.x - this.fromPoint.x;
-      widthDelta.y = points.point.y - this.fromPoint.y;
-
-      let distance = this.fromPoint.getDistance(points.point);
-      let width = distance / Math.sqrt(2);
-
-      if(widthDelta.x > 0) {
-        points.point.x = this.fromPoint.x + width;
-      } else {
-        points.point.x = this.fromPoint.x - width;
-      }
-
-      if(widthDelta.y > 0) {
-        points.point.y = this.fromPoint.y + width;
-      } else {
-        points.point.y = this.fromPoint.y - width;
-      }
-
-      console.log("ShapeService >> drawPath >> width : ", width);
-
-      // // 부호가 다를때
-      // if(widthDelta.x > 0 !== widthDelta.y > 0) {
-      //   if(Math.abs(widthDelta.x) > Math.abs(widthDelta.y)) {
-      //     points.point.y = this.fromPoint.y - widthDelta.x;
-      //   } else {
-      //     points.point.x = this.fromPoint.x - widthDelta.y;
-      //   }
-      // // 부호가 같을때
-      // } else {
-      //   if(Math.abs(widthDelta.x) > Math.abs(widthDelta.y)) {
-      //     points.point.y = this.fromPoint.y + widthDelta.x;
-      //   } else {
-      //     points.point.x = this.fromPoint.x + widthDelta.y;
-      //   }
-      // }
+      this.calcSizeForSquare(this.fromPoint, points.point);
     }
 
-      let bound = new paper.Rectangle(this.fromPoint, points.point);
+    let bound = new paper.Rectangle(this.fromPoint, points.point);
     this.handlePath.bounds = bound;
 
     if(this._shapeStyle === ShapeStyle.ROUND_RECTANGLE) {
@@ -422,6 +388,26 @@ export class ShapeService {
     })
   }
 
+  private calcSizeForSquare(startPoint: Point, endPoint: Point) {
+    let widthDelta = new Point(0, 0);
+    widthDelta.x = endPoint.x - startPoint.x;
+    widthDelta.y = endPoint.y - startPoint.y;
+
+    let distance = startPoint.getDistance(endPoint);
+    let width = distance / Math.sqrt(2);
+
+    if(widthDelta.x > 0) {
+      endPoint.x = startPoint.x + width;
+    } else {
+      endPoint.x = startPoint.x - width;
+    }
+
+    if(widthDelta.y > 0) {
+      endPoint.y = startPoint.y + width;
+    } else {
+      endPoint.y = startPoint.y - width;
+    }
+  }
 
   private onClickOutsidePanel(event, element, item) {
     if(element.contains(event.target)) {

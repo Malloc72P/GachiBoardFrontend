@@ -26,6 +26,7 @@ export class LassoSelectorService {
   private handleOption = {strokeWidth: 1, handleRadius: 6, dashLength: 5};
   private dashLength = 5;
   private strokeWidth = 1;
+  private ratio = { width: 0, height: 0 };
 
   private readonly MOUSE_TOLERANCE = 5;
   private readonly TOUCH_TOLERANCE = 10;
@@ -78,6 +79,8 @@ export class LassoSelectorService {
 
       if(tempTest && tempTest.item.data.type == DataType.LASSO_HANDLER) {
         this.selectedGroup.data.state = DataState.RESIZING;
+        this.ratio.width = this.selectedGroup.bounds.width;
+        this.ratio.height = this.selectedGroup.bounds.height;
 
         let i = tempTest.item.data.handlerIndex;
 
@@ -151,6 +154,12 @@ export class LassoSelectorService {
           resizePoint.y = this.selectedGroup.data.from.y + minSize;
         }
 
+        if(event.shiftKey && event.ctrlKey) {
+          this.calcSizeForSquare(this.selectedGroup.data.from, resizePoint);
+        } else if(event.shiftKey) {
+          this.calcFixRatioForResize(this.selectedGroup.data.from, resizePoint, this.ratio);
+        }
+
         let bound = new paper.Rectangle(this.selectedGroup.data.from, resizePoint);
 
         this.selectedGroup.bounds = bound;
@@ -222,6 +231,31 @@ export class LassoSelectorService {
       console.log("LassoSelectorService >> endPath >> this.selectedGroup : ", this.selectedGroup);
     }
     this.newPath.remove();
+
+  }
+
+  private calcSizeForSquare(startPoint: Point, endPoint: Point) {
+    let widthDelta = new Point(0, 0);
+    widthDelta.x = endPoint.x - startPoint.x;
+    widthDelta.y = endPoint.y - startPoint.y;
+
+    let distance = startPoint.getDistance(endPoint);
+    let width = distance / Math.sqrt(2);
+
+    if(widthDelta.x > 0) {
+      endPoint.x = startPoint.x + width;
+    } else {
+      endPoint.x = startPoint.x - width;
+    }
+
+    if(widthDelta.y > 0) {
+      endPoint.y = startPoint.y + width;
+    } else {
+      endPoint.y = startPoint.y - width;
+    }
+  }
+
+  private calcFixRatioForResize(startPoint: Point, endPoint: Point, ratio: { width, height }) {
 
   }
 
