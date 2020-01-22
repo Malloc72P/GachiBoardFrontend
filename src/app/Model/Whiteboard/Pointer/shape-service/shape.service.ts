@@ -119,29 +119,38 @@ export class ShapeService {
       widthDelta.x = points.point.x - this.fromPoint.x;
       widthDelta.y = points.point.y - this.fromPoint.y;
 
-      // let delta;
-      // // 더 큰쪽 선택
-      // if(widthDelta.x > widthDelta.y) {
-      //   delta = widthDelta.x;
-      // } else {
-      //   delta = widthDelta.y;
-      // }
+      let distance = this.fromPoint.getDistance(points.point);
+      let width = distance / Math.sqrt(2);
 
-      // 부호가 다를때
-      if(widthDelta.x > 0 !== widthDelta.y > 0) {
-        if(Math.abs(widthDelta.x) > Math.abs(widthDelta.y)) {
-          points.point.y = this.fromPoint.y - widthDelta.x;
-        } else {
-          points.point.x = this.fromPoint.x - widthDelta.y;
-        }
-      // 부호가 같을때
+      if(widthDelta.x > 0) {
+        points.point.x = this.fromPoint.x + width;
       } else {
-        if(Math.abs(widthDelta.x) > Math.abs(widthDelta.y)) {
-          points.point.y = this.fromPoint.y + widthDelta.x;
-        } else {
-          points.point.x = this.fromPoint.x + widthDelta.y;
-        }
+        points.point.x = this.fromPoint.x - width;
       }
+
+      if(widthDelta.y > 0) {
+        points.point.y = this.fromPoint.y + width;
+      } else {
+        points.point.y = this.fromPoint.y - width;
+      }
+
+      console.log("ShapeService >> drawPath >> width : ", width);
+
+      // // 부호가 다를때
+      // if(widthDelta.x > 0 !== widthDelta.y > 0) {
+      //   if(Math.abs(widthDelta.x) > Math.abs(widthDelta.y)) {
+      //     points.point.y = this.fromPoint.y - widthDelta.x;
+      //   } else {
+      //     points.point.x = this.fromPoint.x - widthDelta.y;
+      //   }
+      // // 부호가 같을때
+      // } else {
+      //   if(Math.abs(widthDelta.x) > Math.abs(widthDelta.y)) {
+      //     points.point.y = this.fromPoint.y + widthDelta.x;
+      //   } else {
+      //     points.point.x = this.fromPoint.x + widthDelta.y;
+      //   }
+      // }
     }
 
       let bound = new paper.Rectangle(this.fromPoint, points.point);
