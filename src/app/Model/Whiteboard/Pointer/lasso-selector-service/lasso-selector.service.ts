@@ -13,6 +13,8 @@ import Point = paper.Point;
 // @ts-ignore
 import Item = paper.Item;
 import {LinkPort} from '../../Whiteboard-Item/Whiteboard-Shape/LinkPort/link-port';
+import {PointCalculator} from "../point-calculator/point-calculator";
+import {WhiteboardShape} from "../../Whiteboard-Item/Whiteboard-Shape/whiteboard-shape";
 
 
 @Injectable({
@@ -90,14 +92,7 @@ export class LassoSelectorService {
 
       if(tempTest && tempTest.item.data.type == DataType.LASSO_HANDLER) {
         this.selectedGroup.data.state = DataState.RESIZING;
-        this.ratio.width = this.selectedGroup.bounds.width;
-        this.ratio.height = this.selectedGroup.bounds.height;
-
-        let i = tempTest.item.data.handlerIndex;
-
-        let opposite = (i + 2) % 4;
-        this.selectedGroup.data.from = this.handlerGroup.children[opposite].position;
-        this.selectedGroup.data.to = this.handlerGroup.children[i].position;
+        this.initDataBeforeResizing(tempTest.item);
       } else if (this.selectedGroup.contains(point)) {
         this.selectedGroup.data.state = DataState.MOVING;
         /* 선택 초기화 안함 */
@@ -154,9 +149,9 @@ export class LassoSelectorService {
           resizePoint.y = this.selectedGroup.data.from.y + minSize;
         }
         if(event.shiftKey && event.ctrlKey) {
-          this.calcSizeForSquare(this.selectedGroup.data.from, resizePoint);
+          PointCalculator.forSquare(this.selectedGroup.data.from, resizePoint);
         } else if(event.shiftKey) {
-          this.calcFixRatioForResize(this.selectedGroup.data.from, resizePoint, this.ratio);
+          PointCalculator.forFixRatio(this.selectedGroup.data.from, resizePoint, this.ratio);
         }
         this.refreshHandlerGroup(point);
       }
@@ -222,51 +217,6 @@ export class LassoSelectorService {
     this.removeItem(this.newPath);
 
 
-  }
-
-
-  private calcSizeForSquare(startPoint: Point, endPoint: Point) {
-    let widthDelta = new Point(0, 0);
-    widthDelta.x = endPoint.x - startPoint.x;
-    widthDelta.y = endPoint.y - startPoint.y;
-
-    let distance = startPoint.getDistance(endPoint);
-    let width = distance / Math.sqrt(2);
-
-    if(widthDelta.x > 0) {
-      endPoint.x = startPoint.x + width;
-    } else {
-      endPoint.x = startPoint.x - width;
-    }
-
-    if(widthDelta.y > 0) {
-      endPoint.y = startPoint.y + width;
-    } else {
-      endPoint.y = startPoint.y - width;
-    }
-  }
-
-  private calcFixRatioForResize(startPoint: Point, endPoint: Point, size: { width, height }) {
-    let widthDelta = new Point(0, 0);
-    widthDelta.x = endPoint.x - startPoint.x;
-    widthDelta.y = endPoint.y - startPoint.y;
-
-    let distance = startPoint.getDistance(endPoint);
-    let ratio = size.height / size.width;
-    let width = distance * (1 / Math.sqrt(Math.pow(ratio, 2) + 1));
-    // 공식은 원노트에 써둠
-
-    if(widthDelta.x > 0) {
-      endPoint.x = startPoint.x + width;
-    } else {
-      endPoint.x = startPoint.x - width;
-    }
-
-    if(widthDelta.y > 0) {
-      endPoint.y = startPoint.y + (width * ratio);
-    } else {
-      endPoint.y = startPoint.y - (width * ratio);
-    }
   }
 
   public lassoHandleResizeForZooming(zoomValue) {
@@ -432,6 +382,17 @@ export class LassoSelectorService {
     this.selectedItems.splice(0, this.selectedItems.length);
 
     this.removeItem(this.newPath);
+  }
+
+  public initDataBeforeResizing(handler: Item) {
+    this.ratio.width = this.selectedGroup.bounds.width;
+    this.ratio.height = this.selectedGroup.bounds.height;
+
+    let i = handler.data.handlerIndex;
+
+    let opposite = (i + 2) % 4;
+    this.selectedGroup.data.from = this.handlerGroup.children[opposite].position;
+    this.selectedGroup.data.to = this.handlerGroup.children[i].position;
   }
 
   private createLinkPortHandler(wbItem){

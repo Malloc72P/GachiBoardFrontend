@@ -5,6 +5,8 @@ import {TextStyle} from "./text-style";
 import {DrawingLayerManagerService} from '../../InfiniteCanvas/DrawingLayerManager/drawing-layer-manager.service';
 import {WhiteboardItem} from '../../Whiteboard-Item/whiteboard-item';
 import {EditableShape} from '../../Whiteboard-Item/Whiteboard-Shape/EditableShape/editable-shape';
+import {PointCalculator} from "../point-calculator/point-calculator";
+
 // @ts-ignore
 import PointText = paper.PointText;
 // @ts-ignore
@@ -116,7 +118,7 @@ export class ShapeService {
 
 
     if(event.shiftKey) {
-      this.calcSizeForSquare(this.fromPoint, points.point);
+      PointCalculator.forSquare(this.fromPoint, points.point);
     }
 
     let bound = new paper.Rectangle(this.fromPoint, points.point);
@@ -386,27 +388,6 @@ export class ShapeService {
       strokeColor: this.transparentColor,
       strokeWidth: 1,
     })
-  }
-
-  private calcSizeForSquare(startPoint: Point, endPoint: Point) {
-    let widthDelta = new Point(0, 0);
-    widthDelta.x = endPoint.x - startPoint.x;
-    widthDelta.y = endPoint.y - startPoint.y;
-
-    let distance = startPoint.getDistance(endPoint);
-    let width = distance / Math.sqrt(2);
-
-    if(widthDelta.x > 0) {
-      endPoint.x = startPoint.x + width;
-    } else {
-      endPoint.x = startPoint.x - width;
-    }
-
-    if(widthDelta.y > 0) {
-      endPoint.y = startPoint.y + width;
-    } else {
-      endPoint.y = startPoint.y - width;
-    }
   }
 
   private onClickOutsidePanel(event, element, item) {

@@ -109,6 +109,7 @@ export class NormalPointerService {
           console.log("NormalPointerService >> onDown >> hitHandler : ",hitHandler);
           if(hitHandler.data.type === DataType.LASSO_HANDLER){
             this.setHandlingItemMode(hitHandler, point, hitHandler.data.type);
+            this.lassoService.initDataBeforeResizing(hitHandler);
           }else if(hitHandler.data.type === DataType.LASSO_LINK_PORT_HANDLER){
             this.setHandlingItemMode(hitHandler, point, hitHandler.data.type);
 
