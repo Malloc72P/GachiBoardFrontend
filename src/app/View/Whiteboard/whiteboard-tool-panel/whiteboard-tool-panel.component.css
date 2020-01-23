@@ -1,3 +1,6 @@
+.icon-tools-pointer {
+   background-image: url("/assets/images/tools/move.svg");
+ }
 .icon-tools-eraser {
    background-image: url("/assets/images/tools/eraser.svg");
  }

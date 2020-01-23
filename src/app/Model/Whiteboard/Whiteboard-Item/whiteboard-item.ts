@@ -9,11 +9,11 @@ import {EventEmitter} from '@angular/core';
 
 export abstract class WhiteboardItem {
   private _id;
-  private _groupId;
   private _type;
   private _group;
   private _topLeft: Point;
   private _coreItem:Item;
+
 
   private _lifeCycleEventEmitter:EventEmitter<any>;
 
@@ -22,7 +22,6 @@ export abstract class WhiteboardItem {
 
   protected constructor(group, type, item, eventEmitter){
     this.id = WhiteboardItem.idGenerator++;
-    this.groupId = group.id;
     this.group = group;
     this.type = type;
     this.coreItem = item;
@@ -73,14 +72,6 @@ export abstract class WhiteboardItem {
 
   set group(value) {
     this._group = value;
-  }
-
-  get groupId() {
-    return this._groupId;
-  }
-
-  set groupId(value) {
-    this._groupId = value;
   }
 
   get type() {

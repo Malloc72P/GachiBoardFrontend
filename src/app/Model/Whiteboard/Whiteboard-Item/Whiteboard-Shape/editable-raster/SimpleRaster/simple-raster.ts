@@ -12,9 +12,11 @@ import Segment = paper.Segment;
 import Color = paper.Color;
 // @ts-ignore
 import Raster = paper.Raster;
+import {PositionCalcService} from '../../../../PositionCalc/position-calc.service';
 export class SimpleRaster extends EditableRaster{
-  constructor(group, type, item:Raster, posService, eventEmitter) {
+  constructor(group, type, item:Raster, posService:PositionCalcService, eventEmitter) {
     super(group, type, item, posService, eventEmitter);
+    console.log("SimpleRaster >> constructor >> posService : ",posService);
 
   }
 

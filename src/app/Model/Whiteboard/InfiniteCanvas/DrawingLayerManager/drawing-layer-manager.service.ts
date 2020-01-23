@@ -104,8 +104,10 @@ export class DrawingLayerManagerService {
       }
     }
     else if(type === WhiteboardItemType.SIMPLE_RASTER){
+      console.log("DrawingLayerManagerService >> addToDrawingLayer >> 진입함");
       newWhiteboardItem = new SimpleRaster(newGroup, type, item,
         this.positionCalcService, this.itemLifeCycleEventEmitter);
+      console.log("DrawingLayerManagerService >> addToDrawingLayer >> newWhiteboardItem : ",newWhiteboardItem);
     }
     else{//Shape 형태인 경우
       let editText:PointText      = extras[0];
@@ -130,7 +132,7 @@ export class DrawingLayerManagerService {
         default:
           return false;
       }
-
+      console.log("DrawingLayerManagerService >> addToDrawingLayer >> newWhiteboardItem : ",newWhiteboardItem);
       newGroup.addChild(editText);
     }
 

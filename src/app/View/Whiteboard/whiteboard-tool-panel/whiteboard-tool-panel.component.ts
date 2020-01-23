@@ -23,11 +23,15 @@ export class WhiteboardToolPanelComponent extends PopoverPanel implements OnInit
 
   ngOnInit() {
     this.panelManager.brushPanelOutsideClickListener();
-    this.modeChange(PointerMode.MOVE);
+    this.modeChange(PointerMode.POINTER);
   }
 
   onClickPanelItem(panelItem: number) {
     switch (panelItem) {
+      case PointerMode.POINTER:
+        this.modeChange(panelItem);
+        this.panelManager.isHideBrushPanel = this.panelManager.isHideHighlighterPanel = this.panelManager.isHideShapePanel = true;
+        break;
       case PointerMode.MOVE:
         this.modeChange(panelItem);
         this.panelManager.isHideBrushPanel = this.panelManager.isHideHighlighterPanel = this.panelManager.isHideShapePanel = true;

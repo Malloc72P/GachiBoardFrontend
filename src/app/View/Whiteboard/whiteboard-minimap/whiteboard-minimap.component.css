@@ -69,3 +69,19 @@
   transition: width 0.15s cubic-bezier(0.2, 0.3, 0.25, 0.9);
   border: 1px solid #dddddd;
 }
+.minimap-full-screen{
+  background-image: url("/assets/images/minimap/minimap-full-screen.png");
+}
+.minimap-mag-minus{
+  background-image: url("/assets/images/minimap/minimap-mag-minus.png");
+}
+.minimap-mag-plus{
+  background-image: url("/assets/images/minimap/minimap-mag-plus.png");
+}
+.selectable-icon{
+  cursor: pointer;
+  display: inline-block;
+  width: 24px;
+  height: 24px;
+  background-size: cover;
+}

@@ -3,20 +3,25 @@ import * as paper from 'paper';
 import {PositionCalcService} from "../../PositionCalc/position-calc.service";
 import {DataName, DataState, DataType, ItemName} from '../../../Helper/data-type-enum/data-type.enum';
 import {DrawingLayerManagerService} from '../../InfiniteCanvas/DrawingLayerManager/drawing-layer-manager.service';
-// @ts-ignore
-import Group = paper.Group;
+import {InfiniteCanvasService} from '../../InfiniteCanvas/infinite-canvas.service';
 import {WhiteboardItem} from '../../Whiteboard-Item/whiteboard-item';
 
 // @ts-ignore
+import Group = paper.Group;
+// @ts-ignore
 import Point = paper.Point;
+// @ts-ignore
+import Item = paper.Item;
+import {LinkPort} from '../../Whiteboard-Item/Whiteboard-Shape/LinkPort/link-port';
+
 
 @Injectable({
   providedIn: 'root'
 })
 export class LassoSelectorService {
   private newPath: paper.Path;
-  private selectedGroup: paper.Group;
-  private handlerGroup: paper.Group;
+  public  selectedGroup: Group;
+  private handlerGroup: Group;
   private selectedItems = Array<paper.Item>();
   private previousPoint: paper.Point;
   private currentProject: paper.Project;
@@ -31,13 +36,19 @@ export class LassoSelectorService {
   private readonly MOUSE_TOLERANCE = 5;
   private readonly TOUCH_TOLERANCE = 10;
 
+  private readonly LINK_PORT_HANDLER_DISTANCE = 25;
+
   constructor(
     private posCalcService: PositionCalcService,
     private layerService: DrawingLayerManagerService,
-  ) { }
+    private infiniteCanvasService: InfiniteCanvasService,
+  ) {
+
+  }
 
   public initializeLassoSelectorService(project: paper.Project) {
     this.currentProject = project;
+    this.createSelectedGroup();
   }
 
   public createPath(event) {
@@ -45,14 +56,14 @@ export class LassoSelectorService {
     let advHitOption;
     // 올가미를 그려주는 패스(newPath)가 있거나 선택된 아이템이 있으면
     if(this.newPath != null) {
-      if(!this.selectedGroup.hasChildren()) {
+      if(this.isSelectionEmpty()) {
         this.newPath.selected = false;
         this.cancelSelect();
       }
     }
 
     if(!this.selectedGroup){
-      this.selectedGroup = new paper.Group();
+      this.createSelectedGroup();
     }
 
     let point: paper.Point;
@@ -71,7 +82,7 @@ export class LassoSelectorService {
     point = this.posCalcService.advConvertNgToPaper(point);
     // *선택이 되어있는지 확인
     // 선택 그룹이 있는지 확인
-    if (this.selectedGroup.hasChildren()) {
+    if (!this.isSelectionEmpty()) {
       // 클릭 시작 포인트가 선택그룹 안쪽인지 확인
       let tempTest;
 
@@ -96,18 +107,7 @@ export class LassoSelectorService {
         this.cancelSelect();
       }
     }
-
-    let zoomFactor = this.currentProject.view.zoom;
-
-    this.newPath = new paper.Path({
-      segments: [point],
-      strokeColor: 'blue',
-      strokeCap: 'round',
-      strokeJoin: 'round',
-      dashArray: [this.dashLength / zoomFactor, this.dashLength / zoomFactor],
-      strokeWidth: this.strokeWidth / zoomFactor,
-      data : { wbID : 1 }
-    });
+    this.createLassoPath(point);
   }
 
   public drawPath(event) {
@@ -129,7 +129,7 @@ export class LassoSelectorService {
     delta = this.posCalcService.reflectZoomWithPoint(delta);
 
     // 선택 그룹 객체 있는지 확인
-    if (this.selectedGroup.hasChildren()) {
+    if (!this.isSelectionEmpty()) {
       if(this.selectedGroup.data.state === DataState.MOVING) {
         this.selectedGroup.position.x += delta.x;
         this.handlerGroup.position.x += delta.x;
@@ -153,20 +153,12 @@ export class LassoSelectorService {
         } else if (height > -minSize && height < 0) {
           resizePoint.y = this.selectedGroup.data.from.y + minSize;
         }
-
         if(event.shiftKey && event.ctrlKey) {
           this.calcSizeForSquare(this.selectedGroup.data.from, resizePoint);
         } else if(event.shiftKey) {
           this.calcFixRatioForResize(this.selectedGroup.data.from, resizePoint, this.ratio);
         }
-
-        let bound = new paper.Rectangle(this.selectedGroup.data.from, resizePoint);
-
-        this.selectedGroup.bounds = bound;
-        this.handlerGroup.children[0].position = bound.bottomLeft;
-        this.handlerGroup.children[1].position = bound.topLeft;
-        this.handlerGroup.children[2].position = bound.topRight;
-        this.handlerGroup.children[3].position = bound.bottomRight;
+        this.refreshHandlerGroup(point);
       }
 
     } else {
@@ -180,10 +172,8 @@ export class LassoSelectorService {
     let point: paper.Point;
 
     if(event instanceof MouseEvent) {
-      advHitOption = { segments: true, stroke: true, fill: true, tolerance: this.MOUSE_TOLERANCE };
       point = new paper.Point(event.x, event.y);
     } else if (event instanceof TouchEvent) {
-      advHitOption = { segments: true, stroke: true, fill: true, tolerance: this.TOUCH_TOLERANCE };
       point = new paper.Point(event.changedTouches[0].clientX, event.changedTouches[0].clientY);
       this.previousPoint = new paper.Point(point);
     } else {
@@ -191,9 +181,9 @@ export class LassoSelectorService {
     }
     point = this.posCalcService.advConvertNgToPaper(point);
 
-    this.newPath.closed = true;
+    //this.newPath.closed = true;
     // selectedGroup에 자식 아이템들이 있을 때 == 아이템 옮김 + 크기 조정된 경우
-    if (this.selectedGroup.hasChildren()) {
+    if (!this.isSelectionEmpty()) {
       this.selectedGroup.children.forEach(( value, index, array)=>{
         if(value instanceof Group){
           let whiteboardItem:WhiteboardItem = value.data.struct as WhiteboardItem;
@@ -202,7 +192,7 @@ export class LassoSelectorService {
       })
     // selectedGroup에 자식 아이템들이 없을 때 == 올가미툴을 아이템 선택에 사용
     } else {
-      this.selectedGroup = new paper.Group();
+      this.createSelectedGroup();
       // 올가미로 범위 지정해서 여러 아이템 묶는 경우
       if (this.newPath.segments.length > 20) {
         this.selectBound();
@@ -219,7 +209,7 @@ export class LassoSelectorService {
       // this.selectedGroup.selected = true;
 
       // 선택된 Item이 있을때만 그림
-      if(this.selectedGroup.hasChildren()) {
+      if(!this.isSelectionEmpty()) {
         this.createSelectRangePath();
         this.selectedGroup.addChild(this.selectRange);
         this.createHandler();
@@ -228,11 +218,12 @@ export class LassoSelectorService {
 
       // selectedItems의 모든 아이템 제거
       this.selectedItems.splice(0, this.selectedItems.length);
-      console.log("LassoSelectorService >> endPath >> this.selectedGroup : ", this.selectedGroup);
     }
-    this.newPath.remove();
+    this.removeItem(this.newPath);
+
 
   }
+
 
   private calcSizeForSquare(startPoint: Point, endPoint: Point) {
     let widthDelta = new Point(0, 0);
@@ -303,7 +294,7 @@ export class LassoSelectorService {
     }
 
     if(!this.handlerGroup) {
-      this.handlerGroup = new paper.Group();
+      this.handlerGroup = new Group();
     }
     this.handlerGroup.addChild(new paper.Path.Circle({
       name: handlerName,
@@ -374,13 +365,11 @@ export class LassoSelectorService {
 
   public cancelSelect() {
     if (this.selectedGroup) {
-      if (this.selectRange) {
-        this.selectRange.remove();
-      }
+      this.removeItem(this.selectRange);
       // this.selectedGroup.selected = false;
 
       this.unGroup(this.selectedGroup);
-      this.newPath.remove();
+      this.removeItem(this.newPath);
     }
     if (this.handlerGroup) {
       this.handlerGroup.removeChildren();
@@ -397,8 +386,7 @@ export class LassoSelectorService {
       if(this.handlerGroup) {
         this.handlerGroup.removeChildren();
       }
-      this.selectedGroup.remove();
-      // this.newPath.remove();
+      this.removeItem(this.selectedGroup);
       this.isSelected = false;
     }
   }
@@ -406,12 +394,193 @@ export class LassoSelectorService {
   private unGroup(group: paper.Group) {
     if (group.parent) {
       group.parent.insertChildren(group.index, group.removeChildren());
-      group.remove();
+      this.removeItem(group);
     }
   }
   private isInside(selection, item) {
     if(selection.contains(item.bounds.center)){
       return item.data.wbID !== 1;
+    }
+  }
+  public isSelectionEmpty(){
+    return (!this.selectedGroup.hasChildren());
+  }
+
+  //==============Normal Pointer에서 사용하는 함수 및 승철이 수정
+  public addItemIntoSelectedGroup(wbItem) {//그룹에 들어갈 아이템
+
+    this.createSelectedGroup();
+    this.selectedItems.push(wbItem.group);
+    this.isSelected = true;
+
+    // 선택 아이템들을 temp 영역이었던 selectedItems에서 Group으로 옮겨주는 과정
+    this.selectedItems.forEach((value) => {
+      this.selectedGroup.addChild(value);
+    });
+    this.selectedGroup.data.type = "selectedGroup";
+    // this.selectedGroup.selected = true;
+
+    // 선택된 Item이 있을때만 그림
+    if(!this.isSelectionEmpty()) {
+      this.createSelectRangePath();
+      this.selectedGroup.addChild(this.selectRange);
+      this.createHandler();
+      this.createLinkPortHandler(wbItem);
+    }
+
+    // selectedItems의 모든 아이템 제거
+    this.selectedItems.splice(0, this.selectedItems.length);
+
+    this.removeItem(this.newPath);
+  }
+
+  private createLinkPortHandler(wbItem){
+    let handlerName = 'linkPortHandler';
+    let handlerFillColor = 'skyblue';
+    let handlerStrokeColor = 'black';
+
+    if(this.selectedGroup.getItem({name: DataName.SELECT_RANGE}) == null) {
+      return;
+    }
+
+    if(!this.handlerGroup) {
+      this.handlerGroup = new Group();
+    }
+    //상
+    let pivot = this.selectRange.bounds.topCenter;
+    this.handlerGroup.addChild(new paper.Path.Circle({
+      name: handlerName,
+      center: this.posCalcService.movePointTop(pivot, this.LINK_PORT_HANDLER_DISTANCE),
+      radius: this.handleOption.handleRadius / this.currentProject.view.zoom,
+      strokeWidth: this.handleOption.strokeWidth / this.currentProject.view.zoom,
+      fillColor: handlerFillColor,
+      strokeColor: handlerStrokeColor
+    }));
+    //하
+    pivot = this.selectRange.bounds.bottomCenter;
+    this.handlerGroup.addChild(new paper.Path.Circle({
+      name: handlerName,
+      center: this.posCalcService.movePointBottom(pivot, this.LINK_PORT_HANDLER_DISTANCE),
+      radius: this.handleOption.handleRadius / this.currentProject.view.zoom,
+      strokeWidth: this.handleOption.strokeWidth / this.currentProject.view.zoom,
+      fillColor: handlerFillColor,
+      strokeColor: handlerStrokeColor
+    }));
+    //좌
+    pivot = this.selectRange.bounds.leftCenter;
+    this.handlerGroup.addChild(new paper.Path.Circle({
+      name: handlerName,
+      center: this.posCalcService.movePointLeft(pivot, this.LINK_PORT_HANDLER_DISTANCE),
+      radius: this.handleOption.handleRadius / this.currentProject.view.zoom,
+      strokeWidth: this.handleOption.strokeWidth / this.currentProject.view.zoom,
+      fillColor: handlerFillColor,
+      strokeColor: handlerStrokeColor,
+    }));
+    //우측
+    pivot = this.selectRange.bounds.rightCenter;
+    this.handlerGroup.addChild(new paper.Path.Circle({
+      name: handlerName,
+      center: this.posCalcService.movePointRight(pivot, this.LINK_PORT_HANDLER_DISTANCE),
+      radius: this.handleOption.handleRadius / this.currentProject.view.zoom,
+      strokeWidth: this.handleOption.strokeWidth / this.currentProject.view.zoom,
+      fillColor: handlerFillColor,
+      strokeColor: handlerStrokeColor
+    }));
+    this.handlerGroup.bringToFront();
+    this.handlerGroup.children.forEach((value, index, array)=>{
+      if(0 <= index && index <= 3){
+        value.data.type = DataType.LASSO_HANDLER;
+      }
+      else{
+        value.data.type = DataType.LASSO_LINK_PORT_HANDLER;
+        value.data.tempLinkPort = new LinkPort( wbItem, index - 4, this.posCalcService );
+      }
+      value.data.handlerIndex = index;
+    });
+  }
+
+  private refreshHandlerGroup(point){
+    let bound = new paper.Rectangle(this.selectedGroup.data.from, point);
+    this.selectedGroup.bounds = bound;
+
+    this.handlerGroup.children[0].position = bound.bottomLeft;
+    this.handlerGroup.children[1].position = bound.topLeft;
+    this.handlerGroup.children[2].position = bound.topRight;
+    this.handlerGroup.children[3].position = bound.bottomRight;
+
+    if(this.handlerGroup.children[4]){
+      this.handlerGroup.children[4].position = this.posCalcService.movePointLeft(bound.leftCenter, this.LINK_PORT_HANDLER_DISTANCE);
+      this.handlerGroup.children[5].position = this.posCalcService.movePointRight(bound.rightCenter, this.LINK_PORT_HANDLER_DISTANCE);
+      this.handlerGroup.children[6].position = this.posCalcService.movePointBottom(bound.bottomCenter, this.LINK_PORT_HANDLER_DISTANCE);
+      this.handlerGroup.children[7].position = this.posCalcService.movePointTop(bound.topCenter, this.LINK_PORT_HANDLER_DISTANCE);
+    }
+  }
+
+  public getFirstOfSelectedGroup(){
+    if(!this.isSelectionEmpty()){
+      return this.layerService.getWhiteboardItem(this.selectedGroup.children[0]);
+    }
+    else return null;
+  }
+  private createSelectedGroup(){
+    this.selectedGroup = new Group();
+    //this.createLassoPath(new Point(0,0));
+  }
+  private createLassoPath(point){
+    let zoomFactor = this.infiniteCanvasService.zoomFactor;
+    this.newPath = new paper.Path({
+      segments: [point],
+      strokeColor: 'blue',
+      strokeCap: 'round',
+      strokeJoin: 'round',
+      dashArray: [this.dashLength / zoomFactor, this.dashLength / zoomFactor],
+      strokeWidth: this.strokeWidth / zoomFactor,
+      data : { wbID : 1 }
+    });
+
+  }
+  private removeItem(item:Item){
+    if(item){
+      item.remove();
+    }
+  }
+  public getLassoHandlerGroup(){
+    if (this.handlerGroup) {
+      return this.handlerGroup;
+    } else {
+      return null;
+    }
+  }
+  public getHittedHandler(point){
+    let children = this.handlerGroup.children;
+    for(let i = 0 ;i < children.length; i++){
+      let handler = children[i];
+      if( point.isInside(handler.bounds) ){
+        return handler;
+      }
+    }
+  }
+  public setDraggingItemMode(point){
+    this.previousPoint = new paper.Point(point);
+    this.selectedGroup.data.state = DataState.MOVING;
+  }
+  public setWbItemHandlingMode(hitHandler, point, mode){
+    if(mode === DataType.LASSO_HANDLER){
+      this.selectedGroup.data.state = DataState.RESIZING;
+
+      let i = hitHandler.data.handlerIndex;
+
+      let opposite = (i + 2) % 4;
+      this.selectedGroup.data.from = this.handlerGroup.children[opposite].position;
+      this.selectedGroup.data.to = this.handlerGroup.children[i].position;
+
+      this.previousPoint = new paper.Point(point);
+    }
+    else if(mode === DataType.LASSO_LINK_PORT_HANDLER){
+      this.selectedGroup.data.state = DataState.LINK_EDITING;
+    }
+    else{
+
     }
   }
 }
