@@ -19,6 +19,9 @@ import PointText = paper.PointText;
 import Group = paper.Group;
 // @ts-ignore
 import Rectangle = paper.Rectangle;
+// @ts-ignore
+import Circle = paper.Path.Circle;
+
 import {PositionCalcService} from '../../../PositionCalc/position-calc.service';
 
 export class LinkPort {
@@ -28,6 +31,9 @@ export class LinkPort {
   private _posCalcService:PositionCalcService;
 
   private tempLinkPath:Path;
+
+  private tempLinkEntryCircle:Circle;
+  private tempLinkExitCircle:Circle;
 
   constructor(owner, direction, posCalcService){
     this.owner = owner;
@@ -64,6 +70,7 @@ export class LinkPort {
     this.tempLinkPath.removeSegments();
     this.tempLinkPath.add( this.calcLinkPortPosition() );
     this.tempLinkPath.add(point);
+    this.onCreateTempLink();
   }
   public tempLinkToWbItem(toWbShape:WhiteboardShape, point){
     this.tempLinkPath.removeSegments();
@@ -72,6 +79,54 @@ export class LinkPort {
     let toLinkPort = toWbShape.linkPortMap.get(this.getCloseDirection(toWbShape, point));
 
     this.tempLinkPath.add(toLinkPort.calcLinkPortPosition());
+    this.onCreateTempLink();
+  }
+  private onCreateTempLink(){
+    let step = 0.1;
+    this.tempLinkPath.onFrame = (event)=>{
+      if(this.tempLinkPath.segments.length > 1){
+        let entrySegment, exitSegment;
+        entrySegment = this.tempLinkPath.firstSegment;
+        exitSegment = this.tempLinkPath.lastSegment;
+
+        if(!this.tempLinkEntryCircle && !this.tempLinkExitCircle){
+          this.tempLinkEntryCircle = new Circle(new Point(entrySegment.point), 5);
+          this.tempLinkExitCircle = new Circle(new Point(exitSegment.point), 5);
+
+          // @ts-ignore
+          this.tempLinkEntryCircle.style.strokeColor = "blue";
+          // @ts-ignore
+          this.tempLinkExitCircle.style.strokeColor = "blue";
+
+          this.tempLinkEntryCircle.strokeWidth = 3;
+          this.tempLinkExitCircle.strokeWidth = 3;
+
+          this.tempLinkEntryCircle.opacity = 0.5;
+          this.tempLinkExitCircle.opacity = 0.5;
+
+          this.tempLinkExitCircle.applyMatrix = false;
+        }
+        else{
+          this.tempLinkEntryCircle.position = entrySegment.point;
+          this.tempLinkExitCircle.position = exitSegment.point;
+          /*if(event.count % 4 === 0){
+            this.tempLinkExitCircle.matrix.reset();
+          }*/
+
+        }
+      }
+    }
+  }
+  private onDeleteTempLink(){
+    if(this.tempLinkEntryCircle){
+      this.tempLinkEntryCircle.remove();
+      this.tempLinkEntryCircle = null;
+    }
+    if(this.tempLinkExitCircle){
+      this.tempLinkExitCircle.remove();
+      this.tempLinkExitCircle = null;
+    }
+    this.tempLinkPath.onFrame = ()=>{};
   }
   public createLink(toWbShape, point){
     if(toWbShape){//링크 연결대상이 존재하여 링크 생성하는 경우
@@ -127,6 +182,7 @@ export class LinkPort {
   }
   private resetTempLink(){
     this.tempLinkPath.removeSegments();
+    this.onDeleteTempLink();
   }
 
   get owner() {
