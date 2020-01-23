@@ -37,7 +37,7 @@ export abstract class EditableShape extends WhiteboardShape {
                         posCalcService,
                         eventEmitter:EventEmitter<any>) {
     super(group, type, item, posCalcService, eventEmitter);
-    this.topLeft  = item.bounds.topLeft;
+    this.topLeft  = new Point(item.bounds.topLeft.x, item.bounds.topLeft.y);
     this.width    = item.bounds.width;
     this.height    = item.bounds.height;
     this.borderColor = item.style.strokeColor;
@@ -104,10 +104,10 @@ export abstract class EditableShape extends WhiteboardShape {
 
   public refreshItem(){
     console.log("EditableShape >> refreshItem >> 진입함");
-    let newtopLeft = this.group.bounds.topLeft;
+    let newtopLeft = new Point(this.group.bounds.topLeft.x, this.group.bounds.topLeft.y);
 
-    let newWidth = this.group.bounds.width;
-    let newHeight = this.group.bounds.height;
+    let newWidth = this.group.bounds.width + 0;
+    let newHeight = this.group.bounds.height + 0;
 
     this.group.matrix.reset();
 
@@ -132,7 +132,11 @@ export abstract class EditableShape extends WhiteboardShape {
 
     this.modifyEditText(adjustedTextContent,this.rawTextContent);
 
+    //this.topLeft.x = this.coreItem.bounds.topLeft.x;
+    //this.topLeft.y = this.coreItem.bounds.topLeft.y;
+
     this.editText.bringToFront();
+
     this.lifeCycleEventEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.MODIFY));
     this.notifyOwnerChangeEventToLinkPort();
   }

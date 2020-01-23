@@ -213,7 +213,7 @@ export class ShapeService {
     // EditText bound 계산
     let bound = shapeItem.coreItem.bounds;
 
-    let htmlEditorPoint = this.posCalcService.advConvertPaperToNg(new Point(shapeItem.topLeft.x, shapeItem.topLeft.y));
+    let htmlEditorPoint = this.posCalcService.advConvertPaperToNg(new Point(shapeItem.group.bounds.topLeft.x, shapeItem.group.bounds.topLeft.y));
 
     let edtWidth = this.posCalcService.advConvertLengthPaperToNg(bound.width);
     let edtHeight = this.posCalcService.advConvertLengthPaperToNg(bound.height);
