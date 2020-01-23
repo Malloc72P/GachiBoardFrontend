@@ -32,7 +32,7 @@ export class ItemAdjustor {
 
     this.owner.zoomEventEmitter.subscribe((zoomEvent:ZoomEvent)=>{
       this.onZoomChange(zoomEvent);
-    })
+    });
   }
 
   private initGuideLine(){
@@ -48,24 +48,24 @@ export class ItemAdjustor {
     this.sizeHandlers = new Map<any, SizeHandler>();
 
     this.sizeHandlers.set(HandlerDirection.TOP_LEFT,
-      new SizeHandler(this.owner, HandlerDirection.TOP_LEFT, HandlerOption));
+      new SizeHandler(this.owner, HandlerDirection.TOP_LEFT, HandlerOption, this.itemGuideLine));
     this.sizeHandlers.set(HandlerDirection.TOP_RIGHT,
-      new SizeHandler(this.owner, HandlerDirection.TOP_RIGHT, HandlerOption));
+      new SizeHandler(this.owner, HandlerDirection.TOP_RIGHT, HandlerOption, this.itemGuideLine));
     this.sizeHandlers.set(HandlerDirection.BOTTOM_LEFT,
-      new SizeHandler(this.owner, HandlerDirection.BOTTOM_LEFT, HandlerOption));
+      new SizeHandler(this.owner, HandlerDirection.BOTTOM_LEFT, HandlerOption, this.itemGuideLine));
     this.sizeHandlers.set(HandlerDirection.BOTTOM_RIGHT,
-      new SizeHandler(this.owner, HandlerDirection.BOTTOM_RIGHT, HandlerOption));
+      new SizeHandler(this.owner, HandlerDirection.BOTTOM_RIGHT, HandlerOption, this.itemGuideLine));
 
     if(!this.owner.disableLinkHandler){
       this.linkHandlers = new Map<any, LinkHandler>();
       this.linkHandlers.set(HandlerDirection.TOP_CENTER,
-        new LinkHandler(this.owner, HandlerDirection.TOP_CENTER, HandlerOption));
+        new LinkHandler(this.owner, HandlerDirection.TOP_CENTER, HandlerOption, this.itemGuideLine));
       this.linkHandlers.set(HandlerDirection.BOTTOM_CENTER,
-        new LinkHandler(this.owner, HandlerDirection.BOTTOM_CENTER, HandlerOption));
+        new LinkHandler(this.owner, HandlerDirection.BOTTOM_CENTER, HandlerOption, this.itemGuideLine));
       this.linkHandlers.set(HandlerDirection.CENTER_LEFT,
-        new LinkHandler(this.owner, HandlerDirection.CENTER_LEFT, HandlerOption));
+        new LinkHandler(this.owner, HandlerDirection.CENTER_LEFT, HandlerOption, this.itemGuideLine));
       this.linkHandlers.set(HandlerDirection.CENTER_RIGHT,
-        new LinkHandler(this.owner, HandlerDirection.CENTER_RIGHT, HandlerOption));
+        new LinkHandler(this.owner, HandlerDirection.CENTER_RIGHT, HandlerOption, this.itemGuideLine));
     }
   }
   private onZoomChange(zoomEvent:ZoomEvent){

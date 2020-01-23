@@ -4,8 +4,8 @@ import {HandlerDirection} from '../handler-direction.enum';
 export class LinkHandler extends ItemHandler{
   private static readonly HANDLER_FILL_COLOR = "skyblue";
   private static readonly HANDLER_MARGIN = 25;
-  constructor(wbItem, handlerDirection, handlerOption){
-    super(wbItem, handlerDirection, LinkHandler.HANDLER_FILL_COLOR, handlerOption);
+  constructor(wbItem, handlerDirection, handlerOption, guideLine){
+    super(wbItem, handlerDirection, LinkHandler.HANDLER_FILL_COLOR, handlerOption, guideLine);
     this.spreadHandler();
   }
 
