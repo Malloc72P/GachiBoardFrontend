@@ -2,7 +2,7 @@ import {EventEmitter, Injectable, Output} from '@angular/core';
 import * as paper from 'paper';
 
 import {SimpleStroke} from '../../Whiteboard-Item/editable-stroke/SimpleStroke/simple-stroke';
-import {WhiteboardItemType} from '../../../Helper/data-type-enum/data-type.enum';
+import {DataType, WhiteboardItemType} from '../../../Helper/data-type-enum/data-type.enum';
 import {WhiteboardItem} from '../../Whiteboard-Item/whiteboard-item';
 import {HighlightStroke} from '../../Whiteboard-Item/editable-stroke/HighlightStroke/highlight-stroke';
 import {EditableRectangle} from '../../Whiteboard-Item/Whiteboard-Shape/EditableShape/EditableRectangle/editable-rectangle';
@@ -17,10 +17,14 @@ import Group = paper.Group;
 import PointText = paper.PointText;
 // @ts-ignore
 import Point = paper.Point;
+// @ts-ignore
+import Project = paper.Project;
+
 import {TextStyle} from '../../Pointer/shape-service/text-style';
 import {PositionCalcService} from '../../PositionCalc/position-calc.service';
 import {ItemLifeCycleEnum, ItemLifeCycleEvent} from '../../Whiteboard-Item/WhiteboardItemLifeCycle/WhiteboardItemLifeCycle';
 import {SimpleRaster} from '../../Whiteboard-Item/Whiteboard-Shape/editable-raster/SimpleRaster/simple-raster';
+import {ZoomControlService} from '../ZoomControl/zoom-control.service';
 
 
 @Injectable({
@@ -28,6 +32,7 @@ import {SimpleRaster} from '../../Whiteboard-Item/Whiteboard-Shape/editable-rast
 })
 export class DrawingLayerManagerService {
   private _drawingLayer:Layer;
+  private currentProject:Project;
 
   private _whiteboardItemArray:Array<WhiteboardItem>;
   @Output() itemLifeCycleEventEmitter:EventEmitter<any> = new EventEmitter<any>();
@@ -41,7 +46,8 @@ export class DrawingLayerManagerService {
   }
 
   constructor(
-    private positionCalcService:PositionCalcService
+    private positionCalcService:PositionCalcService,
+    private zoomControlService:ZoomControlService,
   ) {
     this.whiteboardItemArray = new Array<WhiteboardItem>();
     this.itemLifeCycleEventEmitter.subscribe((data:ItemLifeCycleEvent)=>{
@@ -61,6 +67,15 @@ export class DrawingLayerManagerService {
           let removeIdx = this.indexOfWhiteboardArray(data.id);
           this.whiteboardItemArray.splice(removeIdx, 1);
           break;
+      }
+    })
+  }
+
+  initializeDrawingLayerService(paperProject){
+    this.currentProject = paperProject;
+    this.currentProject.layers.forEach((value, index, array)=>{
+      if(value.data.type === DataType.DRAWING_CANVAS){
+        this.drawingLayer = value;
       }
     })
   }
@@ -94,10 +109,16 @@ export class DrawingLayerManagerService {
       type === WhiteboardItemType.HIGHLIGHT_STROKE){
       switch (type) {
         case WhiteboardItemType.SIMPLE_STROKE :
-          newWhiteboardItem = new SimpleStroke(newGroup, type, item, this.itemLifeCycleEventEmitter);
+          newWhiteboardItem = new SimpleStroke(newGroup, type, item,
+            this.positionCalcService,
+            this.itemLifeCycleEventEmitter,
+            this.zoomControlService.zoomEventEmitter);
           break;
         case WhiteboardItemType.HIGHLIGHT_STROKE :
-          newWhiteboardItem = new HighlightStroke(newGroup, type, item, this.itemLifeCycleEventEmitter);
+          newWhiteboardItem = new HighlightStroke(newGroup, type, item,
+            this.positionCalcService,
+            this.itemLifeCycleEventEmitter,
+            this.zoomControlService.zoomEventEmitter);
           break;
         default:
           return false;
@@ -106,7 +127,7 @@ export class DrawingLayerManagerService {
     else if(type === WhiteboardItemType.SIMPLE_RASTER){
       console.log("DrawingLayerManagerService >> addToDrawingLayer >> 진입함");
       newWhiteboardItem = new SimpleRaster(newGroup, type, item,
-        this.positionCalcService, this.itemLifeCycleEventEmitter);
+        this.positionCalcService, this.itemLifeCycleEventEmitter, this.zoomControlService.zoomEventEmitter);
       console.log("DrawingLayerManagerService >> addToDrawingLayer >> newWhiteboardItem : ",newWhiteboardItem);
     }
     else{//Shape 형태인 경우
@@ -115,19 +136,23 @@ export class DrawingLayerManagerService {
       switch (type) {
         case WhiteboardItemType.EDITABLE_RECTANGLE :
           newWhiteboardItem = new EditableRectangle(newGroup,
-            type, item, newTextStyle, editText, this.positionCalcService, this.itemLifeCycleEventEmitter);
+            type, item, newTextStyle, editText, this.positionCalcService,
+            this.itemLifeCycleEventEmitter, this.zoomControlService.zoomEventEmitter);
           break;
         case WhiteboardItemType.EDITABLE_CIRCLE :
           newWhiteboardItem = new EditableCircle(newGroup,
-            type, item, newTextStyle, editText, this.positionCalcService, this.itemLifeCycleEventEmitter);
+            type, item, newTextStyle, editText, this.positionCalcService,
+            this.itemLifeCycleEventEmitter, this.zoomControlService.zoomEventEmitter);
           break;
         case WhiteboardItemType.EDITABLE_TRIANGLE :
           newWhiteboardItem = new EditableTriangle(newGroup,
-            type, item, newTextStyle, editText, this.positionCalcService, this.itemLifeCycleEventEmitter);
+            type, item, newTextStyle, editText, this.positionCalcService,
+            this.itemLifeCycleEventEmitter, this.zoomControlService.zoomEventEmitter);
           break;
         case WhiteboardItemType.EDITABLE_CARD :
           newWhiteboardItem = new EditableCard(newGroup,
-            type, item, newTextStyle, editText, this.positionCalcService, this.itemLifeCycleEventEmitter);
+            type, item, newTextStyle, editText, this.positionCalcService,
+            this.itemLifeCycleEventEmitter, this.zoomControlService.zoomEventEmitter);
           break;
         default:
           return false;

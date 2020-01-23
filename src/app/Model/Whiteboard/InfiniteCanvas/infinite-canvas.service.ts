@@ -68,8 +68,7 @@ export class InfiniteCanvasService {
 
   constructor(
     private posCalcService  : PositionCalcService,
-    private minimapSyncService  : MinimapSyncService,
-    private drawingLayerManagerService  : DrawingLayerManagerService,
+    private minimapSyncService  : MinimapSyncService
 
   ) {
 
@@ -345,7 +344,6 @@ export class InfiniteCanvasService {
       this.drawingLayer.data.type = DataType.DRAWING_CANVAS;
       this.drawingLayer.data.isMovable = false;
       this.isDrawingLayerExist = true;
-      this.drawingLayerManagerService.drawingLayer = this.drawingLayer;
       this.whiteboardLayer.sendToBack();
       this.drawingLayer.activate();
 

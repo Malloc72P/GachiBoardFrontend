@@ -12,8 +12,8 @@ import Segment = paper.Segment;
 import Color = paper.Color;
 export class EditableCircle extends EditableShape {
   private _radius: number;
-  constructor(group, type, item:Item, textStyle, editText, posService, eventEmitter) {
-    super(group, type, item, textStyle, editText, posService, eventEmitter);
+  constructor(group, type, item:Item, textStyle, editText, posService, eventEmitter, zoomEventEmitter) {
+    super(group, type, item, textStyle, editText, posService, eventEmitter, zoomEventEmitter);
 
   }
 

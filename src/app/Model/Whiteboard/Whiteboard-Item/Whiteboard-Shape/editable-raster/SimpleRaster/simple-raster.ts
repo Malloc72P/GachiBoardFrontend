@@ -14,9 +14,9 @@ import Color = paper.Color;
 import Raster = paper.Raster;
 import {PositionCalcService} from '../../../../PositionCalc/position-calc.service';
 export class SimpleRaster extends EditableRaster{
-  constructor(group, type, item:Raster, posService:PositionCalcService, eventEmitter) {
-    super(group, type, item, posService, eventEmitter);
-    console.log("SimpleRaster >> constructor >> posService : ",posService);
+  constructor(group, type, item:Raster, posService:PositionCalcService,
+              eventEmitter, zoomEventEmitter) {
+    super(group, type, item, posService, eventEmitter, zoomEventEmitter);
 
   }
 

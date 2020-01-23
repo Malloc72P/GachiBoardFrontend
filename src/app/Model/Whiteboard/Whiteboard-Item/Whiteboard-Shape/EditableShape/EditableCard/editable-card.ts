@@ -13,8 +13,8 @@ import Color = paper.Color;
 export class EditableCard extends EditableShape {
   private _borderRadius: number;
   private _tagList: Array<any>;    // TODO : 일단 ANY 지만 TAG 형식 지정되면 바꾸기
-  constructor(group, type, item:Item, textStyle, editText, posService, eventEmitter) {
-    super(group, type, item, textStyle, editText, posService, eventEmitter);
+  constructor(group, type, item:Item, textStyle, editText, posService, eventEmitter, zoomEventEmitter) {
+    super(group, type, item, textStyle, editText, posService, eventEmitter, zoomEventEmitter);
 
   }
 

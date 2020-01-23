@@ -15,8 +15,10 @@ import {EventEmitter} from '@angular/core';
 
 export class HighlightStroke extends EditableStroke {
   private _opacity: number;
-  constructor(group, type, path:Path, eventEmitter:EventEmitter<any>) {
-    super(group, type, path, eventEmitter);
+  constructor(group, type, path:Path, posCalcService,
+              eventEmitter:EventEmitter<any>,
+              zoomEventEmitter:EventEmitter<any>) {
+    super(group, type, path, posCalcService, eventEmitter, zoomEventEmitter);
 
   }
 

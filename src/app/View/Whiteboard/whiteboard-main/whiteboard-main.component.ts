@@ -23,6 +23,7 @@ import {DebugingService} from "../../../Model/Helper/DebugingHelper/debuging.ser
 import {MinimapSyncService} from '../../../Model/Whiteboard/InfiniteCanvas/MinimapSync/minimap-sync.service';
 import {WhiteboardContextMenuComponent} from "../whiteboard-context-menu/whiteboard-context-menu.component";
 import {ContextMenuService} from "../../../Model/Whiteboard/ContextMenu/context-menu-service/context-menu.service";
+import {DrawingLayerManagerService} from '../../../Model/Whiteboard/InfiniteCanvas/DrawingLayerManager/drawing-layer-manager.service';
 
 
 @Component({
@@ -79,6 +80,7 @@ export class WhiteboardMainComponent implements OnInit {
     private debugingService         : DebugingService,
     private minimapSyncService      : MinimapSyncService,
     private contextMenuService      : ContextMenuService,
+    private layerService            : DrawingLayerManagerService
   ) {
   }
 
@@ -99,6 +101,8 @@ export class WhiteboardMainComponent implements OnInit {
     this.pointerModeManager.initializePointerModeManagerService(this.paperProject);
     this.debugingService.initializeDebugingService(this.paperProject);
     this.minimapSyncService.initializePositionCalcService(this.paperProject);
+    this.layerService.initializeDrawingLayerService(this.paperProject);
+
 
 
     this.paperProject.view.onMouseMove = (event) => {

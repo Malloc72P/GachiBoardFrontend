@@ -14,8 +14,10 @@ import Color = paper.Color;
 import {EventEmitter} from '@angular/core';
 
 export class SimpleStroke extends EditableStroke {
-  constructor(group, type, path:Path, eventEmitter:EventEmitter<any>) {
-    super(group, type, path, eventEmitter);
+  constructor(group, type, path:Path, posCalcService,
+              eventEmitter:EventEmitter<any>,
+              zoomEventEmitter:EventEmitter<any>) {
+    super(group, type, path, posCalcService, eventEmitter, zoomEventEmitter);
 
   }
 

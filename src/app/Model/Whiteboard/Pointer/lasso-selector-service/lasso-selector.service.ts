@@ -23,22 +23,24 @@ import {WhiteboardShape} from "../../Whiteboard-Item/Whiteboard-Shape/whiteboard
 export class LassoSelectorService {
   private newPath: paper.Path;
   public  selectedGroup: Group;
-  private handlerGroup: Group;
   private selectedItems = Array<paper.Item>();
   private previousPoint: paper.Point;
   private currentProject: paper.Project;
   private selectRange: paper.Path;
   private hitOption = { segments: true, stroke: true, fill: true, tolerance: 20 };
   private isSelected = false;
-  private handleOption = {strokeWidth: 1, handleRadius: 6, dashLength: 5};
-  private dashLength = 5;
-  private strokeWidth = 1;
+
   private ratio = { width: 0, height: 0 };
+
+  private handleOption = {strokeWidth: 1, handleRadius: 6, dashLength: 5};
+  private handlerGroup: Group;
+  private strokeWidth = 1;
+  private dashLength = 5;
+  private readonly LINK_PORT_HANDLER_DISTANCE = 25;
 
   private readonly MOUSE_TOLERANCE = 5;
   private readonly TOUCH_TOLERANCE = 10;
 
-  private readonly LINK_PORT_HANDLER_DISTANCE = 25;
 
   constructor(
     private posCalcService: PositionCalcService,

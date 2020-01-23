@@ -109,7 +109,6 @@ export class NormalPointerService {
           console.log("NormalPointerService >> onDown >> hitHandler : ",hitHandler);
           if(hitHandler.data.type === DataType.LASSO_HANDLER){
             this.setHandlingItemMode(hitHandler, point, hitHandler.data.type);
-            this.lassoService.initDataBeforeResizing(hitHandler);
           }else if(hitHandler.data.type === DataType.LASSO_LINK_PORT_HANDLER){
             this.setHandlingItemMode(hitHandler, point, hitHandler.data.type);
 
@@ -236,11 +235,13 @@ export class NormalPointerService {
   private setHandlingItemMode(hitHandler, point, mode){
     if(mode === DataType.LASSO_HANDLER){
       this.action = NORMAL_POINTER_ACTIONS.HANDLING_iTEM;
-      this.lassoService.setWbItemHandlingMode(hitHandler, point, mode);
+
+      //this.lassoService.initDataBeforeResizing(hitHandler);
+      //this.lassoService.setWbItemHandlingMode(hitHandler, point, mode);
     }
     else if(mode === DataType.LASSO_LINK_PORT_HANDLER){
       this.action = NORMAL_POINTER_ACTIONS.LINK_EDITING;
-      this.lassoService.setWbItemHandlingMode(hitHandler, point, mode);
+      //this.lassoService.setWbItemHandlingMode(hitHandler, point, mode);
     }
     else{
 
@@ -249,7 +250,8 @@ export class NormalPointerService {
   }
   private setSelectedMode(selectedWbItem){
     this.action = NORMAL_POINTER_ACTIONS.SELECTED;
-    this.lassoService.addItemIntoSelectedGroup(selectedWbItem);
+    selectedWbItem.changeToSelectedMode();
+    //this.lassoService.addItemIntoSelectedGroup(selectedWbItem);
   }
   private calcCurrentDistance(event){
     let point = this.posCalcService.moveEventToPaperPoint(event);

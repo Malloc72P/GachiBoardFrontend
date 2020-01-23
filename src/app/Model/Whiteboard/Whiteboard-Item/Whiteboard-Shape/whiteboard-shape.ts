@@ -29,18 +29,17 @@ export class WhiteboardShape extends WhiteboardItem {
   private _borderWidth: number;
   private _fillColor: paper.Color;
   private _opacity: number;
-  private _posCalcService:PositionCalcService;
   private _linkPortMap:Map<any,LinkPort>;
   protected constructor(group, type, item:Item,
                         posCalcService:PositionCalcService,
-                        eventEmitter:EventEmitter<any>) {
-    super(group, type, item, eventEmitter);
+                        eventEmitter:EventEmitter<any>,
+                        zoomEventEmitter:EventEmitter<any>) {
+    super(group, type, item, posCalcService, eventEmitter, zoomEventEmitter);
     this.topLeft  = item.bounds.topLeft;
     this.width    = item.bounds.width;
     this.height    = item.bounds.height;
     this.borderColor = item.style.strokeColor;
     this.borderWidth = item.style.strokeWidth;
-    this.posCalcService = posCalcService;
     if(item.style.fillColor){
       this.fillColor = item.style.fillColor;
     }else{
@@ -154,13 +153,5 @@ export class WhiteboardShape extends WhiteboardItem {
 
   set opacity(value: number) {
     this._opacity = value;
-  }
-
-  get posCalcService(): PositionCalcService {
-    return this._posCalcService;
-  }
-
-  set posCalcService(value: PositionCalcService) {
-    this._posCalcService = value;
   }
 }
