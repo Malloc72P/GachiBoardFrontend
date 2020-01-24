@@ -34,6 +34,24 @@ export class ItemAdjustor {
       this.onZoomChange(zoomEvent);
     });
   }
+  public destroyItemAdjustor(){
+    if(this.itemGuideLine){
+      this.itemGuideLine.remove();
+    }
+    if (this.sizeHandlers) {
+      this.sizeHandlers.forEach((value, key, map) => {
+        value.removeItem();
+      });
+      this.sizeHandlers = null;
+    }
+    if (this.linkHandlers) {
+      this.linkHandlers.forEach((value, key, map) => {
+        value.removeItem();
+      });
+      this.linkHandlers = null;
+    }
+
+  }
 
   private initGuideLine(){
     let zoomFactor = this.owner.posCalcService.getZoomState();
@@ -110,6 +128,8 @@ export class ItemAdjustor {
     }
     value.handlerCircleObject.position = center;
   }
+
+  //########################## GETTER & SETTER ##################################
 
   get sizeHandlers(): Map<any, SizeHandler> {
     return this._sizeHandlers;

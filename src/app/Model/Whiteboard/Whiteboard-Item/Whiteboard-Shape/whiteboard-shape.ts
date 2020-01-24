@@ -30,11 +30,11 @@ export class WhiteboardShape extends WhiteboardItem {
   private _fillColor: paper.Color;
   private _opacity: number;
   private _linkPortMap:Map<any,LinkPort>;
-  protected constructor(group, type, item:Item,
+  protected constructor(type, item:Item,
                         posCalcService:PositionCalcService,
                         eventEmitter:EventEmitter<any>,
                         zoomEventEmitter:EventEmitter<any>) {
-    super(group, type, item, posCalcService, eventEmitter, zoomEventEmitter);
+    super(type, item, posCalcService, eventEmitter, zoomEventEmitter);
     this.topLeft  = item.bounds.topLeft;
     this.width    = item.bounds.width;
     this.height    = item.bounds.height;

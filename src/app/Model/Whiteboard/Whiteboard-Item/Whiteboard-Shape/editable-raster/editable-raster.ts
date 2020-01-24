@@ -19,11 +19,11 @@ import {PositionCalcService} from '../../../PositionCalc/position-calc.service';
 
 export abstract class EditableRaster extends WhiteboardShape {
   private _imageBlob: string;
-  protected constructor(group, type, item:Raster,
+  protected constructor(type, item:Raster,
                         posCalcService:PositionCalcService,
                         eventEmitter:EventEmitter<any>,
                         zoomEventEmitter:EventEmitter<any>) {
-    super(group, type, item, posCalcService, eventEmitter, zoomEventEmitter);
+    super(type, item, posCalcService, eventEmitter, zoomEventEmitter);
     console.log("EditableRaster >> constructor >> posCalcService : ",posCalcService);
     // @ts-ignore
     this.imageBlob = item.image.src;

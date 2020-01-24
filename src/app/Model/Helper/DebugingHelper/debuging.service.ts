@@ -10,6 +10,7 @@ import Item = paper.Item;
 // @ts-ignore
 import Path = paper.Path;
 import {WhiteboardItem} from '../../Whiteboard/Whiteboard-Item/whiteboard-item';
+import {DrawingLayerManagerService} from '../../Whiteboard/InfiniteCanvas/DrawingLayerManager/drawing-layer-manager.service';
 
 class TestScope{
   whiteboardItem;
@@ -47,7 +48,7 @@ export class DebugingService {
 
   constructor(
     private pointerModeManager      : PointerModeManagerService,
-    private infiniteCanvasService   : InfiniteCanvasService
+    private drawingLayerManagerService   : DrawingLayerManagerService,
   ) {
 
   }
@@ -56,17 +57,14 @@ export class DebugingService {
   }
   public logDrawingLayer(){
     console.log("\n\n=============\n");
-    console.log("DebugingService >> logDrawingLayer >> layer Origin : ",this.infiniteCanvasService.drawingLayer.children);
-    console.log("\n");
-    this.infiniteCanvasService.drawingLayer.children.forEach((value, index, array)=>{
-      let testScope = new TestScope(value);
-      console.log("DebugingService >> drawingLayer >> value : ",testScope);
+    this.drawingLayerManagerService.whiteboardItemArray.forEach((value, index, array)=>{
+      console.log("DebugingService >> logDrawingLayer >> forEach : ",value);
     });
     console.log("\n\n");
   }
   public logChildren(){
     console.log("\n\n=============\n");
-    this.infiniteCanvasService.drawingLayer.children.forEach((value, index, array)=>{
+    this.drawingLayerManagerService.drawingLayer.children.forEach((value, index, array)=>{
       console.log("DebugingService >> logChildren [ "+index+" ]  : ",value.children);
       value.children.forEach((value, index, array)=>{
         console.log("DebugingService >> value >>  : ",value.bounds);

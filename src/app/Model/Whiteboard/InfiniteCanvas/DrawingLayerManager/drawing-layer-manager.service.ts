@@ -25,6 +25,7 @@ import {PositionCalcService} from '../../PositionCalc/position-calc.service';
 import {ItemLifeCycleEnum, ItemLifeCycleEvent} from '../../Whiteboard-Item/WhiteboardItemLifeCycle/WhiteboardItemLifeCycle';
 import {SimpleRaster} from '../../Whiteboard-Item/Whiteboard-Shape/editable-raster/SimpleRaster/simple-raster';
 import {ZoomControlService} from '../ZoomControl/zoom-control.service';
+import {GlobalSelectedGroup} from '../../Whiteboard-Item/ItemGroup/GlobalSelectedGroup/global-selected-group';
 
 
 @Injectable({
@@ -34,7 +35,11 @@ export class DrawingLayerManagerService {
   private _drawingLayer:Layer;
   private currentProject:Project;
 
+  private _globalSelectedGroup:GlobalSelectedGroup;
+
   private _whiteboardItemArray:Array<WhiteboardItem>;
+
+
   @Output() itemLifeCycleEventEmitter:EventEmitter<any> = new EventEmitter<any>();
 
   get whiteboardItemArray(): Array<WhiteboardItem> {
@@ -58,6 +63,8 @@ export class DrawingLayerManagerService {
       switch (data.action) {
         case ItemLifeCycleEnum.CREATE:
           console.log("DrawingLayerManagerService >> itemLifeCycleEventEmitter >> CREATE");
+          this.whiteboardItemArray.push(data.item);
+          this.drawingLayer.addChild(data.item.group);
           break;
         case ItemLifeCycleEnum.MODIFY:
           console.log("DrawingLayerManagerService >> itemLifeCycleEventEmitter >> MODIFY");
@@ -68,7 +75,7 @@ export class DrawingLayerManagerService {
           this.whiteboardItemArray.splice(removeIdx, 1);
           break;
       }
-    })
+    });
   }
 
   initializeDrawingLayerService(paperProject){
@@ -77,7 +84,9 @@ export class DrawingLayerManagerService {
       if(value.data.type === DataType.DRAWING_CANVAS){
         this.drawingLayer = value;
       }
-    })
+    });
+    this.globalSelectedGroup = GlobalSelectedGroup.getInstance(
+      this.positionCalcService,this.itemLifeCycleEventEmitter,this.zoomControlService.zoomEventEmitter);
   }
 
   get drawingLayer(): paper.Layer {
@@ -98,10 +107,7 @@ export class DrawingLayerManagerService {
   }
 
   public addToDrawingLayer(item, type, ...extras){
-    let newGroup = new Group();
-    newGroup.applyMatrix = false;
     let newWhiteboardItem:WhiteboardItem = null;
-    item.data.myGroup = newGroup;
 
     //Stroke 형태인 경우
     if(type === WhiteboardItemType.SIMPLE_STROKE
@@ -109,13 +115,13 @@ export class DrawingLayerManagerService {
       type === WhiteboardItemType.HIGHLIGHT_STROKE){
       switch (type) {
         case WhiteboardItemType.SIMPLE_STROKE :
-          newWhiteboardItem = new SimpleStroke(newGroup, type, item,
+          newWhiteboardItem = new SimpleStroke(item,
             this.positionCalcService,
             this.itemLifeCycleEventEmitter,
             this.zoomControlService.zoomEventEmitter);
           break;
         case WhiteboardItemType.HIGHLIGHT_STROKE :
-          newWhiteboardItem = new HighlightStroke(newGroup, type, item,
+          newWhiteboardItem = new HighlightStroke(item,
             this.positionCalcService,
             this.itemLifeCycleEventEmitter,
             this.zoomControlService.zoomEventEmitter);
@@ -126,7 +132,7 @@ export class DrawingLayerManagerService {
     }
     else if(type === WhiteboardItemType.SIMPLE_RASTER){
       console.log("DrawingLayerManagerService >> addToDrawingLayer >> 진입함");
-      newWhiteboardItem = new SimpleRaster(newGroup, type, item,
+      newWhiteboardItem = new SimpleRaster(item,
         this.positionCalcService, this.itemLifeCycleEventEmitter, this.zoomControlService.zoomEventEmitter);
       console.log("DrawingLayerManagerService >> addToDrawingLayer >> newWhiteboardItem : ",newWhiteboardItem);
     }
@@ -135,42 +141,29 @@ export class DrawingLayerManagerService {
       let newTextStyle:TextStyle  = extras[1];
       switch (type) {
         case WhiteboardItemType.EDITABLE_RECTANGLE :
-          newWhiteboardItem = new EditableRectangle(newGroup,
-            type, item, newTextStyle, editText, this.positionCalcService,
+          newWhiteboardItem = new EditableRectangle(
+            item, newTextStyle, editText, this.positionCalcService,
             this.itemLifeCycleEventEmitter, this.zoomControlService.zoomEventEmitter);
           break;
         case WhiteboardItemType.EDITABLE_CIRCLE :
-          newWhiteboardItem = new EditableCircle(newGroup,
-            type, item, newTextStyle, editText, this.positionCalcService,
+          newWhiteboardItem = new EditableCircle(
+            item, newTextStyle, editText, this.positionCalcService,
             this.itemLifeCycleEventEmitter, this.zoomControlService.zoomEventEmitter);
           break;
         case WhiteboardItemType.EDITABLE_TRIANGLE :
-          newWhiteboardItem = new EditableTriangle(newGroup,
-            type, item, newTextStyle, editText, this.positionCalcService,
+          newWhiteboardItem = new EditableTriangle(
+            item, newTextStyle, editText, this.positionCalcService,
             this.itemLifeCycleEventEmitter, this.zoomControlService.zoomEventEmitter);
           break;
         case WhiteboardItemType.EDITABLE_CARD :
-          newWhiteboardItem = new EditableCard(newGroup,
-            type, item, newTextStyle, editText, this.positionCalcService,
+          newWhiteboardItem = new EditableCard(
+            item, newTextStyle, editText, this.positionCalcService,
             this.itemLifeCycleEventEmitter, this.zoomControlService.zoomEventEmitter);
           break;
         default:
           return false;
       }
-      console.log("DrawingLayerManagerService >> addToDrawingLayer >> newWhiteboardItem : ",newWhiteboardItem);
-      newGroup.addChild(editText);
     }
-
-
-
-    this.whiteboardItemArray.push(newWhiteboardItem);
-
-    newGroup.data.struct = newWhiteboardItem;
-    newGroup.addChild(item);
-
-
-    this.drawingLayer.addChild(newGroup);
-    newWhiteboardItem.notifyItemCreation();
   }
   public getItemById( paperId ){
 
@@ -232,4 +225,31 @@ export class DrawingLayerManagerService {
     return null;
   }
 
+  public selectItemOnMultipleMode(wbItem:WhiteboardItem){
+    this.globalSelectedGroup.addWbItem(wbItem);
+  }
+  public deselectAllItemOnMultipleMode(){
+    this.globalSelectedGroup.removeAllWbItem();
+  }
+  public deselectItemOnMultipleMode(wbItem:WhiteboardItem){
+    this.globalSelectedGroup.removeWbItem(wbItem);
+  }
+  public selectItemOnSingleMode(wbItem:WhiteboardItem){
+    let numberOfChild = this.globalSelectedGroup.getNumberOfChild();
+    if(numberOfChild > 0){
+      this.globalSelectedGroup.removeAllWbItem();
+    }
+    this.globalSelectedGroup.addWbItem(wbItem);
+  }
+  public deselectItemOnSingleMode(wbItem:WhiteboardItem){
+    this.globalSelectedGroup.removeWbItem(wbItem);
+  }
+
+  get globalSelectedGroup(): GlobalSelectedGroup {
+    return this._globalSelectedGroup;
+  }
+
+  set globalSelectedGroup(value: GlobalSelectedGroup) {
+    this._globalSelectedGroup = value;
+  }
 }

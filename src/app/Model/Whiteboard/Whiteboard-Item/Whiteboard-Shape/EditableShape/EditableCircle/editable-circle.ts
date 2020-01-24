@@ -10,10 +10,18 @@ import Item = paper.Item;
 import Segment = paper.Segment;
 // @ts-ignore
 import Color = paper.Color;
+import {WhiteboardItemType} from '../../../../../Helper/data-type-enum/data-type.enum';
 export class EditableCircle extends EditableShape {
   private _radius: number;
-  constructor(group, type, item:Item, textStyle, editText, posService, eventEmitter, zoomEventEmitter) {
-    super(group, type, item, textStyle, editText, posService, eventEmitter, zoomEventEmitter);
+  constructor(item:Item, textStyle, editText, posService, eventEmitter, zoomEventEmitter) {
+    super(
+      WhiteboardItemType.EDITABLE_CIRCLE,
+      item,
+      textStyle,
+      editText,
+      posService,
+      eventEmitter,
+      zoomEventEmitter);
 
   }
 

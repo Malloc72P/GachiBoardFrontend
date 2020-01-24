@@ -12,6 +12,7 @@ import Point = paper.Point;
 // @ts-ignore
 import Project = paper.Project;
 import {WhiteboardShape} from '../../Whiteboard-Item/Whiteboard-Shape/whiteboard-shape';
+import {WhiteboardItem} from '../../Whiteboard-Item/whiteboard-item';
 
 enum NORMAL_POINTER_ACTIONS{
   SELECTED,
@@ -35,6 +36,9 @@ export class NormalPointerService {
   private trailDistance = 0;
 
   private tempLinkPort:LinkPort;
+
+  private selectedWbItem:WhiteboardItem;
+
 
   constructor(
     private positionCalcService   : PositionCalcService,
@@ -133,6 +137,7 @@ export class NormalPointerService {
   }//onDown ###
 
   private onMove(event){
+    console.log("NormalPointerService >> onMove >> point : ",NORMAL_POINTER_ACTIONS[this.action]);
     let point = this.posCalcService.moveEventToPaperPoint(event);
     switch (this.action) {
       case NORMAL_POINTER_ACTIONS.SELECTED:
@@ -154,15 +159,14 @@ export class NormalPointerService {
   }
 
   private onUp(event){
+    console.log("NormalPointerService >> onUp >> point : ",NORMAL_POINTER_ACTIONS[this.action]);
     let point = this.posCalcService.moveEventToPaperPoint(event);
     switch (this.action) {
       case NORMAL_POINTER_ACTIONS.SELECTED:
         break;
       case NORMAL_POINTER_ACTIONS.MOVING:
         this.moveTo(event);
-        if(!this.lassoService.isSelectionEmpty()){
-          this.manageItemSelectionCancel();
-        }
+        this.manageItemSelectionCancel();
         break;
       case NORMAL_POINTER_ACTIONS.DRAGGING_ITEM:
         this.lassoService.endPath(event);
@@ -249,8 +253,11 @@ export class NormalPointerService {
 
   }
   private setSelectedMode(selectedWbItem){
+    this.selectedWbItem = selectedWbItem;
     this.action = NORMAL_POINTER_ACTIONS.SELECTED;
-    selectedWbItem.changeToSelectedMode();
+    //selectedWbItem.activateSelectedMode();
+    //this.layerService.selectItemOnSingleMode(selectedWbItem);
+    this.layerService.selectItemOnMultipleMode(selectedWbItem);
     //this.lassoService.addItemIntoSelectedGroup(selectedWbItem);
   }
   private calcCurrentDistance(event){
@@ -262,8 +269,16 @@ export class NormalPointerService {
     this.trailDistance = 0;
   }
   private manageItemSelectionCancel(){
+    console.log("NormalPointerService >> manageItemSelectionCancel >> 진입함");
     if(this.trailDistance < 5){
-      this.lassoService.cancelSelect();
+      //this.lassoService.cancelSelect();
+      //this.tempLinkPort.owner.deactivateSelectedMode();
+      this.layerService.deselectAllItemOnMultipleMode();
+
+      if(this.tempLinkPort){
+        console.log("NormalPointerService >> manageItemSelectionCancel >> deactivateSelectedMode");
+
+      }
     }
   }
 }

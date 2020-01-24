@@ -15,6 +15,7 @@ export abstract class WhiteboardItem {
   protected _group;
   protected _topLeft: Point;
   protected _coreItem:Item;
+  private _isSelected;
   protected _myItemAdjustor:ItemAdjustor;
 
   private _disableLinkHandler = false;
@@ -26,16 +27,26 @@ export abstract class WhiteboardItem {
 
   private static idGenerator:number = 0;
 
-  protected constructor(group, type, item, posCalcService, eventEmitter, zoomEventEmitter){
+  protected constructor(type, item, posCalcService, eventEmitter, zoomEventEmitter){
     this.id = WhiteboardItem.idGenerator++;
-    this.group = group;
+    this.isSelected = false;
+    this.group = new Group();
+    //this.group.applyMatrix = false;
+    if(item){
+      item.data.myGroup = this.group;
+      this.group.addChild(item);
+      this.coreItem = item;
+      this.topLeft = item.bounds.topLeft;
+    }
+    this.group.data.struct = this;
+
     this.type = type;
-    this.coreItem = item;
-    this.topLeft = item.bounds.topLeft;
+
     this.posCalcService = posCalcService;
 
     this.lifeCycleEventEmitter = eventEmitter;
     this.zoomEventEmitter = zoomEventEmitter;
+    this.notifyItemCreation();
   }
 
   public abstract notifyItemCreation();
@@ -43,11 +54,21 @@ export abstract class WhiteboardItem {
   public abstract refreshItem();
   public abstract destroyItem();
 
-  public changeToSelectedMode(){
-    this.myItemAdjustor = new ItemAdjustor(this);
+  public activateSelectedMode(){
+    if(!this.isSelected){
+      this.isSelected = true;
+      this.myItemAdjustor = new ItemAdjustor(this);
+    }
   }
-  public changeToUnSelectedMode(){
-
+  public deactivateSelectedMode(){
+    if(this.isSelected){
+      this.isSelected = false;
+      let purgedAdjustor = this.myItemAdjustor;
+      this.myItemAdjustor = null;
+      if(purgedAdjustor){
+        purgedAdjustor.destroyItemAdjustor();
+      }
+    }
   }
 
   get coreItem(): paper.Item {
@@ -128,5 +149,13 @@ export abstract class WhiteboardItem {
 
   set zoomEventEmitter(value: EventEmitter<any>) {
     this._zoomEventEmitter = value;
+  }
+
+  get isSelected() {
+    return this._isSelected;
+  }
+
+  set isSelected(value) {
+    this._isSelected = value;
   }
 }

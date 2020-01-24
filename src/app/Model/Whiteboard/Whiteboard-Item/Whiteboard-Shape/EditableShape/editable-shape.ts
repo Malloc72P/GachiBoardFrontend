@@ -33,11 +33,11 @@ export abstract class EditableShape extends WhiteboardShape {
   private static readonly EDIT_TEXT_PADDING = 5;
   private _isEditing:boolean;
 
-  protected constructor(group, type, item:Item, textStyle, editText,
+  protected constructor(type, item:Item, textStyle, editText,
                         posCalcService,
                         eventEmitter:EventEmitter<any>,
                         zoomEventEmitter:EventEmitter<any>) {
-    super(group, type, item, posCalcService, eventEmitter, zoomEventEmitter);
+    super(type, item, posCalcService, eventEmitter, zoomEventEmitter);
     this.topLeft  = new Point(item.bounds.topLeft.x, item.bounds.topLeft.y);
     this.width    = item.bounds.width;
     this.height    = item.bounds.height;

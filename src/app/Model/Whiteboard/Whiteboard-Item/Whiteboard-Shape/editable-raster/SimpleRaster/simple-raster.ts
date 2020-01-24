@@ -13,10 +13,16 @@ import Color = paper.Color;
 // @ts-ignore
 import Raster = paper.Raster;
 import {PositionCalcService} from '../../../../PositionCalc/position-calc.service';
+import {WhiteboardItemType} from '../../../../../Helper/data-type-enum/data-type.enum';
 export class SimpleRaster extends EditableRaster{
-  constructor(group, type, item:Raster, posService:PositionCalcService,
+  constructor(item:Raster, posService:PositionCalcService,
               eventEmitter, zoomEventEmitter) {
-    super(group, type, item, posService, eventEmitter, zoomEventEmitter);
+    super(
+          WhiteboardItemType.SIMPLE_RASTER,
+          item,
+          posService,
+          eventEmitter,
+          zoomEventEmitter);
 
   }
 
