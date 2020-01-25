@@ -19,15 +19,10 @@ import PointText = paper.PointText;
 import Group = paper.Group;
 // @ts-ignore
 import Rectangle = paper.Rectangle;
-import {WhiteboardItem} from '../../whiteboard-item';
-import {ItemLifeCycleEnum, ItemLifeCycleEvent} from '../../WhiteboardItemLifeCycle/WhiteboardItemLifeCycle';
 
 export class EditableItemGroup extends ItemGroup{
-  constructor(type, item:Item,
-                        posCalcService:PositionCalcService,
-                        eventEmitter:EventEmitter<any>,
-                        zoomEventEmitter:EventEmitter<any>) {
-    super(type, item, posCalcService, eventEmitter, zoomEventEmitter);
+  constructor(type, item:Item, layerService) {
+    super(type, item, layerService);
   }
 
 }

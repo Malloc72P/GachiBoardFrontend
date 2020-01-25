@@ -137,36 +137,34 @@ export class NormalPointerService {
   }//onDown ###
 
   private onMove(event){
-    console.log("NormalPointerService >> onMove >> point : ",NORMAL_POINTER_ACTIONS[this.action]);
     let point = this.posCalcService.moveEventToPaperPoint(event);
     switch (this.action) {
       case NORMAL_POINTER_ACTIONS.SELECTED:
         break;
       case NORMAL_POINTER_ACTIONS.MOVING:
-        this.moveTo(event);
+        //this.moveTo(event);
         break;
       case NORMAL_POINTER_ACTIONS.DRAGGING_ITEM:
-        this.lassoService.drawPath(event);
+        //this.lassoService.drawPath(event);
         break;
       case NORMAL_POINTER_ACTIONS.HANDLING_iTEM:
-        this.lassoService.drawPath(event);
+        //this.lassoService.drawPath(event);
         break;
       case NORMAL_POINTER_ACTIONS.LINK_EDITING:
-        this.createTempLink(point);
+        //this.createTempLink(point);
         break;
       default:
     }
   }
 
   private onUp(event){
-    console.log("NormalPointerService >> onUp >> point : ",NORMAL_POINTER_ACTIONS[this.action]);
     let point = this.posCalcService.moveEventToPaperPoint(event);
     switch (this.action) {
       case NORMAL_POINTER_ACTIONS.SELECTED:
         break;
       case NORMAL_POINTER_ACTIONS.MOVING:
         this.moveTo(event);
-        this.manageItemSelectionCancel();
+        //this.manageItemSelectionCancel();
         break;
       case NORMAL_POINTER_ACTIONS.DRAGGING_ITEM:
         this.lassoService.endPath(event);
@@ -255,10 +253,6 @@ export class NormalPointerService {
   private setSelectedMode(selectedWbItem){
     this.selectedWbItem = selectedWbItem;
     this.action = NORMAL_POINTER_ACTIONS.SELECTED;
-    //selectedWbItem.activateSelectedMode();
-    //this.layerService.selectItemOnSingleMode(selectedWbItem);
-    this.layerService.selectItemOnMultipleMode(selectedWbItem);
-    //this.lassoService.addItemIntoSelectedGroup(selectedWbItem);
   }
   private calcCurrentDistance(event){
     let point = this.posCalcService.moveEventToPaperPoint(event);
@@ -273,7 +267,8 @@ export class NormalPointerService {
     if(this.trailDistance < 5){
       //this.lassoService.cancelSelect();
       //this.tempLinkPort.owner.deactivateSelectedMode();
-      this.layerService.deselectAllItemOnMultipleMode();
+      this.layerService.globalSelectedGroup.extractAllFromSelection();
+
 
       if(this.tempLinkPort){
         console.log("NormalPointerService >> manageItemSelectionCancel >> deactivateSelectedMode");

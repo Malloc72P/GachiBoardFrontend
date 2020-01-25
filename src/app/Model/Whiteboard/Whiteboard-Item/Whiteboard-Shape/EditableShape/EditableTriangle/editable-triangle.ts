@@ -12,15 +12,13 @@ import Segment = paper.Segment;
 import Color = paper.Color;
 import {WhiteboardItemType} from '../../../../../Helper/data-type-enum/data-type.enum';
 export class EditableTriangle extends EditableShape {
-  constructor(item:Item, textStyle, editText, posService, eventEmitter, zoomEventEmitter) {
+  constructor(item:Item, textStyle, editText, layerService) {
     super(
       WhiteboardItemType.EDITABLE_TRIANGLE,
       item,
       textStyle,
       editText,
-      posService,
-      eventEmitter,
-      zoomEventEmitter);
+      layerService);
 
   }
 

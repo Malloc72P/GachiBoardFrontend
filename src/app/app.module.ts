@@ -128,7 +128,7 @@ const appRoutes: Routes = [
     MatCardModule,
     RouterModule.forRoot(
       appRoutes,
-      {enableTracing: true} // 디버그 활성화
+      /*{enableTracing: true} // 디버그 활성화*/
     ),
     ParticlesModule,
     MatButtonModule,

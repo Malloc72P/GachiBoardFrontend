@@ -1,4 +1,4 @@
-import {HostListener, Injectable} from '@angular/core';
+import {EventEmitter, HostListener, Injectable, Output} from '@angular/core';
 
 // @ts-ignore
 import Path = paper.Path;
@@ -24,6 +24,9 @@ import {PositionCalcService} from "../PositionCalc/position-calc.service";
 import {MinimapSyncService} from './MinimapSync/minimap-sync.service';
 import {DataType} from '../../Helper/data-type-enum/data-type.enum';
 import {DrawingLayerManagerService} from './DrawingLayerManager/drawing-layer-manager.service';
+import {GlobalSelectedGroup} from '../Whiteboard-Item/ItemGroup/GlobalSelectedGroup/global-selected-group';
+import {ZoomEvent} from './ZoomControl/ZoomEvent/zoom-event';
+import {ZoomEventEnum} from './ZoomControl/ZoomEvent/zoom-event-enum.enum';
 
 interface BoundaryObserver {
   position: Point;
@@ -45,7 +48,7 @@ export class InfiniteCanvasService {
   public whiteboardMatrix: Array<Array<whiteboardCell>>;
   public observerFamily: Map<string, BoundaryObserver>;
   private whiteboardRect;
-  private whiteboardLayer:Layer;
+  public whiteboardLayer:Layer;
   private isDrawingLayerExist = false;
   public drawingLayer: Layer;
 
@@ -66,10 +69,11 @@ export class InfiniteCanvasService {
 
   private htmlCanvasWrapperObject: HTMLDivElement;
 
+  @Output() zoomEventEmitter:EventEmitter<any> = new EventEmitter<any>();
+
   constructor(
     private posCalcService  : PositionCalcService,
     private minimapSyncService  : MinimapSyncService
-
   ) {
 
   }
@@ -307,7 +311,6 @@ export class InfiniteCanvasService {
 
       this.currentProject.view.center = newCenter;
       this.newZoom = oldZoom * this.zoomFactor;
-      return this.newZoom;
     }
     else{//zoom out
       //view center X,Y축 조정
@@ -317,8 +320,9 @@ export class InfiniteCanvasService {
       this.currentProject.view.center = newCenter;
 
       this.newZoom = oldZoom / this.zoomFactor;
-      return this.newZoom;
     }
+    this.zoomEventEmitter.emit(new ZoomEvent(ZoomEventEnum.ZOOM_CHANGED));
+    return this.newZoom;
   }
   public resetInfiniteCanvas(){
     // console.log("InfiniteCanvasService >> resetInfiniteCanvas >> 진입함");
@@ -346,7 +350,6 @@ export class InfiniteCanvasService {
       this.isDrawingLayerExist = true;
       this.whiteboardLayer.sendToBack();
       this.drawingLayer.activate();
-
     }
   }
 

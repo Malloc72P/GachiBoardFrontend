@@ -26,6 +26,13 @@ import {ItemLifeCycleEnum, ItemLifeCycleEvent} from '../../Whiteboard-Item/White
 import {SimpleRaster} from '../../Whiteboard-Item/Whiteboard-Shape/editable-raster/SimpleRaster/simple-raster';
 import {ZoomControlService} from '../ZoomControl/zoom-control.service';
 import {GlobalSelectedGroup} from '../../Whiteboard-Item/ItemGroup/GlobalSelectedGroup/global-selected-group';
+import {PointerModeEvent} from '../../Pointer/PointerModeEvent/pointer-mode-event';
+import {PointerMode} from '../../Pointer/pointer-mode-enum-service/pointer-mode-enum.service';
+import {SelectModeEnum} from './SelectModeEnum/select-mode-enum.enum';
+import {SelectEvent} from './SelectEvent/select-event';
+import {SelectEventEnum} from './SelectEventEnum/select-event.enum';
+import {InfiniteCanvasService} from '../infinite-canvas.service';
+import {ItemGroup} from '../../Whiteboard-Item/ItemGroup/item-group';
 
 
 @Injectable({
@@ -35,31 +42,28 @@ export class DrawingLayerManagerService {
   private _drawingLayer:Layer;
   private currentProject:Project;
 
-  private _globalSelectedGroup:GlobalSelectedGroup;
+  private _currentPointerMode;
 
+
+  private _globalSelectedGroup:GlobalSelectedGroup;
   private _whiteboardItemArray:Array<WhiteboardItem>;
 
 
   @Output() itemLifeCycleEventEmitter:EventEmitter<any> = new EventEmitter<any>();
-
-  get whiteboardItemArray(): Array<WhiteboardItem> {
-    return this._whiteboardItemArray;
-  }
-
-  set whiteboardItemArray(value: Array<WhiteboardItem>) {
-    this._whiteboardItemArray = value;
-  }
+  @Output() pointerModeEventEmitter:EventEmitter<any> = new EventEmitter<any>();
+  @Output() selectModeEventEmitter:EventEmitter<any> = new EventEmitter<any>();
 
   constructor(
-    private positionCalcService:PositionCalcService,
-    private zoomControlService:ZoomControlService,
+    private _posCalcService:PositionCalcService,
+    private _infiniteCanvasService:InfiniteCanvasService,
   ) {
     this.whiteboardItemArray = new Array<WhiteboardItem>();
+
+    //### 1 화이트보드 아이템 라이프사이클 이벤트
     this.itemLifeCycleEventEmitter.subscribe((data:ItemLifeCycleEvent)=>{
       if(!data){
         return;
       }
-
       switch (data.action) {
         case ItemLifeCycleEnum.CREATE:
           console.log("DrawingLayerManagerService >> itemLifeCycleEventEmitter >> CREATE");
@@ -76,6 +80,11 @@ export class DrawingLayerManagerService {
           break;
       }
     });
+    //### 2 포인터 모드 이벤트
+    this.pointerModeEventEmitter.subscribe((data:PointerModeEvent)=>{
+      console.log("DrawingLayerManagerService >> pointerModeEventEmitter >> data : ",PointerMode[data.currentMode]);
+      this.currentPointerMode = data.currentMode;
+    });
   }
 
   initializeDrawingLayerService(paperProject){
@@ -85,8 +94,15 @@ export class DrawingLayerManagerService {
         this.drawingLayer = value;
       }
     });
-    this.globalSelectedGroup = GlobalSelectedGroup.getInstance(
-      this.positionCalcService,this.itemLifeCycleEventEmitter,this.zoomControlService.zoomEventEmitter);
+    this.globalSelectedGroup = GlobalSelectedGroup.getInstance(this);
+
+    //#### 이걸로 화이트보드 배경 선택시 현재 선택된 그룹을 해제함
+    this.currentProject.view.onMouseDown = (event)=>{
+      let hitItem = this.getHittedItem(event.point);
+      if(!hitItem){
+        this.globalSelectedGroup.extractAllFromSelection();
+      }
+    }
   }
 
   get drawingLayer(): paper.Layer {
@@ -95,15 +111,6 @@ export class DrawingLayerManagerService {
 
   set drawingLayer(value: paper.Layer) {
     this._drawingLayer = value;
-  }
-
-  public indexOfWhiteboardArray(id){
-    let children = this.whiteboardItemArray;
-    for(let i = 0 ; i < children.length; i++){
-      if(children[i].id === id){
-        return i
-      }
-    }
   }
 
   public addToDrawingLayer(item, type, ...extras){
@@ -115,16 +122,10 @@ export class DrawingLayerManagerService {
       type === WhiteboardItemType.HIGHLIGHT_STROKE){
       switch (type) {
         case WhiteboardItemType.SIMPLE_STROKE :
-          newWhiteboardItem = new SimpleStroke(item,
-            this.positionCalcService,
-            this.itemLifeCycleEventEmitter,
-            this.zoomControlService.zoomEventEmitter);
+          newWhiteboardItem = new SimpleStroke(item, this);
           break;
         case WhiteboardItemType.HIGHLIGHT_STROKE :
-          newWhiteboardItem = new HighlightStroke(item,
-            this.positionCalcService,
-            this.itemLifeCycleEventEmitter,
-            this.zoomControlService.zoomEventEmitter);
+          newWhiteboardItem = new HighlightStroke(item,this);
           break;
         default:
           return false;
@@ -132,8 +133,7 @@ export class DrawingLayerManagerService {
     }
     else if(type === WhiteboardItemType.SIMPLE_RASTER){
       console.log("DrawingLayerManagerService >> addToDrawingLayer >> 진입함");
-      newWhiteboardItem = new SimpleRaster(item,
-        this.positionCalcService, this.itemLifeCycleEventEmitter, this.zoomControlService.zoomEventEmitter);
+      newWhiteboardItem = new SimpleRaster(item,this);
       console.log("DrawingLayerManagerService >> addToDrawingLayer >> newWhiteboardItem : ",newWhiteboardItem);
     }
     else{//Shape 형태인 경우
@@ -142,35 +142,42 @@ export class DrawingLayerManagerService {
       switch (type) {
         case WhiteboardItemType.EDITABLE_RECTANGLE :
           newWhiteboardItem = new EditableRectangle(
-            item, newTextStyle, editText, this.positionCalcService,
-            this.itemLifeCycleEventEmitter, this.zoomControlService.zoomEventEmitter);
+            item, newTextStyle, editText, this);
           break;
         case WhiteboardItemType.EDITABLE_CIRCLE :
           newWhiteboardItem = new EditableCircle(
-            item, newTextStyle, editText, this.positionCalcService,
-            this.itemLifeCycleEventEmitter, this.zoomControlService.zoomEventEmitter);
+            item, newTextStyle, editText, this);
           break;
         case WhiteboardItemType.EDITABLE_TRIANGLE :
           newWhiteboardItem = new EditableTriangle(
-            item, newTextStyle, editText, this.positionCalcService,
-            this.itemLifeCycleEventEmitter, this.zoomControlService.zoomEventEmitter);
+            item, newTextStyle, editText, this);
           break;
         case WhiteboardItemType.EDITABLE_CARD :
           newWhiteboardItem = new EditableCard(
-            item, newTextStyle, editText, this.positionCalcService,
-            this.itemLifeCycleEventEmitter, this.zoomControlService.zoomEventEmitter);
+            item, newTextStyle, editText, this);
           break;
         default:
           return false;
       }
     }
   }
-  public getItemById( paperId ){
 
+
+  //##### 화이트보드 아이템을 찾는 메서드 #######
+  public getItemById( paperId ){
     //let found = this.findItemById(paperId);
     let found = this.drawingLayer.getItem({id : paperId});
     return found;
   }
+  public indexOfWhiteboardArray(id){
+    let children = this.whiteboardItemArray;
+    for(let i = 0 ; i < children.length; i++){
+      if(children[i].id === id){
+        return i
+      }
+    }
+  }
+
   private findItemById(id){
     let children = this.drawingLayer.children;
     for(let i = children.length - 1; i >= 0; i--){
@@ -220,31 +227,28 @@ export class DrawingLayerManagerService {
       if(value.group.hitTest(point, hitOption)){
         return value;
       }
+      //그룹의 선택영역일 수 도 있으므로, 그룹 영역검사
+      if(value instanceof ItemGroup){
+        if(value.backgroundRect.contains(point)){
+          return value;
+        }
+      }
     }
     //못찾은 경우 null값 리턴
+
     return null;
   }
+  //########################################
 
-  public selectItemOnMultipleMode(wbItem:WhiteboardItem){
-    this.globalSelectedGroup.addWbItem(wbItem);
-  }
-  public deselectAllItemOnMultipleMode(){
-    this.globalSelectedGroup.removeAllWbItem();
-  }
-  public deselectItemOnMultipleMode(wbItem:WhiteboardItem){
-    this.globalSelectedGroup.removeWbItem(wbItem);
-  }
-  public selectItemOnSingleMode(wbItem:WhiteboardItem){
-    let numberOfChild = this.globalSelectedGroup.getNumberOfChild();
-    if(numberOfChild > 0){
-      this.globalSelectedGroup.removeAllWbItem();
-    }
-    this.globalSelectedGroup.addWbItem(wbItem);
-  }
-  public deselectItemOnSingleMode(wbItem:WhiteboardItem){
-    this.globalSelectedGroup.removeWbItem(wbItem);
+  //########## Getter & Setter ##########
+
+  get whiteboardItemArray(): Array<WhiteboardItem> {
+    return this._whiteboardItemArray;
   }
 
+  set whiteboardItemArray(value: Array<WhiteboardItem>) {
+    this._whiteboardItemArray = value;
+  }
   get globalSelectedGroup(): GlobalSelectedGroup {
     return this._globalSelectedGroup;
   }
@@ -252,4 +256,30 @@ export class DrawingLayerManagerService {
   set globalSelectedGroup(value: GlobalSelectedGroup) {
     this._globalSelectedGroup = value;
   }
+
+  get posCalcService(): PositionCalcService {
+    return this._posCalcService;
+  }
+
+  set posCalcService(value: PositionCalcService) {
+    this._posCalcService = value;
+  }
+
+  get currentPointerMode() {
+    return this._currentPointerMode;
+  }
+
+  set currentPointerMode(value) {
+    this._currentPointerMode = value;
+  }
+
+  get infiniteCanvasService(): InfiniteCanvasService {
+    return this._infiniteCanvasService;
+  }
+
+  set infiniteCanvasService(value: InfiniteCanvasService) {
+    this._infiniteCanvasService = value;
+  }
+
+//#####################################
 }

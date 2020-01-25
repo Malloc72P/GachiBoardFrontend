@@ -7,31 +7,43 @@ import Group = paper.Group;
 import Point = paper.Point;
 import {EventEmitter} from '@angular/core';
 import {ItemAdjustor} from './ItemAdjustor/item-adjustor';
-import {PositionCalcService} from '../PositionCalc/position-calc.service';
+import {ItemLifeCycleEnum, ItemLifeCycleEvent} from './WhiteboardItemLifeCycle/WhiteboardItemLifeCycle';
+import {DrawingLayerManagerService} from '../InfiniteCanvas/DrawingLayerManager/drawing-layer-manager.service';
+import {PointerMode} from '../Pointer/pointer-mode-enum-service/pointer-mode-enum.service';
+import {SelectEvent} from '../InfiniteCanvas/DrawingLayerManager/SelectEvent/select-event';
+import {SelectEventEnum} from '../InfiniteCanvas/DrawingLayerManager/SelectEventEnum/select-event.enum';
+import {SelectModeEnum} from '../InfiniteCanvas/DrawingLayerManager/SelectModeEnum/select-mode-enum.enum';
 
 export abstract class WhiteboardItem {
+
   protected _id;
   protected _type;
   protected _group;
   protected _topLeft: Point;
   protected _coreItem:Item;
-  private _isSelected;
+  protected _isSelected;
   protected _myItemAdjustor:ItemAdjustor;
 
-  private _disableLinkHandler = false;
+  private _disableLinkHandler;
 
-  private _posCalcService:PositionCalcService;
+  private _layerService:DrawingLayerManagerService;
+
+  protected _trailDistance = 0;
+  protected _prevPoint = new Point(0,0);
+  protected _selectMode;
 
   protected _lifeCycleEventEmitter:EventEmitter<any>;
   protected _zoomEventEmitter:EventEmitter<any>;
 
   private static idGenerator:number = 0;
 
-  protected constructor(type, item, posCalcService, eventEmitter, zoomEventEmitter){
+
+  protected constructor(type, item, layerService){
     this.id = WhiteboardItem.idGenerator++;
     this.isSelected = false;
+    this.selectMode = SelectModeEnum.SINGLE_SELECT;
     this.group = new Group();
-    //this.group.applyMatrix = false;
+    this.disableLinkHandler = false;
     if(item){
       item.data.myGroup = this.group;
       this.group.addChild(item);
@@ -42,17 +54,86 @@ export abstract class WhiteboardItem {
 
     this.type = type;
 
-    this.posCalcService = posCalcService;
+    this.layerService = layerService;
 
-    this.lifeCycleEventEmitter = eventEmitter;
-    this.zoomEventEmitter = zoomEventEmitter;
+    this.lifeCycleEventEmitter = this.layerService.itemLifeCycleEventEmitter;
+    this.zoomEventEmitter = this.layerService.infiniteCanvasService.zoomEventEmitter;
     this.notifyItemCreation();
+
+    this.layerService.selectModeEventEmitter.subscribe((data:SelectEvent)=>{
+      this.onSelectEvent(data);
+    });
+    this.setCallback();
   }
+  protected setCallback() {
+    this.group.onMouseDown = (event) => {
+      console.log("WhiteboardItem >> onMouseDown >> wbitem 진입함");
+      if(event.modifiers.control === true || event.modifiers.shift === true){
+        this.setMultipleSelectMode();
+      }
+      else{
+        this.setSingleSelectMode();
+      }
+      if(!this.isSelected){
+        if(this.isSingleSelectMode()){
+          this.layerService.globalSelectedGroup.extractAllFromSelection();
+        }
+        this.layerService.globalSelectedGroup.insertOneIntoSelection(this);
+        this.isSelected = true;
+      }
+    };
+    this.group.onMouseUp = () =>{
+      this.setSingleSelectMode();
+    }
+  }
+
+  protected setSingleSelectMode(){
+    this.selectMode = SelectModeEnum.SINGLE_SELECT;
+  }
+  protected setMultipleSelectMode(){
+    this.selectMode = SelectModeEnum.MULTIPLE_SELECT;
+  }
+  protected isSingleSelectMode(){
+    return this.selectMode === SelectModeEnum.SINGLE_SELECT;
+  }
+
+  //####################
+
+
+  private onSelectEvent(event:SelectEvent){
+    if(!this.isSelected){//선택되지 않은 아이템은 수행할 필요 없음.
+      return;
+    }
+
+    switch (event.action) {
+      case SelectEventEnum.SELECT_MODE_CHANGED:
+        break;
+      case SelectEventEnum.ITEM_SELECTED:
+        break;
+      case SelectEventEnum.ITEM_DESELECTED:
+        break;
+    }
+  }
+
+  protected calcCurrentDistance(event){
+    let point = event.point;
+    let currentDistance = this.layerService.posCalcService.calcPointDistanceOn2D(point, this.prevPoint);
+    this.trailDistance += currentDistance;
+  }
+  protected resetDistance(){
+    this.trailDistance = 0;
+  }
+
+
 
   public abstract notifyItemCreation();
   public abstract notifyItemModified();
   public abstract refreshItem();
   public abstract destroyItem();
+
+  checkSelectable(currentPointerMode){
+    return currentPointerMode === PointerMode.POINTER || currentPointerMode === PointerMode.LASSO_SELECTOR;
+  }
 
   public activateSelectedMode(){
     if(!this.isSelected){
@@ -127,13 +208,7 @@ export abstract class WhiteboardItem {
     this._myItemAdjustor = value;
   }
 
-  get posCalcService(): PositionCalcService {
-    return this._posCalcService;
-  }
 
-  set posCalcService(value: PositionCalcService) {
-    this._posCalcService = value;
-  }
 
   get disableLinkHandler(): boolean {
     return this._disableLinkHandler;
@@ -157,5 +232,37 @@ export abstract class WhiteboardItem {
 
   set isSelected(value) {
     this._isSelected = value;
+  }
+  get layerService(): DrawingLayerManagerService {
+    return this._layerService;
+  }
+
+  set layerService(value: DrawingLayerManagerService) {
+    this._layerService = value;
+  }
+
+
+  get trailDistance(): number {
+    return this._trailDistance;
+  }
+
+  set trailDistance(value: number) {
+    this._trailDistance = value;
+  }
+
+  get prevPoint(): paper.Point {
+    return this._prevPoint;
+  }
+
+  set prevPoint(value: paper.Point) {
+    this._prevPoint = value;
+  }
+
+  get selectMode() {
+    return this._selectMode;
+  }
+
+  set selectMode(value) {
+    this._selectMode = value;
   }
 }

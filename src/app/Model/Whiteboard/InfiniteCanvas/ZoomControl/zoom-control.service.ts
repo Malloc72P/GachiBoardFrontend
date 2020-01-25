@@ -20,28 +20,6 @@ import Layer = paper.Layer;
 import * as paper from 'paper';
 import {InfiniteCanvasService} from "../infinite-canvas.service";
 
-export enum ZoomEventEnum{
-  ZOOM_IN,
-  ZOOM_OUT,
-  ZOOM_CHANGED
-}
-
-export class ZoomEvent {
-  private _zoomEvent;
-
-  constructor(zoomEvent) {
-    this._zoomEvent = zoomEvent;
-  }
-
-  get zoomEvent() {
-    return this._zoomEvent;
-  }
-
-  set zoomEvent(value) {
-    this._zoomEvent = value;
-  }
-}
-
 @Injectable({
   providedIn: 'root'
 })
@@ -82,7 +60,7 @@ export class ZoomControlService {
         new Point(event.x, event.y),
         event.deltaY);
       //this.lassoSelectorService.lassoHandleResizeForZooming(this.currentProject.view.zoom);
-      this.zoomEventEmitter.emit(new ZoomEvent(ZoomEventEnum.ZOOM_CHANGED));
+      //this.zoomEventEmitter.emit(new ZoomEvent(ZoomEventEnum.ZOOM_CHANGED));
     }
   }
 
@@ -123,7 +101,7 @@ export class ZoomControlService {
 
     }//핀치줌 시작하는 경우#####
     //this.lassoSelectorService.lassoHandleResizeForZooming(this.currentProject.view.zoom);
-    this.zoomEventEmitter.emit(new ZoomEvent(ZoomEventEnum.ZOOM_CHANGED));
+    //this.zoomEventEmitter.emit(new ZoomEvent(ZoomEventEnum.ZOOM_CHANGED));
   }
   onPinchZoomEnd(){
     this.isZooming--;

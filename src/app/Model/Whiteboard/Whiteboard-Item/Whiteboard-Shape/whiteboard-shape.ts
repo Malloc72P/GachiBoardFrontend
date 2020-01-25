@@ -31,10 +31,8 @@ export class WhiteboardShape extends WhiteboardItem {
   private _opacity: number;
   private _linkPortMap:Map<any,LinkPort>;
   protected constructor(type, item:Item,
-                        posCalcService:PositionCalcService,
-                        eventEmitter:EventEmitter<any>,
-                        zoomEventEmitter:EventEmitter<any>) {
-    super(type, item, posCalcService, eventEmitter, zoomEventEmitter);
+                        layerService:PositionCalcService) {
+    super(type, item, layerService);
     this.topLeft  = item.bounds.topLeft;
     this.width    = item.bounds.width;
     this.height    = item.bounds.height;
@@ -47,9 +45,9 @@ export class WhiteboardShape extends WhiteboardItem {
       this.fillColor = "transparent";
     }
     this.opacity = item.opacity;
-    this._linkPortMap = new Map<any, LinkPort>();
+    this.linkPortMap = new Map<any, LinkPort>();
     for(let i = 0 ; i < 4; i++){
-      this._linkPortMap.set( i, new LinkPort(this,i, this.posCalcService) );
+      this.linkPortMap.set( i, new LinkPort(this,i, this.layerService.posCalcService) );
     }
   }
 
@@ -82,10 +80,10 @@ export class WhiteboardShape extends WhiteboardItem {
     let centerOfToWbShape = point;
 
     let closestDirection = 0;
-    let closestDistance = this.posCalcService
+    let closestDistance = this.layerService.posCalcService
       .calcPointDistanceOn2D(centerOfToWbShape, this.group.bounds.topCenter);
     for(let i = 1 ; i < 4; i++){
-      let newDistance = this.posCalcService
+      let newDistance = this.layerService.posCalcService
         .calcPointDistanceOn2D(centerOfToWbShape, this.getDirectionPoint(i));
       if(newDistance < closestDistance){
         closestDirection = i;

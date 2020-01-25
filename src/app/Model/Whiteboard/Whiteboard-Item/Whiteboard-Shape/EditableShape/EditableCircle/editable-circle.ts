@@ -13,15 +13,13 @@ import Color = paper.Color;
 import {WhiteboardItemType} from '../../../../../Helper/data-type-enum/data-type.enum';
 export class EditableCircle extends EditableShape {
   private _radius: number;
-  constructor(item:Item, textStyle, editText, posService, eventEmitter, zoomEventEmitter) {
+  constructor(item:Item, textStyle, editText, layerService) {
     super(
       WhiteboardItemType.EDITABLE_CIRCLE,
       item,
       textStyle,
       editText,
-      posService,
-      eventEmitter,
-      zoomEventEmitter);
+      layerService);
 
   }
 

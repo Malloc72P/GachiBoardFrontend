@@ -21,7 +21,7 @@ export abstract class ItemHandler {
     this.owner = wbItem;
     this.guideLine = guideLine;
 
-    let zoomFactor = this.owner.posCalcService.getZoomState();
+    let zoomFactor = this.owner.layerService.posCalcService.getZoomState();
 
     this.handlerDirection = handlerDirection;
     this.handlerCircleObject = new Circle(
@@ -57,6 +57,12 @@ export abstract class ItemHandler {
       case HandlerDirection.BOTTOM_RIGHT :
         return bounds.bottomRight;
     }
+  }
+  public disableItem(){
+    this.handlerCircleObject.visible = false;
+  }
+  public enableItem(){
+    this.handlerCircleObject.visible = true;
   }
 
   public abstract removeItem();

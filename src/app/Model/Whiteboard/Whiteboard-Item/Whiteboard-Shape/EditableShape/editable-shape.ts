@@ -33,11 +33,8 @@ export abstract class EditableShape extends WhiteboardShape {
   private static readonly EDIT_TEXT_PADDING = 5;
   private _isEditing:boolean;
 
-  protected constructor(type, item:Item, textStyle, editText,
-                        posCalcService,
-                        eventEmitter:EventEmitter<any>,
-                        zoomEventEmitter:EventEmitter<any>) {
-    super(type, item, posCalcService, eventEmitter, zoomEventEmitter);
+  protected constructor(type, item:Item, textStyle, editText, layerService) {
+    super(type, item, layerService);
     this.topLeft  = new Point(item.bounds.topLeft.x, item.bounds.topLeft.y);
     this.width    = item.bounds.width;
     this.height    = item.bounds.height;
@@ -57,7 +54,7 @@ export abstract class EditableShape extends WhiteboardShape {
     this.editText = editText;
     this.textBound = new Rectangle(editText.bounds);
     this.editText.justification = "center";
-    this.posCalcService = posCalcService;
+    this.layerService = layerService;
     this.isEditing = false;
 
     item.onFrame = (event)=>{
@@ -128,8 +125,8 @@ export abstract class EditableShape extends WhiteboardShape {
 
     let adjustedTextContent = this.getAdjustedTextContent(
       convertedText,
-      this.posCalcService.advConvertLengthNgToPaper(this.coreItem.bounds.width),
-      this.posCalcService.advConvertLengthNgToPaper(this.coreItem.bounds.height));
+      this.layerService.posCalcService.advConvertLengthNgToPaper(this.coreItem.bounds.width),
+      this.layerService.posCalcService.advConvertLengthNgToPaper(this.coreItem.bounds.height));
 
     this.modifyEditText(adjustedTextContent,this.rawTextContent);
 
@@ -210,7 +207,7 @@ export abstract class EditableShape extends WhiteboardShape {
     let height = tempPointText.bounds.height;
     tempPointText.remove();
 
-    return this.posCalcService.advConvertLengthNgToPaper(height);
+    return this.layerService.posCalcService.advConvertLengthNgToPaper(height);
   }
   private calcStringWidth(input: string, style: TextStyle): number {
     let tempPointText = new PointText({
@@ -223,7 +220,7 @@ export abstract class EditableShape extends WhiteboardShape {
     let width = tempPointText.bounds.width;
     tempPointText.remove();
 
-    return this.posCalcService.advConvertLengthNgToPaper(width);
+    return this.layerService.posCalcService.advConvertLengthNgToPaper(width);
   }
 
   get textContent(): string {

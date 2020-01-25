@@ -149,9 +149,9 @@ export class LinkPort {
   private getCloseDirection(wbShape:WhiteboardShape, point:Point){
     let closestDirection = 0;
     console.log("LinkPort >> getCloseDirection >> owner : ",this.owner);
-    let closestDistance = this.owner.posCalcService.calcPointDistanceOn2D(point, wbShape.group.bounds.topCenter);
+    let closestDistance = this.posCalcService.calcPointDistanceOn2D(point, wbShape.group.bounds.topCenter);
     for(let i = 1 ; i < 4; i++){
-      let newDistance = wbShape.posCalcService.calcPointDistanceOn2D(point, wbShape.getDirectionPoint(i));
+      let newDistance = this.posCalcService.calcPointDistanceOn2D(point, wbShape.getDirectionPoint(i));
       console.log("\n\nLinkPort >> getCloseDirection >> tempLinkPath : ",LinkPortDirectionEnum[i]);
       console.log("LinkPort >> getCloseDirection >> newDistance : ",newDistance);
       console.log("LinkPort >> getCloseDirection >> closestDistance : ",closestDistance);

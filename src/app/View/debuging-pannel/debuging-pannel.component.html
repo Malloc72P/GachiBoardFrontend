@@ -19,6 +19,10 @@
 
         <!--   Content   -->
         <div>
+          <button mat-raised-button
+                  (click)="debugingService.logDrawingLayer()">DrawingLayer</button>
+          <button mat-raised-button
+                  (click)="debugingService.logChildren()">Children</button>
           <table class="debugTable" style="background-color: blue; color: white;">
             <tr><td>NG Window Bound</td></tr>
             <tr>
@@ -63,10 +67,6 @@
               <td>{{debugingService.ngTouchCursorY.toFixed()}}</td>
             </tr>
           </table>
-          <button mat-raised-button
-                  (click)="debugingService.logDrawingLayer()">DrawingLayer</button>
-          <button mat-raised-button
-                  (click)="debugingService.logChildren()">Children</button>
         </div>
 
       </mat-expansion-panel>

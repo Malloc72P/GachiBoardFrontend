@@ -19,10 +19,8 @@ export abstract class EditableStroke extends WhiteboardItem {
   private _strokeWidth: number;
   private _strokeColor: Color;
 
-  protected constructor(type, path:Path, posCalcService,
-                        eventEmitter:EventEmitter<any>,
-                        zoomEventEmitter:EventEmitter<any>) {
-    super(type, path, posCalcService, eventEmitter, zoomEventEmitter);
+  protected constructor(type, path:Path, layerService) {
+    super(type, path, layerService);
 
     this.disableLinkHandler = true;
 

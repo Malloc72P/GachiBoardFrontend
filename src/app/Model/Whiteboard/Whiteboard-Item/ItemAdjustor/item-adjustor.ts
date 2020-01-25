@@ -7,7 +7,8 @@ import Rectangle = paper.Path.Rectangle;
 
 import {WhiteboardItem} from '../whiteboard-item';
 import {HandlerDirection} from './ItemHandler/handler-direction.enum';
-import {ZoomEvent, ZoomEventEnum} from '../../InfiniteCanvas/ZoomControl/zoom-control.service';
+import {ZoomEvent} from '../../InfiniteCanvas/ZoomControl/ZoomEvent/zoom-event';
+import {ZoomEventEnum} from '../../InfiniteCanvas/ZoomControl/ZoomEvent/zoom-event-enum.enum';
 
 class HandlerOption {
   public static strokeWidth = 1;
@@ -52,9 +53,36 @@ export class ItemAdjustor {
     }
 
   }
+  public disable(){
+    this.itemGuideLine.visible = false;
+    if (this.sizeHandlers) {
+      this.sizeHandlers.forEach((value, key, map) => {
+        value.disableItem();
+      });
+    }
+    if (this.linkHandlers) {
+      this.linkHandlers.forEach((value, key, map) => {
+        value.disableItem();
+      });
+    }
+  }
+  public enable(){
+    this.itemGuideLine.visible = true;
+    if (this.sizeHandlers) {
+      this.sizeHandlers.forEach((value, key, map) => {
+        value.enableItem();
+      });
+    }
+    if (this.linkHandlers) {
+      this.linkHandlers.forEach((value, key, map) => {
+        value.enableItem();
+      });
+    }
+  }
 
+  // #### init 메서드
   private initGuideLine(){
-    let zoomFactor = this.owner.posCalcService.getZoomState();
+    let zoomFactor = this.owner.layerService.posCalcService.getZoomState();
 
     this.itemGuideLine = new Rectangle(this.owner.group.strokeBounds);
     this.itemGuideLine.strokeWidth = HandlerOption.strokeWidth / zoomFactor;
@@ -87,25 +115,9 @@ export class ItemAdjustor {
     }
   }
   private onZoomChange(zoomEvent:ZoomEvent){
-    switch (zoomEvent.zoomEvent) {
+    switch (zoomEvent.action) {
       case ZoomEventEnum.ZOOM_CHANGED:
-
-        let zoomFactor = this.owner.posCalcService.getZoomState();
-        this.itemGuideLine.strokeWidth = HandlerOption.strokeWidth / zoomFactor;
-
-        this.itemGuideLine.dashArray = [HandlerOption.dashLength / zoomFactor,
-          HandlerOption.dashLength / zoomFactor];
-
-        this.sizeHandlers.forEach((value, key, map)=>{
-          ItemAdjustor.reflectZoomFactorToHandler(value, zoomFactor);
-        });
-        if(!this.owner.disableLinkHandler){
-          this.linkHandlers.forEach((value, key, map)=>{
-            ItemAdjustor.reflectZoomFactorToHandler(value, zoomFactor);
-          })
-        }
-
-
+        this.refreshForZoomChange();
         break;
       case ZoomEventEnum.ZOOM_IN:
         break;
@@ -115,7 +127,23 @@ export class ItemAdjustor {
         break;
     }
   }
+  private refreshForZoomChange(){
+    let zoomFactor = this.owner.layerService.posCalcService.getZoomState();
+    this.itemGuideLine.strokeWidth = HandlerOption.strokeWidth / zoomFactor;
 
+    this.itemGuideLine.dashArray = [HandlerOption.dashLength / zoomFactor,
+      HandlerOption.dashLength / zoomFactor];
+    if(this.sizeHandlers){
+      this.sizeHandlers.forEach((value, key, map)=>{
+        ItemAdjustor.reflectZoomFactorToHandler(value, zoomFactor);
+      });
+    }
+    if(this.linkHandlers){
+      this.linkHandlers.forEach((value, key, map)=>{
+        ItemAdjustor.reflectZoomFactorToHandler(value, zoomFactor);
+      })
+    }
+  }
   private static reflectZoomFactorToHandler(value, zoomFactor){
     const diameter = HandlerOption.circleRadius / zoomFactor * 2;
     const center = value.handlerCircleObject.position;
@@ -127,6 +155,24 @@ export class ItemAdjustor {
       value.spreadHandler();
     }
     value.handlerCircleObject.position = center;
+  }
+  //#####################
+
+  // #### handler관리 메서드
+  public disableLinkHandlers(){
+    if(this.linkHandlers){
+      this.linkHandlers.forEach((value, key, map)=>{
+        value.disableItem();
+      });
+    }
+  }
+  public enableLinkHandlers(){
+    if(this.linkHandlers){
+      this.linkHandlers.forEach((value, key, map)=>{
+        value.enableItem();
+      });
+    }
+
   }
 
   //########################## GETTER & SETTER ##################################

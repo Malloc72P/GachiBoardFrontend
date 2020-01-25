@@ -9,29 +9,31 @@ export class LinkHandler extends ItemHandler{
     this.spreadHandler();
   }
 
+
+
   public spreadHandler(){
-    let zoomFactor = this.owner.posCalcService.getZoomState();
+    let zoomFactor = this.owner.layerService.posCalcService.getZoomState();
     switch (this.handlerDirection) {
       case HandlerDirection.TOP_CENTER:
-        this.handlerCircleObject.position = this.owner.posCalcService.movePointTop(
+        this.handlerCircleObject.position = this.owner.layerService.posCalcService.movePointTop(
             this.handlerCircleObject.position,
             LinkHandler.HANDLER_MARGIN / zoomFactor
         );
         return;
       case HandlerDirection.BOTTOM_CENTER:
-        this.handlerCircleObject.position = this.owner.posCalcService.movePointBottom(
+        this.handlerCircleObject.position = this.owner.layerService.posCalcService.movePointBottom(
             this.handlerCircleObject.position,
             LinkHandler.HANDLER_MARGIN / zoomFactor
         );
         return;
       case HandlerDirection.CENTER_LEFT:
-        this.handlerCircleObject.position = this.owner.posCalcService.movePointLeft(
+        this.handlerCircleObject.position = this.owner.layerService.posCalcService.movePointLeft(
             this.handlerCircleObject.position,
             LinkHandler.HANDLER_MARGIN / zoomFactor
         );
         return;
       case HandlerDirection.CENTER_RIGHT:
-        this.handlerCircleObject.position = this.owner.posCalcService.movePointRight(
+        this.handlerCircleObject.position = this.owner.layerService.posCalcService.movePointRight(
             this.handlerCircleObject.position,
             LinkHandler.HANDLER_MARGIN / zoomFactor
         );
@@ -41,6 +43,7 @@ export class LinkHandler extends ItemHandler{
   public removeItem() {
     this.handlerCircleObject.remove();
   }
+
 
 
 

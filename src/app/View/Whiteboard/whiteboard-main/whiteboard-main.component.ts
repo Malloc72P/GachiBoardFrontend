@@ -126,6 +126,9 @@ export class WhiteboardMainComponent implements OnInit {
     }
     // 전역
     switch (event.code) {
+      case "KeyP":
+        document.getElementById(PointerMode[PointerMode.POINTER]).click();
+        break;
       case "KeyM":
         document.getElementById(PointerMode[PointerMode.MOVE]).click();
         break;

@@ -3,6 +3,8 @@ import {PointerMode, PointerModeEnumService} from '../../../Model/Whiteboard/Poi
 import {PopoverPanel} from '../CommonClass/popover-panel/popover-panel';
 import {PointerModeManagerService} from '../../../Model/Whiteboard/Pointer/pointer-mode-manager-service/pointer-mode-manager.service';
 import {PanelManagerService} from '../../../Model/Whiteboard/Panel/panel-manager-service/panel-manager.service';
+import {DrawingLayerManagerService} from '../../../Model/Whiteboard/InfiniteCanvas/DrawingLayerManager/drawing-layer-manager.service';
+import {PointerModeEvent} from '../../../Model/Whiteboard/Pointer/PointerModeEvent/pointer-mode-event';
 
 @Component({
   selector: 'app-whiteboard-tool-panel',
@@ -16,6 +18,7 @@ export class WhiteboardToolPanelComponent extends PopoverPanel implements OnInit
     private pointerModeEnumService: PointerModeEnumService,
     public pointerModeManagerService: PointerModeManagerService,
     private panelManager: PanelManagerService,
+    private layerService: DrawingLayerManagerService,
   ) {
     super(pointerModeEnumService);
     this.pointerModeEnumService = pointerModeEnumService;
@@ -66,6 +69,7 @@ export class WhiteboardToolPanelComponent extends PopoverPanel implements OnInit
 
   modeChange(mode: number) {
     this.pointerModeManagerService.currentPointerMode = this.toolPanelToggleGroupValue = mode;
+    this.layerService.pointerModeEventEmitter.emit(new PointerModeEvent(mode));
   }
 
   get PointerModeEnum() {
