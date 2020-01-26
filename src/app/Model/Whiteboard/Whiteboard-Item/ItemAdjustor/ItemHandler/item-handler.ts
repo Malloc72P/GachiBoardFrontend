@@ -24,19 +24,47 @@ export abstract class ItemHandler {
     let zoomFactor = this.owner.layerService.posCalcService.getZoomState();
 
     this.handlerDirection = handlerDirection;
+
+    let handlerPosition = this.getHandlerPosition(handlerDirection);
+
     this.handlerCircleObject = new Circle(
-      new Point(
-        this.guideLine.bounds.center.x,
-        this.guideLine.bounds.center.y),
+      new Point(handlerPosition.x, handlerPosition.y),
       handlerOption.circleRadius / zoomFactor
     );
     this.handlerCircleObject.style.fillColor = handlerFillColor;
-    this.handlerCircleObject.position = this.getHandlerPosition(handlerDirection);
     // @ts-ignore
     this.handlerCircleObject.strokeColor = handlerOption.strokeColor;
 
     this.handlerCircleObject.data.struct = this;
+
+    this.handlerCircleObject.onMouseDown = (event)=>{
+      if(!this.owner.checkSelectable()){
+        return;
+      }
+      this.onMouseDown(event);
+    };
+    this.handlerCircleObject.onMouseDrag = (event)=>{
+      if(!this.owner.checkSelectable()){
+        return;
+      }
+      this.onMouseDrag(event);
+    };
+    this.handlerCircleObject.onMouseUp = (event)=>{
+      if(!this.owner.checkSelectable()){
+        return;
+      }
+      this.onMouseUp(event);
+    };
   }
+
+  public refreshPosition(){
+    this.handlerCircleObject.position = this.getHandlerPosition(this.handlerDirection);
+  }
+
+  protected abstract onMouseDown(event);
+  protected abstract onMouseDrag(event);
+  protected abstract onMouseUp(event);
+
   protected getHandlerPosition(handlerDirection){
     let bounds = this.guideLine.bounds;
     switch (handlerDirection) {
@@ -57,6 +85,28 @@ export abstract class ItemHandler {
       case HandlerDirection.BOTTOM_RIGHT :
         return bounds.bottomRight;
     }
+  }
+  protected getOppositeHandlerPosition(handlerDirection){
+    let bounds = this.guideLine.bounds;
+    switch (handlerDirection) {
+      case HandlerDirection.TOP_LEFT :
+        return bounds.bottomRight;
+      case HandlerDirection.TOP_CENTER :
+        return bounds.bottomCenter;
+      case HandlerDirection.TOP_RIGHT :
+        return bounds.bottomLeft;
+      case HandlerDirection.CENTER_LEFT :
+        return bounds.rightCenter;
+      case HandlerDirection.CENTER_RIGHT :
+        return bounds.leftCenter;
+      case HandlerDirection.BOTTOM_LEFT :
+        return bounds.topRight;
+      case HandlerDirection.BOTTOM_CENTER :
+        return bounds.topCenter;
+      case HandlerDirection.BOTTOM_RIGHT :
+        return bounds.topLeft;
+    }
+
   }
   public disableItem(){
     this.handlerCircleObject.visible = false;

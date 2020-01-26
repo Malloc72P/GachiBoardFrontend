@@ -79,6 +79,19 @@ export class ItemAdjustor {
       });
     }
   }
+  public refreshItemAdjustorSize(){
+    this.itemGuideLine.bounds = this.owner.group.bounds;
+    if(this.sizeHandlers){
+      this.sizeHandlers.forEach((value, key, map)=>{
+        value.refreshPosition();
+      });
+    }
+    if(this.linkHandlers){
+      this.linkHandlers.forEach((value, key, map)=>{
+        value.refreshPosition();
+      })
+    }
+  }
 
   // #### init 메서드
   private initGuideLine(){

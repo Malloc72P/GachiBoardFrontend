@@ -47,4 +47,19 @@ export class PointCalculator {
       endPoint.y = startPoint.y - (width * ratio);
     }
   }
+  static resizeDimensions(elem,width,height){
+    //calc scale coefficients and store current position
+    let scaleX = width/elem.bounds.width;
+    let scaleY = height/elem.bounds.height;
+    let prevPos = new Point(elem.bounds.x,elem.bounds.y);
+
+    //apply calc scaling
+    elem.scale(scaleX,scaleY);
+
+    //reposition the elem to previous pos(scaling moves the elem so we reset it's position);
+    elem.position = new Point(
+      prevPos.x + elem.bounds.width / 2,
+      prevPos.y + elem.bounds.height / 2
+    );
+  }
 }

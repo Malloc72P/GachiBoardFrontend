@@ -1,5 +1,10 @@
 import {ItemHandler} from '../item-handler';
 
+import * as paper from 'paper';
+import {PointCalculator} from '../../../../Pointer/point-calculator/point-calculator';
+// @ts-ignore
+import Point = paper.Point;
+
 export class SizeHandler extends ItemHandler{
   private static readonly HANDLER_FILL_COLOR = "white";
   constructor(wbItem, handlerDirection, handlerOption, guideLine){
@@ -9,4 +14,52 @@ export class SizeHandler extends ItemHandler{
   public removeItem() {
     this.handlerCircleObject.remove();
   }
+
+  private ratio = { width: 0, height: 0 };
+  private adjustSizeFrom:Point;
+  private adjustSizeTo:Point;
+  protected onMouseDown(event) {
+    this.initSizingDataBeforeResizing();
+  }
+
+  protected onMouseDrag(event) {
+    let resizePoint = event.point;
+    let minSize = 5;
+    let selectedGroup = this.owner.layerService.globalSelectedGroup.group;
+
+    let width = this.adjustSizeFrom.x - resizePoint.x;
+    if(width < minSize && width >= 0) {
+      resizePoint.x = this.adjustSizeFrom.x - minSize;
+    } else if (width > -minSize && width < 0) {
+      resizePoint.x = this.adjustSizeFrom.x + minSize;
+    }
+
+
+    const height = this.adjustSizeFrom.y - resizePoint.y;
+    if(height < minSize && height >= 0) {
+      resizePoint.y = this.adjustSizeFrom.y - minSize;
+    } else if (height > -minSize && height < 0) {
+      resizePoint.y = this.adjustSizeFrom.y + minSize;
+    }
+    if(event.modifiers.shift === true && event.modifiers.control === true) {
+      PointCalculator.forSquare(this.adjustSizeFrom, resizePoint);
+    } else if(event.shiftKey) {
+      PointCalculator.forFixRatio(this.adjustSizeFrom, resizePoint, this.ratio);
+    }
+    selectedGroup.bounds = new paper.Rectangle(this.adjustSizeFrom, event.point);
+    this.owner.myItemAdjustor.refreshItemAdjustorSize();
+  }
+
+  protected onMouseUp(event) {
+  }
+
+  private initSizingDataBeforeResizing() {
+    let selectedGroup = this.owner.layerService.globalSelectedGroup.group;
+    this.ratio.width = selectedGroup.bounds.width;
+    this.ratio.height = selectedGroup.bounds.height;
+
+    this.adjustSizeTo = this.getHandlerPosition(this.handlerDirection);
+    this.adjustSizeFrom = this.getOppositeHandlerPosition(this.handlerDirection);
+  }
+
 }

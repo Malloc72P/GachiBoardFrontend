@@ -33,6 +33,7 @@ import {SelectEvent} from './SelectEvent/select-event';
 import {SelectEventEnum} from './SelectEventEnum/select-event.enum';
 import {InfiniteCanvasService} from '../infinite-canvas.service';
 import {ItemGroup} from '../../Whiteboard-Item/ItemGroup/item-group';
+import {PointerModeManagerService} from '../../Pointer/pointer-mode-manager-service/pointer-mode-manager.service';
 
 
 @Injectable({
@@ -84,6 +85,7 @@ export class DrawingLayerManagerService {
     this.pointerModeEventEmitter.subscribe((data:PointerModeEvent)=>{
       console.log("DrawingLayerManagerService >> pointerModeEventEmitter >> data : ",PointerMode[data.currentMode]);
       this.currentPointerMode = data.currentMode;
+      this.globalSelectedGroup.extractAllFromSelection();
     });
   }
 

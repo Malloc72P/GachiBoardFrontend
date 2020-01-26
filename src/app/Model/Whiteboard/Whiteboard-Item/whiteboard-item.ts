@@ -67,7 +67,9 @@ export abstract class WhiteboardItem {
   }
   protected setCallback() {
     this.group.onMouseDown = (event) => {
-      console.log("WhiteboardItem >> onMouseDown >> wbitem 진입함");
+      if(!this.checkSelectable()){
+        return;
+      }
       if(event.modifiers.control === true || event.modifiers.shift === true){
         this.setMultipleSelectMode();
       }
@@ -83,6 +85,9 @@ export abstract class WhiteboardItem {
       }
     };
     this.group.onMouseUp = () =>{
+      if(!this.checkSelectable()){
+        return;
+      }
       this.setSingleSelectMode();
     }
   }
@@ -131,7 +136,8 @@ export abstract class WhiteboardItem {
   public abstract refreshItem();
   public abstract destroyItem();
 
-  checkSelectable(currentPointerMode){
+  checkSelectable(){
+    let currentPointerMode = this.layerService.currentPointerMode;
     return currentPointerMode === PointerMode.POINTER || currentPointerMode === PointerMode.LASSO_SELECTOR;
   }
 

@@ -66,10 +66,8 @@ export class ItemGroup extends WhiteboardItem {
       this.group.bounds.topLeft,
       this.group.bounds.bottomRight,
     );
-    this.backgroundRect.sendToBack();
-    this.wbItemGroup.forEach((value)=>{
-      this.backgroundRect.insertAbove(value.group);
-    });
+    this.backgroundRect.bringToFront();
+    this.group.addChild(this.backgroundRect);
 
     // @ts-ignore
     //this.backgroundRect.fillColor = 'transparent';
@@ -91,6 +89,9 @@ export class ItemGroup extends WhiteboardItem {
   //### Mouse Event 콜백
   protected setCallback() {}
   protected onMouseDown(event){
+    if(!this.checkSelectable()){
+      return;
+    }
     this.prevPoint = event.point;
     if(event.modifiers.control === true){
       console.log("ItemGroup >> onMouseDown >> control 진입함");
@@ -105,8 +106,7 @@ export class ItemGroup extends WhiteboardItem {
     if(event.modifiers.alt === true){
 
     }
-    let currentPointerMode = this.layerService.currentPointerMode;
-    if( this.checkSelectable(currentPointerMode) ){
+    if( this.checkSelectable() ){
       if (this.isSingleSelectMode()) {
         console.log("ItemGroup >> onMouseDown >> isSingleSelectMode is true");
       }
@@ -121,11 +121,14 @@ export class ItemGroup extends WhiteboardItem {
 
   }
   protected onMouseDrag(event){
+    if(!this.checkSelectable()){
+      return;
+    }
     this.deactivateSelectedMode();
     this.calcCurrentDistance(event);
     let currentPointerMode = this.layerService.currentPointerMode;
     this.calcCurrentDistance(event);
-    if( this.checkSelectable(currentPointerMode)  ) {
+    if( this.checkSelectable()  ) {
       //this.group.position = event.point;
       this.group.position.x += event.delta.x;
       this.group.position.y += event.delta.y;
@@ -133,13 +136,10 @@ export class ItemGroup extends WhiteboardItem {
   }
   protected onMouseUp(event){
     this.calcCurrentDistance(event);
-    let currentPointerMode = this.layerService.currentPointerMode;
-    if( this.checkSelectable(currentPointerMode)  ){
-      if(this.trailDistance < 5){
-
-      }
-      this.resetMyItemAdjustor();
+    if(!this.checkSelectable()){
+      return;
     }
+    this.resetMyItemAdjustor();
 
     this.resetDistance();
     this.setSingleSelectMode();
@@ -150,6 +150,7 @@ export class ItemGroup extends WhiteboardItem {
   private resetMyItemAdjustor(){
     this.deactivateSelectedMode();
     this.activateSelectedMode();
+    this.myItemAdjustor.refreshItemAdjustorSize();
     this.createBackgroundRect();
     this.refreshLinkHandler();
   }
