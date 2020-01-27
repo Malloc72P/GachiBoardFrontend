@@ -50,6 +50,7 @@ export class LinkPort {
       this.adjustTempLinkPosition();
     };
     this.linkInfoList = new Array<LinkInfo>();
+
   }
 
   public calcLinkPortPosition(){

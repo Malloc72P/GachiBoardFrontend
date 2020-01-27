@@ -21,6 +21,7 @@ import Group = paper.Group;
 import Rectangle = paper.Path.Rectangle;
 
 import {ItemLifeCycleEnum, ItemLifeCycleEvent} from '../WhiteboardItemLifeCycle/WhiteboardItemLifeCycle';
+import {EditableStroke} from '../editable-stroke/editable-stroke';
 
 export class ItemGroup extends WhiteboardItem {
   private _wbItemGroup: Array<WhiteboardItem>;
@@ -31,16 +32,16 @@ export class ItemGroup extends WhiteboardItem {
     this.coreItem = this.group;
     this.wbItemGroup = new Array<WhiteboardItem>();
     console.log('ItemGroup >> constructor >> 진입함');
-    let prevNumberOfChildren = this.coreItem.children.length;
+    let prevNumberOfChildren = this.getNumberOfChild();
 
     this.createBackgroundRect();
     this.coreItem.onFrame = (event) => {
-      let currNumberOfChildren = this.coreItem.children.length;
+      let currNumberOfChildren = this.getNumberOfChild();
       if (prevNumberOfChildren !== currNumberOfChildren) {
 
         this.resetMyItemAdjustor();
 
-        prevNumberOfChildren = this.coreItem.children.length;
+        prevNumberOfChildren = this.getNumberOfChild();
       }
     };
   }
@@ -63,8 +64,8 @@ export class ItemGroup extends WhiteboardItem {
   private createBackgroundRect() {
     this.removeBackgroundRect();
     this.backgroundRect = new Rectangle(
-      this.group.bounds.topLeft,
-      this.group.bounds.bottomRight,
+      new Point(this.group.bounds.topLeft.x, this.group.bounds.topLeft.y),
+      new Point(this.group.bounds.bottomRight.x, this.group.bounds.bottomRight.y),
     );
     this.backgroundRect.bringToFront();
     this.group.addChild(this.backgroundRect);
@@ -94,12 +95,10 @@ export class ItemGroup extends WhiteboardItem {
     }
     this.prevPoint = event.point;
     if(event.modifiers.control === true){
-      console.log("ItemGroup >> onMouseDown >> control 진입함");
       //this.layerService.globalSelectedGroup.setMultipleSelectMode(this);
       this.setMultipleSelectMode();
     }
     if(event.modifiers.shift === true){
-      console.log("ItemGroup >> onMouseDown >> shift 진입함");
       //this.layerService.globalSelectedGroup.setMultipleSelectMode(this);
       this.setMultipleSelectMode();
     }
@@ -108,7 +107,6 @@ export class ItemGroup extends WhiteboardItem {
     }
     if( this.checkSelectable() ){
       if (this.isSingleSelectMode()) {
-        console.log("ItemGroup >> onMouseDown >> isSingleSelectMode is true");
       }
       else{
         let hitItem = this.layerService.getHittedItem(event.point);
@@ -124,7 +122,8 @@ export class ItemGroup extends WhiteboardItem {
     if(!this.checkSelectable()){
       return;
     }
-    this.deactivateSelectedMode();
+    //this.deactivateSelectedMode();
+    this.myItemAdjustor.disable();
     this.calcCurrentDistance(event);
     let currentPointerMode = this.layerService.currentPointerMode;
     this.calcCurrentDistance(event);
@@ -139,7 +138,10 @@ export class ItemGroup extends WhiteboardItem {
     if(!this.checkSelectable()){
       return;
     }
-    this.resetMyItemAdjustor();
+    if(this.myItemAdjustor){
+      this.myItemAdjustor.enable();
+      this.resetMyItemAdjustor();
+    }
 
     this.resetDistance();
     this.setSingleSelectMode();
@@ -148,19 +150,38 @@ export class ItemGroup extends WhiteboardItem {
 
 
   private resetMyItemAdjustor(){
-    this.deactivateSelectedMode();
-    this.activateSelectedMode();
-    this.myItemAdjustor.refreshItemAdjustorSize();
-    this.createBackgroundRect();
-    this.refreshLinkHandler();
+    if(this.getNumberOfChild() === 1){
+      this.activateSelectedMode();
+      this.createBackgroundRect();
+    }
+    if(this.getNumberOfChild() === 0){
+      this.deactivateSelectedMode();
+      this.removeBackgroundRect();
+    }
+    //this.deactivateSelectedMode();
+    //this.activateSelectedMode();
+    if(this.myItemAdjustor){
+      this.myItemAdjustor.refreshItemAdjustorSize();
+      this.createBackgroundRect();
+      this.refreshLinkHandler();
+    }
   }
   private refreshLinkHandler(){
     if(this.getNumberOfChild() === 1){
-      this.myItemAdjustor.enableLinkHandlers();
+      if( this.wbItemGroup[0] instanceof EditableStroke ){
+        this.myItemAdjustor.disableLinkHandlers();
+      }
+      else{
+        this.myItemAdjustor.enableLinkHandlers();
+      }
     }
     else{
       this.myItemAdjustor.disableLinkHandlers();
     }
+  }
+  private retractGroup(){
+    this.backgroundRect.remove();
+    this.group.bounds = new Rectangle(new Point(0,0), new Point(0,0));
   }
 
   public insertOneIntoGroup(wbItem: WhiteboardItem) {
@@ -170,6 +191,7 @@ export class ItemGroup extends WhiteboardItem {
     this.wbItemGroup.push(wbItem);
     wbItem.isSelected = true;
     this.coreItem.addChild(wbItem.group);
+
     this.resetMyItemAdjustor();
   }
 

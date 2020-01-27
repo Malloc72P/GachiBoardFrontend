@@ -41,9 +41,9 @@ export class SizeHandler extends ItemHandler{
     } else if (height > -minSize && height < 0) {
       resizePoint.y = this.adjustSizeFrom.y + minSize;
     }
-    if(event.modifiers.shift === true && event.modifiers.control === true) {
+    if(event.modifiers.control === true) {
       PointCalculator.forSquare(this.adjustSizeFrom, resizePoint);
-    } else if(event.shiftKey) {
+    } else if(event.modifiers.shift) {
       PointCalculator.forFixRatio(this.adjustSizeFrom, resizePoint, this.ratio);
     }
     selectedGroup.bounds = new paper.Rectangle(this.adjustSizeFrom, event.point);
