@@ -1,4 +1,4 @@
-import {TextStyle} from "../../../Pointer/shape-service/text-style";
+import {TextStyle} from '../../../Pointer/shape-service/text-style';
 import {WhiteboardItem} from '../../whiteboard-item';
 
 import * as paper from 'paper';
@@ -29,57 +29,58 @@ export abstract class EditableShape extends WhiteboardShape {
   private _rawTextContent: string;
   private _textStyle: TextStyle;
   private _textBound: Rectangle;
-  private _editText:PointText;
+  private _editText: PointText;
   private static readonly EDIT_TEXT_PADDING = 5;
-  private _isEditing:boolean;
+  private _isEditing: boolean;
 
-  protected constructor(type, item:Item, textStyle, editText, layerService) {
+  protected constructor(type, item: Item, textStyle, editText, layerService) {
     super(type, item, layerService);
-    this.topLeft  = new Point(item.bounds.topLeft.x, item.bounds.topLeft.y);
-    this.width    = item.bounds.width;
-    this.height    = item.bounds.height;
+    this.topLeft = new Point(item.bounds.topLeft.x, item.bounds.topLeft.y);
+    this.width = item.bounds.width;
+    this.height = item.bounds.height;
     this.borderColor = item.style.strokeColor;
     this.borderWidth = item.style.strokeWidth;
-    if(item.style.fillColor){
+    if (item.style.fillColor) {
       this.fillColor = item.style.fillColor;
-    }else{
+    } else {
       // @ts-ignore
-      this.fillColor = "transparent";
+      this.fillColor = 'transparent';
     }
     this.opacity = item.opacity;
     this.textStyle = textStyle;
-    this.textContent = "";
-    this.rawTextContent = "";
+    this.textContent = '';
+    this.rawTextContent = '';
 
     this.editText = editText;
     this.textBound = new Rectangle(editText.bounds);
-    this.editText.justification = "center";
+    this.editText.justification = 'center';
     this.layerService = layerService;
     this.isEditing = false;
 
-    item.onFrame = (event)=>{
-      if(event.count % 15 === 0){
+    item.onFrame = (event) => {
+      if (event.count % 15 === 0) {
         this.editText.position = new Point(this.coreItem.bounds.center);
-        if(!this.isEditing){
+        if (!this.isEditing) {
           editText.bringToFront();
         }
       }
     };//onFrame
   }
-  public notifyItemModified(){
-    console.log("EditableShape >> notifyItemModified >> 진입함");
+
+  public notifyItemModified() {
+    console.log('EditableShape >> notifyItemModified >> 진입함');
 
     this.width = this.group.bounds.width;
     this.height = this.group.bounds.height;
-    this.topLeft  = this.group.bounds.topLeft;
+    this.topLeft = this.group.bounds.topLeft;
 
     this.borderColor = this.coreItem.style.strokeColor;
     this.borderWidth = this.coreItem.style.strokeWidth;
-    if(this.coreItem.style.fillColor){
+    if (this.coreItem.style.fillColor) {
       this.fillColor = this.coreItem.style.fillColor;
-    }else{
+    } else {
       // @ts-ignore
-      this.fillColor = "transparent";
+      this.fillColor = 'transparent';
     }
     this.opacity = this.coreItem.opacity;
     this.textBound = new Rectangle(this.editText.bounds);
@@ -87,21 +88,22 @@ export abstract class EditableShape extends WhiteboardShape {
     this.lifeCycleEventEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.MODIFY));
     this.notifyOwnerChangeEventToLinkPort();
   }
+
   public notifyItemCreation() {
-    console.log("EditableShape >> createItem >> 진입함");
+    console.log('EditableShape >> createItem >> 진입함');
     this.lifeCycleEventEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.CREATE));
   }
 
   public destroyItem() {
-    console.log("EditableShape >> destroyItem >> 진입함");
+    console.log('EditableShape >> destroyItem >> 진입함');
     this.editText.remove();
     this.coreItem.remove();
     this.group.remove();
     this.lifeCycleEventEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.DESTROY));
   }
 
-  public refreshItem(){
-    console.log("EditableShape >> refreshItem >> 진입함");
+  public refreshItem() {
+    console.log('EditableShape >> refreshItem >> 진입함');
     let newtopLeft = new Point(this.group.bounds.topLeft.x, this.group.bounds.topLeft.y);
 
     let newWidth = this.group.bounds.width + 0;
@@ -120,7 +122,7 @@ export abstract class EditableShape extends WhiteboardShape {
     let convertedText = this.rawTextContent.replace(
       /<(div|br)([^>]*)>/g, '\n'  // <div> <br> -> \n
     ).replace(
-      /(<([^>]+)>)/ig, ""         // <*> -> empty
+      /(<([^>]+)>)/ig, ''         // <*> -> empty
     );
 
     let adjustedTextContent = this.getAdjustedTextContent(
@@ -128,7 +130,7 @@ export abstract class EditableShape extends WhiteboardShape {
       this.layerService.posCalcService.advConvertLengthNgToPaper(this.coreItem.bounds.width),
       this.layerService.posCalcService.advConvertLengthNgToPaper(this.coreItem.bounds.height));
 
-    this.modifyEditText(adjustedTextContent,this.rawTextContent);
+    this.modifyEditText(adjustedTextContent, this.rawTextContent);
 
     //this.topLeft.x = this.coreItem.bounds.topLeft.x;
     //this.topLeft.y = this.coreItem.bounds.topLeft.y;
@@ -139,7 +141,7 @@ export abstract class EditableShape extends WhiteboardShape {
     this.notifyOwnerChangeEventToLinkPort();
   }
 
-  public modifyEditText(content, rawContent ){
+  public modifyEditText(content, rawContent) {
 
     this.textContent = content;
     this.rawTextContent = rawContent;
@@ -157,7 +159,7 @@ export abstract class EditableShape extends WhiteboardShape {
   }
 
   private getAdjustedTextContent(text: string, width: number, height: number) {
-    let calcText = "";
+    let calcText = '';
     let charWidth;
     let calcWidth = 0;
     let charHeight;
@@ -168,13 +170,13 @@ export abstract class EditableShape extends WhiteboardShape {
 
     let textStyle = new TextStyle();
 
-    if(text === "") {
-      calcText = "";
+    if (text === '') {
+      calcText = '';
     } else {
 
       charHeight = this.calcStringHeight(text[0], textStyle);
-      for(let i = 0; i < text.length; i++) {
-        if(text[i] === '\n') {
+      for (let i = 0; i < text.length; i++) {
+        if (text[i] === '\n') {
           calcText += text[i];
           calcHeight += charHeight;
           calcWidth = 0;
@@ -183,12 +185,12 @@ export abstract class EditableShape extends WhiteboardShape {
         charWidth = this.calcStringWidth(text[i], textStyle);
         calcWidth += charWidth;
 
-        if(calcWidth > width) {
+        if (calcWidth > width) {
           calcHeight += charHeight;
           calcText += '\n';
           calcWidth = charWidth;
         }
-        if(calcHeight > height) {
+        if (calcHeight > height) {
           break;
         }
         calcText += text[i];
@@ -196,6 +198,7 @@ export abstract class EditableShape extends WhiteboardShape {
     }
     return calcText;
   }
+
   private calcStringHeight(input: string, style: TextStyle): number {
     let tempPointText = new PointText({
       fontFamily: style.fontFamily,
@@ -209,6 +212,7 @@ export abstract class EditableShape extends WhiteboardShape {
 
     return this.layerService.posCalcService.advConvertLengthNgToPaper(height);
   }
+
   private calcStringWidth(input: string, style: TextStyle): number {
     let tempPointText = new PointText({
       fontFamily: style.fontFamily,

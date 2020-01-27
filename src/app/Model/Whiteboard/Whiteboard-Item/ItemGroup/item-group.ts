@@ -22,6 +22,9 @@ import Rectangle = paper.Path.Rectangle;
 
 import {ItemLifeCycleEnum, ItemLifeCycleEvent} from '../WhiteboardItemLifeCycle/WhiteboardItemLifeCycle';
 import {EditableStroke} from '../editable-stroke/editable-stroke';
+import {TextStyle} from '../../Pointer/shape-service/text-style';
+import {EditableShape} from '../Whiteboard-Shape/EditableShape/editable-shape';
+import {WhiteboardShape} from '../Whiteboard-Shape/whiteboard-shape';
 
 export class ItemGroup extends WhiteboardItem {
   private _wbItemGroup: Array<WhiteboardItem>;
@@ -67,7 +70,16 @@ export class ItemGroup extends WhiteboardItem {
       new Point(this.group.bounds.topLeft.x, this.group.bounds.topLeft.y),
       new Point(this.group.bounds.bottomRight.x, this.group.bounds.bottomRight.y),
     );
+    this.wbItemGroup.forEach((value, index, array)=>{
+      if(value.group){
+        value.group.bringToFront();
+      }
+    });
+    this.group.bringToFront();
     this.backgroundRect.bringToFront();
+    if(this.myItemAdjustor){
+      this.myItemAdjustor.bringToFront();
+    }
     this.group.addChild(this.backgroundRect);
 
     // @ts-ignore
@@ -85,6 +97,10 @@ export class ItemGroup extends WhiteboardItem {
     this.backgroundRect.onMouseUp = (event) => {
       this.onMouseUp(event);
     };
+    this.backgroundRect.onDoubleClick = ()=>{
+      console.log("ItemGroup >> onDoubleClick >> 진입함");
+    }
+
   }
 
   //### Mouse Event 콜백
@@ -93,6 +109,7 @@ export class ItemGroup extends WhiteboardItem {
     if(!this.checkSelectable()){
       return;
     }
+    console.log("ItemGroup >> onMouseDown >> event : ",event);
     this.prevPoint = event.point;
     if(event.modifiers.control === true){
       //this.layerService.globalSelectedGroup.setMultipleSelectMode(this);
@@ -146,6 +163,9 @@ export class ItemGroup extends WhiteboardItem {
     this.resetDistance();
     this.setSingleSelectMode();
     this.lifeCycleEventEmitter.emit(new ItemLifeCycleEvent(this.id,this,ItemLifeCycleEnum.MODIFY));
+    this.wbItemGroup.forEach((value, index, array)=>{
+      value.refreshItem();
+    })
   }
 
 
@@ -169,14 +189,14 @@ export class ItemGroup extends WhiteboardItem {
   private refreshLinkHandler(){
     if(this.getNumberOfChild() === 1){
       if( this.wbItemGroup[0] instanceof EditableStroke ){
-        this.myItemAdjustor.disableLinkHandlers();
+        //this.myItemAdjustor.disableLinkHandlers();
       }
       else{
-        this.myItemAdjustor.enableLinkHandlers();
+        //this.myItemAdjustor.enableLinkHandlers();
       }
     }
     else{
-      this.myItemAdjustor.disableLinkHandlers();
+      //this.myItemAdjustor.disableLinkHandlers();
     }
   }
   private retractGroup(){
@@ -201,10 +221,12 @@ export class ItemGroup extends WhiteboardItem {
       if (this.wbItemGroup[i].id === wbItem.id) {
         let drawingLayer = this.coreItem.parent;
         //자식을 drawingLayer로 옮겨줌.
-        this.wbItemGroup[i].isSelected = false;
-        drawingLayer.addChild(this.wbItemGroup[i].group);
+        let willBeExtract = this.wbItemGroup[i];
+        willBeExtract.isSelected = false;
+        drawingLayer.addChild(willBeExtract.group);
         this.wbItemGroup.splice(i, 1);
         this.resetMyItemAdjustor();
+        willBeExtract.refreshItem();
         return;
       }
     }
@@ -215,8 +237,10 @@ export class ItemGroup extends WhiteboardItem {
     let drawingLayer = this.coreItem.parent;
     for (let i = 0; i < this.wbItemGroup.length; i++) {
       //자식을 drawingLayer로 옮겨줌.
-      this.wbItemGroup[i].isSelected = false;
-      drawingLayer.addChild(this.wbItemGroup[i].group);
+      let willBeExtract = this.wbItemGroup[i];
+      willBeExtract.isSelected = false;
+      drawingLayer.addChild(willBeExtract.group);
+      willBeExtract.refreshItem();
     }
     this.wbItemGroup.splice(0, this.wbItemGroup.length);
     this.resetMyItemAdjustor();
@@ -249,6 +273,9 @@ export class ItemGroup extends WhiteboardItem {
   }
 
   public refreshItem() {
+    this.wbItemGroup.forEach((value, index, array)=>{
+      value.refreshItem();
+    });
     this.lifeCycleEventEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.MODIFY));
   }
 

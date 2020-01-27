@@ -151,7 +151,7 @@ export class ShapeService {
         let editableShape:EditableShape = selectedItem as EditableShape;
 
         if( editableShape.editText != null) {
-          this.textEditStart(editableShape.editText);
+          //this.textEditStart(editableShape.editText);
         }
       }
     // }
@@ -392,7 +392,7 @@ export class ShapeService {
 
   private onClickOutsidePanel(event, element, item) {
     if(element.contains(event.target)) {
-      this.textEditEnd(item);
+      //this.textEditEnd(item);
     }
   }
 

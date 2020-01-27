@@ -6,12 +6,11 @@
           (contextmenu)="contextMenuService.openMenu($event)">
   </canvas>
   <app-whiteboard-context-menu></app-whiteboard-context-menu>
-  <div [hidden]="pointerModeManager.shape.isHiddenEditText">
-    <div id="textEditorWrapper">
-      <div class="verticalSpacer"></div>
-      <div id="textEditor" contenteditable="true"></div>
-      <div class="verticalSpacer"></div>
-    </div>
+  <div id="textEditorWrapper"
+       [ngStyle]="layerService.isEditingText === true && { 'display' : 'flex' }">
+    <div class="verticalSpacer"></div>
+    <div id="textEditor" contenteditable="true"></div>
+    <div class="verticalSpacer"></div>
   </div>
   <app-whiteboard-tool-panel id="toolPanel"></app-whiteboard-tool-panel>
   <app-tool-brush-panel [hidden]="panelManager.isHideBrushPanel" id="brushPanel"></app-tool-brush-panel>

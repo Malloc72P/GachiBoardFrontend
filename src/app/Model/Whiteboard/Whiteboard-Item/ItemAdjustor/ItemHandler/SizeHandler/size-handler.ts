@@ -51,6 +51,7 @@ export class SizeHandler extends ItemHandler{
   }
 
   protected onMouseUp(event) {
+    this.owner.refreshItem();
   }
 
   private initSizingDataBeforeResizing() {

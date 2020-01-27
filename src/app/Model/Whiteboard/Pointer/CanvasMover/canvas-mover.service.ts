@@ -58,7 +58,7 @@ export class CanvasMoverService {
     this.movedByTouch(event);
   }
 
-  private movedByMouse(event){
+  public movedByMouse(event){
     let delta = this.positionCalcService.reflectZoomWithPoint(
       new Point( -event.movementX, -event.movementY )
     );
@@ -67,7 +67,7 @@ export class CanvasMoverService {
     this.infiniteCanvasService.solveDangerState();
   }
 
-  private movedByTouch(event){
+  public movedByTouch(event){
     let endPoint
       = this.posCalcService.reflectZoomWithPoint(
       new Point( event.changedTouches[0].clientX, event.changedTouches[0].clientY )

@@ -23,22 +23,35 @@ import Rectangle = paper.Rectangle;
 import Circle = paper.Path.Circle;
 
 import {PositionCalcService} from '../../../PositionCalc/position-calc.service';
+import {HandlerDirection} from '../../ItemAdjustor/ItemHandler/handler-direction.enum';
+import {HandlerOption} from '../../ItemAdjustor/item-adjustor';
+import {ZoomEvent} from '../../../InfiniteCanvas/ZoomControl/ZoomEvent/zoom-event';
+import {ZoomEventEnum} from '../../../InfiniteCanvas/ZoomControl/ZoomEvent/zoom-event-enum.enum';
+import {WhiteboardItem} from '../../whiteboard-item';
+import {DrawingLayerManagerService} from '../../../InfiniteCanvas/DrawingLayerManager/drawing-layer-manager.service';
 
 export class LinkPort {
   private _owner:WhiteboardShape;
   private _direction;
   private _linkInfoList:Array<LinkInfo>;
   private _posCalcService:PositionCalcService;
+  private _layerService:DrawingLayerManagerService;
+
+  private _handlerCircleObject:Circle;
 
   private tempLinkPath:Path;
 
   private tempLinkEntryCircle:Circle;
   private tempLinkExitCircle:Circle;
 
+  private static readonly HANDLER_FILL_COLOR = 'skyblue';
+  private static readonly HANDLER_MARGIN = 25;
+
   constructor(owner, direction, posCalcService){
     this.owner = owner;
     this.direction = direction;
     this.posCalcService = posCalcService;
+    this.layerService = this.owner.layerService;
     this.tempLinkPath = new Path({
       segments: [this.calcLinkPortPosition()],
       strokeColor: "black",
@@ -46,12 +59,109 @@ export class LinkPort {
       strokeCap: 'round',
       strokeJoin: 'round',
     });
+
+    let handlerPosition = this.calcLinkPortPosition();
+    let handlerOption = HandlerOption;
+    let zoomFactor = this.posCalcService.getZoomState();
+    this.handlerCircleObject = new Circle(
+      new Point(handlerPosition.x, handlerPosition.y),
+      handlerOption.circleRadius / zoomFactor
+    );
+    // @ts-ignore
+    this.handlerCircleObject.style.fillColor = LinkPort.HANDLER_FILL_COLOR;
+    // @ts-ignore
+    this.handlerCircleObject.strokeColor = handlerOption.strokeColor;
+
+    this.handlerCircleObject.data.struct = this;
+
+    this.spreadHandler();
+    let prevPosition = this.owner.group.position;
+    this.handlerCircleObject.onFrame = (event)=>{
+      let currPosition = this.owner.group.position;
+      if(prevPosition.x !== currPosition.x || prevPosition.y !== currPosition.y){
+        this.handlerCircleObject.position = this.calcLinkPortPosition();
+        this.spreadHandler();
+      }
+      if((event.count % 5) === 0){
+        this.handlerCircleObject.bringToFront();
+        if(this.owner.isSelected === true){
+          if(this.owner.layerService.globalSelectedGroup.getNumberOfChild() === 1){
+            this.enable();
+          }
+          else this.disable();
+        }
+        else this.disable();
+      }
+    };
+
     this.tempLinkPath.onFrame = (event)=>{
       this.adjustTempLinkPosition();
     };
+
+    this.owner.zoomEventEmitter.subscribe((zoomEvent:ZoomEvent)=>{
+      this.onZoomChange(zoomEvent);
+    });
+
     this.linkInfoList = new Array<LinkInfo>();
 
+    this.handlerCircleObject.onMouseDown = (event)=>{
+
+    };
+    this.handlerCircleObject.onMouseDrag = (event)=>{
+      let point = event.point;
+      let hitWbShape:WhiteboardShape = this._layerService.getHittedItem(point) as WhiteboardShape;
+
+      if(hitWbShape){
+        this.tempLinkToWbItem(hitWbShape, point);
+      }else{
+        this.tempLinkToEmptyField(point);
+      }
+    };
+    this.handlerCircleObject.onMouseUp = (event)=>{
+      let point = event.point;
+      let toWbShape:WhiteboardShape = this.layerService.getHittedItem(point) as WhiteboardShape;
+
+      this.createLink(toWbShape, point);
+    };
+
   }
+  private enable(){
+    this.handlerCircleObject.visible = true;
+  }
+  private disable(){
+    this.handlerCircleObject.visible = false;
+  }
+  private onZoomChange(zoomEvent:ZoomEvent){
+    switch (zoomEvent.action) {
+      case ZoomEventEnum.ZOOM_CHANGED:
+        this.refreshForZoomChange();
+        break;
+      case ZoomEventEnum.ZOOM_IN:
+        break;
+      case ZoomEventEnum.ZOOM_OUT:
+        break;
+      default:
+        break;
+    }
+  }
+  private refreshForZoomChange(){
+    let zoomFactor = this.owner.layerService.posCalcService.getZoomState();
+    LinkPort.reflectZoomFactorToHandler(this, zoomFactor);
+  }
+
+  private static reflectZoomFactorToHandler(value, zoomFactor){
+    const diameter = HandlerOption.circleRadius / zoomFactor * 2;
+    const center = value.handlerCircleObject.position;
+    const topLeft = value.handlerCircleObject.bounds.topLeft;
+
+    value.handlerCircleObject.strokeWidth = HandlerOption.strokeWidth / zoomFactor;
+    value.handlerCircleObject.bounds = new paper.Rectangle(topLeft, new paper.Size(diameter, diameter));
+    if(value instanceof LinkPort){
+      value.spreadHandler();
+    }
+    value.handlerCircleObject.position = center;
+  }
+
 
   public calcLinkPortPosition(){
     let group = this.owner.group.bounds;
@@ -66,6 +176,37 @@ export class LinkPort {
         return group.rightCenter;
     }
   }
+
+  public spreadHandler() {
+    let zoomFactor = this.owner.layerService.posCalcService.getZoomState();
+    switch (this.direction) {
+      case LinkPortDirectionEnum.TOP:
+        this.handlerCircleObject.position = this.posCalcService.movePointTop(
+          this.handlerCircleObject.position,
+          LinkPort.HANDLER_MARGIN / zoomFactor
+        );
+        return;
+      case LinkPortDirectionEnum.BOTTOM:
+        this.handlerCircleObject.position = this.posCalcService.movePointBottom(
+          this.handlerCircleObject.position,
+          LinkPort.HANDLER_MARGIN / zoomFactor
+        );
+        return;
+      case LinkPortDirectionEnum.LEFT:
+        this.handlerCircleObject.position = this.posCalcService.movePointLeft(
+          this.handlerCircleObject.position,
+          LinkPort.HANDLER_MARGIN / zoomFactor
+        );
+        return;
+      case LinkPortDirectionEnum.RIGHT:
+        this.handlerCircleObject.position = this.posCalcService.movePointRight(
+          this.handlerCircleObject.position,
+          LinkPort.HANDLER_MARGIN / zoomFactor
+        );
+        return;
+    }
+  }
+
 
   public tempLinkToEmptyField(point){
     this.tempLinkPath.removeSegments();
@@ -142,6 +283,7 @@ export class LinkPort {
       newLink.add( toLinkPort.calcLinkPortPosition() );
       let newLinkInfo = new LinkInfo(this, toLinkPort, newLink);
       this.linkInfoList.push(newLinkInfo);
+      this.layerService.globalSelectedGroup.extractAllFromSelection();
     }
     this.resetTempLink();
   }
@@ -149,19 +291,14 @@ export class LinkPort {
 
   private getCloseDirection(wbShape:WhiteboardShape, point:Point){
     let closestDirection = 0;
-    console.log("LinkPort >> getCloseDirection >> owner : ",this.owner);
     let closestDistance = this.posCalcService.calcPointDistanceOn2D(point, wbShape.group.bounds.topCenter);
     for(let i = 1 ; i < 4; i++){
       let newDistance = this.posCalcService.calcPointDistanceOn2D(point, wbShape.getDirectionPoint(i));
-      console.log("\n\nLinkPort >> getCloseDirection >> tempLinkPath : ",LinkPortDirectionEnum[i]);
-      console.log("LinkPort >> getCloseDirection >> newDistance : ",newDistance);
-      console.log("LinkPort >> getCloseDirection >> closestDistance : ",closestDistance);
       if(newDistance < closestDistance){
         closestDirection = i;
         closestDistance = newDistance;
       }
     }
-    console.log("\n\nLinkPort >> getCloseDirection >> tempLinkPath : ",LinkPortDirectionEnum[closestDirection]);
     return closestDirection;
   }
   public onOwnerChanged(){
@@ -208,5 +345,21 @@ export class LinkPort {
 
   set linkInfoList(value: Array<LinkInfo>) {
     this._linkInfoList = value;
+  }
+
+  get handlerCircleObject(): paper.Path.Circle {
+    return this._handlerCircleObject;
+  }
+
+  set handlerCircleObject(value: paper.Path.Circle) {
+    this._handlerCircleObject = value;
+  }
+
+  get layerService(): DrawingLayerManagerService {
+    return this._layerService;
+  }
+
+  set layerService(value: DrawingLayerManagerService) {
+    this._layerService = value;
   }
 }

@@ -76,21 +76,6 @@ export class PointerModeManagerService {
     htmlCanvasObject.addEventListener("touchend", (event) => {
       this.onTouchEnd(event);
     });
-    document.addEventListener("mousedown", (event) => {
-      this.onClickOutsideCanvas(event);
-    });
-    document.addEventListener("touchend", (event) => {
-      this.onClickOutsideCanvas(event);
-    });
-  }
-
-  // Document - Blur Listener
-  private onClickOutsideCanvas(event) {
-    let htmlCanvasObject = document.getElementById("cv1");
-
-    if(!htmlCanvasObject.contains(event.target)) {
-      this.lassoSelector.cancelSelect();
-    }
   }
 
   // Touch - Start Listener

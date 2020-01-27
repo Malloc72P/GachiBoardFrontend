@@ -161,7 +161,8 @@ export class WhiteboardMainComponent implements OnInit {
         break;
       case PointerMode.LASSO_SELECTOR:
         if(event.code === "Delete") {
-          this.pointerModeManager.lassoSelector.removeSelectedItem();
+          //TODO GlobalSelectedGroup에서 removeSelectedItem 구현해야함
+          //this.pointerModeManager.lassoSelector.removeSelectedItem();
           this.minimapSyncService.syncMinimap();
         }
         break;

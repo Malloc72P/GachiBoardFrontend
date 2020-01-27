@@ -1,4 +1,3 @@
-import {LinkHandler} from './ItemHandler/LinkHandler/link-handler';
 import {SizeHandler} from './ItemHandler/SizeHandler/size-handler';
 
 import * as paper from 'paper';
@@ -10,17 +9,16 @@ import {HandlerDirection} from './ItemHandler/handler-direction.enum';
 import {ZoomEvent} from '../../InfiniteCanvas/ZoomControl/ZoomEvent/zoom-event';
 import {ZoomEventEnum} from '../../InfiniteCanvas/ZoomControl/ZoomEvent/zoom-event-enum.enum';
 
-class HandlerOption {
+export class HandlerOption {
   public static strokeWidth = 1;
   public static circleRadius = 6;
   public static strokeColor = "black";
   public static dashLength = 25;
-
 }
 
 export class ItemAdjustor {
   private _sizeHandlers:Map<any, SizeHandler>;
-  private _linkHandlers:Map<any, LinkHandler>;
+  //private _linkHandlers:Map<any, LinkHandler>;
   private _itemGuideLine:Rectangle;
   private _guidelineDashLength;
   private _owner:WhiteboardItem;
@@ -45,13 +43,23 @@ export class ItemAdjustor {
       });
       this.sizeHandlers = null;
     }
+/*
     if (this.linkHandlers) {
       this.linkHandlers.forEach((value, key, map) => {
         value.removeItem();
       });
       this.linkHandlers = null;
     }
+*/
 
+  }
+  public bringToFront(){
+    this.itemGuideLine.bringToFront();
+    if(this.sizeHandlers){
+      this.sizeHandlers.forEach((value, key, map)=>{
+        value.handlerCircleObject.bringToFront();
+      });
+    }
   }
   public disable(){
     this.itemGuideLine.visible = false;
@@ -60,11 +68,13 @@ export class ItemAdjustor {
         value.disableItem();
       });
     }
+/*
     if (this.linkHandlers) {
       this.linkHandlers.forEach((value, key, map) => {
         value.disableItem();
       });
     }
+*/
   }
   public enable(){
     this.itemGuideLine.visible = true;
@@ -73,11 +83,13 @@ export class ItemAdjustor {
         value.enableItem();
       });
     }
+/*
     if (this.linkHandlers) {
       this.linkHandlers.forEach((value, key, map) => {
         value.enableItem();
       });
     }
+*/
   }
   public refreshItemAdjustorSize(){
     this.itemGuideLine.bounds = this.owner.group.bounds;
@@ -86,11 +98,13 @@ export class ItemAdjustor {
         value.refreshPosition();
       });
     }
+/*
     if(this.linkHandlers){
       this.linkHandlers.forEach((value, key, map)=>{
         value.refreshPosition();
       })
     }
+*/
   }
 
   // #### init 메서드
@@ -115,6 +129,7 @@ export class ItemAdjustor {
     this.sizeHandlers.set(HandlerDirection.BOTTOM_RIGHT,
       new SizeHandler(this.owner, HandlerDirection.BOTTOM_RIGHT, HandlerOption, this.itemGuideLine));
 
+/*
     if(!this.owner.disableLinkHandler){
       this.linkHandlers = new Map<any, LinkHandler>();
       this.linkHandlers.set(HandlerDirection.TOP_CENTER,
@@ -126,6 +141,7 @@ export class ItemAdjustor {
       this.linkHandlers.set(HandlerDirection.CENTER_RIGHT,
         new LinkHandler(this.owner, HandlerDirection.CENTER_RIGHT, HandlerOption, this.itemGuideLine));
     }
+*/
   }
   private onZoomChange(zoomEvent:ZoomEvent){
     switch (zoomEvent.action) {
@@ -151,11 +167,13 @@ export class ItemAdjustor {
         ItemAdjustor.reflectZoomFactorToHandler(value, zoomFactor);
       });
     }
+/*
     if(this.linkHandlers){
       this.linkHandlers.forEach((value, key, map)=>{
         ItemAdjustor.reflectZoomFactorToHandler(value, zoomFactor);
       })
     }
+*/
   }
   private static reflectZoomFactorToHandler(value, zoomFactor){
     const diameter = HandlerOption.circleRadius / zoomFactor * 2;
@@ -164,14 +182,13 @@ export class ItemAdjustor {
 
     value.handlerCircleObject.strokeWidth = HandlerOption.strokeWidth / zoomFactor;
     value.handlerCircleObject.bounds = new paper.Rectangle(topLeft, new paper.Size(diameter, diameter));
-    if(value instanceof LinkHandler){
-      value.spreadHandler();
-    }
+
     value.handlerCircleObject.position = center;
   }
   //#####################
 
   // #### handler관리 메서드
+/*
   public disableLinkHandlers(){
     if(this.linkHandlers){
       this.linkHandlers.forEach((value, key, map)=>{
@@ -179,6 +196,8 @@ export class ItemAdjustor {
       });
     }
   }
+*/
+/*
   public enableLinkHandlers(){
     if(this.linkHandlers){
       this.linkHandlers.forEach((value, key, map)=>{
@@ -187,6 +206,7 @@ export class ItemAdjustor {
     }
 
   }
+*/
 
   //########################## GETTER & SETTER ##################################
 
@@ -198,13 +218,13 @@ export class ItemAdjustor {
     this._sizeHandlers = value;
   }
 
-  get linkHandlers(): Map<any, LinkHandler> {
+  /*get linkHandlers(): Map<any, LinkHandler> {
     return this._linkHandlers;
   }
 
   set linkHandlers(value: Map<any, LinkHandler>) {
     this._linkHandlers = value;
-  }
+  }*/
 
 
   get itemGuideLine(): paper.Path.Rectangle {

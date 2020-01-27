@@ -7,6 +7,12 @@ import * as paper from 'paper';
 // @ts-ignore
 import Point = paper.Point;
 import {ContextMenu, ItemContextMenu} from "../../../../View/Whiteboard/whiteboard-context-menu/context-menu.enum";
+import {EditableStroke} from '../../Whiteboard-Item/editable-stroke/editable-stroke';
+import {EditableShape} from '../../Whiteboard-Item/Whiteboard-Shape/EditableShape/editable-shape';
+import {WhiteboardItem} from '../../Whiteboard-Item/whiteboard-item';
+import {EditableRaster} from '../../Whiteboard-Item/Whiteboard-Shape/editable-raster/editable-raster';
+import {ItemGroup} from '../../Whiteboard-Item/ItemGroup/item-group';
+import {EditTextManagementService} from '../../EditTextManagement/edit-text-management.service';
 
 @Injectable({
   providedIn: 'root'
@@ -22,6 +28,7 @@ export class ContextMenuService {
   constructor(
     private positionCalcService: PositionCalcService,
     private layerService: DrawingLayerManagerService,
+    private editTextManagementService: EditTextManagementService,
   ) { }
 
   public initializeContextMenuService(contextMenu: MatMenu, contextMenuTrigger: MatMenuTrigger) {
@@ -37,12 +44,22 @@ export class ContextMenuService {
     }
     let convertedPoint = this.positionCalcService.advConvertNgToPaper(new Point(event.x, event.y));
 
-    let item = this.layerService.getHittedItem(convertedPoint);
+    let hitItem = this.layerService.getHittedItem(convertedPoint);
 
-    if(item != null) {
-      this.item = item;
+    if(hitItem instanceof WhiteboardItem){
+      this.item = hitItem;
+    }
+
+    if(hitItem instanceof EditableStroke) {
+      this.setContextMenuToStroke();
+    } else if(hitItem instanceof EditableShape){
       this.setContextMenuToShape();
-    } else {
+    } else if(hitItem instanceof EditableRaster){
+      this.setContextMenuToRaster();
+    } else if(hitItem instanceof ItemGroup){
+      this.setContextMenuToGroup();
+    }
+    else {
       this.setContextMenuToDefault();
     }
 
@@ -52,6 +69,30 @@ export class ContextMenuService {
   }
 
   private setContextMenuToShape() {
+    this._contextMenuItems.splice(0, this._contextMenuItems.length);
+    for (let key in ItemContextMenu) {
+      if(ItemContextMenu.hasOwnProperty(key)) {
+        this._contextMenuItems.push(ItemContextMenu[key]);
+      }
+    }
+  }
+  private setContextMenuToStroke() {
+    this._contextMenuItems.splice(0, this._contextMenuItems.length);
+    for (let key in ItemContextMenu) {
+      if(ItemContextMenu.hasOwnProperty(key)) {
+        this._contextMenuItems.push(ItemContextMenu[key]);
+      }
+    }
+  }
+  private setContextMenuToRaster() {
+    this._contextMenuItems.splice(0, this._contextMenuItems.length);
+    for (let key in ItemContextMenu) {
+      if(ItemContextMenu.hasOwnProperty(key)) {
+        this._contextMenuItems.push(ItemContextMenu[key]);
+      }
+    }
+  }
+  private setContextMenuToGroup() {
     this._contextMenuItems.splice(0, this._contextMenuItems.length);
     for (let key in ItemContextMenu) {
       if(ItemContextMenu.hasOwnProperty(key)) {
@@ -75,7 +116,11 @@ export class ContextMenuService {
       case ItemContextMenu.DELETE_SHAPE:
         this.deleteItem();
         break;
-      case ItemContextMenu.EDIT:
+      case ItemContextMenu.EDIT_TEXT:
+        let selectedItem = this.item;
+        if(selectedItem instanceof EditableShape){
+          this.layerService.startEditText();
+        }
         break;
 
       case ContextMenu.ADD_IMAGE:
