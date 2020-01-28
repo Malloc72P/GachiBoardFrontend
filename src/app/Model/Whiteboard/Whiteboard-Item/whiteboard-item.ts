@@ -4,7 +4,10 @@ import Item = paper.Item;
 // @ts-ignore
 import Group = paper.Group;
 // @ts-ignore
+import Color = paper.Color;
+// @ts-ignore
 import Point = paper.Point;
+
 import {EventEmitter} from '@angular/core';
 import {ItemAdjustor} from './ItemAdjustor/item-adjustor';
 import {ItemLifeCycleEnum, ItemLifeCycleEvent} from './WhiteboardItemLifeCycle/WhiteboardItemLifeCycle';
@@ -64,6 +67,9 @@ export abstract class WhiteboardItem {
       this.onSelectEvent(data);
     });
     this.setCallback();
+    this.group.shadowColor = new Color(0,0,0);
+    this.group.shadowBlur = 8;
+    this.group.shadowOffset = new Point(1,1);
   }
   protected setCallback() {
     this.group.onMouseDown = (event) => {
@@ -137,6 +143,11 @@ export abstract class WhiteboardItem {
   public abstract destroyItem();
 
   checkSelectable(){
+    let currentPointerMode = this.layerService.currentPointerMode;
+    return currentPointerMode === PointerMode.POINTER || currentPointerMode === PointerMode.LASSO_SELECTOR
+            || PointerMode.DRAW || PointerMode.ERASER || PointerMode.HIGHLIGHTER || PointerMode.SHAPE;
+  }
+  checkMovable(){
     let currentPointerMode = this.layerService.currentPointerMode;
     return currentPointerMode === PointerMode.POINTER || currentPointerMode === PointerMode.LASSO_SELECTOR;
   }

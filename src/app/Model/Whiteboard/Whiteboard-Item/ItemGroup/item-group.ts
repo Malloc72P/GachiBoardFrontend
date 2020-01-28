@@ -106,7 +106,7 @@ export class ItemGroup extends WhiteboardItem {
   //### Mouse Event 콜백
   protected setCallback() {}
   protected onMouseDown(event){
-    if(!this.checkSelectable()){
+    if(!this.checkMovable()){
       return;
     }
     console.log("ItemGroup >> onMouseDown >> event : ",event);
@@ -136,7 +136,7 @@ export class ItemGroup extends WhiteboardItem {
 
   }
   protected onMouseDrag(event){
-    if(!this.checkSelectable()){
+    if(!this.checkMovable()){
       return;
     }
     //this.deactivateSelectedMode();
@@ -152,7 +152,7 @@ export class ItemGroup extends WhiteboardItem {
   }
   protected onMouseUp(event){
     this.calcCurrentDistance(event);
-    if(!this.checkSelectable()){
+    if(!this.checkMovable()){
       return;
     }
     if(this.myItemAdjustor){

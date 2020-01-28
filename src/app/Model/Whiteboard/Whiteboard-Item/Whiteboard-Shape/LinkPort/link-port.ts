@@ -243,21 +243,54 @@ export class LinkPort {
           this.tempLinkEntryCircle.strokeWidth = 3;
           this.tempLinkExitCircle.strokeWidth = 3;
 
-          this.tempLinkEntryCircle.opacity = 0.5;
-          this.tempLinkExitCircle.opacity = 0.5;
+          this.tempLinkEntryCircle.opacity = 0.4;
+          this.tempLinkExitCircle.opacity = 0.4;
 
-          this.tempLinkExitCircle.applyMatrix = false;
+          this.animateEntryCircle();
+          this.animateExitCircle();
         }
         else{
           this.tempLinkEntryCircle.position = entrySegment.point;
           this.tempLinkExitCircle.position = exitSegment.point;
-          /*if(event.count % 4 === 0){
-            this.tempLinkExitCircle.matrix.reset();
-          }*/
-
         }
       }
-    }
+    };
+  }
+  private animateEntryCircle(){
+    let entrySegment = this.tempLinkPath.firstSegment;
+
+    this.tempLinkEntryCircle.onFrame = (event)=>{
+      this.tempLinkEntryCircle.bounds.width += 0.5;
+      this.tempLinkEntryCircle.bounds.height += 0.5;
+
+      if(this.tempLinkEntryCircle.opacity - 0.005 > 0){
+        this.tempLinkEntryCircle.opacity -= 0.005;
+      }
+      if(this.tempLinkEntryCircle.bounds.width > 30){
+        this.tempLinkEntryCircle.bounds.width = 3;
+        this.tempLinkEntryCircle.bounds.height = 3;
+        this.tempLinkEntryCircle.opacity = 0.4;
+      }
+      //this.tempLinkEntryCircle.position = entrySegment.point;
+    };
+  }
+  private animateExitCircle(){
+    let exitSegment = this.tempLinkPath.lastSegment;
+
+    this.tempLinkExitCircle.onFrame = (event)=>{
+      this.tempLinkExitCircle.bounds.width += 1;
+      this.tempLinkExitCircle.bounds.height += 1;
+
+      if(this.tempLinkExitCircle.opacity - 0.005 > 0){
+        this.tempLinkExitCircle.opacity -= 0.005;
+      }
+      if(this.tempLinkExitCircle.bounds.width > 60){
+        this.tempLinkExitCircle.bounds.width = 3;
+        this.tempLinkExitCircle.bounds.height = 3;
+        this.tempLinkExitCircle.opacity = 0.4;
+      }
+      //this.tempLinkExitCircle.position = exitSegment.point;
+    };
   }
   private onDeleteTempLink(){
     if(this.tempLinkEntryCircle){
