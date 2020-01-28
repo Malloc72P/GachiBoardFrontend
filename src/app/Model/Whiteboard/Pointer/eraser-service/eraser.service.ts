@@ -1,10 +1,13 @@
 import { Injectable } from '@angular/core';
-import * as paper from 'paper';
 import {PositionCalcService} from "../../PositionCalc/position-calc.service";
-import {DataType} from '../../../Helper/data-type-enum/data-type.enum';
+import {DataType, WhiteboardItemType} from '../../../Helper/data-type-enum/data-type.enum';
 import {InfiniteCanvasService} from '../../InfiniteCanvas/infinite-canvas.service';
 import {DrawingLayerManagerService} from '../../InfiniteCanvas/DrawingLayerManager/drawing-layer-manager.service';
 import {WhiteboardItem} from '../../Whiteboard-Item/whiteboard-item';
+
+import * as paper from 'paper';
+// @ts-ignore
+import Item = paper.Item;
 
 @Injectable({
   providedIn: 'root'
@@ -81,10 +84,27 @@ export class EraserService {
 
     let foundItem:WhiteboardItem = this.layerService.getHittedItem(point);
     if(foundItem){
-      foundItem.destroyItem();
+      if(this.itemChecker(foundItem)) {
+        foundItem.destroyItem();
+      }
     }
     if(this.newPath.segments.length > 20){
       this.newPath.removeSegments(this.newPath.firstSegment.index,this.newPath.lastSegment.index - 20);
     }
   }
+
+  // 사용자 경험상 지우개로 지워지면 안될 화이트보드 아이템을 등록
+  private itemChecker(wbItem: WhiteboardItem) {
+    switch (wbItem.type) {
+      case WhiteboardItemType.SIMPLE_RASTER:
+      case WhiteboardItemType.EDITABLE_CARD:
+      case WhiteboardItemType.EDITABLE_CIRCLE:
+      case WhiteboardItemType.EDITABLE_RECTANGLE:
+      case WhiteboardItemType.EDITABLE_TRIANGLE:
+        return false;
+      default:
+        return true;
+    }
+  }
 }
+
