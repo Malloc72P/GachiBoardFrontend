@@ -47,6 +47,7 @@ export class ItemGroup extends WhiteboardItem {
         prevNumberOfChildren = this.getNumberOfChild();
       }
     };
+    this.activateShadowEffect();
   }
 
   protected amIAlreadyHaveThis(wbItem:WhiteboardItem){

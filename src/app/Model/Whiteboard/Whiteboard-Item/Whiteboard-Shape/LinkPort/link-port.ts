@@ -111,7 +111,7 @@ export class LinkPort {
       let point = event.point;
       let hitWbShape:WhiteboardShape = this._layerService.getHittedItem(point) as WhiteboardShape;
 
-      if(hitWbShape){
+      if(hitWbShape && hitWbShape.id !== this.owner.id && hitWbShape.linkPortMap){
         this.tempLinkToWbItem(hitWbShape, point);
       }else{
         this.tempLinkToEmptyField(point);
@@ -121,7 +121,10 @@ export class LinkPort {
       let point = event.point;
       let toWbShape:WhiteboardShape = this.layerService.getHittedItem(point) as WhiteboardShape;
 
-      this.createLink(toWbShape, point);
+      if(toWbShape && toWbShape.id !== this.owner.id && toWbShape.linkPortMap){
+        this.createLink(toWbShape, point);
+      }
+      this.resetTempLink();
     };
 
   }
@@ -219,6 +222,9 @@ export class LinkPort {
     this.tempLinkPath.add( this.calcLinkPortPosition() );
 
     let toLinkPort = toWbShape.linkPortMap.get(this.getCloseDirection(toWbShape, point));
+    if(toWbShape.linkPortMap){
+      toLinkPort = toWbShape.linkPortMap.get(this.getCloseDirection(toWbShape, point));
+    } else return;
 
     this.tempLinkPath.add(toLinkPort.calcLinkPortPosition());
     this.onCreateTempLink();
@@ -318,7 +324,6 @@ export class LinkPort {
       this.linkInfoList.push(newLinkInfo);
       this.layerService.globalSelectedGroup.extractAllFromSelection();
     }
-    this.resetTempLink();
   }
 
 

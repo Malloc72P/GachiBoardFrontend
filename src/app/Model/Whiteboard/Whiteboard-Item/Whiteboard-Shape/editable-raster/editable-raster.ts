@@ -19,12 +19,10 @@ import {PositionCalcService} from '../../../PositionCalc/position-calc.service';
 
 export abstract class EditableRaster extends WhiteboardShape {
   private _imageBlob: string;
-  protected constructor(type, item:Raster,
-                        layerService) {
+  protected constructor(type, item:Raster,layerService) {
     super(type, item, layerService);
     // @ts-ignore
     this.imageBlob = item.image.src;
-
   }
 
   notifyItemCreation() {

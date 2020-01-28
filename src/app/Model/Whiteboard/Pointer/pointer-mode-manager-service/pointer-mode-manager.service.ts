@@ -190,7 +190,6 @@ export class PointerModeManagerService {
   // Mouse - Down Listener
   private onMouseDown(event) {
     event.preventDefault();
-/*
     switch (event.button) {
       case MouseButtonEventEnum.LEFT_CLICK:
         break;
@@ -199,7 +198,6 @@ export class PointerModeManagerService {
       case MouseButtonEventEnum.RIGHT_CLICK:
         return;
     }
-*/
     this.mouseDown = true;
     switch (this.currentPointerMode) {
       case PointerMode.POINTER:
@@ -231,7 +229,6 @@ export class PointerModeManagerService {
   // Mouse - Move Listener
   private onMouseMove(event) {
     event.preventDefault();
-/*
     switch (event.button) {
       case MouseButtonEventEnum.LEFT_CLICK:
         break;
@@ -240,7 +237,6 @@ export class PointerModeManagerService {
       case MouseButtonEventEnum.RIGHT_CLICK:
         return;
     }
-*/
 
     if(this.mouseDown) {
       switch (this.currentPointerMode) {
@@ -274,7 +270,6 @@ export class PointerModeManagerService {
   // Mouse - Up Listener
   private onMouseUp(event) {
     event.preventDefault();
-/*
     switch (event.button) {
       case MouseButtonEventEnum.LEFT_CLICK:
         break;
@@ -283,7 +278,6 @@ export class PointerModeManagerService {
       case MouseButtonEventEnum.RIGHT_CLICK:
         return;
     }
-*/
 
     this.mouseDown = false;
     switch (this.currentPointerMode) {

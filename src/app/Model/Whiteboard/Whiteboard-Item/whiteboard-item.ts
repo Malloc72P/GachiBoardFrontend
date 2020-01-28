@@ -12,7 +12,6 @@ import MouseEvent = paper.MouseEvent;
 
 import {EventEmitter} from '@angular/core';
 import {ItemAdjustor} from './ItemAdjustor/item-adjustor';
-import {ItemLifeCycleEnum, ItemLifeCycleEvent} from './WhiteboardItemLifeCycle/WhiteboardItemLifeCycle';
 import {DrawingLayerManagerService} from '../InfiniteCanvas/DrawingLayerManager/drawing-layer-manager.service';
 import {PointerMode} from '../Pointer/pointer-mode-enum-service/pointer-mode-enum.service';
 import {SelectEvent} from '../InfiniteCanvas/DrawingLayerManager/SelectEvent/select-event';
@@ -70,9 +69,12 @@ export abstract class WhiteboardItem {
       this.onSelectEvent(data);
     });
     this.setCallback();
-    this.group.shadowColor = new Color(0,0,0);
-    this.group.shadowBlur = 8;
-    this.group.shadowOffset = new Point(1,1);
+
+  }
+  protected activateShadowEffect(){
+    this.coreItem.shadowColor = new Color(0,0,0);
+    this.coreItem.shadowBlur = 8;
+    this.coreItem.shadowOffset = new Point(1,1);
   }
   protected setCallback() {
     this.group.onMouseDown = (event) => {

@@ -30,8 +30,7 @@ export class WhiteboardShape extends WhiteboardItem {
   private _fillColor: paper.Color;
   private _opacity: number;
   private _linkPortMap:Map<any,LinkPort>;
-  protected constructor(type, item:Item,
-                        layerService:PositionCalcService) {
+  protected constructor(type, item:Item,layerService) {
     super(type, item, layerService);
     this.topLeft  = item.bounds.topLeft;
     this.width    = item.bounds.width;
@@ -49,6 +48,7 @@ export class WhiteboardShape extends WhiteboardItem {
     for(let i = 0 ; i < 4; i++){
       this.linkPortMap.set( i, new LinkPort(this,i, this.layerService.posCalcService) );
     }
+    this.activateShadowEffect();
   }
 
 
