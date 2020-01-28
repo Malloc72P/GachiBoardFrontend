@@ -16,6 +16,7 @@ import {PointerMode} from '../Pointer/pointer-mode-enum-service/pointer-mode-enu
 import {SelectEvent} from '../InfiniteCanvas/DrawingLayerManager/SelectEvent/select-event';
 import {SelectEventEnum} from '../InfiniteCanvas/DrawingLayerManager/SelectEventEnum/select-event.enum';
 import {SelectModeEnum} from '../InfiniteCanvas/DrawingLayerManager/SelectModeEnum/select-mode-enum.enum';
+import {MouseButtonEventEnum} from '../Pointer/MouseButtonEventEnum/mouse-button-event-enum.enum';
 
 export abstract class WhiteboardItem {
 
@@ -73,25 +74,18 @@ export abstract class WhiteboardItem {
   }
   protected setCallback() {
     this.group.onMouseDown = (event) => {
-      if(!this.checkSelectable()){
-        return;
-      }
-      if(event.modifiers.control === true || event.modifiers.shift === true){
-        this.setMultipleSelectMode();
-      }
-      else{
-        this.setSingleSelectMode();
-      }
-      if(!this.isSelected){
-        if(this.isSingleSelectMode()){
-          this.layerService.globalSelectedGroup.extractAllFromSelection();
-        }
-        this.layerService.globalSelectedGroup.insertOneIntoSelection(this);
-        this.isSelected = true;
+
+      switch (event.event.button) {
+        case MouseButtonEventEnum.LEFT_CLICK:
+          this.onLeftMouseButtonDown(event);
+          break;
+        case MouseButtonEventEnum.RIGHT_CLICK:
+          this.onRightMouseButtonDown(event);
+          break;
       }
     };
     this.group.onMouseUp = () =>{
-      if(!this.checkSelectable()){
+      if(!this.checkLeftMouseIsPossible()){
         return;
       }
       this.setSingleSelectMode();
@@ -135,6 +129,37 @@ export abstract class WhiteboardItem {
     this.trailDistance = 0;
   }
 
+  private onLeftMouseButtonDown(event){
+    if(!this.checkLeftMouseIsPossible()){
+      return;
+    }
+    if(event.modifiers.control === true || event.modifiers.shift === true){
+      this.setMultipleSelectMode();
+    }
+    else{
+      this.setSingleSelectMode();
+    }
+    if(!this.isSelected){
+      if(this.isSingleSelectMode()){
+        this.layerService.globalSelectedGroup.extractAllFromSelection();
+      }
+      this.layerService.globalSelectedGroup.insertOneIntoSelection(this);
+      this.isSelected = true;
+    }
+  }
+  private onRightMouseButtonDown(event){
+    if(!this.checkRightMouseIsPossible()){
+      return;
+    }
+    if(!this.isSelected){
+      if(this.isSingleSelectMode()){
+        this.layerService.globalSelectedGroup.extractAllFromSelection();
+      }
+      this.layerService.globalSelectedGroup.insertOneIntoSelection(this);
+      this.isSelected = true;
+    }
+  }
+
 
 
   public abstract notifyItemCreation();
@@ -142,7 +167,11 @@ export abstract class WhiteboardItem {
   public abstract refreshItem();
   public abstract destroyItem();
 
-  checkSelectable(){
+  checkLeftMouseIsPossible(){
+    let currentPointerMode = this.layerService.currentPointerMode;
+    return currentPointerMode === PointerMode.POINTER || currentPointerMode === PointerMode.LASSO_SELECTOR;
+  }
+  checkRightMouseIsPossible(){
     let currentPointerMode = this.layerService.currentPointerMode;
     return currentPointerMode === PointerMode.POINTER || currentPointerMode === PointerMode.LASSO_SELECTOR
             || PointerMode.DRAW || PointerMode.ERASER || PointerMode.HIGHLIGHTER || PointerMode.SHAPE;

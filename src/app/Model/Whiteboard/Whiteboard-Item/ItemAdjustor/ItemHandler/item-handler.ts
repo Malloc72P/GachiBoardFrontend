@@ -38,19 +38,19 @@ export abstract class ItemHandler {
     this.handlerCircleObject.data.struct = this;
 
     this.handlerCircleObject.onMouseDown = (event)=>{
-      if(!this.owner.checkSelectable()){
+      if(!this.owner.checkLeftMouseIsPossible()){
         return;
       }
       this.onMouseDown(event);
     };
     this.handlerCircleObject.onMouseDrag = (event)=>{
-      if(!this.owner.checkSelectable()){
+      if(!this.owner.checkLeftMouseIsPossible()){
         return;
       }
       this.onMouseDrag(event);
     };
     this.handlerCircleObject.onMouseUp = (event)=>{
-      if(!this.owner.checkSelectable()){
+      if(!this.owner.checkLeftMouseIsPossible()){
         return;
       }
       this.onMouseUp(event);

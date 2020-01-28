@@ -122,7 +122,7 @@ export class ItemGroup extends WhiteboardItem {
     if(event.modifiers.alt === true){
 
     }
-    if( this.checkSelectable() ){
+    if( this.checkLeftMouseIsPossible() ){
       if (this.isSingleSelectMode()) {
       }
       else{
@@ -144,7 +144,7 @@ export class ItemGroup extends WhiteboardItem {
     this.calcCurrentDistance(event);
     let currentPointerMode = this.layerService.currentPointerMode;
     this.calcCurrentDistance(event);
-    if( this.checkSelectable()  ) {
+    if( this.checkLeftMouseIsPossible()  ) {
       //this.group.position = event.point;
       this.group.position.x += event.delta.x;
       this.group.position.y += event.delta.y;
