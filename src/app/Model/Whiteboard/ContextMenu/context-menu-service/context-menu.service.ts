@@ -6,7 +6,11 @@ import {DrawingLayerManagerService} from "../../InfiniteCanvas/DrawingLayerManag
 import * as paper from 'paper';
 // @ts-ignore
 import Point = paper.Point;
-import {ContextMenu, ItemContextMenu} from "../../../../View/Whiteboard/whiteboard-context-menu/context-menu.enum";
+import {
+  ContextMenu, GroupContextMenu,
+  RasterContextMenu,
+  ShapeContextMenu, StrokeContextMenu
+} from "../../../../View/Whiteboard/whiteboard-context-menu/context-menu.enum";
 import {EditableStroke} from '../../Whiteboard-Item/editable-stroke/editable-stroke';
 import {EditableShape} from '../../Whiteboard-Item/Whiteboard-Shape/EditableShape/editable-shape';
 import {WhiteboardItem} from '../../Whiteboard-Item/whiteboard-item';
@@ -70,33 +74,33 @@ export class ContextMenuService {
 
   private setContextMenuToShape() {
     this._contextMenuItems.splice(0, this._contextMenuItems.length);
-    for (let key in ItemContextMenu) {
-      if(ItemContextMenu.hasOwnProperty(key)) {
-        this._contextMenuItems.push(ItemContextMenu[key]);
+    for (let key in ShapeContextMenu) {
+      if(ShapeContextMenu.hasOwnProperty(key)) {
+        this._contextMenuItems.push(ShapeContextMenu[key]);
       }
     }
   }
   private setContextMenuToStroke() {
     this._contextMenuItems.splice(0, this._contextMenuItems.length);
-    for (let key in ItemContextMenu) {
-      if(ItemContextMenu.hasOwnProperty(key)) {
-        this._contextMenuItems.push(ItemContextMenu[key]);
+    for (let key in StrokeContextMenu) {
+      if(StrokeContextMenu.hasOwnProperty(key)) {
+        this._contextMenuItems.push(StrokeContextMenu[key]);
       }
     }
   }
   private setContextMenuToRaster() {
     this._contextMenuItems.splice(0, this._contextMenuItems.length);
-    for (let key in ItemContextMenu) {
-      if(ItemContextMenu.hasOwnProperty(key)) {
-        this._contextMenuItems.push(ItemContextMenu[key]);
+    for (let key in RasterContextMenu) {
+      if(RasterContextMenu.hasOwnProperty(key)) {
+        this._contextMenuItems.push(RasterContextMenu[key]);
       }
     }
   }
   private setContextMenuToGroup() {
     this._contextMenuItems.splice(0, this._contextMenuItems.length);
-    for (let key in ItemContextMenu) {
-      if(ItemContextMenu.hasOwnProperty(key)) {
-        this._contextMenuItems.push(ItemContextMenu[key]);
+    for (let key in GroupContextMenu) {
+      if(GroupContextMenu.hasOwnProperty(key)) {
+        this._contextMenuItems.push(GroupContextMenu[key]);
       }
     }
   }
@@ -112,15 +116,18 @@ export class ContextMenuService {
 
   public onClickContextMenu(menuItem: string) {
     switch (menuItem) {
-      // shape
-      case ItemContextMenu.DELETE_SHAPE:
+      // item
+      case ShapeContextMenu.DELETE:
         this.deleteItem();
         break;
-      case ItemContextMenu.EDIT_TEXT:
+      case ShapeContextMenu.EDIT_TEXT:
         let selectedItem = this.item;
         if(selectedItem instanceof EditableShape){
           this.layerService.startEditText();
         }
+        break;
+      case ShapeContextMenu.EDIT:
+        console.log("ContextMenuService >> onClickContextMenu >> EDIT");
         break;
 
       case ContextMenu.ADD_IMAGE:

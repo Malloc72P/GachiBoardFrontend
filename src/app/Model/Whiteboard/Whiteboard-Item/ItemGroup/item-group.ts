@@ -255,9 +255,12 @@ export class ItemGroup extends WhiteboardItem {
 
   destroyItemAndChildren() {
     for (let i = 0; i < this._wbItemGroup.length; i++) {
+      console.log("ItemGroup >> destroyItemAndChildren >> this.wbItemGroup[i] : ", this.wbItemGroup[i]);
       this.wbItemGroup[i].destroyItem();
     }
-    this.destroyItem();
+    this.deactivateSelectedMode();
+    this.removeBackgroundRect();
+    // this.destroyItem();
   }
 
   public getNumberOfChild() {

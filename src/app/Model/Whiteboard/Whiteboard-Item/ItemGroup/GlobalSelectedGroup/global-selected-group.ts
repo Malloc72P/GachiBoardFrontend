@@ -78,4 +78,7 @@ export class GlobalSelectedGroup extends ItemGroup {
     this.extractOneFromGroup(wbItem);
   }
 
+  destroyItem() {
+    this.destroyItemAndChildren();
+  }
 }
