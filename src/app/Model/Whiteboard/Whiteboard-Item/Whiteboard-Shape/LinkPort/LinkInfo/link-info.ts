@@ -37,6 +37,12 @@ export class LinkInfo {
       this.linkObject.sendToBack();
     }
   }
+
+  public destroyItem(){
+    if(this.linkObject){
+      this.linkObject.remove();
+    }
+  }
   get fromLinkPort(): LinkPort {
     return this._fromLinkPort;
   }

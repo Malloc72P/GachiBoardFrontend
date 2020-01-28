@@ -128,12 +128,30 @@ export class LinkPort {
     };
 
   }
+
   private enable(){
     this.handlerCircleObject.visible = true;
   }
   private disable(){
     this.handlerCircleObject.visible = false;
   }
+
+  public destroyPortAndLink(){
+    this.linkInfoList.forEach((value, index, array)=>{
+      value.destroyItem();
+    });
+    this.handlerCircleObject.remove();
+    if(this.tempLinkPath){
+      this.tempLinkPath.remove();
+    }
+    if(this.tempLinkEntryCircle){
+      this.tempLinkEntryCircle.remove();
+    }
+    if(this.tempLinkExitCircle){
+      this.tempLinkExitCircle.remove();
+    }
+  }
+
   private onZoomChange(zoomEvent:ZoomEvent){
     switch (zoomEvent.action) {
       case ZoomEventEnum.ZOOM_CHANGED:
@@ -147,6 +165,7 @@ export class LinkPort {
         break;
     }
   }
+
   private refreshForZoomChange(){
     let zoomFactor = this.owner.layerService.posCalcService.getZoomState();
     LinkPort.reflectZoomFactorToHandler(this, zoomFactor);

@@ -87,7 +87,9 @@ export class DrawingLayerManagerService {
     this.pointerModeEventEmitter.subscribe((data:PointerModeEvent)=>{
       console.log("DrawingLayerManagerService >> pointerModeEventEmitter >> data : ",PointerMode[data.currentMode]);
       this.currentPointerMode = data.currentMode;
-      this.globalSelectedGroup.extractAllFromSelection();
+      if(this.globalSelectedGroup){
+        this.globalSelectedGroup.extractAllFromSelection();
+      }
     });
   }
 

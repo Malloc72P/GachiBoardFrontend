@@ -170,7 +170,7 @@ export class ItemGroup extends WhiteboardItem {
   }
 
 
-  private resetMyItemAdjustor(){
+  public resetMyItemAdjustor(){
     if(this.getNumberOfChild() === 1){
       this.activateSelectedMode();
       this.createBackgroundRect();
@@ -232,7 +232,20 @@ export class ItemGroup extends WhiteboardItem {
       }
     }
   }
+  public destroyOneFromGroup(wbItem: WhiteboardItem) {
 
+    for (let i = 0; i < this.wbItemGroup.length; i++) {
+      if (this.wbItemGroup[i].id === wbItem.id) {
+        let willBeDestroyed = this.wbItemGroup[i];
+
+        this.wbItemGroup.splice(i, 1);
+        this.resetMyItemAdjustor();
+        willBeDestroyed.destroyItem();
+
+        return;
+      }
+    }
+  }
 
   public extractAllFromGroup() {
     let drawingLayer = this.coreItem.parent;
@@ -242,6 +255,15 @@ export class ItemGroup extends WhiteboardItem {
       willBeExtract.isSelected = false;
       drawingLayer.addChild(willBeExtract.group);
       willBeExtract.refreshItem();
+    }
+    this.wbItemGroup.splice(0, this.wbItemGroup.length);
+    this.resetMyItemAdjustor();
+  }
+  public destroyAllFromGroup() {
+    for (let i = 0; i < this.wbItemGroup.length; i++) {
+
+      let willBeDestroy = this.wbItemGroup[i];
+      willBeDestroy.destroyItem();
     }
     this.wbItemGroup.splice(0, this.wbItemGroup.length);
     this.resetMyItemAdjustor();

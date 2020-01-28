@@ -95,6 +95,7 @@ export abstract class EditableShape extends WhiteboardShape {
   }
 
   public destroyItem() {
+    super.destroyItem();
     console.log('EditableShape >> destroyItem >> 진입함');
     this.editText.remove();
     this.coreItem.remove();

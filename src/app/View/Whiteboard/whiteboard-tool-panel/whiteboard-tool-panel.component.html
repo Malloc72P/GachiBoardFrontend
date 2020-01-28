@@ -1,6 +1,6 @@
 <mat-button-toggle-group vertical="true" class="ctrl-pannel-wrapper"
-                         [(value)]="toolPanelToggleGroupValue">
-  <mat-button-toggle *ngFor="let mode of selectableMode" id="{{PointerModeEnum[mode]}}" [value]="mode" (click)="onClickPanelItem(mode)">
+                         [(value)]="pointerModeManagerService.toolPanelToggleGroupValue">
+  <mat-button-toggle *ngFor="let mode of selectableMode" id="{{PointerModeEnum[mode]}}" [value]="mode" (click)="pointerModeManagerService.onClickPanelItem(mode)">
     <svg class="tool-icon" [style.fill]="panelManager.toolIconColor[mode]">
       <use *ngIf="mode === PointerModeEnum.SHAPE" [attr.xlink:href]="'/assets/images/tools/' + pointerModeEnumService.getPointerIcon(mode, pointerModeManagerService.shape.shapeStyle)"/>
       <use *ngIf="mode !== PointerModeEnum.SHAPE" [attr.xlink:href]="'/assets/images/tools/' + pointerModeEnumService.getPointerIcon(mode)"/>

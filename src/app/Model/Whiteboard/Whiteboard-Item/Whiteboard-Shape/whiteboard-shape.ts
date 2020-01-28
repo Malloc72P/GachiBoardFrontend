@@ -103,6 +103,12 @@ export class WhiteboardShape extends WhiteboardItem {
   }
 
   destroyItem() {
+    if(this.linkPortMap){
+      this.linkPortMap.forEach((value, key, map)=>{
+        value.destroyPortAndLink();
+      })
+    }
+
   }
 
   get width(): number {

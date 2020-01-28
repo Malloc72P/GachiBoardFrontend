@@ -7,8 +7,6 @@ import Group = paper.Group;
 import Color = paper.Color;
 // @ts-ignore
 import Point = paper.Point;
-// @ts-ignore
-import MouseEvent = paper.MouseEvent;
 
 import {EventEmitter} from '@angular/core';
 import {ItemAdjustor} from './ItemAdjustor/item-adjustor';
@@ -79,6 +77,9 @@ export abstract class WhiteboardItem {
   protected setCallback() {
     this.group.onMouseDown = (event) => {
       if(this.isMouseEvent(event)){
+        if(!this.checkEditable()){
+          return;
+        }
         //#### 마우스 이벤트 인 경우
         switch (event.event.button) {
           case MouseButtonEventEnum.LEFT_CLICK:

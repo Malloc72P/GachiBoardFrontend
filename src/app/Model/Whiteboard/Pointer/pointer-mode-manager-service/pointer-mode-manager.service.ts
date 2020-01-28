@@ -19,6 +19,9 @@ import {NormalPointerService} from '../normal-pointer-service/normal-pointer.ser
 // @ts-ignore
 import Point = paper.Point;
 import {MouseButtonEventEnum} from '../MouseButtonEventEnum/mouse-button-event-enum.enum';
+import {PointerModeEvent} from '../PointerModeEvent/pointer-mode-event';
+import {DrawingLayerManagerService} from '../../InfiniteCanvas/DrawingLayerManager/drawing-layer-manager.service';
+import {PanelManagerService} from '../../Panel/panel-manager-service/panel-manager.service';
 
 @Injectable({
   providedIn: 'root'
@@ -41,7 +44,9 @@ export class PointerModeManagerService {
       private canvasMoverService          : CanvasMoverService,
       private posCalcService              : PositionCalcService,
       private minimapSyncService          : MinimapSyncService,
-      private normalPointerService : NormalPointerService
+      private normalPointerService        : NormalPointerService,
+      private layerService        : DrawingLayerManagerService,
+      private panelManager: PanelManagerService,
     ) {
   }
 
@@ -77,7 +82,54 @@ export class PointerModeManagerService {
     htmlCanvasObject.addEventListener("touchend", (event) => {
       this.onTouchEnd(event);
     });
+    this.modeChange(PointerMode.POINTER);
   }
+
+  private _toolPanelToggleGroupValue;
+
+  modeChange(mode: number) {
+    this.currentPointerMode = this.toolPanelToggleGroupValue = mode;
+    this.layerService.pointerModeEventEmitter.emit(new PointerModeEvent(mode));
+  }
+
+  public onClickPanelItem(panelItem: number) {
+    switch (panelItem) {
+      case PointerMode.POINTER:
+        this.modeChange(panelItem);
+        this.panelManager.isHideBrushPanel = this.panelManager.isHideHighlighterPanel = this.panelManager.isHideShapePanel = true;
+        break;
+      case PointerMode.MOVE:
+        this.modeChange(panelItem);
+        this.panelManager.isHideBrushPanel = this.panelManager.isHideHighlighterPanel = this.panelManager.isHideShapePanel = true;
+        break;
+      case PointerMode.DRAW:
+        this.modeChange(panelItem);
+        this.panelManager.isHideHighlighterPanel = this.panelManager.isHideShapePanel = true;
+        this.panelManager.isHideBrushPanel = !this.panelManager.isHideBrushPanel;
+        break;
+      case PointerMode.HIGHLIGHTER:
+        this.modeChange(panelItem);
+        this.panelManager.isHideBrushPanel = this.panelManager.isHideShapePanel = true;
+        this.panelManager.isHideHighlighterPanel = !this.panelManager.isHideHighlighterPanel;
+        break;
+      case PointerMode.SHAPE:
+        this.modeChange(panelItem);
+        this.panelManager.isHideBrushPanel = this.panelManager.isHideHighlighterPanel = true;
+        this.panelManager.isHideShapePanel = !this.panelManager.isHideShapePanel;
+        break;
+      case PointerMode.ERASER:
+        this.modeChange(panelItem);
+        this.panelManager.isHideBrushPanel = this.panelManager.isHideHighlighterPanel = this.panelManager.isHideShapePanel = true;
+        break;
+      case PointerMode.LASSO_SELECTOR:
+        this.modeChange(panelItem);
+        this.panelManager.isHideBrushPanel = this.panelManager.isHideHighlighterPanel = this.panelManager.isHideShapePanel = true;
+        break;
+      default:
+        break;
+    }
+  }
+
 
   // Touch - Start Listener
   private onTouchStart(event) {
@@ -344,5 +396,11 @@ export class PointerModeManagerService {
   }
 
 
+  get toolPanelToggleGroupValue() {
+    return this._toolPanelToggleGroupValue;
+  }
 
+  set toolPanelToggleGroupValue(value) {
+    this._toolPanelToggleGroupValue = value;
+  }
 }

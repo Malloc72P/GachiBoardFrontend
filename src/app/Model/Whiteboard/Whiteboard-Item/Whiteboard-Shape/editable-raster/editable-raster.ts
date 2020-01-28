@@ -43,6 +43,7 @@ export abstract class EditableRaster extends WhiteboardShape {
   }
 
   destroyItem() {
+    super.destroyItem();
     console.log("EditableRaster >> destroyItem >> 진입함");
     this.coreItem.remove();
     this.group.remove();

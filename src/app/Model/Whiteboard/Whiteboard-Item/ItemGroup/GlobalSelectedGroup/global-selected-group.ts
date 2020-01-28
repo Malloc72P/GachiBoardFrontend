@@ -79,6 +79,6 @@ export class GlobalSelectedGroup extends ItemGroup {
   }
 
   destroyItem() {
-    this.destroyItemAndChildren();
+    this.destroyAllFromGroup();
   }
 }

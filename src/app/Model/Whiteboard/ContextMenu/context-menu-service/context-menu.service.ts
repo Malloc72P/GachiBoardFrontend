@@ -17,6 +17,9 @@ import {WhiteboardItem} from '../../Whiteboard-Item/whiteboard-item';
 import {EditableRaster} from '../../Whiteboard-Item/Whiteboard-Shape/editable-raster/editable-raster';
 import {ItemGroup} from '../../Whiteboard-Item/ItemGroup/item-group';
 import {EditTextManagementService} from '../../EditTextManagement/edit-text-management.service';
+import {PointerModeEvent} from '../../Pointer/PointerModeEvent/pointer-mode-event';
+import {PointerMode} from '../../Pointer/pointer-mode-enum-service/pointer-mode-enum.service';
+import {PointerModeManagerService} from '../../Pointer/pointer-mode-manager-service/pointer-mode-manager.service';
 
 @Injectable({
   providedIn: 'root'
@@ -33,6 +36,7 @@ export class ContextMenuService {
     private positionCalcService: PositionCalcService,
     private layerService: DrawingLayerManagerService,
     private editTextManagementService: EditTextManagementService,
+    private pointerModeManagerService: PointerModeManagerService,
   ) { }
 
   public initializeContextMenuService(contextMenu: MatMenu, contextMenuTrigger: MatMenuTrigger) {
@@ -122,14 +126,18 @@ export class ContextMenuService {
         break;
       case ShapeContextMenu.EDIT_TEXT:
         let selectedItem = this.item;
+        if(this.layerService.globalSelectedGroup.getNumberOfChild() === 0){
+          this.layerService.globalSelectedGroup.insertOneIntoSelection(selectedItem);
+        }
         if(selectedItem instanceof EditableShape){
           this.layerService.startEditText();
         }
         break;
       case ShapeContextMenu.EDIT:
         console.log("ContextMenuService >> onClickContextMenu >> EDIT");
+        this.pointerModeManagerService.modeChange(PointerMode.POINTER);
+        this.layerService.globalSelectedGroup.insertOneIntoSelection(this.item);
         break;
-
       case ContextMenu.ADD_IMAGE:
         this.addImage();
         break;
