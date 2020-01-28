@@ -38,15 +38,11 @@ export class BrushService {
     this.strokeWidth = width;
   }
   public createPath(event) {
-    let point: paper.Point;
-
-    if(event instanceof MouseEvent) {
-      point = new Point(event.x, event.y);
-    } else if (event instanceof TouchEvent) {
-      point = new Point(event.touches[0].clientX, event.touches[0].clientY);
-    } else {
+    let point = this.initEvent(event);
+    if(point === null) {
       return;
     }
+
     point = this.posCalcService.advConvertNgToPaper(point);
 
     this.newPath =  new paper.Path({
@@ -58,19 +54,20 @@ export class BrushService {
     });
   }
   public drawPath(event) {
-    let point: Point;
-
-    if(event instanceof MouseEvent) {
-      point = new Point(event.x, event.y);
-    } else if (event instanceof TouchEvent) {
-      point = new Point(event.touches[0].clientX, event.touches[0].clientY);
-    } else {
+    let point = this.initEvent(event);
+    if(point === null){
       return;
     }
+
     point = this.posCalcService.advConvertNgToPaper(point);
     this.newPath.add(new Point(point.x, point.y));
   }
-  public endPath() {
+  public endPath(event) {
+    let point = this.initEvent(event);
+    if(point === null) {
+      return;
+    }
+
     if(this.newPath != null) {
       this.newPath.simplify(3);
 
@@ -81,5 +78,20 @@ export class BrushService {
     }
   }
 
+  private initEvent(event: MouseEvent | TouchEvent): Point {
+    let point: Point;
 
+    if(event instanceof MouseEvent) {
+      // buttons 는 각 비트당 마우스 버튼이 눌린상태를 의미하고 십진수로 4는 휠 클릭 2는 우클릭이다.
+      // 따라서 비트연산으로 체크하여 이벤트를 스킵함
+      if(event.buttons & 0b00000110) {
+        return null;
+      }
+      point = new Point(event.x, event.y);
+    } else if (event instanceof TouchEvent) {
+      point = new Point(event.touches[0].clientX, event.touches[0].clientY);
+    }
+
+    return point;
+  }
 }

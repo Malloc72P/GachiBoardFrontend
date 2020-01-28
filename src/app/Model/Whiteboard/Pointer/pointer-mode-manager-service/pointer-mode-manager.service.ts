@@ -164,7 +164,7 @@ export class PointerModeManagerService {
           this.canvasMoverService.onTouchEnd(event);
           break;
         case PointerMode.DRAW:
-          this.brushService.endPath();
+          this.brushService.endPath(event);
           break;
         case PointerMode.HIGHLIGHTER:
           this.highlighter.endPath();
@@ -261,7 +261,7 @@ export class PointerModeManagerService {
         this.canvasMoverService.onMouseUp(event);
         break;
       case PointerMode.DRAW:
-        this.brushService.endPath();
+        this.brushService.endPath(event);
         break;
       case PointerMode.HIGHLIGHTER:
         this.highlighter.endPath();
