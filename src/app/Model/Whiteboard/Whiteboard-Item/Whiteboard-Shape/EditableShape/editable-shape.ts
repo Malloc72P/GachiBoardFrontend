@@ -110,7 +110,7 @@ export abstract class EditableShape extends WhiteboardShape {
     let newHeight = this.group.bounds.height + 0;
 
     this.group.matrix.reset();
-
+    this.editText.matrix.reset();
 
     this.coreItem.bounds.width = newWidth;
     this.coreItem.bounds.height = newHeight;
@@ -118,6 +118,7 @@ export abstract class EditableShape extends WhiteboardShape {
 
     this.group.addChild(this.editText);
     this.group.addChild(this.coreItem);
+
 
     let convertedText = this.rawTextContent.replace(
       /<(div|br)([^>]*)>/g, '\n'  // <div> <br> -> \n
@@ -165,20 +166,23 @@ export abstract class EditableShape extends WhiteboardShape {
     let charHeight;
     let calcHeight = 0;
 
-    width -= EditableShape.EDIT_TEXT_PADDING;
-    height -= EditableShape.EDIT_TEXT_PADDING;
+    width -= EditableShape.EDIT_TEXT_PADDING * 2;
+    height -= EditableShape.EDIT_TEXT_PADDING * 2;
 
     let textStyle = new TextStyle();
 
     if (text === '') {
       calcText = '';
     } else {
-
       charHeight = this.calcStringHeight(text[0], textStyle);
+      calcHeight += charHeight;
       for (let i = 0; i < text.length; i++) {
         if (text[i] === '\n') {
           calcText += text[i];
           calcHeight += charHeight;
+          if(calcHeight > height) {
+            break;
+          }
           calcWidth = 0;
           i++;
         }
@@ -187,12 +191,13 @@ export abstract class EditableShape extends WhiteboardShape {
 
         if (calcWidth > width) {
           calcHeight += charHeight;
+          if (calcHeight > height) {
+            break;
+          }
           calcText += '\n';
           calcWidth = charWidth;
         }
-        if (calcHeight > height) {
-          break;
-        }
+
         calcText += text[i];
       }
     }
