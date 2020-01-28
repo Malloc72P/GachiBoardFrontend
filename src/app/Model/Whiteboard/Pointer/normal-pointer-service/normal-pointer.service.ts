@@ -36,11 +36,10 @@ export class NormalPointerService {
 
   constructor(
     private posCalcService        : PositionCalcService,
-    private canvasMoverService    : CanvasMoverService,
+    private infiniteCanvasService : InfiniteCanvasService,
     private layerService    : DrawingLayerManagerService,
 
   ) {
-    this.action = NORMAL_POINTER_ACTIONS.MOVING;
   }
 
 
@@ -50,18 +49,18 @@ export class NormalPointerService {
 
   public onMouseDown(event){
     if(!this.layerService.isSelecting()){
-      this.canvasMoverService.movedByMouse(event);
+      this.movedByMouse(event);
     }
   }
   public onMouseMove(event){
     if(!this.layerService.isSelecting()){
-      this.canvasMoverService.movedByMouse(event);
+      this.movedByMouse(event);
     }
 
   }
   public onMouseUp(event){
     if(!this.layerService.isSelecting()){
-      this.canvasMoverService.movedByMouse(event);
+      this.movedByMouse(event);
     }
 
   }
@@ -70,25 +69,42 @@ export class NormalPointerService {
     this.prevTouchPoint = this.posCalcService.reflectZoomWithPoint(
       new Point(event.touches[0].clientX, event.touches[0].clientY)
     );
+
   }
   public onTouchMove(event){
     if(!this.layerService.isSelecting()){
-      this.canvasMoverService.movedByTouch(event);
+      this.movedByTouch(event);
     }
   }
   public onTouchEnd(event){
     if(!this.layerService.isSelecting()){
-      this.canvasMoverService.movedByTouch(event);
+      this.movedByTouch(event);
     }
   }
-
-  private onDown(event){
-  }//onDown ###
-
-  private onMove(event){
+  public movedByMouse(event){
+    let delta = this.posCalcService.reflectZoomWithPoint(
+      new Point( -event.movementX, -event.movementY )
+    );
+    // @ts-ignore
+    paper.view.scrollBy(delta);
+    this.infiniteCanvasService.solveDangerState();
   }
 
-  private onUp(event){
+  public movedByTouch(event){
+    let endPoint = this.posCalcService.reflectZoomWithPoint(
+      new Point( event.changedTouches[0].clientX, event.changedTouches[0].clientY )
+    );
+    let calcX = endPoint.x - this.prevTouchPoint.x ;
+    let calcY = endPoint.y - this.prevTouchPoint.y ;
+
+    let delta = new Point( -calcX, -calcY );
+
+    // @ts-ignore
+    paper.view.scrollBy(delta);
+    this.infiniteCanvasService.solveDangerState();
+
+    this.prevTouchPoint.x = endPoint.x;
+    this.prevTouchPoint.y = endPoint.y;
   }
 
 }

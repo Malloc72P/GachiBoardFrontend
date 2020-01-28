@@ -7,6 +7,8 @@ import Group = paper.Group;
 import Color = paper.Color;
 // @ts-ignore
 import Point = paper.Point;
+// @ts-ignore
+import MouseEvent = paper.MouseEvent;
 
 import {EventEmitter} from '@angular/core';
 import {ItemAdjustor} from './ItemAdjustor/item-adjustor';
@@ -74,24 +76,35 @@ export abstract class WhiteboardItem {
   }
   protected setCallback() {
     this.group.onMouseDown = (event) => {
+      if(this.isMouseEvent(event)){
+        //#### 마우스 이벤트 인 경우
+        switch (event.event.button) {
+          case MouseButtonEventEnum.LEFT_CLICK:
+            this.onPointerDownForEdit(event);
+            break;
+          case MouseButtonEventEnum.RIGHT_CLICK:
+            this.onPointerDownForContextMenu(event);
+            break;
+        }//switch
 
-      switch (event.event.button) {
-        case MouseButtonEventEnum.LEFT_CLICK:
-          this.onLeftMouseButtonDown(event);
-          break;
-        case MouseButtonEventEnum.RIGHT_CLICK:
-          this.onRightMouseButtonDown(event);
-          break;
+      }//if
+      else{//#### 터치 이벤트 인 경우
+        //TODO 여기서 롱터치 여부를 구분해야 함
+        if(this.checkEditable()){
+          this.onPointerDownForEdit(event);
+        }
       }
     };
     this.group.onMouseUp = () =>{
-      if(!this.checkLeftMouseIsPossible()){
+      if(!this.checkEditable()){
         return;
       }
       this.setSingleSelectMode();
     }
   }
-
+  protected isMouseEvent(event){
+    return event.event instanceof MouseEvent;
+  }
   protected setSingleSelectMode(){
     this.selectMode = SelectModeEnum.SINGLE_SELECT;
   }
@@ -129,8 +142,8 @@ export abstract class WhiteboardItem {
     this.trailDistance = 0;
   }
 
-  private onLeftMouseButtonDown(event){
-    if(!this.checkLeftMouseIsPossible()){
+  private onPointerDownForEdit(event){
+    if(!this.checkEditable()){
       return;
     }
     if(event.modifiers.control === true || event.modifiers.shift === true){
@@ -147,8 +160,8 @@ export abstract class WhiteboardItem {
       this.isSelected = true;
     }
   }
-  private onRightMouseButtonDown(event){
-    if(!this.checkRightMouseIsPossible()){
+  private onPointerDownForContextMenu(event){
+    if(!this.checkContextMenuIsAvailable()){
       return;
     }
     if(!this.isSelected){
@@ -167,11 +180,11 @@ export abstract class WhiteboardItem {
   public abstract refreshItem();
   public abstract destroyItem();
 
-  checkLeftMouseIsPossible(){
+  checkEditable(){
     let currentPointerMode = this.layerService.currentPointerMode;
     return currentPointerMode === PointerMode.POINTER || currentPointerMode === PointerMode.LASSO_SELECTOR;
   }
-  checkRightMouseIsPossible(){
+  checkContextMenuIsAvailable(){
     let currentPointerMode = this.layerService.currentPointerMode;
     return currentPointerMode === PointerMode.POINTER || currentPointerMode === PointerMode.LASSO_SELECTOR
             || PointerMode.DRAW || PointerMode.ERASER || PointerMode.HIGHLIGHTER || PointerMode.SHAPE;

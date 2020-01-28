@@ -68,8 +68,7 @@ export class CanvasMoverService {
   }
 
   public movedByTouch(event){
-    let endPoint
-      = this.posCalcService.reflectZoomWithPoint(
+    let endPoint = this.posCalcService.reflectZoomWithPoint(
       new Point( event.changedTouches[0].clientX, event.changedTouches[0].clientY )
     );
     let calcX = endPoint.x - this.prevTouchPoint.x ;
