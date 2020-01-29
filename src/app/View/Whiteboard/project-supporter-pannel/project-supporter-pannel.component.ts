@@ -18,6 +18,7 @@ import {ImportFileService} from "../../../Model/Whiteboard/ImportFile/import-fil
   styleUrls: ['./project-supporter-pannel.component.css',  './popup-pannel-commons.css']
 })
 export class ProjectSupporterPannelComponent extends PopoverPanel  implements OnInit {
+  @ViewChild('fileInputMultiple', {static: false}) fileInputMultiple: ElementRef;
   @ViewChild('fileInput', {static: false}) fileInput: ElementRef;
   projectSupporterEnumService: ProjectSupporterEnumService;
   isHovered;
@@ -87,7 +88,7 @@ export class ProjectSupporterPannelComponent extends PopoverPanel  implements On
       case SupportMode.CLOUD_STORAGE:
         break;
       case SupportMode.IMPORT:
-        document.getElementById("fileInput").click();
+        document.getElementById("fileInputMultiple").click();
         break;
       case SupportMode.EXPORT:
         break;
@@ -98,8 +99,15 @@ export class ProjectSupporterPannelComponent extends PopoverPanel  implements On
     }
   }
 
-  onFileChange(event) {
-    let fileObject = this.fileInput.nativeElement.files[0];
+  onFileChangeMultiple() {
+    let fileObjects = this.fileInputMultiple.nativeElement.files;
+    console.log("ProjectSupporterPannelComponent >> onFileChange >> this.fileInput.nativeElement.files : ", fileObjects);
+
+    this.importFileService.importFile(fileObjects)
+  }
+
+  onFileChange() {
+    let fileObject = this.fileInput.nativeElement.files;
 
     this.importFileService.importFile(fileObject)
   }

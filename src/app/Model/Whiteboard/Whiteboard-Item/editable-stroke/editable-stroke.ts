@@ -19,8 +19,11 @@ export abstract class EditableStroke extends WhiteboardItem {
   private _strokeWidth: number;
   private _strokeColor: Color;
 
-  protected constructor(group, type, path:Path, eventEmitter:EventEmitter<any>){
-    super(group, type, path, eventEmitter);
+  protected constructor(type, path:Path, layerService) {
+    super(type, path, layerService);
+
+    this.disableLinkHandler = true;
+
     this.segments = path.segments;
     this.strokeWidth = path.strokeWidth;
     this.strokeColor = path.strokeColor;

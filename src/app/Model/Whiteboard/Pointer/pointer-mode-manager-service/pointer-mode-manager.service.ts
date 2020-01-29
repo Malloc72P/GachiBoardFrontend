@@ -13,9 +13,15 @@ import {PositionCalcService} from "../../PositionCalc/position-calc.service";
 import {MinimapSyncService} from '../../InfiniteCanvas/MinimapSync/minimap-sync.service';
 import {HighlighterService} from '../highlighter-service/highlighter.service';
 import {ShapeService} from '../shape-service/shape.service';
+import {NormalPointerService} from '../normal-pointer-service/normal-pointer.service';
+
 
 // @ts-ignore
 import Point = paper.Point;
+import {MouseButtonEventEnum} from '../MouseButtonEventEnum/mouse-button-event-enum.enum';
+import {PointerModeEvent} from '../PointerModeEvent/pointer-mode-event';
+import {DrawingLayerManagerService} from '../../InfiniteCanvas/DrawingLayerManager/drawing-layer-manager.service';
+import {PanelManagerService} from '../../Panel/panel-manager-service/panel-manager.service';
 
 @Injectable({
   providedIn: 'root'
@@ -28,21 +34,25 @@ export class PointerModeManagerService {
 
 
   constructor(
-      public brushService             : BrushService,
-      public eraser                   : EraserService,
-      public shape                    : ShapeService,
-      public lassoSelector            : LassoSelectorService,
-      public highlighter              : HighlighterService,
-      private infiniteCanvasService   : InfiniteCanvasService,
-      private zoomCtrlService         : ZoomControlService,
-      private canvasMoverService      : CanvasMoverService,
-      private posCalcService          : PositionCalcService,
-      private minimapSyncService      : MinimapSyncService,
+      public brushService                 : BrushService,
+      public eraser                       : EraserService,
+      public shape                        : ShapeService,
+      public lassoSelector                : LassoSelectorService,
+      public highlighter                  : HighlighterService,
+      private infiniteCanvasService       : InfiniteCanvasService,
+      private zoomCtrlService             : ZoomControlService,
+      private canvasMoverService          : CanvasMoverService,
+      private posCalcService              : PositionCalcService,
+      private minimapSyncService          : MinimapSyncService,
+      private normalPointerService        : NormalPointerService,
+      private layerService        : DrawingLayerManagerService,
+      private panelManager: PanelManagerService,
     ) {
   }
 
   public initializePointerModeManagerService(currentProject) {
-    this.currentPointerMode = PointerMode.MOVE;
+
+    this.currentPointerMode = PointerMode.POINTER;
     const htmlCanvasObject = document.getElementById("cv1") as HTMLCanvasElement;
     this.currentProject = currentProject;
 
@@ -52,6 +62,7 @@ export class PointerModeManagerService {
     this.eraser.initializeEraserService(this.currentProject);
     this.lassoSelector.initializeLassoSelectorService(this.currentProject);
     this.shape.initializeShapeService(this.currentProject);
+    this.normalPointerService.initializeNormalPointerService(this.currentProject);
 
     htmlCanvasObject.addEventListener("mousedown", (event) => {
       this.onMouseDown(event);
@@ -71,28 +82,63 @@ export class PointerModeManagerService {
     htmlCanvasObject.addEventListener("touchend", (event) => {
       this.onTouchEnd(event);
     });
-    document.addEventListener("mousedown", (event) => {
-      this.onClickOutsideCanvas(event);
-    });
-    document.addEventListener("touchend", (event) => {
-      this.onClickOutsideCanvas(event);
-    });
+    this.modeChange(PointerMode.POINTER);
   }
 
-  // Document - Blur Listener
-  private onClickOutsideCanvas(event) {
-    let htmlCanvasObject = document.getElementById("cv1");
+  private _toolPanelToggleGroupValue;
 
-    if(!htmlCanvasObject.contains(event.target)) {
-      this.lassoSelector.cancelSelect();
+  modeChange(mode: number) {
+    this.currentPointerMode = this.toolPanelToggleGroupValue = mode;
+    this.layerService.pointerModeEventEmitter.emit(new PointerModeEvent(mode));
+  }
+
+  public onClickPanelItem(panelItem: number) {
+    switch (panelItem) {
+      case PointerMode.POINTER:
+        this.modeChange(panelItem);
+        this.panelManager.isHideBrushPanel = this.panelManager.isHideHighlighterPanel = this.panelManager.isHideShapePanel = true;
+        break;
+      case PointerMode.MOVE:
+        this.modeChange(panelItem);
+        this.panelManager.isHideBrushPanel = this.panelManager.isHideHighlighterPanel = this.panelManager.isHideShapePanel = true;
+        break;
+      case PointerMode.DRAW:
+        this.modeChange(panelItem);
+        this.panelManager.isHideHighlighterPanel = this.panelManager.isHideShapePanel = true;
+        this.panelManager.isHideBrushPanel = !this.panelManager.isHideBrushPanel;
+        break;
+      case PointerMode.HIGHLIGHTER:
+        this.modeChange(panelItem);
+        this.panelManager.isHideBrushPanel = this.panelManager.isHideShapePanel = true;
+        this.panelManager.isHideHighlighterPanel = !this.panelManager.isHideHighlighterPanel;
+        break;
+      case PointerMode.SHAPE:
+        this.modeChange(panelItem);
+        this.panelManager.isHideBrushPanel = this.panelManager.isHideHighlighterPanel = true;
+        this.panelManager.isHideShapePanel = !this.panelManager.isHideShapePanel;
+        break;
+      case PointerMode.ERASER:
+        this.modeChange(panelItem);
+        this.panelManager.isHideBrushPanel = this.panelManager.isHideHighlighterPanel = this.panelManager.isHideShapePanel = true;
+        break;
+      case PointerMode.LASSO_SELECTOR:
+        this.modeChange(panelItem);
+        this.panelManager.isHideBrushPanel = this.panelManager.isHideHighlighterPanel = this.panelManager.isHideShapePanel = true;
+        break;
+      default:
+        break;
     }
   }
+
 
   // Touch - Start Listener
   private onTouchStart(event) {
     event.preventDefault();
 
     switch (this.currentPointerMode) {
+      case PointerMode.POINTER:
+        this.normalPointerService.onTouchStart(event);
+        break;
       case PointerMode.MOVE:
         this.canvasMoverService.onTouchStart(event);
         break;
@@ -125,6 +171,9 @@ export class PointerModeManagerService {
         return;
       }
       switch (this.currentPointerMode) {
+        case PointerMode.POINTER:
+          this.normalPointerService.onTouchMove(event);
+          break;
         case PointerMode.MOVE:
           this.canvasMoverService.onTouchMove(event);
           break;
@@ -161,6 +210,9 @@ export class PointerModeManagerService {
       this.zoomCtrlService.onPinchZoomEnd();
     }else if ( this.zoomCtrlService.isZooming == 0){
       switch (this.currentPointerMode) {
+        case PointerMode.POINTER:
+          this.normalPointerService.onTouchEnd(event);
+          break;
         case PointerMode.MOVE:
           this.canvasMoverService.onTouchEnd(event);
           break;
@@ -190,8 +242,19 @@ export class PointerModeManagerService {
   // Mouse - Down Listener
   private onMouseDown(event) {
     event.preventDefault();
+    switch (event.button) {
+      case MouseButtonEventEnum.LEFT_CLICK:
+        break;
+      case MouseButtonEventEnum.MIDDLE_CLICK:
+        return;
+      case MouseButtonEventEnum.RIGHT_CLICK:
+        return;
+    }
     this.mouseDown = true;
     switch (this.currentPointerMode) {
+      case PointerMode.POINTER:
+        this.normalPointerService.onMouseDown(event);
+        break;
       case PointerMode.MOVE:
         this.canvasMoverService.onMouseDown(event);
         break;
@@ -218,8 +281,20 @@ export class PointerModeManagerService {
   // Mouse - Move Listener
   private onMouseMove(event) {
     event.preventDefault();
+    switch (event.button) {
+      case MouseButtonEventEnum.LEFT_CLICK:
+        break;
+      case MouseButtonEventEnum.MIDDLE_CLICK:
+        return;
+      case MouseButtonEventEnum.RIGHT_CLICK:
+        return;
+    }
+
     if(this.mouseDown) {
       switch (this.currentPointerMode) {
+        case PointerMode.POINTER:
+          this.normalPointerService.onMouseMove(event);
+          break;
         case PointerMode.MOVE:
           this.canvasMoverService.onMouseMove(event);
           break;
@@ -247,8 +322,20 @@ export class PointerModeManagerService {
   // Mouse - Up Listener
   private onMouseUp(event) {
     event.preventDefault();
+    switch (event.button) {
+      case MouseButtonEventEnum.LEFT_CLICK:
+        break;
+      case MouseButtonEventEnum.MIDDLE_CLICK:
+        return;
+      case MouseButtonEventEnum.RIGHT_CLICK:
+        return;
+    }
+
     this.mouseDown = false;
     switch (this.currentPointerMode) {
+      case PointerMode.POINTER:
+        this.normalPointerService.onMouseUp(event);
+        break;
       case PointerMode.MOVE:
         this.canvasMoverService.onMouseUp(event);
         break;
@@ -309,5 +396,11 @@ export class PointerModeManagerService {
   }
 
 
+  get toolPanelToggleGroupValue() {
+    return this._toolPanelToggleGroupValue;
+  }
 
+  set toolPanelToggleGroupValue(value) {
+    this._toolPanelToggleGroupValue = value;
+  }
 }

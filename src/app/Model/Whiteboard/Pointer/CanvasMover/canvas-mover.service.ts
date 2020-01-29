@@ -58,17 +58,17 @@ export class CanvasMoverService {
     this.movedByTouch(event);
   }
 
-  private movedByMouse(event){
+  public movedByMouse(event){
     let delta = this.positionCalcService.reflectZoomWithPoint(
       new Point( -event.movementX, -event.movementY )
     );
-    this.infiniteCanvasService.movingAlg();
     // @ts-ignore
     paper.view.scrollBy(delta);
+    this.infiniteCanvasService.solveDangerState();
   }
-  private movedByTouch(event){
-    let endPoint
-      = this.posCalcService.reflectZoomWithPoint(
+
+  public movedByTouch(event){
+    let endPoint = this.posCalcService.reflectZoomWithPoint(
       new Point( event.changedTouches[0].clientX, event.changedTouches[0].clientY )
     );
     let calcX = endPoint.x - this.prevTouchPoint.x ;
@@ -76,9 +76,10 @@ export class CanvasMoverService {
 
     let delta = new Point( -calcX, -calcY );
 
-    this.infiniteCanvasService.movingAlg();
     // @ts-ignore
     paper.view.scrollBy(delta);
+    this.infiniteCanvasService.solveDangerState();
+
     this.prevTouchPoint.x = endPoint.x;
     this.prevTouchPoint.y = endPoint.y;
   }

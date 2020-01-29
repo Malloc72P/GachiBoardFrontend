@@ -5,6 +5,8 @@ import {TextStyle} from "./text-style";
 import {DrawingLayerManagerService} from '../../InfiniteCanvas/DrawingLayerManager/drawing-layer-manager.service';
 import {WhiteboardItem} from '../../Whiteboard-Item/whiteboard-item';
 import {EditableShape} from '../../Whiteboard-Item/Whiteboard-Shape/EditableShape/editable-shape';
+import {PointCalculator} from "../point-calculator/point-calculator";
+
 // @ts-ignore
 import PointText = paper.PointText;
 // @ts-ignore
@@ -107,15 +109,16 @@ export class ShapeService {
     } else if (width > -this.minSize && width < 0) {
       points.point.x = this.fromPoint.x + this.minSize;
     }
-    if(!event.shiftKey) {
-      const height = this.fromPoint.y - points.point.y;
-      if(height < this.minSize && height >= 0) {
-        points.point.y = this.fromPoint.y - this.minSize;
-      } else if (height > -this.minSize && height < 0) {
-        points.point.y = this.fromPoint.y + this.minSize;
-      }
-    } else {
-      // 정방형
+    const height = this.fromPoint.y - points.point.y;
+    if(height < this.minSize && height >= 0) {
+      points.point.y = this.fromPoint.y - this.minSize;
+    } else if (height > -this.minSize && height < 0) {
+      points.point.y = this.fromPoint.y + this.minSize;
+    }
+
+
+    if(event.shiftKey) {
+      PointCalculator.forSquare(this.fromPoint, points.point);
     }
 
     let bound = new paper.Rectangle(this.fromPoint, points.point);
@@ -148,7 +151,7 @@ export class ShapeService {
         let editableShape:EditableShape = selectedItem as EditableShape;
 
         if( editableShape.editText != null) {
-          this.textEditStart(editableShape.editText);
+          //this.textEditStart(editableShape.editText);
         }
       }
     // }
@@ -212,7 +215,7 @@ export class ShapeService {
     // EditText bound 계산
     let bound = shapeItem.coreItem.bounds;
 
-    let htmlEditorPoint = this.posCalcService.advConvertPaperToNg(new Point(shapeItem.topLeft.x, shapeItem.topLeft.y));
+    let htmlEditorPoint = this.posCalcService.advConvertPaperToNg(new Point(shapeItem.group.bounds.topLeft.x, shapeItem.group.bounds.topLeft.y));
 
     let edtWidth = this.posCalcService.advConvertLengthPaperToNg(bound.width);
     let edtHeight = this.posCalcService.advConvertLengthPaperToNg(bound.height);
@@ -387,10 +390,9 @@ export class ShapeService {
     })
   }
 
-
   private onClickOutsidePanel(event, element, item) {
     if(element.contains(event.target)) {
-      this.textEditEnd(item);
+      //this.textEditEnd(item);
     }
   }
 

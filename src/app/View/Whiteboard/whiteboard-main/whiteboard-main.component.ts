@@ -1,4 +1,4 @@
-import {Component, EventEmitter, Host, HostListener, OnInit, ViewChild} from '@angular/core';
+import {Component, EventEmitter, HostListener, OnInit} from '@angular/core';
 import { AuthRequestService } from '../../../Controller/SocialLogin/auth-request/auth-request.service';
 import { RouterHelperService } from '../../../Model/Helper/router-helper-service/router-helper.service';
 import {UserDTO} from '../../../DTO/user-dto';
@@ -22,6 +22,8 @@ import Path = paper.Path;
 import {DebugingService} from "../../../Model/Helper/DebugingHelper/debuging.service";
 import {MinimapSyncService} from '../../../Model/Whiteboard/InfiniteCanvas/MinimapSync/minimap-sync.service';
 import {WhiteboardContextMenuComponent} from "../whiteboard-context-menu/whiteboard-context-menu.component";
+import {ContextMenuService} from "../../../Model/Whiteboard/ContextMenu/context-menu-service/context-menu.service";
+import {DrawingLayerManagerService} from '../../../Model/Whiteboard/InfiniteCanvas/DrawingLayerManager/drawing-layer-manager.service';
 
 
 @Component({
@@ -31,7 +33,6 @@ import {WhiteboardContextMenuComponent} from "../whiteboard-context-menu/whitebo
 })
 export class WhiteboardMainComponent implements OnInit {
   private paperProject: Project;
-  private contextOpenEmitter = new EventEmitter<any>();
 
   private isMouseDown = false;
   private currentPointerMode;
@@ -78,6 +79,8 @@ export class WhiteboardMainComponent implements OnInit {
     private zoomControlService      : ZoomControlService,
     private debugingService         : DebugingService,
     private minimapSyncService      : MinimapSyncService,
+    private contextMenuService      : ContextMenuService,
+    private layerService            : DrawingLayerManagerService
   ) {
   }
 
@@ -98,6 +101,8 @@ export class WhiteboardMainComponent implements OnInit {
     this.pointerModeManager.initializePointerModeManagerService(this.paperProject);
     this.debugingService.initializeDebugingService(this.paperProject);
     this.minimapSyncService.initializePositionCalcService(this.paperProject);
+    this.layerService.initializeDrawingLayerService(this.paperProject, this.contextMenuService);
+
 
 
     this.paperProject.view.onMouseMove = (event) => {
@@ -113,6 +118,40 @@ export class WhiteboardMainComponent implements OnInit {
   }
   @HostListener('document:keydown', ['$event'])
   keydownHandler(event) {
+    // console.log("WhiteboardMainComponent >> keydownHandler >> keydown : ", event);
+
+    // textEditor 에선 스킵
+    if(event.target === document.getElementById("textEditor")) {
+      return;
+    }
+    // 전역
+    switch (event.code) {
+      case "KeyP":
+        document.getElementById(PointerMode[PointerMode.POINTER]).click();
+        break;
+      case "KeyM":
+        document.getElementById(PointerMode[PointerMode.MOVE]).click();
+        break;
+      case "KeyB":
+        document.getElementById(PointerMode[PointerMode.DRAW]).click();
+        break;
+      case "KeyH":
+        document.getElementById(PointerMode[PointerMode.HIGHLIGHTER]).click();
+        break;
+      case "KeyS":
+        document.getElementById(PointerMode[PointerMode.SHAPE]).click();
+        break;
+      case "KeyE":
+        document.getElementById(PointerMode[PointerMode.ERASER]).click();
+        break;
+      case "KeyL":
+        document.getElementById(PointerMode[PointerMode.LASSO_SELECTOR]).click();
+        break;
+      default:
+        break;
+    }
+
+    // 모드 귀속
     switch (this.pointerModeManager.currentPointerMode) {
       case PointerMode.MOVE:
         break;
@@ -120,18 +159,17 @@ export class WhiteboardMainComponent implements OnInit {
         break;
       case PointerMode.ERASER:
         break;
+      case PointerMode.POINTER:
       case PointerMode.LASSO_SELECTOR:
         if(event.code === "Delete") {
-          this.pointerModeManager.lassoSelector.removeSelectedItem();
+          //TODO GlobalSelectedGroup에서 removeSelectedItem 구현해야함
+          this.layerService.globalSelectedGroup.destroyItem();
+          //this.pointerModeManager.lassoSelector.removeSelectedItem();
           this.minimapSyncService.syncMinimap();
         }
         break;
       default:
         break;
     }
-  }
-
-  openContextMenu(event) {
-    this.contextOpenEmitter.emit(event);
   }
 }

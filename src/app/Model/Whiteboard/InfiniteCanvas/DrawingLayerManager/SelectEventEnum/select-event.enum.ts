@@ -1,0 +1,5 @@
+export enum SelectEventEnum {
+  SELECT_MODE_CHANGED,
+  ITEM_SELECTED,
+  ITEM_DESELECTED
+}

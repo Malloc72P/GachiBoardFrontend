@@ -10,10 +10,16 @@ import Item = paper.Item;
 import Segment = paper.Segment;
 // @ts-ignore
 import Color = paper.Color;
+import {WhiteboardItemType} from '../../../../../Helper/data-type-enum/data-type.enum';
 
 export class EditableRectangle extends EditableShape {
-  constructor(group, type, item:Item, textStyle, editText, posService, eventEmitter) {
-    super(group, type, item, textStyle, editText, posService, eventEmitter);
+  constructor(item:Item, textStyle, editText, layerService) {
+    super(
+      WhiteboardItemType.EDITABLE_RECTANGLE,
+      item,
+      textStyle,
+      editText,
+      layerService);
 
   }
 }

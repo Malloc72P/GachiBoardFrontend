@@ -12,10 +12,13 @@ import Segment = paper.Segment;
 // @ts-ignore
 import Color = paper.Color;
 import {EventEmitter} from '@angular/core';
+import {WhiteboardItemType} from '../../../../Helper/data-type-enum/data-type.enum';
 
 export class SimpleStroke extends EditableStroke {
-  constructor(group, type, path:Path, eventEmitter:EventEmitter<any>) {
-    super(group, type, path, eventEmitter);
+  constructor(path:Path, posCalcService) {
+    super(WhiteboardItemType.SIMPLE_STROKE,
+      path,
+      posCalcService);
 
   }
 

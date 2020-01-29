@@ -3,6 +3,7 @@ import {CommonEnum} from '../../../Helper/common-enum/common-enum';
 import {ShapeStyle} from '../../../Helper/data-type-enum/data-type.enum';
 
 export enum PointerMode {
+  POINTER,
   MOVE,
   DRAW,
   HIGHLIGHTER,
@@ -14,6 +15,7 @@ export enum PointerMode {
 // /View\Whiteboard\whiteboard-tool-panel\whiteboard-tool-panel.component.css 에
 // 등록한 클래스 'icon-tools-***' ***을 넣을것
 export enum PointerIcon {
+  pointer,
   move,
   brush,
   highlighter,

@@ -10,11 +10,17 @@ import Item = paper.Item;
 import Segment = paper.Segment;
 // @ts-ignore
 import Color = paper.Color;
+import {WhiteboardItemType} from '../../../../../Helper/data-type-enum/data-type.enum';
 export class EditableCard extends EditableShape {
   private _borderRadius: number;
   private _tagList: Array<any>;    // TODO : 일단 ANY 지만 TAG 형식 지정되면 바꾸기
-  constructor(group, type, item:Item, textStyle, editText, posService, eventEmitter) {
-    super(group, type, item, textStyle, editText, posService, eventEmitter);
+  constructor(item:Item, textStyle, editText, layerService) {
+    super(
+      WhiteboardItemType.EDITABLE_CARD,
+      item,
+      textStyle,
+      editText,
+      layerService);
 
   }
 

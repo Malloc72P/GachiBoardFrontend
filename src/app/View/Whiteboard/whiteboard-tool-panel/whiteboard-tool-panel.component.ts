@@ -3,6 +3,8 @@ import {PointerMode, PointerModeEnumService} from '../../../Model/Whiteboard/Poi
 import {PopoverPanel} from '../CommonClass/popover-panel/popover-panel';
 import {PointerModeManagerService} from '../../../Model/Whiteboard/Pointer/pointer-mode-manager-service/pointer-mode-manager.service';
 import {PanelManagerService} from '../../../Model/Whiteboard/Panel/panel-manager-service/panel-manager.service';
+import {DrawingLayerManagerService} from '../../../Model/Whiteboard/InfiniteCanvas/DrawingLayerManager/drawing-layer-manager.service';
+import {PointerModeEvent} from '../../../Model/Whiteboard/Pointer/PointerModeEvent/pointer-mode-event';
 
 @Component({
   selector: 'app-whiteboard-tool-panel',
@@ -10,11 +12,13 @@ import {PanelManagerService} from '../../../Model/Whiteboard/Panel/panel-manager
   styleUrls: ['./whiteboard-tool-panel.component.css']
 })
 export class WhiteboardToolPanelComponent extends PopoverPanel implements OnInit {
+  private toolPanelToggleGroupValue;
 
   constructor(
     private pointerModeEnumService: PointerModeEnumService,
     public pointerModeManagerService: PointerModeManagerService,
     private panelManager: PanelManagerService,
+    private layerService: DrawingLayerManagerService,
   ) {
     super(pointerModeEnumService);
     this.pointerModeEnumService = pointerModeEnumService;
@@ -22,38 +26,13 @@ export class WhiteboardToolPanelComponent extends PopoverPanel implements OnInit
 
   ngOnInit() {
     this.panelManager.brushPanelOutsideClickListener();
+    //this.modeChange(PointerMode.POINTER);
+    this.layerService.pointerModeEventEmitter.subscribe((data:PointerModeEvent)=>{
+
+    })
   }
 
-  onPanelStateChangeHandler() {
-    this.pointerModeManagerService.currentPointerMode = this.currentSelectedMode;
-  }
-  onClickPanelItem(panelItem: number) {
-    switch (panelItem) {
-      case PointerMode.MOVE:
-        this.panelManager.isHideBrushPanel = this.panelManager.isHideHighlighterPanel = this.panelManager.isHideShapePanel = true;
-        break;
-      case PointerMode.DRAW:
-        this.panelManager.isHideHighlighterPanel = this.panelManager.isHideShapePanel = true;
-        this.panelManager.isHideBrushPanel = !this.panelManager.isHideBrushPanel;
-        break;
-      case PointerMode.HIGHLIGHTER:
-        this.panelManager.isHideBrushPanel = this.panelManager.isHideShapePanel = true;
-        this.panelManager.isHideHighlighterPanel = !this.panelManager.isHideHighlighterPanel;
-        break;
-      case PointerMode.SHAPE:
-        this.panelManager.isHideBrushPanel = this.panelManager.isHideHighlighterPanel = true;
-        this.panelManager.isHideShapePanel = !this.panelManager.isHideShapePanel;
-        break;
-      case PointerMode.ERASER:
-        this.panelManager.isHideBrushPanel = this.panelManager.isHideHighlighterPanel = this.panelManager.isHideShapePanel = true;
-        break;
-      case PointerMode.LASSO_SELECTOR:
-        this.panelManager.isHideBrushPanel = this.panelManager.isHideHighlighterPanel = this.panelManager.isHideShapePanel = true;
-        break;
-      default:
-        break;
-    }
-  }
+
 
   get PointerModeEnum() {
     return PointerMode;

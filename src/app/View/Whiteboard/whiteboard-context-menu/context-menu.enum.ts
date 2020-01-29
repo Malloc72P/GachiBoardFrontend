@@ -1,8 +1,23 @@
-export enum ItemContextMenu {
+export enum ShapeContextMenu {
   EDIT = "Edit",
-  DELETE_SHAPE = "Delete",
+  EDIT_TEXT = "Edit Text",
+  DELETE = "Delete",
+}
+
+export enum RasterContextMenu {
+  EDIT = "Edit",
+  DELETE = "Delete",
+}
+
+export enum GroupContextMenu {
+  EDIT = "Edit",
+  DELETE = "Delete",
+}
+
+export enum StrokeContextMenu {
+  DELETE = "Delete",
 }
 
 export enum ContextMenu {
-
+  ADD_IMAGE = "Add image",
 }

@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import {EventEmitter, Injectable, Output} from '@angular/core';
 import {PositionCalcService} from "../../PositionCalc/position-calc.service";
 // @ts-ignore
 import Path = paper.Path;
@@ -19,7 +19,6 @@ import Layer = paper.Layer;
 
 import * as paper from 'paper';
 import {InfiniteCanvasService} from "../infinite-canvas.service";
-import {LassoSelectorService} from '../../Pointer/lasso-selector-service/lasso-selector.service';
 
 @Injectable({
   providedIn: 'root'
@@ -32,12 +31,13 @@ export class ZoomControlService {
   private currentDistance = 0;
   private midPoint = new Point(0,0);
 
+  @Output() zoomEventEmitter:EventEmitter<any> = new EventEmitter<any>();
+
   public isZooming = 0;
 
   constructor(
     private infiniteCanvasService   : InfiniteCanvasService,
     private posCalcService          : PositionCalcService,
-    private lassoSelectorService    : LassoSelectorService,
   ) {
 
   }
@@ -59,7 +59,8 @@ export class ZoomControlService {
         ngCanvasCenter,
         new Point(event.x, event.y),
         event.deltaY);
-      this.lassoSelectorService.lassoHandleResizeForZooming(this.currentProject.view.zoom);
+      //this.lassoSelectorService.lassoHandleResizeForZooming(this.currentProject.view.zoom);
+      //this.zoomEventEmitter.emit(new ZoomEvent(ZoomEventEnum.ZOOM_CHANGED));
     }
   }
 
@@ -99,7 +100,8 @@ export class ZoomControlService {
       this.prevDistance = currentDistance;
 
     }//핀치줌 시작하는 경우#####
-    this.lassoSelectorService.lassoHandleResizeForZooming(this.currentProject.view.zoom);
+    //this.lassoSelectorService.lassoHandleResizeForZooming(this.currentProject.view.zoom);
+    //this.zoomEventEmitter.emit(new ZoomEvent(ZoomEventEnum.ZOOM_CHANGED));
   }
   onPinchZoomEnd(){
     this.isZooming--;

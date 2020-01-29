@@ -41,8 +41,8 @@ app-project-supporter-pannel {
   flex: 1 1 auto;
 }
 #textEditorWrapper{
+  display: none;
   text-align: center;
-  display: flex;
   flex-flow: column;
   position: absolute;
 }
