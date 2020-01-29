@@ -28,6 +28,7 @@ export abstract class WhiteboardItem {
   protected _myItemAdjustor:ItemAdjustor;
 
   private _disableLinkHandler;
+  private _longTouchTimer;
 
   private _layerService:DrawingLayerManagerService;
 
@@ -93,12 +94,21 @@ export abstract class WhiteboardItem {
       }//if
       else{//#### 터치 이벤트 인 경우
         //TODO 여기서 롱터치 여부를 구분해야 함
+        this.longTouchTimer = setTimeout(this.onLongTouch, 1000, event, this.layerService);
         if(this.checkEditable()){
           this.onPointerDownForEdit(event);
         }
       }
     };
-    this.group.onMouseUp = () =>{
+    this.group.onMouseDrag = (event) => {
+      if(this.isTouchEvent(event)) {
+        clearTimeout(this.longTouchTimer); // 움직이면 롱터치 아님
+      }
+    };
+    this.group.onMouseUp = (event) =>{
+      if(this.isTouchEvent(event)) {
+        clearTimeout(this.longTouchTimer); // 터치가 롱터치 반응 시간 안에 떼지면 롱터치 아님
+      }
       if(!this.checkEditable()){
         return;
       }
@@ -107,6 +117,9 @@ export abstract class WhiteboardItem {
   }
   protected isMouseEvent(event){
     return event.event instanceof MouseEvent;
+  }
+  protected isTouchEvent(event) {
+    return event.event instanceof TouchEvent;
   }
   protected setSingleSelectMode(){
     this.selectMode = SelectModeEnum.SINGLE_SELECT;
@@ -134,6 +147,10 @@ export abstract class WhiteboardItem {
       case SelectEventEnum.ITEM_DESELECTED:
         break;
     }
+  }
+
+  private onLongTouch(event, layerService: DrawingLayerManagerService) {
+    layerService.contextMenu.openMenu(event.event);
   }
 
   protected calcCurrentDistance(event){
@@ -326,5 +343,13 @@ export abstract class WhiteboardItem {
 
   set selectMode(value) {
     this._selectMode = value;
+  }
+
+  get longTouchTimer() {
+    return this._longTouchTimer;
+  }
+
+  set longTouchTimer(value) {
+    this._longTouchTimer = value;
   }
 }

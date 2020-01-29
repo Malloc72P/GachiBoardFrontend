@@ -50,7 +50,8 @@ export class ContextMenuService {
       // 열리거나 닫히거나 애니메이션 중이면 반응 X
       return;
     }
-    let convertedPoint = this.positionCalcService.advConvertNgToPaper(new Point(event.x, event.y));
+    let point = this.initPoint(event);
+    let convertedPoint = this.positionCalcService.advConvertNgToPaper(point);
 
     let hitItem = this.layerService.getHittedItem(convertedPoint);
 
@@ -71,9 +72,23 @@ export class ContextMenuService {
       this.setContextMenuToDefault();
     }
 
-    this.contextMenuPosition.x = event.clientX + 'px';
-    this.contextMenuPosition.y = event.clientY + 'px';
+    this.setPosition(point);
     this.contextMenuTrigger.openMenu();
+  }
+
+  private initPoint(event: MouseEvent | TouchEvent): Point {
+    let point: Point;
+    if(event instanceof MouseEvent) {
+      point = new Point(event.clientX, event.clientY);
+    } else {
+      point = new Point(event.touches[0].clientX, event.touches[0].clientY);
+    }
+    return point;
+  }
+
+  private setPosition(point: Point) {
+    this.contextMenuPosition.x = point.x + 'px';
+    this.contextMenuPosition.y = point.y + 'px';
   }
 
   private setContextMenuToShape() {
@@ -153,6 +168,11 @@ export class ContextMenuService {
   private addImage() {
     document.getElementById("fileInput").click();
   }
+
+  // ######################## Check Method ########################
+
+
+  // ######################## Getter & Setter ########################
 
   get contextMenuTrigger(): MatMenuTrigger {
     return this._contextMenuTrigger;

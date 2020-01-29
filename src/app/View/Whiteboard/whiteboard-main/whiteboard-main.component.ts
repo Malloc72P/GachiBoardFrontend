@@ -101,7 +101,7 @@ export class WhiteboardMainComponent implements OnInit {
     this.pointerModeManager.initializePointerModeManagerService(this.paperProject);
     this.debugingService.initializeDebugingService(this.paperProject);
     this.minimapSyncService.initializePositionCalcService(this.paperProject);
-    this.layerService.initializeDrawingLayerService(this.paperProject);
+    this.layerService.initializeDrawingLayerService(this.paperProject, this.contextMenuService);
 
 
 

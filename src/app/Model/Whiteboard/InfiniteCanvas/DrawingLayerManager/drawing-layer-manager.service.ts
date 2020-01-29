@@ -36,6 +36,7 @@ import {ItemGroup} from '../../Whiteboard-Item/ItemGroup/item-group';
 import {PointerModeManagerService} from '../../Pointer/pointer-mode-manager-service/pointer-mode-manager.service';
 import {LinkPort} from '../../Whiteboard-Item/Whiteboard-Shape/LinkPort/link-port';
 import {EditableShape} from '../../Whiteboard-Item/Whiteboard-Shape/EditableShape/editable-shape';
+import {ContextMenuService} from "../../ContextMenu/context-menu-service/context-menu.service";
 
 
 @Injectable({
@@ -44,9 +45,10 @@ import {EditableShape} from '../../Whiteboard-Item/Whiteboard-Shape/EditableShap
 export class DrawingLayerManagerService {
   private _drawingLayer:Layer;
   private currentProject:Project;
+  private _contextMenu: ContextMenuService;
 
   private _currentPointerMode;
-
+  private longTouchTimer;
 
   private _globalSelectedGroup:GlobalSelectedGroup;
   private _whiteboardItemArray:Array<WhiteboardItem>;
@@ -93,8 +95,9 @@ export class DrawingLayerManagerService {
     });
   }
 
-  initializeDrawingLayerService(paperProject){
+  initializeDrawingLayerService(paperProject, contextMenuService: ContextMenuService){
     this.currentProject = paperProject;
+    this._contextMenu = contextMenuService;
     this.currentProject.layers.forEach((value, index, array)=>{
       if(value.data.type === DataType.DRAWING_CANVAS){
         this.drawingLayer = value;
@@ -117,7 +120,21 @@ export class DrawingLayerManagerService {
           }
         }
       }
-    }
+
+      if(event.event instanceof TouchEvent) {
+        this.longTouchTimer = setTimeout(this.onLongTouch, 1000, event.event, this.contextMenu);
+      }
+    };
+    this.currentProject.view.onMouseDrag = (event) => {
+      if(event.event instanceof TouchEvent) {
+        clearTimeout(this.longTouchTimer);
+      }
+    };
+    this.currentProject.view.onMouseUp = (event) => {
+      if(event.event instanceof TouchEvent) {
+        clearTimeout(this.longTouchTimer);
+      }
+    };
   }
 
   get drawingLayer(): paper.Layer {
@@ -364,6 +381,12 @@ export class DrawingLayerManagerService {
   }
   //########
 
+  // #################### on Event Method #####################
+
+  private onLongTouch(event: TouchEvent, contextMenu: ContextMenuService) {
+    contextMenu.openMenu(event);
+  }
+
   //########## Getter & Setter ##########
 
   get whiteboardItemArray(): Array<WhiteboardItem> {
@@ -411,6 +434,10 @@ export class DrawingLayerManagerService {
 
   set isEditingText(value: boolean) {
     this._isEditingText = value;
+  }
+
+  get contextMenu(): ContextMenuService {
+    return this._contextMenu;
   }
 
 //#####################################
