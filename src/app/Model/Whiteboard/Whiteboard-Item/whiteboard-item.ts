@@ -94,7 +94,7 @@ export abstract class WhiteboardItem {
       }//if
       else{//#### 터치 이벤트 인 경우
         //TODO 여기서 롱터치 여부를 구분해야 함
-        this.longTouchTimer = setTimeout(this.onLongTouch, 1000, event, this.layerService);
+        this.longTouchTimer = setTimeout(this.onLongTouch, 500, event, this.layerService);
         if(this.checkEditable()){
           this.onPointerDownForEdit(event);
         }

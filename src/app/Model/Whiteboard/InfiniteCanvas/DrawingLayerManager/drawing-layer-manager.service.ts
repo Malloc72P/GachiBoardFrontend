@@ -122,7 +122,7 @@ export class DrawingLayerManagerService {
       }
 
       if(event.event instanceof TouchEvent) {
-        this.longTouchTimer = setTimeout(this.onLongTouch, 1000, event.event, this.contextMenu);
+        this.longTouchTimer = setTimeout(this.onLongTouch, 500, event.event, this.contextMenu);
       }
     };
     this.currentProject.view.onMouseDrag = (event) => {
