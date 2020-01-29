@@ -49,6 +49,7 @@ export class DrawingLayerManagerService {
 
   private _currentPointerMode;
   private longTouchTimer;
+  private fromPoint: Point;
 
   private _globalSelectedGroup:GlobalSelectedGroup;
   private _whiteboardItemArray:Array<WhiteboardItem>;
@@ -120,21 +121,42 @@ export class DrawingLayerManagerService {
           }
         }
       }
+      // let point = this.initPoint(event.event);
+      // this.initFromPoint(point);
+      // if(event.event instanceof TouchEvent) {
+      //   this.longTouchTimer = setTimeout(this.onLongTouch, 500, event.event, this.contextMenu);
+      // }
+    };
+    // this.currentProject.view.onMouseDrag = (event) => {
+    //   // TODO : Canvas Mover 에서 드래그 이벤트 발생 안함
+    //   if(event.event instanceof TouchEvent) {
+    //     if(this.calcTolerance(this.initPoint(event.event))){
+    //       clearTimeout(this.longTouchTimer);
+    //     }
+    //   }
+    // };
+    // this.currentProject.view.onMouseUp = (event) => {
+    //   if(event.event instanceof TouchEvent) {
+    //     clearTimeout(this.longTouchTimer);
+    //   }
+    // };
+  }
 
-      if(event.event instanceof TouchEvent) {
-        this.longTouchTimer = setTimeout(this.onLongTouch, 500, event.event, this.contextMenu);
-      }
-    };
-    this.currentProject.view.onMouseDrag = (event) => {
-      if(event.event instanceof TouchEvent) {
-        clearTimeout(this.longTouchTimer);
-      }
-    };
-    this.currentProject.view.onMouseUp = (event) => {
-      if(event.event instanceof TouchEvent) {
-        clearTimeout(this.longTouchTimer);
-      }
-    };
+  private calcTolerance(point: Point) {
+    return this.fromPoint.getDistance(point) > 10;
+  }
+
+  private initFromPoint(point: Point) {
+    this.fromPoint = point;
+  }
+  private initPoint(event: MouseEvent | TouchEvent): Point {
+    let point: Point;
+    if(event instanceof MouseEvent) {
+      point = new Point(event.clientX, event.clientY);
+    } else {
+      point = new Point(event.touches[0].clientX, event.touches[0].clientY);
+    }
+    return point;
   }
 
   get drawingLayer(): paper.Layer {

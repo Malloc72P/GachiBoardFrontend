@@ -29,6 +29,7 @@ export abstract class WhiteboardItem {
 
   private _disableLinkHandler;
   private _longTouchTimer;
+  private fromPoint: Point;
 
   private _layerService:DrawingLayerManagerService;
 
@@ -94,7 +95,9 @@ export abstract class WhiteboardItem {
       }//if
       else{//#### 터치 이벤트 인 경우
         //TODO 여기서 롱터치 여부를 구분해야 함
-        this.longTouchTimer = setTimeout(this.onLongTouch, 500, event, this.layerService);
+        let point = this.initPoint(event.event);
+        this.initFromPoint(point);
+        this.longTouchTimer = setTimeout(this.onLongTouch, 500, event.event, this.layerService);
         if(this.checkEditable()){
           this.onPointerDownForEdit(event);
         }
@@ -102,7 +105,9 @@ export abstract class WhiteboardItem {
     };
     this.group.onMouseDrag = (event) => {
       if(this.isTouchEvent(event)) {
-        clearTimeout(this.longTouchTimer); // 움직이면 롱터치 아님
+        if(this.calcTolerance(this.initPoint(event.event))){
+          clearTimeout(this.longTouchTimer); // 움직이면 롱터치 아님, 톨러런스 5
+        }
       }
     };
     this.group.onMouseUp = (event) =>{
@@ -150,7 +155,24 @@ export abstract class WhiteboardItem {
   }
 
   private onLongTouch(event, layerService: DrawingLayerManagerService) {
-    layerService.contextMenu.openMenu(event.event);
+    layerService.contextMenu.openMenu(event);
+  }
+
+  private calcTolerance(point: Point) {
+    return this.fromPoint.getDistance(point) > 10;
+  }
+
+  private initFromPoint(point: Point) {
+    this.fromPoint = point;
+  }
+  private initPoint(event: MouseEvent | TouchEvent): Point {
+    let point: Point;
+    if(event instanceof MouseEvent) {
+      point = new Point(event.clientX, event.clientY);
+    } else {
+      point = new Point(event.touches[0].clientX, event.touches[0].clientY);
+    }
+    return point;
   }
 
   protected calcCurrentDistance(event){
