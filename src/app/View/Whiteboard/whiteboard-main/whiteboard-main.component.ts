@@ -120,7 +120,6 @@ export class WhiteboardMainComponent implements OnInit {
   }
   @HostListener('document:keydown', ['$event'])
   keydownHandler(event) {
-    console.log("WhiteboardMainComponent >> keydownHandler >> keydown : ", event.code);
 
     // textEditor 에선 스킵
     if(event.target === document.getElementById("textEditor")) {
