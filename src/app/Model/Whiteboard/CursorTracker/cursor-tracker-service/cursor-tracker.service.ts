@@ -4,23 +4,24 @@ import Point = paper.Point;
 // @ts-ignore
 import Color = paper.Color;
 // @ts-ignore
-import Path = paper.Path;
-// @ts-ignore
-import CompoundPath = paper.CompoundPath;
-// @ts-ignore
 import Project = paper.Project;
+// @ts-ignore
+import Group = paper.Group;
 
-import { Injectable } from '@angular/core';
+import {Injectable} from '@angular/core';
+import {Cursor} from "./cursor/cursor";
 
 
 @Injectable({
   providedIn: 'root'
 })
 export class CursorTrackerService {
-  private userArray = new Map<String, Position>();
+  private userArray = new Map<string, Position>();
   private readonly cursorPath = "M4 0l16 12.279-6.78 1.138 4.256 8.676-3.902 1.907-4.281-8.758-5.293 4.581z";
   private currentProject: Project;
   private _isActivate = false;
+
+  private readonly trackerNameType = 1;
 
   constructor() { }
 
@@ -45,29 +46,25 @@ export class CursorTrackerService {
       return;
     }
     this.userArray.forEach(value => {
-      value.pointer.tween({
-        'bounds.topLeft': value.position
-      }, {
-        easing: 'linear',
-        duration: 166,
-      });
-      value.pointer.bringToFront();
+      value.cursor.moveTo(value.position);
     });
   }
 
-  public addUser(userName: String, firstPosition: Point, userColor: Color) {
+  public addUser(userName: string, firstPosition: Point, userColor: Color) {
     let cursor = this.drawCursor(userColor);
+    cursor.setName(userName);
+
     this.userArray.set(userName, new Position(firstPosition, cursor));
   }
 
-  public deleteUser(userName: String) {
-    this.userArray.get(userName).pointer.remove();
+  public deleteUser(userName: string) {
+    this.userArray.get(userName).cursor.remove();
     if(!this.userArray.delete(userName)) {
       console.log("CursorTrackerService >> deleteUser >> Array delete failed");
     }
   }
 
-  public updateUser(userName: String, position: Point) {
+  public updateUser(userName: string, position: Point) {
     if(!this._isActivate) {
       return;
     }
@@ -84,14 +81,8 @@ export class CursorTrackerService {
 
   }
 
-  private drawCursor(color: Color): CompoundPath {
-    let path = new CompoundPath(this.cursorPath);
-    path.fillColor = color;
-    path.shadowColor = new Color("grey");
-    path.shadowBlur = 10;
-    path.shadowOffset = new Point(1,1);
-
-    return path;
+  private drawCursor(color: Color): Cursor {
+    return new Cursor(color);
   }
 
   // ################## Getter & Setter ###################
@@ -103,15 +94,15 @@ export class CursorTrackerService {
 
 class Position {
   private _position: Point;
-  private readonly _pointer: CompoundPath;
+  private readonly _cursor: Cursor;
 
-  constructor(position: Point, pointer) {
+  constructor(position: Point, cursor: Cursor) {
     this._position = position;
-    this._pointer = pointer;
+    this._cursor = cursor;
   }
 
-  get pointer() {
-    return this._pointer;
+  get cursor() {
+    return this._cursor;
   }
 
   get position(): paper.Point {

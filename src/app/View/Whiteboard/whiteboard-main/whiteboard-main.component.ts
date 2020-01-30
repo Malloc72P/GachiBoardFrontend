@@ -120,9 +120,11 @@ export class WhiteboardMainComponent implements OnInit {
       if(event.count%10 === 0){
         this.minimapSyncService.syncMinimap();
         // TODO : Tracker Test Code
+        this.cursorTrackerService.refreshPoint();
+      }
+      if(event.count%60 === 0) {
         this.cursorTrackerService.updateUser("BBB", new Point(Math.random() * 500, Math.random() * 500));
         this.cursorTrackerService.updateUser("CCC", new Point(Math.random() * 500, Math.random() * 500));
-        this.cursorTrackerService.refreshPoint();
       }
     }
   }
