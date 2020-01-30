@@ -24,6 +24,7 @@ import {MinimapSyncService} from '../../../Model/Whiteboard/InfiniteCanvas/Minim
 import {WhiteboardContextMenuComponent} from "../whiteboard-context-menu/whiteboard-context-menu.component";
 import {ContextMenuService} from "../../../Model/Whiteboard/ContextMenu/context-menu-service/context-menu.service";
 import {DrawingLayerManagerService} from '../../../Model/Whiteboard/InfiniteCanvas/DrawingLayerManager/drawing-layer-manager.service';
+import {CursorTrackerService} from "../../../Model/Whiteboard/CursorTracker/cursor-tracker-service/cursor-tracker.service";
 
 
 @Component({
@@ -80,7 +81,8 @@ export class WhiteboardMainComponent implements OnInit {
     private debugingService         : DebugingService,
     private minimapSyncService      : MinimapSyncService,
     private contextMenuService      : ContextMenuService,
-    private layerService            : DrawingLayerManagerService
+    private layerService            : DrawingLayerManagerService,
+    private cursorTrackerService    : CursorTrackerService,
   ) {
   }
 
@@ -103,16 +105,24 @@ export class WhiteboardMainComponent implements OnInit {
     this.minimapSyncService.initializePositionCalcService(this.paperProject);
     this.layerService.initializeDrawingLayerService(this.paperProject, this.contextMenuService);
 
-
+    // TODO : Tracker Test Code
+    this.cursorTrackerService.on();
 
     this.paperProject.view.onMouseMove = (event) => {
       this.debugingService.cursorX = event.point.x;
       this.debugingService.cursorY = event.point.y;
+
+      // TODO : Tracker Test Code
+      this.cursorTrackerService.updateUser("AAA", event.point);
     };
 
     this.paperProject.activeLayer.onFrame = (event)=>{
       if(event.count%10 === 0){
         this.minimapSyncService.syncMinimap();
+        // TODO : Tracker Test Code
+        this.cursorTrackerService.updateUser("BBB", new Point(Math.random() * 500, Math.random() * 500));
+        this.cursorTrackerService.updateUser("CCC", new Point(Math.random() * 500, Math.random() * 500));
+        this.cursorTrackerService.refreshPoint();
       }
     }
   }
