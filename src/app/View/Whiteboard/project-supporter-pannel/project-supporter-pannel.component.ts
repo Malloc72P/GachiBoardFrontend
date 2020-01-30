@@ -11,6 +11,7 @@ import {PopupManagerService} from '../../../Model/PopupManager/popup-manager.ser
 import {KanbanComponent} from './kanban/kanban.component';
 import {MatDialog} from '@angular/material';
 import {ImportFileService} from "../../../Model/Whiteboard/ImportFile/import-file.service";
+import {CursorTrackerService} from "../../../Model/Whiteboard/CursorTracker/cursor-tracker-service/cursor-tracker.service";
 
 @Component({
   selector: 'app-project-supporter-pannel',
@@ -31,6 +32,7 @@ export class ProjectSupporterPannelComponent extends PopoverPanel  implements On
     public dialog: MatDialog,
     private positionCalcService:PositionCalcService,
     private importFileService: ImportFileService,
+    private cursorTrackerService: CursorTrackerService,
   ) {
     super(projectSupporterEnumService);
     this.projectSupporterEnumService = projectSupporterEnumService;
@@ -93,6 +95,13 @@ export class ProjectSupporterPannelComponent extends PopoverPanel  implements On
       case SupportMode.EXPORT:
         break;
       case SupportMode.TEXT_CHAT:
+        break;
+      case SupportMode.CURSOR_TRACKER:
+        if(this.cursorTrackerService.isActivate) {
+          this.cursorTrackerService.off();
+        } else {
+          this.cursorTrackerService.on();
+        }
         break;
       default:
         break;

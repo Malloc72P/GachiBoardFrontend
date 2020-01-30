@@ -104,6 +104,7 @@ export class LinkPort {
       new Point(handlerPosition.x, handlerPosition.y),
       handlerOption.circleRadius / zoomFactor
     );
+    this.handlerCircleObject.strokeWidth = handlerOption.strokeWidth / zoomFactor;
     // @ts-ignore
     this.handlerCircleObject.style.fillColor = LinkPort.HANDLER_FILL_COLOR;
     // @ts-ignore

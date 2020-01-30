@@ -16,6 +16,9 @@
 .icon-tools-text_chat {
   background-image: url("/assets/images/supporter/textChat.svg");
 }
+.icon-tools-cursor_tracker {
+  background-image: url("/assets/images/supporter/cursor_tracker.svg");
+}
 .selectable-icon {
   cursor: pointer;
   display: inline-block;

@@ -25,6 +25,8 @@ import {WhiteboardContextMenuComponent} from "../whiteboard-context-menu/whitebo
 import {ContextMenuService} from "../../../Model/Whiteboard/ContextMenu/context-menu-service/context-menu.service";
 import {DrawingLayerManagerService} from '../../../Model/Whiteboard/InfiniteCanvas/DrawingLayerManager/drawing-layer-manager.service';
 import {LinkModeManagerService} from '../../../Model/Whiteboard/InfiniteCanvas/DrawingLayerManager/LinkModeManagerService/link-mode-manager.service';
+import {CursorTrackerService} from "../../../Model/Whiteboard/CursorTracker/cursor-tracker-service/cursor-tracker.service";
+
 
 
 @Component({
@@ -82,7 +84,8 @@ export class WhiteboardMainComponent implements OnInit {
     private minimapSyncService      : MinimapSyncService,
     private contextMenuService      : ContextMenuService,
     private layerService            : DrawingLayerManagerService,
-    private linkModeManagerService  :LinkModeManagerService
+    private linkModeManagerService  :LinkModeManagerService,
+    private cursorTrackerService    : CursorTrackerService,
   ) {
   }
 
@@ -104,17 +107,27 @@ export class WhiteboardMainComponent implements OnInit {
     this.debugingService.initializeDebugingService(this.paperProject);
     this.minimapSyncService.initializePositionCalcService(this.paperProject);
     this.layerService.initializeDrawingLayerService(this.paperProject, this.contextMenuService);
-    //this.linkModeManagerService.initLinkModeManagerService(this.layerService.linkModeEventEmitter);
     this.linkModeManagerService.initLinkModeManagerService(this.layerService.linkModeEventEmitter);
+    // TODO : Tracker Test Code
+    this.cursorTrackerService.on();
 
     this.paperProject.view.onMouseMove = (event) => {
       this.debugingService.cursorX = event.point.x;
       this.debugingService.cursorY = event.point.y;
+
+      // TODO : Tracker Test Code
+      this.cursorTrackerService.updateUser("AAA", event.point);
     };
 
     this.paperProject.activeLayer.onFrame = (event)=>{
       if(event.count%10 === 0){
         this.minimapSyncService.syncMinimap();
+        // TODO : Tracker Test Code
+        this.cursorTrackerService.refreshPoint();
+      }
+      if(event.count%60 === 0) {
+        this.cursorTrackerService.updateUser("BBB", new Point(Math.random() * 500, Math.random() * 500));
+        this.cursorTrackerService.updateUser("CCC", new Point(Math.random() * 500, Math.random() * 500));
       }
     }
   }

@@ -321,7 +321,7 @@ export class InfiniteCanvasService {
 
       this.newZoom = oldZoom / this.zoomFactor;
     }
-    this.zoomEventEmitter.emit(new ZoomEvent(ZoomEventEnum.ZOOM_CHANGED));
+    this.zoomEventEmitter.emit(new ZoomEvent(ZoomEventEnum.ZOOM_CHANGED, this.newZoom));
     return this.newZoom;
   }
   public resetInfiniteCanvas(){

@@ -29,7 +29,7 @@ export class ItemAdjustor {
     this.initGuideLine();
     this.initHandlers();
 
-    this.owner.zoomEventEmitter.subscribe((zoomEvent:ZoomEvent)=>{
+    this.owner.zoomEventEmitter.subscribe((zoomEvent: ZoomEvent)=>{
       this.onZoomChange(zoomEvent);
     });
   }
@@ -164,6 +164,7 @@ export class ItemAdjustor {
       HandlerOption.dashLength / zoomFactor];
     if(this.sizeHandlers){
       this.sizeHandlers.forEach((value, key, map)=>{
+        console.log("ItemAdjustor >>  >> zoomFactor : ", zoomFactor);
         ItemAdjustor.reflectZoomFactorToHandler(value, zoomFactor);
       });
     }

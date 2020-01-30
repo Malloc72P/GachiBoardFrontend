@@ -9,6 +9,7 @@ export enum SupportMode {
   IMPORT,
   EXPORT,
   TEXT_CHAT,
+  CURSOR_TRACKER,
 }
 export enum SupporterIcon {
   kanban,
@@ -17,6 +18,7 @@ export enum SupporterIcon {
   import,
   export,
   text_chat,
+  cursor_tracker,
 }
 
 
