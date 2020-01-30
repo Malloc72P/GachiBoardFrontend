@@ -30,8 +30,8 @@ export class ItemGroup extends WhiteboardItem {
   private _wbItemGroup: Array<WhiteboardItem>;
   private _backgroundRect: Rectangle;
 
-  constructor(type, item: Item, layerService) {
-    super(type, item, layerService);
+  constructor(id, type, item: Item, layerService) {
+    super(id, type, item, layerService);
     this.coreItem = this.group;
     this.wbItemGroup = new Array<WhiteboardItem>();
     console.log('ItemGroup >> constructor >> 진입함');

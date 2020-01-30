@@ -103,8 +103,6 @@ export class WhiteboardMainComponent implements OnInit {
     this.minimapSyncService.initializePositionCalcService(this.paperProject);
     this.layerService.initializeDrawingLayerService(this.paperProject, this.contextMenuService);
 
-
-
     this.paperProject.view.onMouseMove = (event) => {
       this.debugingService.cursorX = event.point.x;
       this.debugingService.cursorY = event.point.y;
@@ -146,6 +144,9 @@ export class WhiteboardMainComponent implements OnInit {
         break;
       case "KeyL":
         document.getElementById(PointerMode[PointerMode.LASSO_SELECTOR]).click();
+        break;
+      case "KeyY":
+        this.debugingService.logDrawingLayer();
         break;
       default:
         break;

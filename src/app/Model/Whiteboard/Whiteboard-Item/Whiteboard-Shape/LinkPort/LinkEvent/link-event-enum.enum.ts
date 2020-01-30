@@ -1,0 +1,6 @@
+export enum LinkEventEnum {
+  WB_ITEM_DESTROYED,
+  WB_ITEM_MODIFIED,
+  LINK_DESTROYED,
+  LINK_MODIFIED,
+}

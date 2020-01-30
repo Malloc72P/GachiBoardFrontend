@@ -13,8 +13,9 @@ import Color = paper.Color;
 import {WhiteboardItemType} from '../../../../../Helper/data-type-enum/data-type.enum';
 
 export class EditableRectangle extends EditableShape {
-  constructor(item:Item, textStyle, editText, layerService) {
+  constructor(id, item:Item, textStyle, editText, layerService) {
     super(
+      id,
       WhiteboardItemType.EDITABLE_RECTANGLE,
       item,
       textStyle,

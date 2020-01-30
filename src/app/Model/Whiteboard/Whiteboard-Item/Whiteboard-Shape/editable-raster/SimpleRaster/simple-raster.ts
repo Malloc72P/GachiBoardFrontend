@@ -15,8 +15,8 @@ import Raster = paper.Raster;
 import {PositionCalcService} from '../../../../PositionCalc/position-calc.service';
 import {WhiteboardItemType} from '../../../../../Helper/data-type-enum/data-type.enum';
 export class SimpleRaster extends EditableRaster{
-  constructor(item:Raster, layerService) {
-    super(WhiteboardItemType.SIMPLE_RASTER, item, layerService);
+  constructor(id, item:Raster, layerService) {
+    super(id, WhiteboardItemType.SIMPLE_RASTER, item, layerService);
 
   }
 

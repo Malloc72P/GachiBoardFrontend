@@ -19,10 +19,11 @@ import PointText = paper.PointText;
 import Group = paper.Group;
 // @ts-ignore
 import Rectangle = paper.Rectangle;
+import {Editable} from '../../InterfaceEditable/editable';
 
-export class EditableItemGroup extends ItemGroup{
-  constructor(type, item:Item, layerService) {
-    super(type, item, layerService);
+export class EditableItemGroup extends ItemGroup implements Editable{
+  constructor(id, type, item:Item, layerService) {
+    super(id, type, item, layerService);
   }
 
 }

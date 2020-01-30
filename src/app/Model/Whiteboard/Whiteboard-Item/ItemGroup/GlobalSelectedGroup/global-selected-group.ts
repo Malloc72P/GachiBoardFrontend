@@ -32,8 +32,8 @@ export class GlobalSelectedGroup extends ItemGroup {
   private prevMode;
   private prevNumberOfChild;
 
-  private constructor(type, item: Item, layerService) {
-    super(type, item, layerService);
+  private constructor(id, type, item: Item, layerService) {
+    super(id, type, item, layerService);
     this.prevMode = SelectModeEnum.SINGLE_SELECT;
     this.prevNumberOfChild = this.getNumberOfChild();
     //this.activateSelectedMode();
@@ -41,10 +41,10 @@ export class GlobalSelectedGroup extends ItemGroup {
     //this.activateSelectedMode();
   }
 
-  public static getInstance(layerService) {
+  public static getInstance(id, layerService) {
     if (!GlobalSelectedGroup.globalSelectedGroup) {
       GlobalSelectedGroup.globalSelectedGroup = new GlobalSelectedGroup(
-        WhiteboardItemType.GLOBAL_SELECTED_GROUP, null, layerService);
+        id, WhiteboardItemType.GLOBAL_SELECTED_GROUP, null, layerService);
     }
     return GlobalSelectedGroup.globalSelectedGroup;
   }

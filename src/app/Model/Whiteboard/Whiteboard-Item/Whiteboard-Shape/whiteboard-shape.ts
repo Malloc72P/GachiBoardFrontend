@@ -21,8 +21,9 @@ import Group = paper.Group;
 import Rectangle = paper.Rectangle;
 import {LinkPort} from './LinkPort/link-port';
 import {LinkPortDirectionEnum} from './LinkPort/LinkPortDirectionEnum/link-port-direction-enum.enum';
+import {Editable} from '../InterfaceEditable/editable';
 
-export class WhiteboardShape extends WhiteboardItem {
+export class WhiteboardShape extends WhiteboardItem implements Editable{
   private _width: number;
   private _height: number;
   private _borderColor;
@@ -30,13 +31,14 @@ export class WhiteboardShape extends WhiteboardItem {
   private _fillColor: paper.Color;
   private _opacity: number;
   private _linkPortMap:Map<any,LinkPort>;
-  protected constructor(type, item:Item,layerService) {
-    super(type, item, layerService);
+  protected constructor(id, type, item:Item,layerService) {
+    super(id, type, item, layerService);
     this.topLeft  = item.bounds.topLeft;
     this.width    = item.bounds.width;
     this.height    = item.bounds.height;
     this.borderColor = item.style.strokeColor;
     this.borderWidth = item.style.strokeWidth;
+
     if(item.style.fillColor){
       this.fillColor = item.style.fillColor;
     }else{
@@ -44,9 +46,11 @@ export class WhiteboardShape extends WhiteboardItem {
       this.fillColor = "transparent";
     }
     this.opacity = item.opacity;
+
+    //링크포트 생성
     this.linkPortMap = new Map<any, LinkPort>();
     for(let i = 0 ; i < 4; i++){
-      this.linkPortMap.set( i, new LinkPort(this,i, this.layerService.posCalcService) );
+      this.linkPortMap.set( i, new LinkPort(this,i) );
     }
     this.activateShadowEffect();
   }
@@ -58,11 +62,6 @@ export class WhiteboardShape extends WhiteboardItem {
 
   set linkPortMap(value: Map<any, LinkPort>) {
     this._linkPortMap = value;
-  }
-  public notifyOwnerChangeEventToLinkPort(){
-    this.linkPortMap.forEach((value, key, map)=>{
-      value.onOwnerChanged();
-    })
   }
   public getDirectionPoint(direction){
     switch (direction) {
@@ -158,4 +157,5 @@ export class WhiteboardShape extends WhiteboardItem {
   set opacity(value: number) {
     this._opacity = value;
   }
+
 }

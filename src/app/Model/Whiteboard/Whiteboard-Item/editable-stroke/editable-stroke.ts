@@ -13,14 +13,15 @@ import Color = paper.Color;
 import {WhiteboardItem} from '../whiteboard-item';
 import {EventEmitter} from '@angular/core';
 import {ItemLifeCycleEnum, ItemLifeCycleEvent} from '../WhiteboardItemLifeCycle/WhiteboardItemLifeCycle';
+import {Editable} from '../InterfaceEditable/editable';
 
-export abstract class EditableStroke extends WhiteboardItem {
+export abstract class EditableStroke extends WhiteboardItem implements Editable{
   private _segments: Array<Segment>;
   private _strokeWidth: number;
   private _strokeColor: Color;
 
-  protected constructor(type, path:Path, layerService) {
-    super(type, path, layerService);
+  protected constructor(id, type, path:Path, layerService) {
+    super(id, type, path, layerService);
 
     this.disableLinkHandler = true;
 

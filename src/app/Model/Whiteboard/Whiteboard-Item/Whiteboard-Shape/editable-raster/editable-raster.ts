@@ -19,8 +19,8 @@ import {PositionCalcService} from '../../../PositionCalc/position-calc.service';
 
 export abstract class EditableRaster extends WhiteboardShape {
   private _imageBlob: string;
-  protected constructor(type, item:Raster,layerService) {
-    super(type, item, layerService);
+  protected constructor(id, type, item:Raster,layerService) {
+    super(id, type, item, layerService);
     // @ts-ignore
     this.imageBlob = item.image.src;
   }
@@ -33,13 +33,13 @@ export abstract class EditableRaster extends WhiteboardShape {
   notifyItemModified() {
     console.log("EditableRaster >> notifyItemModified >> 진입함");
     this.lifeCycleEventEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.MODIFY));
-    this.notifyOwnerChangeEventToLinkPort();
+    /*this.notifyOwnerChangeEventToLinkPort();*/
   }
 
   refreshItem() {
     console.log("EditableRaster >> refreshItem >> 진입함");
     this.lifeCycleEventEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.MODIFY));
-    this.notifyOwnerChangeEventToLinkPort();
+    /*this.notifyOwnerChangeEventToLinkPort();*/
   }
 
   destroyItem() {

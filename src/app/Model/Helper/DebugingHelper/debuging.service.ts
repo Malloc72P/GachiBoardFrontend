@@ -56,7 +56,7 @@ export class DebugingService {
     this.paperProject = currentProject;
   }
   public logDrawingLayer(){
-    console.log("\n\n=============\n");
+    console.log("\n\nWbItem Array=============\n");
     this.drawingLayerManagerService.whiteboardItemArray.forEach((value, index, array)=>{
       console.log("DebugingService >> logDrawingLayer >> forEach : ",value);
     });

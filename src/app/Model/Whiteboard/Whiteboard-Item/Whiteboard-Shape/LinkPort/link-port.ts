@@ -29,17 +29,22 @@ import {ZoomEvent} from '../../../InfiniteCanvas/ZoomControl/ZoomEvent/zoom-even
 import {ZoomEventEnum} from '../../../InfiniteCanvas/ZoomControl/ZoomEvent/zoom-event-enum.enum';
 import {WhiteboardItem} from '../../whiteboard-item';
 import {DrawingLayerManagerService} from '../../../InfiniteCanvas/DrawingLayerManager/drawing-layer-manager.service';
+import {EventEmitter} from '@angular/core';
+import {LinkEvent} from './LinkEvent/link-event';
+import {LinkEventEnum} from './LinkEvent/link-event-enum.enum';
+import {EditableLink} from './EditableLink/editable-link';
 
 export class LinkPort {
   private _owner:WhiteboardShape;
   private _direction;
-  private _linkInfoList:Array<LinkInfo>;
+
+  private _fromLinkList:Array<EditableLink>;
+  private _toLinkList:Array<EditableLink>;
+
   private _posCalcService:PositionCalcService;
   private _layerService:DrawingLayerManagerService;
 
   private _handlerCircleObject:Circle;
-
-  private tempLinkPath:Path;
 
   private tempLinkEntryCircle:Circle;
   private tempLinkExitCircle:Circle;
@@ -47,19 +52,48 @@ export class LinkPort {
   private static readonly HANDLER_FILL_COLOR = 'skyblue';
   private static readonly HANDLER_MARGIN = 25;
 
-  constructor(owner, direction, posCalcService){
+  private _linkEventEmitter:EventEmitter<any>;
+
+  private tempLink:EditableLink;
+
+  constructor(owner, direction){
     this.owner = owner;
     this.direction = direction;
-    this.posCalcService = posCalcService;
+    this.posCalcService = this.owner.layerService.posCalcService;
     this.layerService = this.owner.layerService;
-    this.tempLinkPath = new Path({
-      segments: [this.calcLinkPortPosition()],
-      strokeColor: "black",
-      strokeWidth: "1",
-      strokeCap: 'round',
-      strokeJoin: 'round',
+
+    this.initHandlerCircle();
+    this.initZoomHandler();
+
+    this.setLinkEventHandler();
+
+    this.fromLinkList = new Array<EditableLink>();
+    this.toLinkList = new Array<EditableLink>();
+
+    this.setMouseCallback();
+  }
+  private setLinkEventHandler(){
+    this.linkEventEmitter = new EventEmitter<any>();
+    this.linkEventEmitter.subscribe((data:LinkEvent)=>{
+      if(data.action === LinkEventEnum.LINK_DESTROYED){
+        console.log("LinkPort >> linkEventEmitter >> data : ",data.invokerItem);
+      }
+    })
+  }
+  private refreshAllLink(){
+    if(this.fromLinkList){
+      this.fromLinkList.forEach((value, index, array)=>{
+        value.refreshLink();
+      })
+    }
+  }
+  private initZoomHandler(){
+    this.owner.zoomEventEmitter.subscribe((zoomEvent:ZoomEvent)=>{
+      this.onZoomChange(zoomEvent);
     });
 
+  }
+  private initHandlerCircle(){
     let handlerPosition = this.calcLinkPortPosition();
     let handlerOption = HandlerOption;
     let zoomFactor = this.posCalcService.getZoomState();
@@ -93,40 +127,31 @@ export class LinkPort {
         else this.disable();
       }
     };
+  }
 
-    this.tempLinkPath.onFrame = (event)=>{
-      this.adjustTempLinkPosition();
-    };
-
-    this.owner.zoomEventEmitter.subscribe((zoomEvent:ZoomEvent)=>{
-      this.onZoomChange(zoomEvent);
-    });
-
-    this.linkInfoList = new Array<LinkInfo>();
-
+  private setMouseCallback(){
     this.handlerCircleObject.onMouseDown = (event)=>{
-
+      //this.startPoint = event.point;
+      this.tempLink = new EditableLink(this);
+      this.tempLink.initTempLink(event.point);
     };
     this.handlerCircleObject.onMouseDrag = (event)=>{
-      let point = event.point;
-      let hitWbShape:WhiteboardShape = this._layerService.getHittedItem(point) as WhiteboardShape;
-
-      if(hitWbShape && hitWbShape.id !== this.owner.id && hitWbShape.linkPortMap){
-        this.tempLinkToWbItem(hitWbShape, point);
-      }else{
-        this.tempLinkToEmptyField(point);
-      }
+      this.tempLink.drawTempLink(event.point);
     };
     this.handlerCircleObject.onMouseUp = (event)=>{
       let point = event.point;
-      let toWbShape:WhiteboardShape = this.layerService.getHittedItem(point) as WhiteboardShape;
 
-      if(toWbShape && toWbShape.id !== this.owner.id && toWbShape.linkPortMap){
-        this.createLink(toWbShape, point);
+      let newLink = this.tempLink.linkToWbShape(point);
+      if(newLink){
+        this.fromLinkList.splice(this.fromLinkList.length, 0, newLink);
+        let toLinkList = newLink.toLinkPort.toLinkList;
+        toLinkList.splice(toLinkList.length, 0, newLink);
       }
-      this.resetTempLink();
+      else{
+        this.tempLink.destroyItem();
+        delete this.tempLink;
+      }
     };
-
   }
 
   private enable(){
@@ -137,13 +162,13 @@ export class LinkPort {
   }
 
   public destroyPortAndLink(){
-    this.linkInfoList.forEach((value, index, array)=>{
-      value.destroyItem();
-    });
-    this.handlerCircleObject.remove();
-    if(this.tempLinkPath){
-      this.tempLinkPath.remove();
+    for(let i = 0 ; i < this.fromLinkList.length; i++){
+      this.fromLinkList[i].destroyItem();
     }
+    this.linkEventEmitter.emit(new LinkEvent(LinkEventEnum.WB_ITEM_DESTROYED, this.owner));
+
+    this.handlerCircleObject.remove();
+
     if(this.tempLinkEntryCircle){
       this.tempLinkEntryCircle.remove();
     }
@@ -229,25 +254,7 @@ export class LinkPort {
     }
   }
 
-
-  public tempLinkToEmptyField(point){
-    this.tempLinkPath.removeSegments();
-    this.tempLinkPath.add( this.calcLinkPortPosition() );
-    this.tempLinkPath.add(point);
-    this.onCreateTempLink();
-  }
-  public tempLinkToWbItem(toWbShape:WhiteboardShape, point){
-    this.tempLinkPath.removeSegments();
-    this.tempLinkPath.add( this.calcLinkPortPosition() );
-
-    let toLinkPort = toWbShape.linkPortMap.get(this.getCloseDirection(toWbShape, point));
-    if(toWbShape.linkPortMap){
-      toLinkPort = toWbShape.linkPortMap.get(this.getCloseDirection(toWbShape, point));
-    } else return;
-
-    this.tempLinkPath.add(toLinkPort.calcLinkPortPosition());
-    this.onCreateTempLink();
-  }
+/*
   private onCreateTempLink(){
     let step = 0.1;
     this.tempLinkPath.onFrame = (event)=>{
@@ -281,8 +288,9 @@ export class LinkPort {
       }
     };
   }
+*/
   private animateEntryCircle(){
-    let entrySegment = this.tempLinkPath.firstSegment;
+    let entrySegment = this.tempLink.tempLinkPath.firstSegment;
 
     this.tempLinkEntryCircle.onFrame = (event)=>{
       this.tempLinkEntryCircle.bounds.width += 0.5;
@@ -300,7 +308,7 @@ export class LinkPort {
     };
   }
   private animateExitCircle(){
-    let exitSegment = this.tempLinkPath.lastSegment;
+    let exitSegment = this.tempLink.tempLinkPath.lastSegment;
 
     this.tempLinkExitCircle.onFrame = (event)=>{
       this.tempLinkExitCircle.bounds.width += 1;
@@ -326,8 +334,9 @@ export class LinkPort {
       this.tempLinkExitCircle.remove();
       this.tempLinkExitCircle = null;
     }
-    this.tempLinkPath.onFrame = ()=>{};
+    this.tempLink.tempLinkPath.onFrame = ()=>{};
   }
+/*
   public createLink(toWbShape, point){
     if(toWbShape){//링크 연결대상이 존재하여 링크 생성하는 경우
       let toLinkPort = toWbShape.linkPortMap.get(this.getCloseDirection(toWbShape, point));
@@ -344,23 +353,7 @@ export class LinkPort {
       this.layerService.globalSelectedGroup.extractAllFromSelection();
     }
   }
-
-
-  private getCloseDirection(wbShape:WhiteboardShape, point:Point){
-    let closestDirection = 0;
-    let closestDistance = this.posCalcService.calcPointDistanceOn2D(point, wbShape.group.bounds.topCenter);
-    for(let i = 1 ; i < 4; i++){
-      let newDistance = this.posCalcService.calcPointDistanceOn2D(point, wbShape.getDirectionPoint(i));
-      if(newDistance < closestDistance){
-        closestDirection = i;
-        closestDistance = newDistance;
-      }
-    }
-    return closestDirection;
-  }
-  public onOwnerChanged(){
-    this.adjustTempLinkPosition();
-  }
+*/
 
   get posCalcService(): PositionCalcService {
     return this._posCalcService;
@@ -370,15 +363,19 @@ export class LinkPort {
     this._posCalcService = value;
   }
 
+/*
   private adjustTempLinkPosition(){
     if(this.tempLinkPath.segments.length > 1){
       this.tempLinkPath.firstSegment.point = this.calcLinkPortPosition();
     }
   }
+*/
+/*
   private resetTempLink(){
     this.tempLinkPath.removeSegments();
     this.onDeleteTempLink();
   }
+*/
 
   get owner() {
     return this._owner;
@@ -396,12 +393,13 @@ export class LinkPort {
     this._direction = value;
   }
 
-  get linkInfoList(): Array<LinkInfo> {
-    return this._linkInfoList;
+
+  get fromLinkList(): Array<EditableLink> {
+    return this._fromLinkList;
   }
 
-  set linkInfoList(value: Array<LinkInfo>) {
-    this._linkInfoList = value;
+  set fromLinkList(value: Array<EditableLink>) {
+    this._fromLinkList = value;
   }
 
   get handlerCircleObject(): paper.Path.Circle {
@@ -418,5 +416,21 @@ export class LinkPort {
 
   set layerService(value: DrawingLayerManagerService) {
     this._layerService = value;
+  }
+
+  get linkEventEmitter(): EventEmitter<any> {
+    return this._linkEventEmitter;
+  }
+
+  set linkEventEmitter(value: EventEmitter<any>) {
+    this._linkEventEmitter = value;
+  }
+
+  get toLinkList(): Array<EditableLink> {
+    return this._toLinkList;
+  }
+
+  set toLinkList(value: Array<EditableLink>) {
+    this._toLinkList = value;
   }
 }

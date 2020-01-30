@@ -16,8 +16,8 @@ import {WhiteboardItemType} from '../../../../Helper/data-type-enum/data-type.en
 
 export class HighlightStroke extends EditableStroke {
   private _opacity: number;
-  constructor(path:Path, layerService) {
-    super(WhiteboardItemType.HIGHLIGHT_STROKE,
+  constructor(id, path:Path, layerService) {
+    super(id, WhiteboardItemType.HIGHLIGHT_STROKE,
             path,
             layerService);
 

@@ -39,12 +39,8 @@ export abstract class WhiteboardItem {
 
   protected _lifeCycleEventEmitter:EventEmitter<any>;
   protected _zoomEventEmitter:EventEmitter<any>;
-
-  private static idGenerator:number = 0;
-
-
-  protected constructor(type, item, layerService){
-    this.id = WhiteboardItem.idGenerator++;
+  protected constructor(id, type, item, layerService){
+    this.id = id;
     this.isSelected = false;
     this.selectMode = SelectModeEnum.SINGLE_SELECT;
     this.group = new Group();
@@ -61,7 +57,7 @@ export abstract class WhiteboardItem {
 
     this.layerService = layerService;
 
-    this.lifeCycleEventEmitter = this.layerService.itemLifeCycleEventEmitter;
+    this.lifeCycleEventEmitter = this.layerService.wbItemLifeCycleEventEmitter;
     this.zoomEventEmitter = this.layerService.infiniteCanvasService.zoomEventEmitter;
     this.notifyItemCreation();
 

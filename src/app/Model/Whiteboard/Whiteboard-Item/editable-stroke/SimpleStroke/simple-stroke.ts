@@ -15,8 +15,8 @@ import {EventEmitter} from '@angular/core';
 import {WhiteboardItemType} from '../../../../Helper/data-type-enum/data-type.enum';
 
 export class SimpleStroke extends EditableStroke {
-  constructor(path:Path, posCalcService) {
-    super(WhiteboardItemType.SIMPLE_STROKE,
+  constructor(id, path:Path, posCalcService) {
+    super(id, WhiteboardItemType.SIMPLE_STROKE,
       path,
       posCalcService);
 

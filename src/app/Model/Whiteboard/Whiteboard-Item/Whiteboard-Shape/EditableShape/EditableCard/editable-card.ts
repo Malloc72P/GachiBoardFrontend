@@ -14,8 +14,9 @@ import {WhiteboardItemType} from '../../../../../Helper/data-type-enum/data-type
 export class EditableCard extends EditableShape {
   private _borderRadius: number;
   private _tagList: Array<any>;    // TODO : 일단 ANY 지만 TAG 형식 지정되면 바꾸기
-  constructor(item:Item, textStyle, editText, layerService) {
+  constructor(id, item:Item, textStyle, editText, layerService) {
     super(
+      id,
       WhiteboardItemType.EDITABLE_CARD,
       item,
       textStyle,

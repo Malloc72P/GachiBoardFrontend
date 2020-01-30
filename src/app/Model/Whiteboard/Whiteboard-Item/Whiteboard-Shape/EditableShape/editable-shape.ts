@@ -33,8 +33,8 @@ export abstract class EditableShape extends WhiteboardShape {
   private static readonly EDIT_TEXT_PADDING = 5;
   private _isEditing: boolean;
 
-  protected constructor(type, item: Item, textStyle, editText, layerService) {
-    super(type, item, layerService);
+  protected constructor(id, type, item: Item, textStyle, editText, layerService) {
+    super(id, type, item, layerService);
     this.topLeft = new Point(item.bounds.topLeft.x, item.bounds.topLeft.y);
     this.width = item.bounds.width;
     this.height = item.bounds.height;
@@ -86,7 +86,7 @@ export abstract class EditableShape extends WhiteboardShape {
     this.textBound = new Rectangle(this.editText.bounds);
 
     this.lifeCycleEventEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.MODIFY));
-    this.notifyOwnerChangeEventToLinkPort();
+    //this.notifyOwnerChangeEventToLinkPort();
   }
 
   public notifyItemCreation() {
@@ -140,7 +140,7 @@ export abstract class EditableShape extends WhiteboardShape {
     this.editText.bringToFront();
 
     this.lifeCycleEventEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.MODIFY));
-    this.notifyOwnerChangeEventToLinkPort();
+    //this.notifyOwnerChangeEventToLinkPort();
   }
 
   public modifyEditText(content, rawContent) {
