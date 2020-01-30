@@ -26,14 +26,12 @@ import {Editable} from '../../../InterfaceEditable/editable';
 import {EventEmitter} from '@angular/core';
 import {LinkEvent} from '../LinkEvent/link-event';
 import {LinkEventEnum} from '../LinkEvent/link-event-enum.enum';
+import {
+  LinkerColorEnum,
+  LinkerStrokeWidthLevelEnum
+} from '../../../../InfiniteCanvas/DrawingLayerManager/LinkModeManagerService/LinkMode/linker-mode-enum.enum';
 
-export class DefaultLinkSetting{
-  public static readonly DEFAULT_STROKE_COLOR = "black";
-  public static readonly DEFAULT_STROKE_WIDTH = 1;
-  public static readonly DEFAULT_FILL_COLOR = "black";
-}
-
-export class EditableLink implements Editable{
+export abstract class EditableLink implements Editable{
   private _linkObject:Path;
   private _tempLinkPath:Path;
   private _fromLinkPort:LinkPort;
@@ -50,127 +48,76 @@ export class EditableLink implements Editable{
   private _fromLinkEventEmitter:EventEmitter<any>;
   private _toLinkEventEmitter:EventEmitter<any>;
 
-  constructor(fromLinkPort: LinkPort, strokeColor?, strokeWidth?, fillColor? ) {
-    strokeColor   = (strokeColor) ? (strokeColor) : (DefaultLinkSetting.DEFAULT_STROKE_COLOR);
-    strokeWidth   = (strokeWidth) ? (strokeWidth) : (DefaultLinkSetting.DEFAULT_STROKE_WIDTH);
-    fillColor     = (fillColor)   ? (fillColor)   : (DefaultLinkSetting.DEFAULT_FILL_COLOR);
+  private _strokeColor;
+  private _strokeWidth;
+  private _fillColor;
+  private _isDashed;
+  private _dashLength = 0;
+
+  protected static readonly DEFAULT_DASH_LENGTH = 5;
+
+  protected constructor(fromLinkPort: LinkPort, strokeColor?, strokeWidth?, fillColor?, isDashed? ) {
+    strokeColor   = (strokeColor) ? (strokeColor) : (LinkerColorEnum.BLACK);
+    strokeWidth   = (strokeWidth) ? (strokeWidth) : (LinkerStrokeWidthLevelEnum.LEVEL_1);
+    fillColor     = (fillColor)   ? (fillColor)   : (LinkerColorEnum.BLACK);
+    isDashed      = (isDashed)    ? (isDashed)     : (false);
+
+    this.strokeColor  = strokeColor;
+    this.strokeWidth  = strokeWidth;
+    this.fillColor    = fillColor;
+    this._isDashed    = isDashed;
+
+    if(isDashed){
+      this._dashLength = this.strokeWidth + EditableLink.DEFAULT_DASH_LENGTH;
+    }
+
     this.fromLinkPort = fromLinkPort;
     this.setFromLinkEventEmitter();
 
     this.layerService = this.fromLinkPort.owner.layerService;
 
-    this.linkObject = EditableLink.createLinkObject(strokeColor, strokeWidth, fillColor);
+    this.linkObject = this.createLinkObject();
   }
-  private static createLinkObject(strokeColor?, strokeWidth?, fillColor?, segments?){
-    strokeColor   = (strokeColor) ? (strokeColor) : (DefaultLinkSetting.DEFAULT_STROKE_COLOR);
-    strokeWidth   = (strokeWidth) ? (strokeWidth) : (DefaultLinkSetting.DEFAULT_STROKE_WIDTH);
-    fillColor     = (fillColor)   ? (fillColor)   : (DefaultLinkSetting.DEFAULT_FILL_COLOR);
-    segments      = (segments)    ? (segments)    : ([]);
-
+  protected createLinkObject(){
     return new Path({
-      segments      : segments,
-      strokeColor   : strokeColor,
-      strokeWidth   : strokeWidth,
-      fillColor     : fillColor,
+      strokeColor   : this.strokeColor,
+      strokeWidth   : this.strokeWidth,
+      fillColor     : this.fillColor,
       strokeCap     : 'round',
       strokeJoin    : 'round',
+      dashArray     : [ this._dashLength, this._dashLength ]
     });
   }
 
   // ####  임시링크 메서드
-  public initTempLink(downPoint){
-    this.startPoint = downPoint;
-    this.tempLinkPath = EditableLink.createLinkObject();
-  }
-  public drawTempLink(draggedPoint){
-    let hitWbShape:WhiteboardShape = this.layerService.getHittedItem(draggedPoint) as WhiteboardShape;
+  public abstract initTempLink(downPoint);
+  public abstract drawTempLink(draggedPoint);
+  // #### 링크 위치 재조정
+  public abstract refreshLink();
+  // #### 실제 링크 메서드
+  public abstract linkToWbShape(upPoint)  : EditableLink;
 
-
-    if(hitWbShape && hitWbShape.id !== this.fromLinkPort.owner.id && hitWbShape.linkPortMap){
-      //this.tempLinkToWbItem(hitWbShape, draggedPoint);
-      draggedPoint = hitWbShape.linkPortMap
-        .get(hitWbShape.getClosestLinkPort(draggedPoint)).calcLinkPortPosition();
-    }
-
-    this.tempLinkPath.removeSegments();
-
-    let vector = this.startPoint.subtract(draggedPoint);
-
-    let arrowVector = vector.normalize(25);
-    // @ts-ignore
-    let arrowLeftWing = draggedPoint.add(arrowVector.rotate(35));
-    // @ts-ignore
-    let arrowRightWing = draggedPoint.add(arrowVector.rotate(-35));
-
-    this.tempLinkPath.add( this.fromLinkPort.calcLinkPortPosition() );
-    this.tempLinkPath.add(draggedPoint);
-    this.tempLinkPath.add(arrowLeftWing);
-    this.tempLinkPath.add(draggedPoint);
-    this.tempLinkPath.add(arrowRightWing);
-    this.tempLinkPath.add(draggedPoint);
-  }
+  // #### 링크 삭제 메서드
   public destroyTempLink(){
     if(this.tempLinkPath){
       this.tempLinkPath.remove();
     }
   }
-  // ####
-
   public destroyItem(){
     if(this.linkObject){
       this.linkObject.remove();
     }
   }
-  // #### 실제 링크 메서드
-  public linkToWbShape(upPoint)  : EditableLink{
-    let hitWbShape:WhiteboardShape = this.layerService.getHittedItem(upPoint) as WhiteboardShape;
-
-    this.destroyTempLink();
-
-    if(hitWbShape && hitWbShape.id !== this.fromLinkPort.owner.id && hitWbShape.linkPortMap){
-      //this.tempLinkToWbItem(hitWbShape, draggedPoint);
-      let toLinkPort = hitWbShape.linkPortMap.get(hitWbShape.getClosestLinkPort(upPoint));
-      upPoint = toLinkPort.calcLinkPortPosition();
-      this.toLinkPort = toLinkPort;
-      this.setToLinkEventEmitter();
-    }
-    else{
-      return null;
-    }
-
-    this.tempLinkPath.removeSegments();
-
-    let vector = this.startPoint.subtract(upPoint);
-
-    let arrowVector = vector.normalize(25);
-    // @ts-ignore
-    let arrowLeftWing = upPoint.add(arrowVector.rotate(35));
-    // @ts-ignore
-    let arrowRightWing = upPoint.add(arrowVector.rotate(-35));
-
-    this.linkObject.add( this.fromLinkPort.calcLinkPortPosition() );
-    this.linkObject.add(upPoint);
-    this.linkObject.add(arrowLeftWing);
-    this.linkObject.add(upPoint);
-    this.linkObject.add(arrowRightWing);
-    this.linkObject.add(upPoint);
-
-    this.linkObject.onFrame = (event)=>{
-      this.refreshLink();
-    };
-    this.layerService.drawingLayer.addChild(this.linkObject);
-    return this;
-  }
   // ####
 
   // ####이벤트 발생기 핸들러
-  private setFromLinkEventEmitter(){
+  protected setFromLinkEventEmitter(){
     this.fromLinkEventEmitter = this.fromLinkPort.linkEventEmitter;
     this.fromLinkEventEmitter.subscribe((data:LinkEvent)=>{
       this.wbItemDestroyEventHandler(data);
     })
   }
-  private setToLinkEventEmitter(){
+  protected setToLinkEventEmitter(){
     this.toLinkEventEmitter = this.toLinkPort.linkEventEmitter;
     this.toLinkEventEmitter.subscribe((data:LinkEvent)=>{
       this.wbItemDestroyEventHandler(data);
@@ -185,25 +132,6 @@ export class EditableLink implements Editable{
 
   }
   // ####
-
-  private static checkLinkingIsPossible(...vars){
-    let isAvail = true;
-    for(let i = 0 ; i < vars.length; i++){
-      if(!vars[i]){
-        isAvail = false;
-      }
-    }
-    return isAvail;
-  }
-
-  // #### 링크 위치 재조정
-  public refreshLink(){
-    if(this.fromLinkPort && this.toLinkPort){
-      this.linkObject.firstSegment.point = this.fromLinkPort.calcLinkPortPosition();
-      this.linkObject.lastSegment.point = this.toLinkPort.calcLinkPortPosition();
-    }
-  }
-
 
   get linkObject(): paper.Path {
     return this._linkObject;
@@ -295,5 +223,45 @@ export class EditableLink implements Editable{
 
   set toLinkEventEmitter(value: EventEmitter<any>) {
     this._toLinkEventEmitter = value;
+  }
+
+  get strokeColor() {
+    return this._strokeColor;
+  }
+
+  set strokeColor(value) {
+    this._strokeColor = value;
+  }
+
+  get strokeWidth() {
+    return this._strokeWidth;
+  }
+
+  set strokeWidth(value) {
+    this._strokeWidth = value;
+  }
+
+  get fillColor() {
+    return this._fillColor;
+  }
+
+  set fillColor(value) {
+    this._fillColor = value;
+  }
+
+  get isDashed() {
+    return this._isDashed;
+  }
+
+  set isDashed(value) {
+    this._isDashed = value;
+  }
+
+  get dashLength(): number {
+    return this._dashLength;
+  }
+
+  set dashLength(value: number) {
+    this._dashLength = value;
   }
 }

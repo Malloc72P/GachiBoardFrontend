@@ -11,6 +11,8 @@ import Segment = paper.Segment;
 // @ts-ignore
 import Color = paper.Color;
 import {WhiteboardItemType} from '../../../../../Helper/data-type-enum/data-type.enum';
+import {LinkPort} from '../../LinkPort/link-port';
+import {LinkPortDirectionEnum} from '../../LinkPort/LinkPortDirectionEnum/link-port-direction-enum.enum';
 export class EditableTriangle extends EditableShape {
   constructor(id, item:Item, textStyle, editText, layerService) {
     super(
@@ -20,6 +22,14 @@ export class EditableTriangle extends EditableShape {
       textStyle,
       editText,
       layerService);
+
+  }
+  protected initLinkPortMap(){
+    //링크포트 생성
+    this.linkPortMap = new Map<any, LinkPort>();
+    this.linkPortMap.set( LinkPortDirectionEnum.CENTER_TOP, new LinkPort(this, LinkPortDirectionEnum.CENTER_TOP) );
+    this.linkPortMap.set( LinkPortDirectionEnum.BOTTOM_LEFT, new LinkPort(this, LinkPortDirectionEnum.BOTTOM_LEFT) );
+    this.linkPortMap.set( LinkPortDirectionEnum.BOTTOM_RIGHT, new LinkPort(this, LinkPortDirectionEnum.BOTTOM_RIGHT) );
 
   }
 

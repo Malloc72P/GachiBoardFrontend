@@ -20,4 +20,7 @@ export enum LinkPortDirectionEnum {
   BOTTOM,
   LEFT,
   RIGHT,
+  CENTER_TOP,
+  BOTTOM_LEFT,
+  BOTTOM_RIGHT
 }

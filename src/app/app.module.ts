@@ -63,6 +63,7 @@ import {ImportFileService} from "./Model/Whiteboard/ImportFile/import-file.servi
 import { WhiteboardContextMenuComponent } from './View/Whiteboard/whiteboard-context-menu/whiteboard-context-menu.component';
 import {ContextMenuService} from "./Model/Whiteboard/ContextMenu/context-menu-service/context-menu.service";
 import {NormalPointerService} from './Model/Whiteboard/Pointer/normal-pointer-service/normal-pointer.service';
+import {LinkModeManagerService} from './Model/Whiteboard/InfiniteCanvas/DrawingLayerManager/LinkModeManagerService/link-mode-manager.service';
 
 const appRoutes: Routes = [
   {
@@ -185,6 +186,7 @@ const appRoutes: Routes = [
     DrawingLayerManagerService,
     ImportFileService,
     ContextMenuService,
+    LinkModeManagerService,
   ],
   bootstrap: [AppComponent]
 })

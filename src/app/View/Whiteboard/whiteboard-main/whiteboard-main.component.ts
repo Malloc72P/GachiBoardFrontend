@@ -24,6 +24,7 @@ import {MinimapSyncService} from '../../../Model/Whiteboard/InfiniteCanvas/Minim
 import {WhiteboardContextMenuComponent} from "../whiteboard-context-menu/whiteboard-context-menu.component";
 import {ContextMenuService} from "../../../Model/Whiteboard/ContextMenu/context-menu-service/context-menu.service";
 import {DrawingLayerManagerService} from '../../../Model/Whiteboard/InfiniteCanvas/DrawingLayerManager/drawing-layer-manager.service';
+import {LinkModeManagerService} from '../../../Model/Whiteboard/InfiniteCanvas/DrawingLayerManager/LinkModeManagerService/link-mode-manager.service';
 
 
 @Component({
@@ -80,7 +81,8 @@ export class WhiteboardMainComponent implements OnInit {
     private debugingService         : DebugingService,
     private minimapSyncService      : MinimapSyncService,
     private contextMenuService      : ContextMenuService,
-    private layerService            : DrawingLayerManagerService
+    private layerService            : DrawingLayerManagerService,
+    private linkModeManagerService  :LinkModeManagerService
   ) {
   }
 
@@ -102,6 +104,8 @@ export class WhiteboardMainComponent implements OnInit {
     this.debugingService.initializeDebugingService(this.paperProject);
     this.minimapSyncService.initializePositionCalcService(this.paperProject);
     this.layerService.initializeDrawingLayerService(this.paperProject, this.contextMenuService);
+    //this.linkModeManagerService.initLinkModeManagerService(this.layerService.linkModeEventEmitter);
+    this.linkModeManagerService.initLinkModeManagerService(this.layerService.linkModeEventEmitter);
 
     this.paperProject.view.onMouseMove = (event) => {
       this.debugingService.cursorX = event.point.x;
@@ -116,7 +120,7 @@ export class WhiteboardMainComponent implements OnInit {
   }
   @HostListener('document:keydown', ['$event'])
   keydownHandler(event) {
-    // console.log("WhiteboardMainComponent >> keydownHandler >> keydown : ", event);
+    console.log("WhiteboardMainComponent >> keydownHandler >> keydown : ", event.code);
 
     // textEditor 에선 스킵
     if(event.target === document.getElementById("textEditor")) {
@@ -124,28 +128,41 @@ export class WhiteboardMainComponent implements OnInit {
     }
     // 전역
     switch (event.code) {
-      case "KeyP":
-        document.getElementById(PointerMode[PointerMode.POINTER]).click();
+      case "KeyQ":
+        if(this.layerService.currentPointerMode === PointerMode.POINTER){
+          document.getElementById(PointerMode[PointerMode.MOVE]).click();
+        }else{
+          document.getElementById(PointerMode[PointerMode.POINTER]).click();
+        }
         break;
-      case "KeyM":
-        document.getElementById(PointerMode[PointerMode.MOVE]).click();
-        break;
-      case "KeyB":
+      case "Digit1":
         document.getElementById(PointerMode[PointerMode.DRAW]).click();
         break;
-      case "KeyH":
+      case "Digit2":
         document.getElementById(PointerMode[PointerMode.HIGHLIGHTER]).click();
         break;
-      case "KeyS":
+      case "Digit3":
         document.getElementById(PointerMode[PointerMode.SHAPE]).click();
         break;
       case "KeyE":
         document.getElementById(PointerMode[PointerMode.ERASER]).click();
         break;
-      case "KeyL":
+      case "KeyR":
         document.getElementById(PointerMode[PointerMode.LASSO_SELECTOR]).click();
         break;
-      case "KeyY":
+      case "KeyZ":
+        this.linkModeManagerService.setDefaultLineLinkerMode();
+        break;
+      case "KeyX":
+        this.linkModeManagerService.setDefaultDashedLineLinkerMode();
+        this.debugingService.logDrawingLayer();
+        break;
+      case "KeyC":
+        this.linkModeManagerService.setDefaultArrowLinkerMode();
+        this.debugingService.logDrawingLayer();
+        break;
+      case "KeyV":
+        this.linkModeManagerService.setDefaultDasshedArrowLinkerMode();
         this.debugingService.logDrawingLayer();
         break;
       default:

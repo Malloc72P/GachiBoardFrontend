@@ -47,12 +47,17 @@ export class WhiteboardShape extends WhiteboardItem implements Editable{
     }
     this.opacity = item.opacity;
 
+    this.initLinkPortMap();
+    this.activateShadowEffect();
+  }
+
+  protected initLinkPortMap(){
     //링크포트 생성
     this.linkPortMap = new Map<any, LinkPort>();
-    for(let i = 0 ; i < 4; i++){
-      this.linkPortMap.set( i, new LinkPort(this,i) );
-    }
-    this.activateShadowEffect();
+    this.linkPortMap.set( LinkPortDirectionEnum.TOP, new LinkPort(this, LinkPortDirectionEnum.TOP) );
+    this.linkPortMap.set( LinkPortDirectionEnum.BOTTOM, new LinkPort(this, LinkPortDirectionEnum.BOTTOM) );
+    this.linkPortMap.set( LinkPortDirectionEnum.LEFT, new LinkPort(this, LinkPortDirectionEnum.LEFT) );
+    this.linkPortMap.set( LinkPortDirectionEnum.RIGHT, new LinkPort(this, LinkPortDirectionEnum.RIGHT) );
   }
 
 
@@ -73,22 +78,38 @@ export class WhiteboardShape extends WhiteboardItem implements Editable{
         return this.group.bounds.leftCenter;
       case LinkPortDirectionEnum.RIGHT :
         return this.group.bounds.rightCenter;
+      case LinkPortDirectionEnum.CENTER_TOP :
+        return this.group.bounds.topCenter;
+      case LinkPortDirectionEnum.BOTTOM_LEFT :
+        return this.group.bounds.bottomLeft;
+      case LinkPortDirectionEnum.BOTTOM_RIGHT :
+        return this.group.bounds.bottomRight;
     }
   }
   public getClosestLinkPort(point){
     let centerOfToWbShape = point;
 
-    let closestDirection = 0;
-    let closestDistance = this.layerService.posCalcService
-      .calcPointDistanceOn2D(centerOfToWbShape, this.group.bounds.topCenter);
-    for(let i = 1 ; i < 4; i++){
+    let closestDirection = -1;
+    let closestDistance;
+
+    this.linkPortMap.forEach((value, key, map)=>{
+      if(closestDirection === -1){
+        closestDistance = this.layerService.posCalcService
+          .calcPointDistanceOn2D(centerOfToWbShape, this.group.bounds.topCenter);
+        closestDirection = value.direction;
+        return;
+      }
+
       let newDistance = this.layerService.posCalcService
-        .calcPointDistanceOn2D(centerOfToWbShape, this.getDirectionPoint(i));
+        .calcPointDistanceOn2D(centerOfToWbShape, this.getDirectionPoint(value.direction));
+
       if(newDistance < closestDistance){
-        closestDirection = i;
+        closestDirection = value.direction;
         closestDistance = newDistance;
       }
-    }
+
+    });
+
     return closestDirection;
   }
 

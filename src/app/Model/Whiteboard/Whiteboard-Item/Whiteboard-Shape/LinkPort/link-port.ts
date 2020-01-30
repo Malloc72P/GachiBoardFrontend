@@ -33,6 +33,9 @@ import {EventEmitter} from '@angular/core';
 import {LinkEvent} from './LinkEvent/link-event';
 import {LinkEventEnum} from './LinkEvent/link-event-enum.enum';
 import {EditableLink} from './EditableLink/editable-link';
+import {LinkerModeEnum} from '../../../InfiniteCanvas/DrawingLayerManager/LinkModeManagerService/LinkMode/linker-mode-enum.enum';
+import {SimpleLineLink} from './EditableLink/SimpleLineLink/simple-line-link';
+import {SimpleArrowLink} from './EditableLink/SimpleArrowLink/simple-arrow-link';
 
 export class LinkPort {
   private _owner:WhiteboardShape;
@@ -131,8 +134,26 @@ export class LinkPort {
 
   private setMouseCallback(){
     this.handlerCircleObject.onMouseDown = (event)=>{
-      //this.startPoint = event.point;
-      this.tempLink = new EditableLink(this);
+      let currentLinkerMode = this.layerService.currentLinkerMode;
+
+      let strokeWidth = currentLinkerMode.strokeWidth;
+      let strokeColor = currentLinkerMode.strokeColor;
+      let fillColor   = currentLinkerMode.fillColor;
+
+      switch (currentLinkerMode.mode) {
+        case LinkerModeEnum.SIMPLE_lINE_lINK :
+          this.tempLink = new SimpleLineLink(this, strokeColor,strokeWidth,fillColor);
+          break;
+        case LinkerModeEnum.SIMPLE_DASHED_lINE_lINK :
+          this.tempLink = new SimpleLineLink(this, strokeColor,strokeWidth,fillColor,true);
+          break;
+        case LinkerModeEnum.SIMPLE_DASHED_ARROW_lINK :
+          this.tempLink = new SimpleArrowLink(this, strokeColor,strokeWidth,fillColor,true);
+          break;
+        case LinkerModeEnum.SIMPLE_ARROW_LINK :
+          this.tempLink = new SimpleArrowLink(this, strokeColor,strokeWidth,fillColor);
+          break;
+      }
       this.tempLink.initTempLink(event.point);
     };
     this.handlerCircleObject.onMouseDrag = (event)=>{
@@ -148,8 +169,10 @@ export class LinkPort {
         toLinkList.splice(toLinkList.length, 0, newLink);
       }
       else{
-        this.tempLink.destroyItem();
-        delete this.tempLink;
+        if (this.tempLink) {
+          this.tempLink.destroyItem();
+          delete this.tempLink;
+        }
       }
     };
   }
@@ -221,6 +244,12 @@ export class LinkPort {
         return group.leftCenter;
       case LinkPortDirectionEnum.RIGHT:
         return group.rightCenter;
+      case LinkPortDirectionEnum.CENTER_TOP :
+        return group.topCenter;
+      case LinkPortDirectionEnum.BOTTOM_LEFT :
+        return group.bottomLeft;
+      case LinkPortDirectionEnum.BOTTOM_RIGHT :
+        return group.bottomRight;
     }
   }
 
@@ -249,6 +278,32 @@ export class LinkPort {
         this.handlerCircleObject.position = this.posCalcService.movePointRight(
           this.handlerCircleObject.position,
           LinkPort.HANDLER_MARGIN / zoomFactor
+        );
+        return;
+      case LinkPortDirectionEnum.CENTER_TOP:
+        this.handlerCircleObject.position = this.posCalcService.movePointTop(
+          this.handlerCircleObject.position,
+          LinkPort.HANDLER_MARGIN / zoomFactor
+        );
+        return;
+      case LinkPortDirectionEnum.BOTTOM_LEFT:
+        this.handlerCircleObject.position = this.posCalcService.movePointLeft(
+          this.handlerCircleObject.position,
+          LinkPort.HANDLER_MARGIN/2 / zoomFactor
+        );
+        this.handlerCircleObject.position = this.posCalcService.movePointBottom(
+          this.handlerCircleObject.position,
+          LinkPort.HANDLER_MARGIN/2 / zoomFactor
+        );
+        return;
+      case LinkPortDirectionEnum.BOTTOM_RIGHT:
+        this.handlerCircleObject.position = this.posCalcService.movePointRight(
+          this.handlerCircleObject.position,
+          LinkPort.HANDLER_MARGIN/2 / zoomFactor
+        );
+        this.handlerCircleObject.position = this.posCalcService.movePointBottom(
+          this.handlerCircleObject.position,
+          LinkPort.HANDLER_MARGIN/2 / zoomFactor
         );
         return;
     }

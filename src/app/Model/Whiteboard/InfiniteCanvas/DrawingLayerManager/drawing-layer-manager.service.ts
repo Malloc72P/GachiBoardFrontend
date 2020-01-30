@@ -42,6 +42,8 @@ import {LinkPort} from '../../Whiteboard-Item/Whiteboard-Shape/LinkPort/link-por
 import {EditableShape} from '../../Whiteboard-Item/Whiteboard-Shape/EditableShape/editable-shape';
 import {ContextMenuService} from "../../ContextMenu/context-menu-service/context-menu.service";
 import {EditableLink} from '../../Whiteboard-Item/Whiteboard-Shape/LinkPort/EditableLink/editable-link';
+import {LinkerModeChangeEvent} from './LinkModeManagerService/LinkerModeChangeEvent/linker-mode-change-event';
+import {LinkerMode} from './LinkModeManagerService/LinkMode/linker-mode';
 
 
 @Injectable({
@@ -51,6 +53,8 @@ export class DrawingLayerManagerService {
   private _drawingLayer:Layer;
   private currentProject:Project;
   private _contextMenu: ContextMenuService;
+
+  private _currentLinkerMode:LinkerMode;
 
   private _currentPointerMode;
   private longTouchTimer;
@@ -66,6 +70,7 @@ export class DrawingLayerManagerService {
   @Output() wbItemLifeCycleEventEmitter:EventEmitter<any> = new EventEmitter<any>();
   @Output() pointerModeEventEmitter:EventEmitter<any> = new EventEmitter<any>();
   @Output() selectModeEventEmitter:EventEmitter<any> = new EventEmitter<any>();
+  @Output() linkModeEventEmitter:EventEmitter<any> = new EventEmitter<any>();
 
   constructor(
     private _posCalcService:PositionCalcService,
@@ -77,6 +82,8 @@ export class DrawingLayerManagerService {
     this.initLifeCycleHandler();
     //### 2 포인터 모드 이벤트
     this.initPointerHandler();
+    //### 3 링커 모드 이벤트
+    this.initLinkModeHandler();
   }
 
   initializeDrawingLayerService(paperProject, contextMenuService: ContextMenuService){
@@ -157,6 +164,14 @@ export class DrawingLayerManagerService {
       }
     });
   }
+
+  private initLinkModeHandler(){
+    this.linkModeEventEmitter.subscribe((data:LinkerModeChangeEvent)=>{
+      console.log("DrawingLayerManagerService >> linkModeEventEmitter >> data : ",data);
+      this.currentLinkerMode = data.currentLinkerMode;
+    });
+  }
+
 
   private calcTolerance(point: Point) {
     return this.fromPoint.getDistance(point) > 10;
@@ -508,6 +523,14 @@ export class DrawingLayerManagerService {
     return this._linkIdGenerator++;
   }
 
+
+  get currentLinkerMode(): LinkerMode {
+    return this._currentLinkerMode;
+  }
+
+  set currentLinkerMode(value: LinkerMode) {
+    this._currentLinkerMode = value;
+  }
 
 //#####################################
 }
