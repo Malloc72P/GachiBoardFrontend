@@ -10,6 +10,7 @@ import Group = paper.Group;
 
 import {Injectable} from '@angular/core';
 import {Cursor} from "./cursor/cursor";
+import {DrawingLayerManagerService} from "../../InfiniteCanvas/DrawingLayerManager/drawing-layer-manager.service";
 
 
 @Injectable({
@@ -17,13 +18,11 @@ import {Cursor} from "./cursor/cursor";
 })
 export class CursorTrackerService {
   private userArray = new Map<string, Position>();
-  private readonly cursorPath = "M4 0l16 12.279-6.78 1.138 4.256 8.676-3.902 1.907-4.281-8.758-5.293 4.581z";
-  private currentProject: Project;
   private _isActivate = false;
 
-  private readonly trackerNameType = 1;
-
-  constructor() { }
+  constructor(
+    private layerManagerService: DrawingLayerManagerService,
+  ) { }
 
   public on() {
     this._isActivate = true;
@@ -34,10 +33,6 @@ export class CursorTrackerService {
     this.userArray.forEach((value, key) => {
       this.deleteUser(key);
     });
-  }
-
-  public initializeCursorTrackerService(project: Project) {
-    this.currentProject = project;
   }
 
   // userArray 가 갖고 있는 포지션 정보로 커서 아이템의 위치를 이동함
@@ -77,12 +72,8 @@ export class CursorTrackerService {
     this.userArray.get(userName).position = position;
   }
 
-  private initCallback() {
-
-  }
-
   private drawCursor(color: Color): Cursor {
-    return new Cursor(color);
+    return new Cursor(color, this.layerManagerService.infiniteCanvasService.zoomEventEmitter);
   }
 
   // ################## Getter & Setter ###################
