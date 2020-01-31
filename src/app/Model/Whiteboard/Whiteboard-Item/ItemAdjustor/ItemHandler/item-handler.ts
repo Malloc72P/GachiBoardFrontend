@@ -20,12 +20,14 @@ export abstract class ItemHandler {
   protected constructor(wbItem, handlerDirection, handlerFillColor, handlerOption, guideLine){
     this.owner = wbItem;
     this.guideLine = guideLine;
-
-    let zoomFactor = this.owner.layerService.posCalcService.getZoomState();
-
     this.handlerDirection = handlerDirection;
+    this.initHandlerObject(handlerOption, handlerFillColor);
+    this.bindHandlerCallback();
+  }
 
-    let handlerPosition = this.getHandlerPosition(handlerDirection);
+  protected initHandlerObject(handlerOption, handlerFillColor){
+    let zoomFactor = this.owner.layerService.posCalcService.getZoomState();
+    let handlerPosition = this.getHandlerPosition(this.handlerDirection);
 
     this.handlerCircleObject = new Circle(
       new Point(handlerPosition.x, handlerPosition.y),
@@ -36,10 +38,10 @@ export abstract class ItemHandler {
     this.handlerCircleObject.style.fillColor = handlerFillColor;
 
     this.handlerCircleObject.strokeColor = handlerOption.strokeColor;
-
-
     this.handlerCircleObject.data.struct = this;
+  }
 
+  protected bindHandlerCallback(){
     this.handlerCircleObject.onMouseDown = (event)=>{
       if(!this.owner.checkEditable()){
         return;

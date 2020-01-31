@@ -305,8 +305,6 @@ export abstract class WhiteboardItem {
     this._myItemAdjustor = value;
   }
 
-
-
   get disableLinkHandler(): boolean {
     return this._disableLinkHandler;
   }

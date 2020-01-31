@@ -19,6 +19,9 @@ import Point = paper.Point;
 import Size = paper.Size;
 // @ts-ignore
 import Path = paper.Path;
+// @ts-ignore
+import PaperScope = paper.PaperScope;
+
 import {DebugingService} from "../../../Model/Helper/DebugingHelper/debuging.service";
 import {MinimapSyncService} from '../../../Model/Whiteboard/InfiniteCanvas/MinimapSync/minimap-sync.service';
 import {WhiteboardContextMenuComponent} from "../whiteboard-context-menu/whiteboard-context-menu.component";
@@ -35,7 +38,8 @@ import {CursorTrackerService} from "../../../Model/Whiteboard/CursorTracker/curs
   styleUrls: ['./whiteboard-main.component.css']
 })
 export class WhiteboardMainComponent implements OnInit {
-  private paperProject: Project;
+  private whiteboardPaperProject: Project;
+  private whiteboardPaperScope: PaperScope;
 
   private isMouseDown = false;
   private currentPointerMode;
@@ -92,27 +96,28 @@ export class WhiteboardMainComponent implements OnInit {
   ngOnInit() {
     this.currentPointerMode = PointerMode.MOVE;
 
-    this.htmlCanvasObject = document.getElementById("cv1") as HTMLCanvasElement;
-    this.htmlCanvasWrapperObject
-      = document.getElementById("canvasWrapper") as HTMLDivElement;
-
-    this.paperProject = new Project('cv1');
+    //Whiteboard Main Paper 생성
+    this.initWhiteboardPaper();
     //this.pointerModeManager.activateTool(PointerMode.DRAW);
 
     //서비스 이니셜라이징
-    this.infiniteCanvasService.initializeInfiniteCanvas(this.paperProject);
-    this.posCalcService.initializePositionCalcService(this.paperProject);
-    this.zoomControlService.initializeZoomControlService(this.paperProject);
-    this.pointerModeManager.initializePointerModeManagerService(this.paperProject);
-    this.debugingService.initializeDebugingService(this.paperProject);
-    this.minimapSyncService.initializePositionCalcService(this.paperProject);
-    this.layerService.initializeDrawingLayerService(this.paperProject, this.contextMenuService);
+    this.infiniteCanvasService.initializeInfiniteCanvas(this.whiteboardPaperProject);
+    this.posCalcService.initializePositionCalcService(this.whiteboardPaperProject);
+    this.zoomControlService.initializeZoomControlService(this.whiteboardPaperProject);
+
+    this.pointerModeManager.initializePointerModeManagerService(this.whiteboardPaperProject);
+
+    this.debugingService.initializeDebugingService(this.whiteboardPaperProject);
+
+    this.minimapSyncService.initializePositionCalcService(this.whiteboardPaperProject);
+    this.layerService.initializeDrawingLayerService(this.whiteboardPaperProject, this.contextMenuService);
     this.linkModeManagerService.initLinkModeManagerService(this.layerService.linkModeEventEmitter);
+
     // TODO : Tracker Test Code
     // 미안 매번 끄는거 너무 귀찮아
     //this.cursorTrackerService.on();
 
-    this.paperProject.view.onMouseMove = (event) => {
+    this.whiteboardPaperProject.view.onMouseMove = (event) => {
       this.debugingService.cursorX = event.point.x;
       this.debugingService.cursorY = event.point.y;
 
@@ -120,7 +125,7 @@ export class WhiteboardMainComponent implements OnInit {
       this.cursorTrackerService.updateUser("AAA", event.point);
     };
 
-    this.paperProject.activeLayer.onFrame = (event)=>{
+    this.whiteboardPaperProject.activeLayer.onFrame = (event)=>{
       if(event.count%10 === 0){
         this.minimapSyncService.syncMinimap();
         // TODO : Tracker Test Code
@@ -131,7 +136,20 @@ export class WhiteboardMainComponent implements OnInit {
         this.cursorTrackerService.updateUser("CCC", new Point(Math.random() * 500, Math.random() * 500));
       }
     }
+  }//ngOnInit()
+
+  private initWhiteboardPaper(){
+    this.htmlCanvasObject = document.getElementById("cv1") as HTMLCanvasElement;
+    this.htmlCanvasWrapperObject = document.getElementById("canvasWrapper") as HTMLDivElement;
+    this.whiteboardPaperScope = new PaperScope();
+    this.whiteboardPaperScope.setup(this.htmlCanvasObject);
+    this.whiteboardPaperScope.settings.hitTolerance = 40;
+    this.whiteboardPaperScope.activate();
+
+    this.whiteboardPaperProject = this.whiteboardPaperScope.project;
   }
+
+
   @HostListener('document:keydown', ['$event'])
   keydownHandler(event) {
 

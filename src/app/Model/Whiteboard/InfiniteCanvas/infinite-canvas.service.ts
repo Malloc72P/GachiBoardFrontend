@@ -128,7 +128,6 @@ export class InfiniteCanvasService {
     this.initializeDrawingLayer();
   }
   private whiteboardInitializer() {
-    // console.log("InfiniteCanvasService >> whiteboardInitializer >> this.currentProject.view.bounds : ",this.currentProject.view.bounds);
     const gridStep: number = this.gridStep;
     let rect: paper.Rectangle = this.currentProject.view.bounds;
 
@@ -173,6 +172,11 @@ export class InfiniteCanvasService {
       }//for
     }
   }//WhiteboardInitializer
+
+  public moveWithDelta(delta){
+    // @ts-ignore
+    this.currentProject.view.scrollBy(delta);
+  }
 
   createGridLine(){
     return new Path({

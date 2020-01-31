@@ -59,8 +59,6 @@ export class ZoomControlService {
         ngCanvasCenter,
         new Point(event.x, event.y),
         event.deltaY);
-      //this.lassoSelectorService.lassoHandleResizeForZooming(this.currentProject.view.zoom);
-      //this.zoomEventEmitter.emit(new ZoomEvent(ZoomEventEnum.ZOOM_CHANGED));
     }
   }
 
