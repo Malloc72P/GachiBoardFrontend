@@ -54,6 +54,7 @@ export class SimpleLineLink extends EditableLink {
       this.refreshLink();
     };
     this.layerService.drawingLayer.addChild(this.linkObject);
+    this.onLinkEstablished();
     return this;
   }
 

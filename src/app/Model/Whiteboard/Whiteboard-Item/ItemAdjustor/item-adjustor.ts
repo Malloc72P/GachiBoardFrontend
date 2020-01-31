@@ -164,7 +164,6 @@ export class ItemAdjustor {
       HandlerOption.dashLength / zoomFactor];
     if(this.sizeHandlers){
       this.sizeHandlers.forEach((value, key, map)=>{
-        console.log("ItemAdjustor >>  >> zoomFactor : ", zoomFactor);
         ItemAdjustor.reflectZoomFactorToHandler(value, zoomFactor);
       });
     }

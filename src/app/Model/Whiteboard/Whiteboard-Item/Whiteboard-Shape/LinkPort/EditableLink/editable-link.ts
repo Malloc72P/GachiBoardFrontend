@@ -1,25 +1,4 @@
-
 import * as paper from 'paper';
-// @ts-ignore
-import Path = paper.Path;
-// @ts-ignore
-import Point = paper.Point;
-// @ts-ignore
-import Item = paper.Item;
-// @ts-ignore
-import Segment = paper.Segment;
-// @ts-ignore
-import Color = paper.Color;
-// @ts-ignore
-import PointText = paper.PointText;
-// @ts-ignore
-import Group = paper.Group;
-// @ts-ignore
-import Rectangle = paper.Rectangle;
-// @ts-ignore
-import Circle = paper.Path.Circle;
-
-import {WhiteboardShape} from '../../whiteboard-shape';
 import {LinkPort} from '../link-port';
 import {DrawingLayerManagerService} from '../../../../InfiniteCanvas/DrawingLayerManager/drawing-layer-manager.service';
 import {Editable} from '../../../InterfaceEditable/editable';
@@ -30,8 +9,14 @@ import {
   LinkerColorEnum,
   LinkerStrokeWidthLevelEnum
 } from '../../../../InfiniteCanvas/DrawingLayerManager/LinkModeManagerService/LinkMode/linker-mode-enum.enum';
+// @ts-ignore
+import Path = paper.Path;
+// @ts-ignore
+import Point = paper.Point;
+import {MouseButtonEventEnum} from '../../../../Pointer/MouseButtonEventEnum/mouse-button-event-enum.enum';
 
 export abstract class EditableLink implements Editable{
+  private _id;
   private _linkObject:Path;
   private _tempLinkPath:Path;
   private _fromLinkPort:LinkPort;
@@ -77,16 +62,34 @@ export abstract class EditableLink implements Editable{
     this.layerService = this.fromLinkPort.owner.layerService;
 
     this.linkObject = this.createLinkObject();
+    this.bindEventHandler(this.linkObject);
   }
   protected createLinkObject(){
     return new Path({
-      strokeColor   : this.strokeColor,
-      strokeWidth   : this.strokeWidth,
-      fillColor     : this.fillColor,
-      strokeCap     : 'round',
-      strokeJoin    : 'round',
-      dashArray     : [ this._dashLength, this._dashLength ]
+      strokeColor: this.strokeColor,
+      strokeWidth: this.strokeWidth,
+      fillColor: this.fillColor,
+      strokeCap: 'round',
+      strokeJoin: 'round',
+      dashArray: [this._dashLength, this._dashLength]
     });
+  }
+  protected bindEventHandler(newPath){
+
+    newPath.onMouseDown = (event)=>{
+      console.log("EditableLink >> onMouseDown >> this : ",this);
+    };
+    newPath.onMouseUp = (event) =>{
+      console.log("EditableLink >> onMouseUp >> this : ",this);
+      switch (event.event.button) {
+        case MouseButtonEventEnum.LEFT_CLICK:
+          this.linkObject.selected = !this.linkObject.selected;
+          this.linkObject.handleBounds.width = this.strokeWidth;
+          break;
+        case MouseButtonEventEnum.RIGHT_CLICK:
+          break;
+      }//switch
+    }
   }
 
   // ####  임시링크 메서드
@@ -96,6 +99,11 @@ export abstract class EditableLink implements Editable{
   public abstract refreshLink();
   // #### 실제 링크 메서드
   public abstract linkToWbShape(upPoint)  : EditableLink;
+
+  protected onLinkEstablished(){
+    this.id = this.layerService.getWbId();
+    this.layerService.addWbLink(this);
+  }
 
   // #### 링크 삭제 메서드
   public destroyTempLink(){
@@ -107,6 +115,7 @@ export abstract class EditableLink implements Editable{
     if(this.linkObject){
       this.linkObject.remove();
     }
+    this.layerService.deleteWbLink(this);
   }
   // ####
 
@@ -263,5 +272,13 @@ export abstract class EditableLink implements Editable{
 
   set dashLength(value: number) {
     this._dashLength = value;
+  }
+
+  get id() {
+    return this._id;
+  }
+
+  set id(value) {
+    this._id = value;
   }
 }

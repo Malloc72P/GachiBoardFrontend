@@ -109,7 +109,8 @@ export class WhiteboardMainComponent implements OnInit {
     this.layerService.initializeDrawingLayerService(this.paperProject, this.contextMenuService);
     this.linkModeManagerService.initLinkModeManagerService(this.layerService.linkModeEventEmitter);
     // TODO : Tracker Test Code
-    this.cursorTrackerService.on();
+    // 미안 매번 끄는거 너무 귀찮아
+    //this.cursorTrackerService.on();
 
     this.paperProject.view.onMouseMove = (event) => {
       this.debugingService.cursorX = event.point.x;

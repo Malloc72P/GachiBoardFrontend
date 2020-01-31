@@ -1,4 +1,3 @@
-import {LinkInfo} from './LinkInfo/link-info';
 import {WhiteboardShape} from '../whiteboard-shape';
 import {LinkPortDirectionEnum} from './LinkPortDirectionEnum/link-port-direction-enum.enum';
 
@@ -80,8 +79,9 @@ export class LinkPort {
     this.linkEventEmitter.subscribe((data:LinkEvent)=>{
       if(data.action === LinkEventEnum.LINK_DESTROYED){
         console.log("LinkPort >> linkEventEmitter >> data : ",data.invokerItem);
+        this.owner.notifyItemModified();
       }
-    })
+    });
   }
   private refreshAllLink(){
     if(this.fromLinkList){
@@ -141,6 +141,8 @@ export class LinkPort {
       let strokeColor = currentLinkerMode.strokeColor;
       let fillColor   = currentLinkerMode.fillColor;
 
+      //this.owner.myItemAdjustor.hide;
+
       switch (currentLinkerMode.mode) {
         case LinkerModeEnum.SIMPLE_lINE_lINK :
           this.tempLink = new SimpleLineLink(this, strokeColor,strokeWidth,fillColor);
@@ -165,9 +167,7 @@ export class LinkPort {
 
       let newLink = this.tempLink.linkToWbShape(point);
       if(newLink){
-        this.fromLinkList.splice(this.fromLinkList.length, 0, newLink);
-        let toLinkList = newLink.toLinkPort.toLinkList;
-        toLinkList.splice(toLinkList.length, 0, newLink);
+        this.addLink(newLink);
       }
       else{
         if (this.tempLink) {
@@ -176,6 +176,14 @@ export class LinkPort {
         }
       }
     };
+  }
+
+  private addLink(newLink){
+    this.fromLinkList.splice(this.fromLinkList.length, 0, newLink);
+    let toLinkList = newLink.toLinkPort.toLinkList;
+    toLinkList.splice(toLinkList.length, 0, newLink);
+    this.owner.notifyItemModified();
+    newLink.toLinkPort.owner.notifyItemModified();
   }
 
   private enable(){
