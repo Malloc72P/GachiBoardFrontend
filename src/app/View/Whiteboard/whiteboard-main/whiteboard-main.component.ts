@@ -138,6 +138,10 @@ export class WhiteboardMainComponent implements OnInit {
     if(event.target === document.getElementById("textEditor")) {
       return;
     }
+    // 포인터로 무언가 그리거나 이동하는 등의 Mouse 이벤트가 시작된 상태면 단축키로 모드변경 못하도록 막음
+    if(this.pointerModeManager.mouseDown) {
+      return;
+    }
     // 전역
     switch (event.code) {
       case "KeyQ":
