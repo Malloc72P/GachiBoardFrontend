@@ -36,7 +36,6 @@ export class GlobalSelectedGroup extends ItemGroup {
     super(id, type, item, layerService);
     this.prevMode = SelectModeEnum.SINGLE_SELECT;
     this.prevNumberOfChild = this.getNumberOfChild();
-    //this.activateSelectedMode();
     //this.myItemAdjustor.disable();
     //this.activateSelectedMode();
   }

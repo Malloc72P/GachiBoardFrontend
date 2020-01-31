@@ -298,21 +298,21 @@ export class LinkPort {
       case LinkPortDirectionEnum.BOTTOM_LEFT:
         this.handlerCircleObject.position = this.posCalcService.movePointLeft(
           this.handlerCircleObject.position,
-          LinkPort.HANDLER_MARGIN/2 / zoomFactor
+          LinkPort.HANDLER_MARGIN / zoomFactor
         );
         this.handlerCircleObject.position = this.posCalcService.movePointBottom(
           this.handlerCircleObject.position,
-          LinkPort.HANDLER_MARGIN/2 / zoomFactor
+          LinkPort.HANDLER_MARGIN / zoomFactor
         );
         return;
       case LinkPortDirectionEnum.BOTTOM_RIGHT:
         this.handlerCircleObject.position = this.posCalcService.movePointRight(
           this.handlerCircleObject.position,
-          LinkPort.HANDLER_MARGIN/2 / zoomFactor
+          LinkPort.HANDLER_MARGIN / zoomFactor
         );
         this.handlerCircleObject.position = this.posCalcService.movePointBottom(
           this.handlerCircleObject.position,
-          LinkPort.HANDLER_MARGIN/2 / zoomFactor
+          LinkPort.HANDLER_MARGIN / zoomFactor
         );
         return;
     }

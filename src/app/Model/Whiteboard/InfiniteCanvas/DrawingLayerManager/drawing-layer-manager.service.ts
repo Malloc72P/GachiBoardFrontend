@@ -44,6 +44,8 @@ import {ContextMenuService} from "../../ContextMenu/context-menu-service/context
 import {EditableLink} from '../../Whiteboard-Item/Whiteboard-Shape/LinkPort/EditableLink/editable-link';
 import {LinkerModeChangeEvent} from './LinkModeManagerService/LinkerModeChangeEvent/linker-mode-change-event';
 import {LinkerMode} from './LinkModeManagerService/LinkMode/linker-mode';
+import {SizeHandler} from '../../Whiteboard-Item/ItemAdjustor/ItemHandler/SizeHandler/size-handler';
+import {ItemHandler} from '../../Whiteboard-Item/ItemAdjustor/ItemHandler/item-handler';
 
 
 @Injectable({
@@ -103,16 +105,27 @@ export class DrawingLayerManagerService {
       if(this.isEditingText){
         console.log("DrawingLayerManagerService >> onMouseDown >> isEditingText 진입함");
         this.endEditText();
+        return;
       }
-
       if(this.globalSelectedGroup.getNumberOfChild() > 0){
         let hitItem = this.getHittedItem(event.point);
         if(!hitItem){
           if(!this.checkHittedItemIsHandler(event.point)){
             this.globalSelectedGroup.extractAllFromSelection();
+            return;
           }
         }
+      }else{
+        return;
       }
+
+      let hitHandler = this.getHittedGsgHandler(event.point);
+
+      if(hitHandler){
+        console.log("DrawingLayerManagerService >> hitHandler >> 톨레랑스 적용된 콜백 호출됨");
+        hitHandler.onMouseDown(event);
+      }
+
       // let point = this.initPoint(event.event);
       // this.initFromPoint(point);
       // if(event.event instanceof TouchEvent) {
@@ -132,6 +145,20 @@ export class DrawingLayerManagerService {
     //     clearTimeout(this.longTouchTimer);
     //   }
     // };
+    this.currentProject.view.onMouseDrag = (event)=>{
+      let hitHandler = this.getHittedGsgHandler(event.point);
+      if(hitHandler){
+        console.log("DrawingLayerManagerService >> hitHandler >> 톨레랑스 적용된 콜백 호출됨");
+        hitHandler.onMouseDrag(event);
+      }
+    }
+    this.currentProject.view.onMouseUp = (event)=>{
+      let hitHandler = this.getHittedGsgHandler(event.point);
+      if(hitHandler){
+        console.log("DrawingLayerManagerService >> hitHandler >> 톨레랑스 적용된 콜백 호출됨");
+        hitHandler.onMouseUp(event);
+      }
+    }
   }
 
   public addWbLink(editableLink:EditableLink){
@@ -341,7 +368,7 @@ export class DrawingLayerManagerService {
   }
 
   public getHittedItem(point) : WhiteboardItem{
-    let hitOption = { segments: true, stroke: true, fill: true, tolerance: 5 };
+    let hitOption = { segments: true, stroke: true, fill: true, tolerance: 15 };
     let children = this.whiteboardItemArray;
     for(let i = children.length - 1 ; i >= 0; i-- ){
       let value = children[i];
@@ -357,6 +384,44 @@ export class DrawingLayerManagerService {
       }
 
     }
+    //못찾은 경우 null값 리턴
+
+    return null;
+  }
+  public getHittedGsgHandler(point) : ItemHandler{
+    let hitOption = { segments: true, stroke: true, fill: true, tolerance: 20 };
+    let sizeHandlers;
+    if(this.globalSelectedGroup.myItemAdjustor){
+      sizeHandlers = this.globalSelectedGroup.myItemAdjustor.sizeHandlers;
+    }else return null;
+    let isHit = false;
+    let hitHandler:SizeHandler = null;
+
+    sizeHandlers.forEach((value, key, map)=>{
+      if(value.handlerCircleObject.hitTest(point, hitOption)){
+        isHit = true;
+        hitHandler = value;
+      }
+    });
+    if(hitHandler){
+      return hitHandler
+    } else return null;
+/*
+    for(let i = children.length - 1 ; i >= 0; i-- ){
+      let value = children[i];
+
+      if(value.group.hitTest(point, hitOption)){
+        return value;
+      }
+      //그룹의 선택영역일 수 도 있으므로, 그룹 영역검사
+      if(value instanceof ItemGroup){
+        if(value.backgroundRect.contains(point)){
+          return value;
+        }
+      }
+
+    }
+*/
     //못찾은 경우 null값 리턴
 
     return null;

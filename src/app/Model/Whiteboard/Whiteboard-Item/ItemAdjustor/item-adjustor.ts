@@ -11,7 +11,7 @@ import {ZoomEventEnum} from '../../InfiniteCanvas/ZoomControl/ZoomEvent/zoom-eve
 
 export class HandlerOption {
   public static strokeWidth = 1;
-  public static circleRadius = 6;
+  public static circleRadius = 10;
   public static strokeColor = "black";
   public static dashLength = 25;
 }
@@ -22,6 +22,8 @@ export class ItemAdjustor {
   private _itemGuideLine:Rectangle;
   private _guidelineDashLength;
   private _owner:WhiteboardItem;
+
+  private _isCallbackWorking = false;
 
   constructor(wbItem){
     this.owner = wbItem;
@@ -249,5 +251,13 @@ export class ItemAdjustor {
 
   set owner(value: WhiteboardItem) {
     this._owner = value;
+  }
+
+  get isCallbackWorking(): boolean {
+    return this._isCallbackWorking;
+  }
+
+  set isCallbackWorking(value: boolean) {
+    this._isCallbackWorking = value;
   }
 }

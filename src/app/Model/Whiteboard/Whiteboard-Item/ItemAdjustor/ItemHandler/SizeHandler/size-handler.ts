@@ -18,11 +18,21 @@ export class SizeHandler extends ItemHandler{
   private ratio = { width: 0, height: 0 };
   private adjustSizeFrom:Point;
   private adjustSizeTo:Point;
-  protected onMouseDown(event) {
+
+
+
+  public onMouseDown(event) {
+    if(!this.owner.myItemAdjustor.isCallbackWorking){
+      this.owner.myItemAdjustor.isCallbackWorking = true;
+    } else return;
+
     this.initSizingDataBeforeResizing();
   }
 
-  protected onMouseDrag(event) {
+  public onMouseDrag(event) {
+    if(!this.owner.myItemAdjustor.isCallbackWorking){
+      return;
+    }
     let resizePoint = event.point;
     let minSize = 5;
     let selectedGroup = this.owner.layerService.globalSelectedGroup.group;
@@ -50,7 +60,11 @@ export class SizeHandler extends ItemHandler{
     this.owner.myItemAdjustor.refreshItemAdjustorSize();
   }
 
-  protected onMouseUp(event) {
+  public onMouseUp(event) {
+    if(this.owner.myItemAdjustor.isCallbackWorking){
+      this.owner.myItemAdjustor.isCallbackWorking = false;
+    }else return;
+
     this.owner.refreshItem();
   }
 

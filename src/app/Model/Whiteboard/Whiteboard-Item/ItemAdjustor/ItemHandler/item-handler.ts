@@ -66,9 +66,9 @@ export abstract class ItemHandler {
     this.handlerCircleObject.position = this.getHandlerPosition(this.handlerDirection);
   }
 
-  protected abstract onMouseDown(event);
-  protected abstract onMouseDrag(event);
-  protected abstract onMouseUp(event);
+  public abstract onMouseDown(event);
+  public abstract onMouseDrag(event);
+  public abstract onMouseUp(event);
 
   protected getHandlerPosition(handlerDirection){
     let bounds = this.guideLine.bounds;

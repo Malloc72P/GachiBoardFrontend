@@ -30,8 +30,6 @@ import {DrawingLayerManagerService} from '../../../Model/Whiteboard/InfiniteCanv
 import {LinkModeManagerService} from '../../../Model/Whiteboard/InfiniteCanvas/DrawingLayerManager/LinkModeManagerService/link-mode-manager.service';
 import {CursorTrackerService} from "../../../Model/Whiteboard/CursorTracker/cursor-tracker-service/cursor-tracker.service";
 
-
-
 @Component({
   selector: 'app-whiteboard-main',
   templateUrl: './whiteboard-main.component.html',
@@ -139,12 +137,13 @@ export class WhiteboardMainComponent implements OnInit {
   }//ngOnInit()
 
   private initWhiteboardPaper(){
+    paper.settings.hitTolerance = 40;
+
     this.htmlCanvasObject = document.getElementById("cv1") as HTMLCanvasElement;
     this.htmlCanvasWrapperObject = document.getElementById("canvasWrapper") as HTMLDivElement;
     this.whiteboardPaperScope = new PaperScope();
     this.whiteboardPaperScope.setup(this.htmlCanvasObject);
     this.whiteboardPaperScope.settings.hitTolerance = 40;
-    this.whiteboardPaperScope.activate();
 
     this.whiteboardPaperProject = this.whiteboardPaperScope.project;
   }
