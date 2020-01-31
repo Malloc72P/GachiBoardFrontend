@@ -23,7 +23,7 @@ export class ItemAdjustor {
   private _guidelineDashLength;
   private _owner:WhiteboardItem;
 
-  private _isCallbackWorking = false;
+  private _isCallbackWorking = -1;
 
   constructor(wbItem){
     this.owner = wbItem;
@@ -253,11 +253,12 @@ export class ItemAdjustor {
     this._owner = value;
   }
 
-  get isCallbackWorking(): boolean {
+
+  get isCallbackWorking(): number {
     return this._isCallbackWorking;
   }
 
-  set isCallbackWorking(value: boolean) {
+  set isCallbackWorking(value: number) {
     this._isCallbackWorking = value;
   }
 }

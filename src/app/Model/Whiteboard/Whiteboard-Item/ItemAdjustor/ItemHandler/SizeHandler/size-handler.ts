@@ -22,17 +22,18 @@ export class SizeHandler extends ItemHandler{
 
 
   public onMouseDown(event) {
-    if(!this.owner.myItemAdjustor.isCallbackWorking){
-      this.owner.myItemAdjustor.isCallbackWorking = true;
+    if(this.owner.myItemAdjustor.isCallbackWorking === -1){
+      this.owner.myItemAdjustor.isCallbackWorking = this.handlerDirection;
     } else return;
 
     this.initSizingDataBeforeResizing();
   }
 
   public onMouseDrag(event) {
-    if(!this.owner.myItemAdjustor.isCallbackWorking){
+    if(this.owner.myItemAdjustor.isCallbackWorking !== this.handlerDirection){
       return;
     }
+    console.log("SizeHandler >> onMouseDrag >> 진입함");
     let resizePoint = event.point;
     let minSize = 5;
     let selectedGroup = this.owner.layerService.globalSelectedGroup.group;
@@ -61,8 +62,8 @@ export class SizeHandler extends ItemHandler{
   }
 
   public onMouseUp(event) {
-    if(this.owner.myItemAdjustor.isCallbackWorking){
-      this.owner.myItemAdjustor.isCallbackWorking = false;
+    if(this.owner.myItemAdjustor.isCallbackWorking === this.handlerDirection){
+      this.owner.myItemAdjustor.isCallbackWorking = -1;
     }else return;
 
     this.owner.refreshItem();
