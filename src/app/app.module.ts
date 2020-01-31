@@ -65,6 +65,7 @@ import {ContextMenuService} from "./Model/Whiteboard/ContextMenu/context-menu-se
 import {NormalPointerService} from './Model/Whiteboard/Pointer/normal-pointer-service/normal-pointer.service';
 import {LinkModeManagerService} from './Model/Whiteboard/InfiniteCanvas/DrawingLayerManager/LinkModeManagerService/link-mode-manager.service';
 import {CursorTrackerService} from "./Model/Whiteboard/CursorTracker/cursor-tracker-service/cursor-tracker.service";
+import {CursorChangeService} from "./Model/Whiteboard/Pointer/cursor-change-service/cursor-change.service";
 
 const appRoutes: Routes = [
   {
@@ -189,6 +190,7 @@ const appRoutes: Routes = [
     ContextMenuService,
     LinkModeManagerService,
     CursorTrackerService,
+    CursorChangeService,
   ],
   bootstrap: [AppComponent]
 })
