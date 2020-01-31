@@ -3,15 +3,10 @@ import * as paper from 'paper';
 import Point = paper.Point;
 // @ts-ignore
 import Color = paper.Color;
-// @ts-ignore
-import Project = paper.Project;
-// @ts-ignore
-import Group = paper.Group;
 
-import {Injectable} from '@angular/core';
+import {EventEmitter, Injectable} from '@angular/core';
 import {Cursor} from "./cursor/cursor";
-import {DrawingLayerManagerService} from "../../InfiniteCanvas/DrawingLayerManager/drawing-layer-manager.service";
-
+import {PositionCalcService} from "../../PositionCalc/position-calc.service";
 
 @Injectable({
   providedIn: 'root'
@@ -19,13 +14,20 @@ import {DrawingLayerManagerService} from "../../InfiniteCanvas/DrawingLayerManag
 export class CursorTrackerService {
   private userArray = new Map<string, Position>();
   private _isActivate = false;
+  private _currentCursorPosition = new SimplePoint(0, 0);
+  private zoomEventEmitter: EventEmitter<any>;
 
   constructor(
-    private layerManagerService: DrawingLayerManagerService,
+    private positionCalcService: PositionCalcService,
   ) { }
+
+  public initializeCursorTrackerService(zoomEventEmitter) {
+    this.zoomEventEmitter = zoomEventEmitter;
+  }
 
   public on() {
     this._isActivate = true;
+    console.log("CursorTrackerService >> on >> this.itsMe : ", this.itsMe);
   }
 
   public off() {
@@ -73,13 +75,30 @@ export class CursorTrackerService {
   }
 
   private drawCursor(color: Color): Cursor {
-    return new Cursor(color, this.layerManagerService.infiniteCanvasService.zoomEventEmitter);
+    return new Cursor(color, this.zoomEventEmitter);
   }
 
   // ################## Getter & Setter ###################
 
   get isActivate(): boolean {
     return this._isActivate;
+  }
+
+  get currentCursorPosition(): SimplePoint {
+    return this._currentCursorPosition;
+  }
+
+  set currentCursorPosition(value: SimplePoint) {
+    this._currentCursorPosition = value;
+  }
+
+  get itsMe(): Point {
+    return new Point(this.currentCursorPosition.x, this.currentCursorPosition.y);
+  }
+
+  get itsMeToNg(): Point {
+    let point = new Point(this.currentCursorPosition.x, this.currentCursorPosition.y);
+    return new Point(this.positionCalcService.advConvertPaperToNg(point));
   }
 }
 
@@ -102,5 +121,31 @@ class Position {
 
   set position(value: paper.Point) {
     this._position = value;
+  }
+}
+
+export class SimplePoint {
+  private _x: number;
+  private _y: number;
+
+  constructor(x: number, y: number) {
+    this._x = x;
+    this._y = y;
+  }
+
+  get x(): number {
+    return this._x;
+  }
+
+  set x(value: number) {
+    this._x = value;
+  }
+
+  get y(): number {
+    return this._y;
+  }
+
+  set y(value: number) {
+    this._y = value;
   }
 }

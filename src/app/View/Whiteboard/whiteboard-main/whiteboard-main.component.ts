@@ -108,15 +108,11 @@ export class WhiteboardMainComponent implements OnInit {
     this.minimapSyncService.initializePositionCalcService(this.paperProject);
     this.layerService.initializeDrawingLayerService(this.paperProject, this.contextMenuService);
     this.linkModeManagerService.initLinkModeManagerService(this.layerService.linkModeEventEmitter);
-    // TODO : Tracker Test Code
-    this.cursorTrackerService.on();
+    this.cursorTrackerService.initializeCursorTrackerService(this.infiniteCanvasService.zoomEventEmitter);
 
     this.paperProject.view.onMouseMove = (event) => {
-      this.debugingService.cursorX = event.point.x;
-      this.debugingService.cursorY = event.point.y;
-
-      // TODO : Tracker Test Code
-      this.cursorTrackerService.updateUser("AAA", event.point);
+      this.debugingService.cursorX = this.cursorTrackerService.currentCursorPosition.x = event.point.x;
+      this.debugingService.cursorY = this.cursorTrackerService.currentCursorPosition.y = event.point.y;
     };
 
     this.paperProject.activeLayer.onFrame = (event)=>{
@@ -124,10 +120,6 @@ export class WhiteboardMainComponent implements OnInit {
         this.minimapSyncService.syncMinimap();
         // TODO : Tracker Test Code
         this.cursorTrackerService.refreshPoint();
-      }
-      if(event.count%60 === 0) {
-        this.cursorTrackerService.updateUser("BBB", new Point(Math.random() * 500, Math.random() * 500));
-        this.cursorTrackerService.updateUser("CCC", new Point(Math.random() * 500, Math.random() * 500));
       }
     }
   }
