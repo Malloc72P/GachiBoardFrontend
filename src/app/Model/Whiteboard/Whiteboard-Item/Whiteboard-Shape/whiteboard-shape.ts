@@ -123,6 +123,7 @@ export class WhiteboardShape extends WhiteboardItem implements Editable{
   }
 
   destroyItem() {
+    super.destroyItem();
     if(this.linkPortMap){
       this.linkPortMap.forEach((value, key, map)=>{
         value.destroyPortAndLink();

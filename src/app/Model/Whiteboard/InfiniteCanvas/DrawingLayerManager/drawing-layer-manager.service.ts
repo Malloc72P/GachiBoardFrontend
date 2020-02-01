@@ -46,6 +46,7 @@ import {LinkerModeChangeEvent} from './LinkModeManagerService/LinkerModeChangeEv
 import {LinkerMode} from './LinkModeManagerService/LinkMode/linker-mode';
 import {SizeHandler} from '../../Whiteboard-Item/ItemAdjustor/ItemHandler/SizeHandler/size-handler';
 import {ItemHandler} from '../../Whiteboard-Item/ItemAdjustor/ItemHandler/item-handler';
+import {EditableItemGroup} from '../../Whiteboard-Item/ItemGroup/EditableItemGroup/editable-item-group';
 
 
 @Injectable({
@@ -173,7 +174,9 @@ export class DrawingLayerManagerService {
         case ItemLifeCycleEnum.CREATE:
           console.log("DrawingLayerManagerService >> wbItemLifeCycleEventEmitter >> CREATE");
           this.whiteboardItemArray.push(data.item);
-          this.drawingLayer.addChild(data.item.group);
+          if( !(data.item instanceof EditableItemGroup) ){
+            this.drawingLayer.addChild(data.item.group);
+          }
           break;
         case ItemLifeCycleEnum.MODIFY:
           console.log("DrawingLayerManagerService >> wbItemLifeCycleEventEmitter >> MODIFY : ",data.item);
@@ -232,6 +235,9 @@ export class DrawingLayerManagerService {
   private static isEditableRaster(type){
     return type === WhiteboardItemType.SIMPLE_RASTER;
   }
+  private static isEditableGroup(type){
+    return type === WhiteboardItemType.EDITABLE_GROUP;
+  }
   private static isEditableLink(type){
     return type === WhiteboardItemType.SIMPLE_ARROW_LINK
       || type === WhiteboardItemType.SIMPLE_LINE_LINK
@@ -287,6 +293,10 @@ export class DrawingLayerManagerService {
           return false;
       }
     }
+    else if(DrawingLayerManagerService.isEditableGroup(type)){
+      newWhiteboardItem = new EditableItemGroup(this.getWbId(),this);
+    }
+    return newWhiteboardItem
   }
   public isSelecting(){
     return this.globalSelectedGroup.getNumberOfChild() > 0;

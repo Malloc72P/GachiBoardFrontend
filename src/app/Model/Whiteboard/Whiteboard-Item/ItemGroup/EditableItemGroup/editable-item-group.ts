@@ -20,10 +20,38 @@ import Group = paper.Group;
 // @ts-ignore
 import Rectangle = paper.Rectangle;
 import {Editable} from '../../InterfaceEditable/editable';
+import {WhiteboardItemType} from '../../../../Helper/data-type-enum/data-type.enum';
+import {WhiteboardItem} from '../../whiteboard-item';
+import {ItemLifeCycleEnum, ItemLifeCycleEvent} from '../../WhiteboardItemLifeCycle/WhiteboardItemLifeCycle';
 
 export class EditableItemGroup extends ItemGroup implements Editable{
-  constructor(id, type, item:Item, layerService) {
-    super(id, type, item, layerService);
+  constructor(id, layerService) {
+    super(id, WhiteboardItemType.EDITABLE_GROUP, null, layerService);
+  }
+
+  public addItem(wbItem:WhiteboardItem){
+    if(wbItem.isGrouped){
+      wbItem.parentEdtGroup.destroyItem();
+    }
+    wbItem.isGrouped = true;
+    wbItem.parentEdtGroup = this;
+    this.wbItemGroup.splice(this.wbItemGroup.length, 0, wbItem);
+  }
+  public destroyItem() {
+    this.coreItem.remove();
+
+    this.wbItemGroup.forEach((value, index, array)=>{
+      value.isGrouped = false;
+      value.parentEdtGroup = null;
+    });
+
+    this.lifeCycleEventEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.DESTROY));
+  }
+
+  public pushAllChildIntoGSG(){
+    this.wbItemGroup.forEach((value, index, array)=>{
+      this.layerService.globalSelectedGroup.insertOneIntoSelection(value);
+    })
   }
 
 }

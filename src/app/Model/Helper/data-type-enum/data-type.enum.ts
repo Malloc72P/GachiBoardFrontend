@@ -20,6 +20,7 @@ export enum WhiteboardItemType {
   SIMPLE_ARROW_LINK,
   SIMPLE_DASHED_LINE_LINK,
   SIMPLE_LINE_LINK,
+  EDITABLE_GROUP,
 }
 
 export enum DataState {

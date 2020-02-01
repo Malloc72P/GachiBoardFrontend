@@ -148,6 +148,9 @@ export class LassoSelectorService {
   }
   private createLassoPath(point){
     let zoomFactor = this.infiniteCanvasService.zoomFactor;
+    if(this.newPath){
+      this.newPath.remove();
+    }
     this.newPath = new paper.Path({
       segments: [point],
       strokeColor: 'blue',

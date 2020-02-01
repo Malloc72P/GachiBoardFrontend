@@ -20,6 +20,8 @@ import {EditTextManagementService} from '../../EditTextManagement/edit-text-mana
 import {PointerModeEvent} from '../../Pointer/PointerModeEvent/pointer-mode-event';
 import {PointerMode} from '../../Pointer/pointer-mode-enum-service/pointer-mode-enum.service';
 import {PointerModeManagerService} from '../../Pointer/pointer-mode-manager-service/pointer-mode-manager.service';
+import {WhiteboardItemType} from '../../../Helper/data-type-enum/data-type.enum';
+import {EditableItemGroup} from '../../Whiteboard-Item/ItemGroup/EditableItemGroup/editable-item-group';
 
 @Injectable({
   providedIn: 'root'
@@ -155,6 +157,20 @@ export class ContextMenuService {
         break;
       case ContextMenu.ADD_IMAGE:
         this.addImage();
+        break;
+      case GroupContextMenu.GROUP:
+        let newEdtGroup:EditableItemGroup = this.layerService.addToDrawingLayer(null, WhiteboardItemType.EDITABLE_GROUP) as EditableItemGroup;
+        this.layerService.globalSelectedGroup.wbItemGroup.forEach((value, index, array)=>{
+          newEdtGroup.addItem(value);
+        });
+        this.layerService.globalSelectedGroup.extractAllFromSelection();
+        break;
+      case GroupContextMenu.UNGROUP:
+        let testWbItem = this.layerService.globalSelectedGroup.wbItemGroup[0];
+        if(testWbItem.isGrouped && testWbItem.parentEdtGroup){
+          testWbItem.parentEdtGroup.destroyItem();
+        }
+        this.layerService.globalSelectedGroup.extractAllFromSelection();
         break;
       default:
         break;

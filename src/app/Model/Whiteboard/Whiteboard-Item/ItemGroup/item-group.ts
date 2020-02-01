@@ -281,6 +281,7 @@ export class ItemGroup extends WhiteboardItem {
 
 
   destroyItem() {
+    super.destroyItem();
     //unGroup하는 작업 실시
     this.coreItem.remove();
     this.lifeCycleEventEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.DESTROY));

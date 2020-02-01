@@ -12,6 +12,8 @@ export enum RasterContextMenu {
 export enum GroupContextMenu {
   EDIT = "Edit",
   DELETE = "Delete",
+  GROUP = "Group",
+  UNGROUP = "Un Group"
 }
 
 export enum StrokeContextMenu {

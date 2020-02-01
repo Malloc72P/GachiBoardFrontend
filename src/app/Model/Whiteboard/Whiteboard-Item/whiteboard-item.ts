@@ -16,6 +16,7 @@ import {SelectEvent} from '../InfiniteCanvas/DrawingLayerManager/SelectEvent/sel
 import {SelectEventEnum} from '../InfiniteCanvas/DrawingLayerManager/SelectEventEnum/select-event.enum';
 import {SelectModeEnum} from '../InfiniteCanvas/DrawingLayerManager/SelectModeEnum/select-mode-enum.enum';
 import {MouseButtonEventEnum} from '../Pointer/MouseButtonEventEnum/mouse-button-event-enum.enum';
+import {EditableItemGroup} from './ItemGroup/EditableItemGroup/editable-item-group';
 
 export abstract class WhiteboardItem {
 
@@ -26,6 +27,9 @@ export abstract class WhiteboardItem {
   protected _coreItem:Item;
   protected _isSelected;
   protected _myItemAdjustor:ItemAdjustor;
+
+  private _isGrouped = false;
+  private _parentEdtGroup:EditableItemGroup = null;
 
   private _disableLinkHandler;
   private _longTouchTimer;
@@ -194,7 +198,12 @@ export abstract class WhiteboardItem {
       if(this.isSingleSelectMode()){
         this.layerService.globalSelectedGroup.extractAllFromSelection();
       }
-      this.layerService.globalSelectedGroup.insertOneIntoSelection(this);
+      if(this.isGrouped && this.parentEdtGroup){//해당 WbItem이 그룹화되어 있는 경우
+        this.parentEdtGroup.pushAllChildIntoGSG();
+      }
+      else{//해당 WbItem이 그룹화되어 있지 않은 경우(통상)
+        this.layerService.globalSelectedGroup.insertOneIntoSelection(this);
+      }
       this.isSelected = true;
     }
   }
@@ -216,7 +225,11 @@ export abstract class WhiteboardItem {
   public abstract notifyItemCreation();
   public abstract notifyItemModified();
   public abstract refreshItem();
-  public abstract destroyItem();
+  public destroyItem(){
+    if(this.isGrouped && this.parentEdtGroup){
+      this.parentEdtGroup.destroyItem();
+    }
+  }
 
   checkEditable(){
     let currentPointerMode = this.layerService.currentPointerMode;
@@ -367,5 +380,21 @@ export abstract class WhiteboardItem {
 
   set longTouchTimer(value) {
     this._longTouchTimer = value;
+  }
+
+  get isGrouped(): boolean {
+    return this._isGrouped;
+  }
+
+  set isGrouped(value: boolean) {
+    this._isGrouped = value;
+  }
+
+  get parentEdtGroup(): EditableItemGroup {
+    return this._parentEdtGroup;
+  }
+
+  set parentEdtGroup(value: EditableItemGroup) {
+    this._parentEdtGroup = value;
   }
 }
