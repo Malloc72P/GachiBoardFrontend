@@ -14,6 +14,10 @@ import {WhiteboardItem} from '../whiteboard-item';
 import {EventEmitter} from '@angular/core';
 import {ItemLifeCycleEnum, ItemLifeCycleEvent} from '../WhiteboardItemLifeCycle/WhiteboardItemLifeCycle';
 import {Editable} from '../InterfaceEditable/editable';
+import {WhiteboardItemDto} from '../../WhiteboardItemDto/whiteboard-item-dto';
+import {EditableStrokeDto} from '../../WhiteboardItemDto/EditableStrokeDto/editable-stroke-dto';
+import {GachiPointDto} from '../../WhiteboardItemDto/PointDto/gachi-point-dto';
+import {GachiColorDto} from '../../WhiteboardItemDto/ColorDto/gachi-color-dto';
 
 export abstract class EditableStroke extends WhiteboardItem implements Editable{
   private _segments: Array<Segment>;
@@ -50,6 +54,26 @@ export abstract class EditableStroke extends WhiteboardItem implements Editable{
     this.coreItem.remove();
     this.group.remove();
     this.lifeCycleEventEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.DESTROY));
+  }
+
+  public exportToDto(): EditableStrokeDto {
+    let wbItemDto =  super.exportToDto();
+    let edtStrokeDto: EditableStrokeDto;
+    let strokeObject:Path = this.coreItem as Path;
+    let strokeColor:GachiColorDto = new GachiColorDto(
+      strokeObject.strokeColor.red, strokeObject.strokeColor.green, strokeObject.strokeColor.blue, strokeObject.strokeColor.alpha
+    );
+
+    let segments = new Array<GachiPointDto>();
+    for(let i = segments.length-1 ; i >= 0; i--){
+      segments.push(new GachiPointDto(strokeObject.segments[i].point.x, strokeObject.segments[i].point.y))
+    }
+
+    edtStrokeDto = new EditableStrokeDto(
+      wbItemDto.id,wbItemDto.type,wbItemDto.center,
+      segments,strokeObject.strokeWidth,strokeColor,
+    );
+    return edtStrokeDto;
   }
 
   get segments(): Array<Segment> {

@@ -217,6 +217,12 @@ export class WhiteboardMainComponent implements OnInit {
           }
           this.minimapSyncService.syncMinimap();
         }
+        if(event.code === "KeyL"){
+          this.layerService.globalSelectedGroup.wbItemGroup.forEach((value, index, array)=>{
+            let WbItemDto = value.exportToDto();
+            console.log("WhiteboardMainComponent >> exportToDto >> wbItemDto : ",WbItemDto);
+          })
+        }
         break;
       default:
         break;

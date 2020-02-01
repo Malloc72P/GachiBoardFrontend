@@ -1,12 +1,12 @@
+import {GachiPointDto} from './PointDto/gachi-point-dto';
+
 export class WhiteboardItemDto {
   private _id;
-  private _group;
   private _type;
-  private _center;
+  private _center:GachiPointDto;
 
-  constructor(id, group, type, center) {
+  constructor(id, type, center) {
     this._id = id;
-    this._group = group;
     this._type = type;
     this._center = center;
   }
@@ -17,14 +17,6 @@ export class WhiteboardItemDto {
 
   set id(value) {
     this._id = value;
-  }
-
-  get group() {
-    return this._group;
-  }
-
-  set group(value) {
-    this._group = value;
   }
 
   get type() {

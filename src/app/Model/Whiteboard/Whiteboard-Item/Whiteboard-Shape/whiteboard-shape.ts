@@ -1,27 +1,13 @@
 import {WhiteboardItem} from '../whiteboard-item';
-import {PositionCalcService} from '../../PositionCalc/position-calc.service';
-import {EventEmitter} from '@angular/core';
 
 import * as paper from 'paper';
-// @ts-ignore
-import Path = paper.Path;
-// @ts-ignore
-import Point = paper.Point;
-// @ts-ignore
-import Item = paper.Item;
-// @ts-ignore
-import Segment = paper.Segment;
-// @ts-ignore
-import Color = paper.Color;
-// @ts-ignore
-import PointText = paper.PointText;
-// @ts-ignore
-import Group = paper.Group;
-// @ts-ignore
-import Rectangle = paper.Rectangle;
 import {LinkPort} from './LinkPort/link-port';
 import {LinkPortDirectionEnum} from './LinkPort/LinkPortDirectionEnum/link-port-direction-enum.enum';
 import {Editable} from '../InterfaceEditable/editable';
+import {WhiteboardShapeDto} from '../../WhiteboardItemDto/WhiteboardShapeDto/whiteboard-shape-dto';
+// @ts-ignore
+import Item = paper.Item;
+import {GachiColorDto} from '../../WhiteboardItemDto/ColorDto/gachi-color-dto';
 
 export class WhiteboardShape extends WhiteboardItem implements Editable{
   private _width: number;
@@ -130,6 +116,19 @@ export class WhiteboardShape extends WhiteboardItem implements Editable{
       })
     }
 
+  }
+  exportToDto(): WhiteboardShapeDto {
+    let wbItemDto = super.exportToDto();
+    let bounds = this.coreItem.bounds;
+    return new WhiteboardShapeDto(
+      wbItemDto.id, wbItemDto.type, wbItemDto.center,
+      bounds.width, bounds.height,
+      GachiColorDto.createColor(this.coreItem.strokeColor),
+      this.coreItem.strokeWidth,
+      GachiColorDto.createColor(this.coreItem.fillColor),
+      this.coreItem.opacity,
+      null,
+    )
   }
 
   get width(): number {

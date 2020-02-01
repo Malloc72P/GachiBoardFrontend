@@ -1,27 +1,26 @@
 import {WhiteboardItemDto} from '../whiteboard-item-dto';
 
 import * as paper from 'paper';
-// @ts-ignore
-import Point = paper.Point;
+import {GachiPointDto} from '../PointDto/gachi-point-dto';
 
 export class EditableStrokeDto extends WhiteboardItemDto{
-  private _segments:Array<Point>;
+  private _segments:Array<GachiPointDto>;
   private _strokeWidth;
   private _strokeColor;
 
 
-  constructor(id, group, type, center, segments: Array<Point>, strokeWidth, strokeColor) {
-    super(id, group, type, center);
+  constructor(id, type, center, segments: Array<GachiPointDto>, strokeWidth, strokeColor) {
+    super(id, type, center);
     this._segments = segments;
     this._strokeWidth = strokeWidth;
     this._strokeColor = strokeColor;
   }
 
-  get segments(): Array<Point> {
+  get segments(): Array<GachiPointDto> {
     return this._segments;
   }
 
-  set segments(value: Array<Point>) {
+  set segments(value: Array<GachiPointDto>) {
     this._segments = value;
   }
 

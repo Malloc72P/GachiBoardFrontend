@@ -1,6 +1,7 @@
 import {LinkPortDto} from './LinkPortDto/link-port-dto';
+import {WhiteboardItemDto} from '../whiteboard-item-dto';
 
-export class WhiteboardShapeDto {
+export class WhiteboardShapeDto extends WhiteboardItemDto{
   private _width;
   private _height;
   private _borderColor;
@@ -10,7 +11,8 @@ export class WhiteboardShapeDto {
   private _LinkPortsDto:Array<LinkPortDto>;
 
 
-  constructor(width, height, borderColor, borderWidth, fillColor, opacity, LinkPortsDto: Array<LinkPortDto>) {
+  constructor(id, type, center, width, height, borderColor, borderWidth, fillColor, opacity, LinkPortsDto: Array<LinkPortDto>) {
+    super(id, type, center);
     this._width = width;
     this._height = height;
     this._borderColor = borderColor;
@@ -19,7 +21,6 @@ export class WhiteboardShapeDto {
     this._opacity = opacity;
     this._LinkPortsDto = LinkPortsDto;
   }
-
 
   get width() {
     return this._width;
