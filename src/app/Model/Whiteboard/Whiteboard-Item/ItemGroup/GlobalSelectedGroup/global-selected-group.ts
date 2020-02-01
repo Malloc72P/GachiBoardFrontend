@@ -25,12 +25,15 @@ import {WhiteboardItem} from '../../whiteboard-item';
 import {SelectEvent} from '../../../InfiniteCanvas/DrawingLayerManager/SelectEvent/select-event';
 import {SelectEventEnum} from '../../../InfiniteCanvas/DrawingLayerManager/SelectEventEnum/select-event.enum';
 import {ItemLifeCycleEnum, ItemLifeCycleEvent} from '../../WhiteboardItemLifeCycle/WhiteboardItemLifeCycle';
+import {WhiteboardShape} from '../../Whiteboard-Shape/whiteboard-shape';
 
 export class GlobalSelectedGroup extends ItemGroup {
   private static globalSelectedGroup: GlobalSelectedGroup;
   private _currentSelectMode;
   private prevMode;
   private prevNumberOfChild;
+
+  private _isLinkSelected = false;
 
   private constructor(id, type, item: Item, layerService) {
     super(id, type, item, layerService);
@@ -64,6 +67,21 @@ export class GlobalSelectedGroup extends ItemGroup {
 
 
   //####################
+  public deleteSelectedLink(){
+    this.wbItemGroup.forEach((value, index, array)=>{
+      if(value instanceof WhiteboardShape){
+        value.linkPortMap.forEach((value, key, map)=>{
+          value.fromLinkList.forEach((value, index, array)=>{
+            if(value.isSelected){
+              value.destroyItem();
+            }
+          })
+        })
+      }
+    });
+    this.isLinkSelected = false;
+    this.extractAllFromSelection();
+  }
 
   public insertOneIntoSelection(wbItem: WhiteboardItem) {
     this.insertOneIntoGroup(wbItem);
@@ -79,5 +97,13 @@ export class GlobalSelectedGroup extends ItemGroup {
 
   destroyItem() {
     this.destroyAllFromGroup();
+  }
+
+  get isLinkSelected(): boolean {
+    return this._isLinkSelected;
+  }
+
+  set isLinkSelected(value: boolean) {
+    this._isLinkSelected = value;
   }
 }

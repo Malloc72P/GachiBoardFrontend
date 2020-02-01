@@ -13,6 +13,7 @@ export class HandlerOption {
   public static strokeWidth = 1;
   public static circleRadius = 10;
   public static strokeColor = "black";
+  public static fillColor = "skyblue";
   public static dashLength = 25;
 }
 

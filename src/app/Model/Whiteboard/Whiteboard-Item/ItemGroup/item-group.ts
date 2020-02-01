@@ -224,6 +224,11 @@ export class ItemGroup extends WhiteboardItem {
         //자식을 drawingLayer로 옮겨줌.
         let willBeExtract = this.wbItemGroup[i];
         willBeExtract.isSelected = false;
+        if(willBeExtract instanceof WhiteboardShape){
+          willBeExtract.linkPortMap.forEach((value, key, map)=>{
+            value.emitWbItemDeselected();
+          });
+        }
         drawingLayer.addChild(willBeExtract.group);
         this.wbItemGroup.splice(i, 1);
         this.resetMyItemAdjustor();
@@ -253,6 +258,11 @@ export class ItemGroup extends WhiteboardItem {
       //자식을 drawingLayer로 옮겨줌.
       let willBeExtract = this.wbItemGroup[i];
       willBeExtract.isSelected = false;
+      if(willBeExtract instanceof WhiteboardShape){
+        willBeExtract.linkPortMap.forEach((value, key, map)=>{
+          value.emitWbItemDeselected();
+        });
+      }
       drawingLayer.addChild(willBeExtract.group);
       willBeExtract.refreshItem();
     }

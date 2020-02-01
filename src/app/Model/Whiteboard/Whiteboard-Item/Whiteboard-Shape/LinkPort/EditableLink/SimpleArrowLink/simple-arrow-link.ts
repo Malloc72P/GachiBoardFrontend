@@ -75,7 +75,7 @@ export class SimpleArrowLink extends EditableLink{
   // ####
 
   // #### 실제 링크 메서드
-  public linkToWbShape(upPoint)  : EditableLink{
+  public linkToWbShape(upPoint) : EditableLink{
     let hitWbShape:WhiteboardShape = this.layerService.getHittedItem(upPoint) as WhiteboardShape;
 
     this.destroyTempLink();

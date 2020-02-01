@@ -66,6 +66,8 @@ export class DrawingLayerManagerService {
   private _whiteboardItemArray:Array<WhiteboardItem>;
   private _editableLinkArray:Array<EditableLink>;
 
+  private _isEditableLinkSelected:Boolean;
+
   private _idGenerator = 0;
   private _linkIdGenerator = 0;
 
@@ -556,6 +558,15 @@ export class DrawingLayerManagerService {
 
   set editableLinkArray(value: Array<EditableLink>) {
     this._editableLinkArray = value;
+  }
+
+
+  get isEditableLinkSelected(): Boolean {
+    return this._isEditableLinkSelected;
+  }
+
+  set isEditableLinkSelected(value: Boolean) {
+    this._isEditableLinkSelected = value;
   }
 
 //#####################################

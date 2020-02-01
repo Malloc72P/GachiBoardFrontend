@@ -1,7 +1,8 @@
 import {Editable} from '../../../InterfaceEditable/editable';
+import {LinkEventEnum} from './link-event-enum.enum';
 
 export class LinkEvent {
-  private _action;
+  private _action:LinkEventEnum;
   private _invokerItem;
 
   constructor(action, invokerItem) {

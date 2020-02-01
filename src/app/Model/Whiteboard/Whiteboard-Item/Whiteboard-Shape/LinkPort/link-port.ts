@@ -74,12 +74,22 @@ export class LinkPort {
 
     this.setMouseCallback();
   }
+  public emitWbItemDeselected(){
+    this.linkEventEmitter.emit(new LinkEvent(LinkEventEnum.WB_ITEM_DESELECTED, this));
+  }
   private setLinkEventHandler(){
     this.linkEventEmitter = new EventEmitter<any>();
     this.linkEventEmitter.subscribe((data:LinkEvent)=>{
       if(data.action === LinkEventEnum.LINK_DESTROYED){
         console.log("LinkPort >> linkEventEmitter >> data : ",data.invokerItem);
         this.owner.notifyItemModified();
+      }
+      else if(data.action === LinkEventEnum.LINK_CLICKED){
+        if(!this.owner.isSelected){
+          this.layerService.globalSelectedGroup.insertOneIntoSelection(this.owner);
+          this.layerService.globalSelectedGroup.isLinkSelected = true;
+          this.linkEventEmitter.emit(new LinkEvent(LinkEventEnum.WB_ITEM_SELECTED, this));
+        }
       }
     });
   }
@@ -221,6 +231,18 @@ export class LinkPort {
       default:
         break;
     }
+  }
+  public getSelectedLinkIdx(){
+    let children = this.fromLinkList;
+    for (let i = 0; i < children.length; i++) {
+      if(children[i].isSelected){
+        return i;
+      }
+    }
+    return -1;
+  }
+  public removeLinkById(id){
+    this.fromLinkList.splice(id, 1);
   }
 
   private refreshForZoomChange(){
