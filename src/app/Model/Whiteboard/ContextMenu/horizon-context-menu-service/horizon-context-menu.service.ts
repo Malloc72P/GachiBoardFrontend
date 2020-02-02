@@ -18,10 +18,11 @@ import {InfiniteCanvasService} from "../../InfiniteCanvas/infinite-canvas.servic
   providedIn: 'root'
 })
 export class HorizonContextMenuService {
-  private _isHidden = false;
-  private _leftTop = { x: 400 + "px", y: 400 + "px"};
+  private _isHidden = true;
+  private _subPanelHidden = new subPanelIsHidden();
+  private _centerTop = { x: 0, y: 0};
   private _menuItemArray = new Array<HorizonContextMenuActions>();
-  private globalSelectedGroup: GlobalSelectedGroup;
+  private _globalSelectedGroup: GlobalSelectedGroup;
 
   private menuWidth: number;
   private menuHeight: number;
@@ -32,7 +33,7 @@ export class HorizonContextMenuService {
   ) { }
 
   public initializeHorizonContextMenuService(globalSelectedGroup: GlobalSelectedGroup){
-    this.globalSelectedGroup = globalSelectedGroup;
+    this._globalSelectedGroup = globalSelectedGroup;
     this.infiniteCanvasService.zoomEventEmitter.subscribe((zoomEvent: ZoomEvent) => {
       if(zoomEvent.action === ZoomEventEnum.ZOOM_CHANGED) {
         setTimeout(() => {
@@ -43,18 +44,19 @@ export class HorizonContextMenuService {
   }
 
   public open() {
-    this.setMenuItem(this.instanceCheckItem(this.globalSelectedGroup.wbItemGroup));
-    this.setMenuPosition(this.globalSelectedGroup.group.bounds);
+    this.setMenuItem(this.instanceCheckItem(this._globalSelectedGroup.wbItemGroup));
+    this.setMenuPosition(this._globalSelectedGroup.group.bounds);
     this._isHidden = false;
     this.initMenuSizeValue();
   }
 
   public close() {
     this._isHidden = true;
+    this.subPanelHidden.hideAll();
   }
 
   public refreshPosition() {
-    this.setMenuPosition(this.globalSelectedGroup.group.bounds);
+    this.setMenuPosition(this._globalSelectedGroup.group.bounds);
   }
 
   // ################### Private Method #####################
@@ -100,13 +102,8 @@ export class HorizonContextMenuService {
   // #################### Menu Set ######################
 
   private setMenuPosition(bound: Rectangle) {
-    let point = {x: 0, y: 0};
-
-    this.setMenuVerticalPosition(point, bound);
-    this.setMenuHorizontalPosition(point, bound);
-
-    this.leftTop.x = point.x + "px";
-    this.leftTop.y = point.y + "px";
+    this.setMenuVerticalPosition(this.centerTop, bound);
+    this.setMenuHorizontalPosition(this.centerTop, bound);
   }
 
   private setMenuForShape() {
@@ -194,11 +191,57 @@ export class HorizonContextMenuService {
     return this._isHidden;
   }
 
-  get leftTop(): { x: string; y: string } {
-    return this._leftTop;
+  get centerTop(): { x: number; y: number } {
+    return this._centerTop;
   }
 
   get menuItemArray(): HorizonContextMenuActions[] {
     return this._menuItemArray;
+  }
+
+  get subPanelHidden(): subPanelIsHidden {
+    return this._subPanelHidden;
+  }
+
+  get globalSelectedGroup(): GlobalSelectedGroup {
+    return this._globalSelectedGroup;
+  }
+}
+
+export class subPanelIsHidden {
+  public subPanel = new Map<HorizonContextMenuActions, boolean>();
+
+  constructor() {
+    this.subPanel.set(HorizonContextMenuActions.LINE, true);
+  }
+
+  public isHidden(panel: HorizonContextMenuActions) {
+    return this.subPanel.get(panel);
+  }
+
+  public hideThis(panel: HorizonContextMenuActions) {
+    this.subPanel.set(panel, true);
+  }
+
+  public revealThis(panel: HorizonContextMenuActions) {
+    this.subPanel.set(panel, false);
+  }
+
+  public toggleThis(panel: HorizonContextMenuActions) {
+    this.subPanel.set(panel, !this.isHidden(panel));
+  }
+
+  public hideAll() {
+    this.subPanel.forEach((value, key) => {
+      this.subPanel.set(key, true);
+    });
+  }
+
+  public hideOther(panel: HorizonContextMenuActions) {
+    this.subPanel.forEach((value, key) => {
+      if(key !== panel) {
+        this.subPanel.set(key, true);
+      }
+    });
   }
 }

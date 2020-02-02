@@ -131,7 +131,7 @@ export class PositionCalcService {
   public advConvertLengthPaperToNg(length: number) {
     return length * this.getZoomState();
   }
-  public  advConvertLengthNgToPaper(length: number) {
+  public advConvertLengthNgToPaper(length: number) {
     return length / this.getZoomState();
   }
 

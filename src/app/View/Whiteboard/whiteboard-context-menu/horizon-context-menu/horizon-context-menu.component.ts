@@ -1,6 +1,14 @@
+import * as paper from 'paper';
+// @ts-ignore
+import Color = paper.Color;
+
 import {Component, OnInit} from '@angular/core';
 import {HorizonContextMenuActions} from "../../../../Model/Whiteboard/ContextMenu/horizon-context-menu-service/horizon-context-menu.enum";
-import {HorizonContextMenuService} from "../../../../Model/Whiteboard/ContextMenu/horizon-context-menu-service/horizon-context-menu.service";
+import {
+  HorizonContextMenuService,
+  subPanelIsHidden
+} from "../../../../Model/Whiteboard/ContextMenu/horizon-context-menu-service/horizon-context-menu.service";
+import {MatSliderChange} from "@angular/material/slider";
 
 
 @Component({
@@ -9,6 +17,14 @@ import {HorizonContextMenuService} from "../../../../Model/Whiteboard/ContextMen
   styleUrls: ['./horizon-context-menu.component.css']
 })
 export class HorizonContextMenuComponent implements OnInit {
+  // TODO : 유저 데이터에 있을 컬러를 colors 로 지정해주면 댐 -- 전역에서 사용하는 user-color
+  private colors = [
+    new Color(0, 0, 0),
+    new Color(255, 0, 0),
+    new Color(0, 255, 0),
+    new Color(0, 0, 255),
+  ];
+  private colorPickerPicked;
 
   constructor(
     private horizonContextMenuService: HorizonContextMenuService,
@@ -22,6 +38,7 @@ export class HorizonContextMenuComponent implements OnInit {
   private onClickMenuItem(action: HorizonContextMenuActions) {
     switch (action) {
       case HorizonContextMenuActions.LINE:
+        this.horizonContextMenuService.subPanelHidden.toggleThis(action);
         break;
       case HorizonContextMenuActions.FILL:
         break;
@@ -65,17 +82,41 @@ export class HorizonContextMenuComponent implements OnInit {
     }
   }
 
+  private colorToHTMLRGB(index: number) {
+    return this.colors[index].toCSS(false);
+  }
+
+  private onStrokeWidthChanged(event: MatSliderChange) {
+    this.horizonContextMenuService.globalSelectedGroup.wbItemGroup[0].coreItem.strokeWidth = event.value;
+  }
+
+  private onColorPickerClicked(index: number) {
+
+  }
+
+  private onAddColorClicked() {
+
+  }
+
   // ################ Getter & Setter #################
 
   get isHidden(): boolean {
     return this.horizonContextMenuService.isHidden;
   }
 
-  get leftTop(): { x: string; y: string } {
-    return this.horizonContextMenuService.leftTop;
+  get isHiddenSubPanel(): subPanelIsHidden {
+    return this.horizonContextMenuService.subPanelHidden;
+  }
+
+  get centerTop(): { x: number; y: number } {
+    return this.horizonContextMenuService.centerTop;
   }
 
   get menuItemArray(): HorizonContextMenuActions[] {
     return this.horizonContextMenuService.menuItemArray;
+  }
+
+  get horizonContextMenuActions(){
+    return HorizonContextMenuActions;
   }
 }
