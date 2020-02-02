@@ -66,6 +66,7 @@ import {NormalPointerService} from './Model/Whiteboard/Pointer/normal-pointer-se
 import {LinkModeManagerService} from './Model/Whiteboard/InfiniteCanvas/DrawingLayerManager/LinkModeManagerService/link-mode-manager.service';
 import {CursorTrackerService} from "./Model/Whiteboard/CursorTracker/cursor-tracker-service/cursor-tracker.service";
 import {CursorChangeService} from "./Model/Whiteboard/Pointer/cursor-change-service/cursor-change.service";
+import { HorizonContextMenuComponent } from './View/Whiteboard/whiteboard-context-menu/horizon-context-menu/horizon-context-menu.component';
 
 const appRoutes: Routes = [
   {
@@ -116,6 +117,7 @@ const appRoutes: Routes = [
     AreYouSurePanelComponent,
     ToolShapePanelComponent,
     WhiteboardContextMenuComponent,
+    HorizonContextMenuComponent,
   ],
   entryComponents: [
     KanbanComponent,

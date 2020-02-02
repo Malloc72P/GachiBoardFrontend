@@ -125,7 +125,6 @@ export class PositionCalcService {
   public advConvertPaperToNg(point: paper.Point) {
     point = this.canvasPointToNgPoint(point);
     point = this.restoreZoomWithPoint(point);
-    console.log("PositionCalcService >> advConvertPaperToNg >> point : ",point);
     return point.clone();
   }
 

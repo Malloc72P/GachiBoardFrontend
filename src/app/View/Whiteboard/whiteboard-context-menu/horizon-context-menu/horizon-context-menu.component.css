@@ -1,0 +1,21 @@
+.context-menu-wrapper {
+  position: absolute;
+  transform: translate(-50%, 0);
+}
+
+.context-panel-wrapper {
+  padding: 0;
+  white-space: nowrap;
+}
+
+.context-menu-button {
+  min-width: 36px;
+  min-height: 36px;
+  padding: 0;
+}
+
+.button-icon {
+  display: inline;
+  width: 24px;
+  height: 24px;
+}
