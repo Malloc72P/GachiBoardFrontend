@@ -82,6 +82,10 @@ export class PointerModeManagerService {
       this.onTouchEnd(event);
     });
     this.modeChange(PointerMode.POINTER);
+
+    this.layerService.pointerModeEventEmitter.subscribe((data:PointerModeEvent)=>{
+      this.lassoSelector.removeLassoPath();
+    })
   }
 
   private _toolPanelToggleGroupValue;

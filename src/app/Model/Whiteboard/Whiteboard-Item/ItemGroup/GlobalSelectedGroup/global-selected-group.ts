@@ -12,6 +12,7 @@ import {WhiteboardItemFactory} from '../../../InfiniteCanvas/WhiteboardItemFacto
 // @ts-ignore
 import Item = paper.Item;
 import {merge, Observable} from 'rxjs';
+import {EditableRaster} from '../../Whiteboard-Shape/editable-raster/editable-raster';
 
 export class GlobalSelectedGroup extends ItemGroup {
   private static globalSelectedGroup: GlobalSelectedGroup;
@@ -91,6 +92,10 @@ export class GlobalSelectedGroup extends ItemGroup {
           this.insertOneIntoSelection(data[i]);
         }
         this.relocateItemGroup(newPosition);
+        for (let i = 0; i < data.length; i++) {
+          data[i].group.opacity = 1;
+          data[i].coreItem.opacity = 1;
+        }
       });
     }
   }

@@ -70,8 +70,9 @@ export class WhiteboardItemFactory {
     console.log("WhiteboardItemFactory >> 1 >> 진입함");
     return new Observable((observer)=>{
       WhiteboardItemFactory.createWbItem(BUILD_MODE.CLONE, wbItemDto)
-        .subscribe((data)=>{
+        .subscribe((data:WhiteboardItem)=>{
           console.log("WhiteboardItemFactory >> 6 >> 진입함");
+          data.group.opacity = 0;
           observer.next(data);
         });
     });
@@ -203,6 +204,7 @@ export class WhiteboardItemFactory {
 
       let rasterObject: Raster;
       rasterObject = new Raster(rasterDto.imageBlob);
+      rasterObject.opacity = 0;
       rasterObject.onLoad = () => {
         let newEdtRaster:EditableRaster;
         console.log("WhiteboardItemFactory >> 4 >> 진입함");
