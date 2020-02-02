@@ -15,6 +15,9 @@ import Item = paper.Item;
 import {LinkPort} from '../../Whiteboard-Item/Whiteboard-Shape/LinkPort/link-port';
 import {PointCalculator} from "../point-calculator/point-calculator";
 import {WhiteboardShape} from "../../Whiteboard-Item/Whiteboard-Shape/whiteboard-shape";
+import {EditableItemGroup} from '../../Whiteboard-Item/ItemGroup/EditableItemGroup/editable-item-group';
+import {ItemGroup} from '../../Whiteboard-Item/ItemGroup/item-group';
+import {GlobalSelectedGroup} from '../../Whiteboard-Item/ItemGroup/GlobalSelectedGroup/global-selected-group';
 
 
 @Injectable({
@@ -26,10 +29,6 @@ export class LassoSelectorService {
   private currentProject: paper.Project;
   private strokeWidth = 1;
   private dashLength = 5;
-  private readonly LINK_PORT_HANDLER_DISTANCE = 25;
-
-  private readonly MOUSE_TOLERANCE = 5;
-  private readonly TOUCH_TOLERANCE = 10;
 
 
   constructor(
@@ -101,6 +100,7 @@ export class LassoSelectorService {
     } else {
       return;
     }
+    this.newPath.closePath();
 
     if(!this.layerService.isSelecting()){
       this.selectBound();
@@ -112,6 +112,9 @@ export class LassoSelectorService {
     let wbItems = this.layerService.whiteboardItemArray;
     for(let i = 0; i < wbItems.length; i++){
       let wbItem = wbItems[i];
+      if(wbItem instanceof GlobalSelectedGroup){
+        continue
+      }
       if(LassoSelectorService.isInside(this.newPath, wbItem.group)){
         this.layerService.globalSelectedGroup.insertOneIntoSelection(wbItem);
       }

@@ -174,8 +174,7 @@ export class InfiniteCanvasService {
   }//WhiteboardInitializer
 
   public moveWithDelta(delta){
-    // @ts-ignore
-    this.currentProject.view.scrollBy(delta);
+    this.currentProject.view.translate(new Point(-delta.x,-delta.y));
   }
 
   createGridLine(){
