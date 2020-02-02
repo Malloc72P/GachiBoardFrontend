@@ -11,6 +11,7 @@ import Segment = paper.Segment;
 // @ts-ignore
 import Color = paper.Color;
 import {WhiteboardItemType} from '../../../../../Helper/data-type-enum/data-type.enum';
+import {EditableCardDto} from '../../../../WhiteboardItemDto/WhiteboardShapeDto/EditableShapeDto/EditableCardDto/editable-card-dto';
 export class EditableCard extends EditableShape {
   private _borderRadius: number;
   private _tagList: Array<any>;    // TODO : 일단 ANY 지만 TAG 형식 지정되면 바꾸기
@@ -23,6 +24,14 @@ export class EditableCard extends EditableShape {
       editText,
       layerService);
 
+  }
+
+  exportToDto(): EditableCardDto {
+    let editableCardDto:EditableCardDto = super.exportToDto() as EditableCardDto;
+    editableCardDto.borderRadius = null;
+    editableCardDto.tagList = null;
+
+    return editableCardDto
   }
 
   get borderRadius(): number {

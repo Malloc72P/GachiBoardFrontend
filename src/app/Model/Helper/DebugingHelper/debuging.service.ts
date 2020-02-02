@@ -58,7 +58,7 @@ export class DebugingService {
   public logDrawingLayer(){
     console.log("\n\nWbItem Array=============\n");
     this.drawingLayerManagerService.whiteboardItemArray.forEach((value, index, array)=>{
-      console.log("DebugingService >> logDrawingLayer >> WbItem : ",value);
+      console.log("DebugingService >> logDrawingLayer >> WbItem < "+value.id+" > : ",value);
     });
     console.log("\n\n");
 

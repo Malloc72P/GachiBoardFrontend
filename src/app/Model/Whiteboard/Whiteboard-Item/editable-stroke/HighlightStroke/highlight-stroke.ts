@@ -16,11 +16,7 @@ export class HighlightStroke extends EditableStroke {
   }
 
   public exportToDto(): HighlightStrokeDto {
-    let edtStrokeDto = super.exportToDto();
-    return new HighlightStrokeDto(
-      edtStrokeDto.id, edtStrokeDto.type, edtStrokeDto.center,
-      edtStrokeDto.segments, edtStrokeDto.strokeWidth, edtStrokeDto.strokeColor, this.opacity
-    );
+    return super.exportToDto() as HighlightStrokeDto;
   }
 
   get opacity(): number {

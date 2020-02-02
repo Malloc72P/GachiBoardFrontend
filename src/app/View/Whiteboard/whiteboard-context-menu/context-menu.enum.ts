@@ -13,7 +13,9 @@ export enum GroupContextMenu {
   EDIT = "Edit",
   DELETE = "Delete",
   GROUP = "Group",
-  UNGROUP = "Un Group"
+  UNGROUP = "Un Group",
+  COPY = "copy",
+  PASTE = "paste",
 }
 
 export enum StrokeContextMenu {
@@ -22,4 +24,5 @@ export enum StrokeContextMenu {
 
 export enum ContextMenu {
   ADD_IMAGE = "Add image",
+  PASTE = "paste",
 }

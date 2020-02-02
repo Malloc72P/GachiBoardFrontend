@@ -1,9 +1,10 @@
 import {ItemGroupDto} from '../item-group-dto';
 import {WhiteboardItemDto} from '../../whiteboard-item-dto';
+import {GachiPointDto} from '../../PointDto/gachi-point-dto';
 
 export class EditableItemGroupDto extends ItemGroupDto{
 
-  constructor(id, group, type, center, wbItemGroup: Array<WhiteboardItemDto>) {
-    super(id, group, type, center, wbItemGroup);
+  constructor(id, type, center: GachiPointDto, isGrouped, parentEdtGroupId, wbItemIdGroup: Array<number>) {
+    super(id, type, center, isGrouped, parentEdtGroupId, wbItemIdGroup);
   }
 }

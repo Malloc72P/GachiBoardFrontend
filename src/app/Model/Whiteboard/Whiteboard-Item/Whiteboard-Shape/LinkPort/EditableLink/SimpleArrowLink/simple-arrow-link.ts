@@ -9,6 +9,9 @@ import * as paper from 'paper';
 import Path = paper.Path;
 // @ts-ignore
 import Point = paper.Point;
+import {SimpleArrowLinkDto} from '../../../../../WhiteboardItemDto/WhiteboardShapeDto/LinkPortDto/EditableLinkDto/SimpleArrowLinkDto/simple-arrow-link-dto';
+import {WhiteboardItemType} from '../../../../../../Helper/data-type-enum/data-type.enum';
+import {SimpleLineLinkDto} from '../../../../../WhiteboardItemDto/WhiteboardShapeDto/LinkPortDto/EditableLinkDto/SimpleLineLinkDto/simple-line-link-dto';
 
 enum  ArrowSegmentEnum{
   ENTRY_POINT,
@@ -23,7 +26,7 @@ export class SimpleArrowLink extends EditableLink{
   private readonly normalizeFactor = 25;
 
   constructor(fromLinkPort: LinkPort, strokeColor?, strokeWidth?, fillColor?, isDashed? ) {
-    super(fromLinkPort, strokeColor, strokeWidth, fillColor, isDashed);
+    super(WhiteboardItemType.SIMPLE_ARROW_LINK, fromLinkPort, strokeColor, strokeWidth, fillColor, isDashed);
   }
 
   // #### 링크객체 생성 메서드 오버라이드
@@ -144,4 +147,9 @@ export class SimpleArrowLink extends EditableLink{
     }
   }
 
+  exportToDto(): SimpleArrowLinkDto {
+    let simpleArrowLinkDto:SimpleArrowLinkDto = super.exportToDto() as SimpleArrowLinkDto;
+    simpleArrowLinkDto.normalizeFactor = this.normalizeFactor;
+    return simpleArrowLinkDto
+  }
 }

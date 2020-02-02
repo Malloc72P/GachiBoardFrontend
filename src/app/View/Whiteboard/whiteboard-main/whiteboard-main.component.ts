@@ -29,6 +29,8 @@ import {ContextMenuService} from "../../../Model/Whiteboard/ContextMenu/context-
 import {DrawingLayerManagerService} from '../../../Model/Whiteboard/InfiniteCanvas/DrawingLayerManager/drawing-layer-manager.service';
 import {LinkModeManagerService} from '../../../Model/Whiteboard/InfiniteCanvas/DrawingLayerManager/LinkModeManagerService/link-mode-manager.service';
 import {CursorTrackerService} from "../../../Model/Whiteboard/CursorTracker/cursor-tracker-service/cursor-tracker.service";
+import {WhiteboardItemDto} from '../../../Model/Whiteboard/WhiteboardItemDto/whiteboard-item-dto';
+import {WhiteboardItemFactory} from '../../../Model/Whiteboard/InfiniteCanvas/WhiteboardItemFactory/whiteboard-item-factory';
 
 @Component({
   selector: 'app-whiteboard-main',
@@ -111,6 +113,8 @@ export class WhiteboardMainComponent implements OnInit {
     this.layerService.initializeDrawingLayerService(this.whiteboardPaperProject, this.contextMenuService);
     this.linkModeManagerService.initLinkModeManagerService(this.layerService.linkModeEventEmitter);
 
+    WhiteboardItemFactory.initWhiteboardItemFactory(this.layerService);
+
     // TODO : Tracker Test Code
     // 미안 매번 끄는거 너무 귀찮아
     //this.cursorTrackerService.on();
@@ -180,23 +184,36 @@ export class WhiteboardMainComponent implements OnInit {
       case "KeyR":
         document.getElementById(PointerMode[PointerMode.LASSO_SELECTOR]).click();
         break;
-      case "KeyZ":
+      case "KeyU":
         this.linkModeManagerService.setDefaultLineLinkerMode();
         break;
-      case "KeyX":
-        this.linkModeManagerService.setDefaultDashedLineLinkerMode();
-        this.debugingService.logDrawingLayer();
-        break;
-      case "KeyC":
+      case "KeyI":
         this.linkModeManagerService.setDefaultArrowLinkerMode();
-        this.debugingService.logDrawingLayer();
         break;
-      case "KeyV":
+      case "KeyO":
+        this.linkModeManagerService.setDefaultDashedLineLinkerMode();
+        break;
+      case "KeyP":
         this.linkModeManagerService.setDefaultDasshedArrowLinkerMode();
+        break;
+      case "Slash":
         this.debugingService.logDrawingLayer();
         break;
       default:
         break;
+    }
+
+    if(event.ctrlKey){//컨트롤 필요한 단축키 처리
+      let gsg = this.layerService.globalSelectedGroup;
+      switch (event.code) {
+        case "KeyC":
+          gsg.doCopy();
+          break;
+        case "KeyV":
+          gsg.doPaste(new Point(this.debugingService.cursorX, this.debugingService.cursorY));
+          //TODO 좌표 얻는 출처를 상현이의 커밋쪽을 기준으로 수정해야 함.
+          break;
+      }
     }
 
     // 모드 귀속
@@ -219,9 +236,13 @@ export class WhiteboardMainComponent implements OnInit {
         }
         if(event.code === "KeyL"){
           this.layerService.globalSelectedGroup.wbItemGroup.forEach((value, index, array)=>{
-            let WbItemDto = value.exportToDto();
-            console.log("WhiteboardMainComponent >> exportToDto >> wbItemDto : ",WbItemDto);
-          })
+            let wbItemDto:WhiteboardItemDto = value.exportToDto();
+            console.log("WhiteboardMainComponent >> exportToDto >> wbItemDto : ",wbItemDto);
+            if(value.isGrouped){
+              let groupDto = value.parentEdtGroup.exportToDto();
+              console.log("WhiteboardMainComponent >> exportToDto >> groupDto : ",groupDto);
+            }
+          });
         }
         break;
       default:

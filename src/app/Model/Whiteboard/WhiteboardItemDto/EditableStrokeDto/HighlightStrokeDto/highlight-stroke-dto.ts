@@ -6,18 +6,8 @@ import {EditableStrokeDto} from '../editable-stroke-dto';
 import {GachiPointDto} from '../../PointDto/gachi-point-dto';
 
 export class HighlightStrokeDto extends EditableStrokeDto{
-  private _opacity;
-
-  constructor(id, type, center, segments: Array<GachiPointDto>, strokeWidth, strokeColor, opacity) {
-    super(id, type, center, segments, strokeWidth, strokeColor);
-    this._opacity = opacity;
+  constructor(id, type, center: GachiPointDto, isGrouped, parentEdtGroupId, segments: Array<GachiPointDto>, strokeWidth, strokeColor) {
+    super(id, type, center, isGrouped, parentEdtGroupId, segments, strokeWidth, strokeColor);
   }
 
-  get opacity() {
-    return this._opacity;
-  }
-
-  set opacity(value) {
-    this._opacity = value;
-  }
 }

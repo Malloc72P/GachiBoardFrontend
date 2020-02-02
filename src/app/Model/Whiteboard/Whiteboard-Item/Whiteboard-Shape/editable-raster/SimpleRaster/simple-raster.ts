@@ -14,10 +14,16 @@ import Color = paper.Color;
 import Raster = paper.Raster;
 import {PositionCalcService} from '../../../../PositionCalc/position-calc.service';
 import {WhiteboardItemType} from '../../../../../Helper/data-type-enum/data-type.enum';
+import {EditableRasterDto} from '../../../../WhiteboardItemDto/WhiteboardShapeDto/EditableRasterDto/editable-raster-dto';
+import {SimpleRasterDto} from '../../../../WhiteboardItemDto/WhiteboardShapeDto/EditableRasterDto/SimpleRasterDto/simple-raster-dto';
 export class SimpleRaster extends EditableRaster{
-  constructor(id, item:Raster, layerService) {
+  constructor(id, item, layerService) {
     super(id, WhiteboardItemType.SIMPLE_RASTER, item, layerService);
 
+  }
+
+  public exportToDto(): SimpleRasterDto {
+    return super.exportToDto() as SimpleRasterDto;
   }
 
 }

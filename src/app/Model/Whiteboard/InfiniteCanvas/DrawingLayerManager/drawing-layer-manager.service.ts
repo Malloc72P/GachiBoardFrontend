@@ -241,7 +241,6 @@ export class DrawingLayerManagerService {
   private static isEditableLink(type){
     return type === WhiteboardItemType.SIMPLE_ARROW_LINK
       || type === WhiteboardItemType.SIMPLE_LINE_LINK
-      || type === WhiteboardItemType.SIMPLE_DASHED_LINE_LINK
   }
 
   public addToDrawingLayer(item, type, ...extras){
@@ -261,9 +260,7 @@ export class DrawingLayerManagerService {
       }
     }
     else if(DrawingLayerManagerService.isEditableRaster(type)){
-      console.log("DrawingLayerManagerService >> addToDrawingLayer >> 진입함");
       newWhiteboardItem = new SimpleRaster(this.getWbId(), item, this);
-      console.log("DrawingLayerManagerService >> addToDrawingLayer >> newWhiteboardItem : ",newWhiteboardItem);
     }
     else if(DrawingLayerManagerService.isEditableShape(type)){
       let editText:PointText      = extras[0];
@@ -304,9 +301,17 @@ export class DrawingLayerManagerService {
 
 
   //##### 화이트보드 아이템을 찾는 메서드 #######
-  public getItemById( paperId ){
+  public getItemById( targetId ){
     //let found = this.findItemById(paperId);
-    let found = this.drawingLayer.getItem({id : paperId});
+    let found = null;
+    let children = this.whiteboardItemArray;
+
+    for(let i = 0 ; i < children.length; i++){
+      let currItem = children[i];
+      if(currItem.id === targetId ){
+        return currItem;
+      }
+    }
     return found;
   }
   public indexOfWhiteboardArray(id){

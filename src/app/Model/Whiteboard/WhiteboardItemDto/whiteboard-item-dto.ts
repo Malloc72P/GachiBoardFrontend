@@ -5,10 +5,15 @@ export class WhiteboardItemDto {
   private _type;
   private _center:GachiPointDto;
 
-  constructor(id, type, center) {
+  private _isGrouped;
+  private _parentEdtGroupId;
+
+  constructor(id, type, center: GachiPointDto, isGrouped, parentEdtGroupId) {
     this._id = id;
     this._type = type;
     this._center = center;
+    this._isGrouped = isGrouped;
+    this._parentEdtGroupId = parentEdtGroupId;
   }
 
   get id() {
@@ -33,5 +38,21 @@ export class WhiteboardItemDto {
 
   set center(value) {
     this._center = value;
+  }
+
+  get isGrouped() {
+    return this._isGrouped;
+  }
+
+  set isGrouped(value) {
+    this._isGrouped = value;
+  }
+
+  get parentEdtGroupId() {
+    return this._parentEdtGroupId;
+  }
+
+  set parentEdtGroupId(value) {
+    this._parentEdtGroupId = value;
   }
 }

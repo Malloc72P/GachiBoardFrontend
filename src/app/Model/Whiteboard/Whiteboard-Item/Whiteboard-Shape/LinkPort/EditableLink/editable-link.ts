@@ -22,9 +22,14 @@ import {MouseButtonEventEnum} from '../../../../Pointer/MouseButtonEventEnum/mou
 import {LinkAdjustorPositionEnum} from './linkAdjustorPositionEnum/link-adjustor-position-enum.enum';
 import {HandlerOption, ItemAdjustor} from '../../../ItemAdjustor/item-adjustor';
 import {WhiteboardShape} from '../../whiteboard-shape';
+import {WhiteboardShapeDto} from '../../../../WhiteboardItemDto/WhiteboardShapeDto/whiteboard-shape-dto';
+import {GachiColorDto} from '../../../../WhiteboardItemDto/ColorDto/gachi-color-dto';
+import {EditableLinkDto} from '../../../../WhiteboardItemDto/WhiteboardShapeDto/LinkPortDto/EditableLinkDto/editable-link-dto';
+import {WhiteboardItemType} from '../../../../../Helper/data-type-enum/data-type.enum';
 
 export abstract class EditableLink implements Editable{
   private _id;
+  private _type;
   private _linkObject:Path;
   private _tempLinkPath:Path;
   private _fromLinkPort:LinkPort;
@@ -53,11 +58,13 @@ export abstract class EditableLink implements Editable{
 
   protected linkAdjustors:Map<any, Circle>;
 
-  protected constructor(fromLinkPort: LinkPort, strokeColor?, strokeWidth?, fillColor?, isDashed? ) {
+  protected constructor(type, fromLinkPort: LinkPort, strokeColor?, strokeWidth?, fillColor?, isDashed?) {
     strokeColor   = (strokeColor) ? (strokeColor) : (LinkerColorEnum.BLACK);
     strokeWidth   = (strokeWidth) ? (strokeWidth) : (LinkerStrokeWidthLevelEnum.LEVEL_1);
     fillColor     = (fillColor)   ? (fillColor)   : (LinkerColorEnum.BLACK);
     isDashed      = (isDashed)    ? (isDashed)     : (false);
+
+    this._type = type;
 
     this.linkAdjustors = new Map<any, Circle>();
 
@@ -245,6 +252,24 @@ export abstract class EditableLink implements Editable{
   }
   // ####
 
+  exportToDto(): EditableLinkDto {
+    return new EditableLinkDto(
+      this.id,
+      this.type,
+      this.fromLinkPort.owner.id,
+      this.fromLinkPort.direction,
+      this.toLinkPort.owner.id,
+      this.toLinkPort.direction,
+      this.isDashed,
+      this.dashLength,
+      GachiColorDto.createColor(this.linkObject.strokeColor),
+      this.linkObject.strokeWidth,
+      GachiColorDto.createColor(this.linkObject.fillColor),
+      null,
+    );
+  }
+
+
   get linkObject(): paper.Path {
     return this._linkObject;
   }
@@ -391,5 +416,13 @@ export abstract class EditableLink implements Editable{
 
   set isSelected(value: boolean) {
     this._isSelected = value;
+  }
+
+  get type() {
+    return this._type;
+  }
+
+  set type(value) {
+    this._type = value;
   }
 }

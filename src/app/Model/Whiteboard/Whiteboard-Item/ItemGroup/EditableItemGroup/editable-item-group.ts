@@ -23,10 +23,12 @@ import {Editable} from '../../InterfaceEditable/editable';
 import {WhiteboardItemType} from '../../../../Helper/data-type-enum/data-type.enum';
 import {WhiteboardItem} from '../../whiteboard-item';
 import {ItemLifeCycleEnum, ItemLifeCycleEvent} from '../../WhiteboardItemLifeCycle/WhiteboardItemLifeCycle';
+import {EditableItemGroupDto} from '../../../WhiteboardItemDto/ItemGroupDto/EditableItemGroupDto/editable-item-group-dto';
 
 export class EditableItemGroup extends ItemGroup implements Editable{
   constructor(id, layerService) {
     super(id, WhiteboardItemType.EDITABLE_GROUP, null, layerService);
+    this.notifyItemCreation();
   }
 
   public addItem(wbItem:WhiteboardItem){
@@ -52,6 +54,10 @@ export class EditableItemGroup extends ItemGroup implements Editable{
     this.wbItemGroup.forEach((value, index, array)=>{
       this.layerService.globalSelectedGroup.insertOneIntoSelection(value);
     })
+  }
+
+  exportToDto(): EditableItemGroupDto {
+    return super.exportToDto() as EditableItemGroupDto;
   }
 
 }

@@ -8,6 +8,7 @@ import {WhiteboardShapeDto} from '../../WhiteboardItemDto/WhiteboardShapeDto/whi
 // @ts-ignore
 import Item = paper.Item;
 import {GachiColorDto} from '../../WhiteboardItemDto/ColorDto/gachi-color-dto';
+import {LinkPortDto} from '../../WhiteboardItemDto/WhiteboardShapeDto/LinkPortDto/link-port-dto';
 
 export class WhiteboardShape extends WhiteboardItem implements Editable{
   private _width: number;
@@ -118,17 +119,23 @@ export class WhiteboardShape extends WhiteboardItem implements Editable{
 
   }
   exportToDto(): WhiteboardShapeDto {
-    let wbItemDto = super.exportToDto();
+    let wbShapeDto:WhiteboardShapeDto = super.exportToDto() as WhiteboardShapeDto;
+
     let bounds = this.coreItem.bounds;
-    return new WhiteboardShapeDto(
-      wbItemDto.id, wbItemDto.type, wbItemDto.center,
-      bounds.width, bounds.height,
-      GachiColorDto.createColor(this.coreItem.strokeColor),
-      this.coreItem.strokeWidth,
-      GachiColorDto.createColor(this.coreItem.fillColor),
-      this.coreItem.opacity,
-      null,
-    )
+    let linkPortsDto = new Array<LinkPortDto>();
+    this.linkPortMap.forEach((value, key, map)=>{
+      linkPortsDto.push(value.exportToDto());
+    });
+
+    wbShapeDto.width = bounds.width;
+    wbShapeDto.height = bounds.height;
+    wbShapeDto.borderColor = GachiColorDto.createColor(this.coreItem.strokeColor);
+    wbShapeDto.borderWidth = this.coreItem.strokeWidth;
+    wbShapeDto.fillColor = GachiColorDto.createColor(this.coreItem.fillColor);
+    wbShapeDto.opacity = this.coreItem.opacity;
+    wbShapeDto.linkPortsDto = linkPortsDto;
+
+    return wbShapeDto;
   }
 
   get width(): number {

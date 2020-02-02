@@ -1,18 +1,21 @@
 import {WhiteboardItemDto} from '../whiteboard-item-dto';
+import {GachiPointDto} from '../PointDto/gachi-point-dto';
 
 export class ItemGroupDto extends WhiteboardItemDto{
-  private _wbItemGroup:Array<WhiteboardItemDto>;
+  private _wbItemIdGroup:Array<number>;
 
-  constructor(id, group, type, center, wbItemGroup: Array<WhiteboardItemDto>) {
-    super(id, group, type, center);
-    this._wbItemGroup = wbItemGroup;
+
+  constructor(id, type, center: GachiPointDto, isGrouped, parentEdtGroupId, wbItemIdGroup: Array<number>) {
+    super(id, type, center, isGrouped, parentEdtGroupId);
+    this._wbItemIdGroup = wbItemIdGroup;
   }
 
-  get wbItemGroup(): Array<WhiteboardItemDto> {
-    return this._wbItemGroup;
+  get wbItemIdGroup(): Array<number> {
+    return this._wbItemIdGroup;
   }
 
-  set wbItemGroup(value: Array<WhiteboardItemDto>) {
-    this._wbItemGroup = value;
+  set wbItemIdGroup(value: Array<number>) {
+    this._wbItemIdGroup = value;
   }
 }
+

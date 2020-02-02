@@ -17,14 +17,14 @@ import {EditableStrokeDto} from '../../../WhiteboardItemDto/EditableStrokeDto/ed
 import {SimpleStrokeDto} from '../../../WhiteboardItemDto/EditableStrokeDto/SimpleStrokeDto/simple-stroke-dto';
 
 export class SimpleStroke extends EditableStroke {
-  constructor(id, path:Path, posCalcService) {
+  constructor(id, path:Path, layerService) {
     super(id, WhiteboardItemType.SIMPLE_STROKE,
       path,
-      posCalcService);
+      layerService);
   }
 
   public exportToDto(): SimpleStrokeDto {
-    return super.exportToDto();
+    return super.exportToDto() as SimpleStrokeDto;
   }
 
 }

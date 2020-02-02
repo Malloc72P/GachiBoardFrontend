@@ -24,7 +24,7 @@ export abstract class WhiteboardItem {
 
   protected _id;
   protected _type;
-  protected _group;
+  protected _group:Group;
   protected _topLeft: Point;
   protected _coreItem:Item;
   protected _isSelected;
@@ -65,7 +65,6 @@ export abstract class WhiteboardItem {
 
     this.lifeCycleEventEmitter = this.layerService.wbItemLifeCycleEventEmitter;
     this.zoomEventEmitter = this.layerService.infiniteCanvasService.zoomEventEmitter;
-    this.notifyItemCreation();
 
     this.layerService.selectModeEventEmitter.subscribe((data:SelectEvent)=>{
       this.onSelectEvent(data);
@@ -267,8 +266,20 @@ export abstract class WhiteboardItem {
   public exportToDto(){
     let wbItemDto: WhiteboardItemDto;
     let gachiCenterPoint = new GachiPointDto(this.group.position.x, this.group.position.y);
+
+    let parentEdtGroupId;
+    if(this.parentEdtGroup){
+      parentEdtGroupId = this.parentEdtGroup.id
+    }else{
+      parentEdtGroupId = -1;
+    }
+
     wbItemDto = new WhiteboardItemDto(
-        this.id,this.type,gachiCenterPoint
+      this.id,
+      this.type,
+      gachiCenterPoint,
+      this.isGrouped,
+      parentEdtGroupId
     );
     return wbItemDto;
   }

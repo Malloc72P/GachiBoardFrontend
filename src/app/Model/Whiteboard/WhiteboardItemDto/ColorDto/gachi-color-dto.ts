@@ -27,6 +27,9 @@ export class GachiColorDto {
   }
 
   public static createColor(color:Color){
+    if(!color){
+      return new GachiColorDto(0,0,0,1);
+    }
     return new GachiColorDto(
       color.red, color.green, color.blue, color.alpha
     );

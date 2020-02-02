@@ -16,13 +16,32 @@ import {EventEmitter} from '@angular/core';
 import {WhiteboardShape} from '../whiteboard-shape';
 import {ItemLifeCycleEnum, ItemLifeCycleEvent} from '../../WhiteboardItemLifeCycle/WhiteboardItemLifeCycle';
 import {PositionCalcService} from '../../../PositionCalc/position-calc.service';
+import {EditableRasterDto} from '../../../WhiteboardItemDto/WhiteboardShapeDto/EditableRasterDto/editable-raster-dto';
+import {EditableShapeDto} from '../../../WhiteboardItemDto/WhiteboardShapeDto/EditableShapeDto/editable-shape-dto';
+import {WhiteboardItemType} from '../../../../Helper/data-type-enum/data-type.enum';
 
 export abstract class EditableRaster extends WhiteboardShape {
   private _imageBlob: string;
-  protected constructor(id, type, item:Raster,layerService) {
+  protected constructor(id, type, item,layerService) {
     super(id, type, item, layerService);
     // @ts-ignore
-    this.imageBlob = item.image.src;
+    if(item instanceof Raster){
+      // @ts-ignore
+      this.imageBlob = item.image.src;
+    }else this.imageBlob = null;
+    this.notifyItemCreation();
+  }
+
+  public doLazyImageLoad(rasterObject){
+    let willBeDeleted = this.coreItem;
+    if (willBeDeleted) {
+      willBeDeleted.remove();
+    }
+
+    this.coreItem = rasterObject;
+
+    this.group.addChild(this.coreItem);
+    this.imageBlob = rasterObject.image.src
   }
 
   notifyItemCreation() {
@@ -48,6 +67,13 @@ export abstract class EditableRaster extends WhiteboardShape {
     this.coreItem.remove();
     this.group.remove();
     this.lifeCycleEventEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.DESTROY));
+  }
+
+  exportToDto(): EditableRasterDto {
+    let editableRasterDto:EditableRasterDto =  super.exportToDto() as EditableRasterDto;
+    editableRasterDto.imageBlob = this.imageBlob;
+    return editableRasterDto;
+
   }
 
 

@@ -25,6 +25,7 @@ import {EditableStroke} from '../editable-stroke/editable-stroke';
 import {TextStyle} from '../../Pointer/shape-service/text-style';
 import {EditableShape} from '../Whiteboard-Shape/EditableShape/editable-shape';
 import {WhiteboardShape} from '../Whiteboard-Shape/whiteboard-shape';
+import {ItemGroupDto} from '../../WhiteboardItemDto/ItemGroupDto/item-group-dto';
 
 export class ItemGroup extends WhiteboardItem {
   private _wbItemGroup: Array<WhiteboardItem>;
@@ -141,7 +142,9 @@ export class ItemGroup extends WhiteboardItem {
       return;
     }
     //this.deactivateSelectedMode();
-    this.myItemAdjustor.disable();
+    if(this.myItemAdjustor){
+      this.myItemAdjustor.disable();
+    }
     this.calcCurrentDistance(event);
     let currentPointerMode = this.layerService.currentPointerMode;
     this.calcCurrentDistance(event);
@@ -202,7 +205,15 @@ export class ItemGroup extends WhiteboardItem {
   }
   private retractGroup(){
     this.backgroundRect.remove();
+    // @ts-ignore
     this.group.bounds = new Rectangle(new Point(0,0), new Point(0,0));
+  }
+
+  public relocateItemGroup(newPosition){
+    if(this.myItemAdjustor){
+      this.group.position = newPosition;
+      this.myItemAdjustor.refreshItemAdjustorSize();
+    }
   }
 
   public insertOneIntoGroup(wbItem: WhiteboardItem) {
@@ -307,6 +318,17 @@ export class ItemGroup extends WhiteboardItem {
 
   public notifyItemModified() {
     this.lifeCycleEventEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.MODIFY));
+  }
+
+  exportToDto(): ItemGroupDto {
+    let itemGroupDto:ItemGroupDto = super.exportToDto() as ItemGroupDto;
+    itemGroupDto.wbItemIdGroup = new Array<number>();
+
+    for (let i = 0; i < this.wbItemGroup.length; i++) {
+      itemGroupDto.wbItemIdGroup.push(this.wbItemGroup[i].id);
+    }
+
+    return itemGroupDto
   }
 
   public refreshItem() {

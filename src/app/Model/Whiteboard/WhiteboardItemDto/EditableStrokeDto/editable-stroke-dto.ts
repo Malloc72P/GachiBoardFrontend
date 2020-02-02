@@ -8,9 +8,8 @@ export class EditableStrokeDto extends WhiteboardItemDto{
   private _strokeWidth;
   private _strokeColor;
 
-
-  constructor(id, type, center, segments: Array<GachiPointDto>, strokeWidth, strokeColor) {
-    super(id, type, center);
+  constructor(id, type, center: GachiPointDto, isGrouped, parentEdtGroupId, segments: Array<GachiPointDto>, strokeWidth, strokeColor) {
+    super(id, type, center, isGrouped, parentEdtGroupId);
     this._segments = segments;
     this._strokeWidth = strokeWidth;
     this._strokeColor = strokeColor;

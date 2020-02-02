@@ -1,11 +1,14 @@
 import {EditableLink} from '../editable-link';
 import {LinkPort} from '../../link-port';
 import {WhiteboardShape} from '../../../whiteboard-shape';
+import {SimpleArrowLinkDto} from '../../../../../WhiteboardItemDto/WhiteboardShapeDto/LinkPortDto/EditableLinkDto/SimpleArrowLinkDto/simple-arrow-link-dto';
+import {SimpleLineLinkDto} from '../../../../../WhiteboardItemDto/WhiteboardShapeDto/LinkPortDto/EditableLinkDto/SimpleLineLinkDto/simple-line-link-dto';
+import {WhiteboardItemType} from '../../../../../../Helper/data-type-enum/data-type.enum';
 
 export class SimpleLineLink extends EditableLink {
 
   constructor(fromLinkPort: LinkPort, strokeColor?, strokeWidth?, fillColor?, isDashed?) {
-    super(fromLinkPort, strokeColor, strokeWidth, fillColor, isDashed);
+    super(WhiteboardItemType.SIMPLE_LINE_LINK, fromLinkPort, strokeColor, strokeWidth, fillColor, isDashed);
   }
 
   // ####  임시링크 메서드
@@ -68,5 +71,9 @@ export class SimpleLineLink extends EditableLink {
       this.linkObject.firstSegment.point = this.fromLinkPort.calcLinkPortPosition();
       this.linkObject.lastSegment.point = this.toLinkPort.calcLinkPortPosition();
     }
+  }
+
+  exportToDto(): SimpleLineLinkDto {
+    return super.exportToDto() as SimpleLineLinkDto;
   }
 }

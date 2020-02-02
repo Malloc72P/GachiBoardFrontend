@@ -23,6 +23,7 @@ import {PositionCalcService} from '../../../PositionCalc/position-calc.service';
 import {EventEmitter} from '@angular/core';
 import {ItemLifeCycleEnum, ItemLifeCycleEvent} from '../../WhiteboardItemLifeCycle/WhiteboardItemLifeCycle';
 import {WhiteboardShape} from '../whiteboard-shape';
+import {EditableShapeDto} from '../../../WhiteboardItemDto/WhiteboardShapeDto/EditableShapeDto/editable-shape-dto';
 
 export abstract class EditableShape extends WhiteboardShape {
   private _textContent: string;
@@ -65,6 +66,7 @@ export abstract class EditableShape extends WhiteboardShape {
         }
       }
     };//onFrame
+    this.notifyItemCreation();
   }
 
   public notifyItemModified() {
@@ -231,6 +233,14 @@ export abstract class EditableShape extends WhiteboardShape {
     tempPointText.remove();
 
     return this.layerService.posCalcService.advConvertLengthNgToPaper(width);
+  }
+
+  exportToDto(): EditableShapeDto {
+    let editableShapeDto:EditableShapeDto =  super.exportToDto() as EditableShapeDto;
+    editableShapeDto.textContent = this.textContent;
+    editableShapeDto.rawTextContent = this.rawTextContent;
+    editableShapeDto.textStyle = this.textStyle;
+    return editableShapeDto;
   }
 
   get textContent(): string {

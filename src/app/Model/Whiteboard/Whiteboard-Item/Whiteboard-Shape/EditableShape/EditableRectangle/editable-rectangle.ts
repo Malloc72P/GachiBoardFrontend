@@ -11,6 +11,7 @@ import Segment = paper.Segment;
 // @ts-ignore
 import Color = paper.Color;
 import {WhiteboardItemType} from '../../../../../Helper/data-type-enum/data-type.enum';
+import {EditableRectangleDto} from '../../../../WhiteboardItemDto/WhiteboardShapeDto/EditableShapeDto/EditableRectangleDto/editable-rectangle-dto';
 
 export class EditableRectangle extends EditableShape {
   constructor(id, item:Item, textStyle, editText, layerService) {
@@ -22,5 +23,9 @@ export class EditableRectangle extends EditableShape {
       editText,
       layerService);
 
+  }
+
+  exportToDto(): EditableRectangleDto {
+    return super.exportToDto() as EditableRectangleDto;
   }
 }

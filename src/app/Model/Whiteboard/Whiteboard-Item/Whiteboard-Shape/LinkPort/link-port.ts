@@ -35,6 +35,10 @@ import {EditableLink} from './EditableLink/editable-link';
 import {LinkerModeEnum} from '../../../InfiniteCanvas/DrawingLayerManager/LinkModeManagerService/LinkMode/linker-mode-enum.enum';
 import {SimpleLineLink} from './EditableLink/SimpleLineLink/simple-line-link';
 import {SimpleArrowLink} from './EditableLink/SimpleArrowLink/simple-arrow-link';
+import {WhiteboardShapeDto} from '../../../WhiteboardItemDto/WhiteboardShapeDto/whiteboard-shape-dto';
+import {GachiColorDto} from '../../../WhiteboardItemDto/ColorDto/gachi-color-dto';
+import {LinkPortDto} from '../../../WhiteboardItemDto/WhiteboardShapeDto/LinkPortDto/link-port-dto';
+import {EditableLinkDto} from '../../../WhiteboardItemDto/WhiteboardShapeDto/LinkPortDto/EditableLinkDto/editable-link-dto';
 
 export class LinkPort {
   private _owner:WhiteboardShape;
@@ -339,42 +343,6 @@ export class LinkPort {
         return;
     }
   }
-
-/*
-  private onCreateTempLink(){
-    let step = 0.1;
-    this.tempLinkPath.onFrame = (event)=>{
-      if(this.tempLinkPath.segments.length > 1){
-        let entrySegment, exitSegment;
-        entrySegment = this.tempLinkPath.firstSegment;
-        exitSegment = this.tempLinkPath.lastSegment;
-
-        if(!this.tempLinkEntryCircle && !this.tempLinkExitCircle){
-          this.tempLinkEntryCircle = new Circle(new Point(entrySegment.point), 5);
-          this.tempLinkExitCircle = new Circle(new Point(exitSegment.point), 5);
-
-          // @ts-ignore
-          this.tempLinkEntryCircle.style.strokeColor = "blue";
-          // @ts-ignore
-          this.tempLinkExitCircle.style.strokeColor = "blue";
-
-          this.tempLinkEntryCircle.strokeWidth = 3;
-          this.tempLinkExitCircle.strokeWidth = 3;
-
-          this.tempLinkEntryCircle.opacity = 0.4;
-          this.tempLinkExitCircle.opacity = 0.4;
-
-          this.animateEntryCircle();
-          this.animateExitCircle();
-        }
-        else{
-          this.tempLinkEntryCircle.position = entrySegment.point;
-          this.tempLinkExitCircle.position = exitSegment.point;
-        }
-      }
-    };
-  }
-*/
   private animateEntryCircle(){
     let entrySegment = this.tempLink.tempLinkPath.firstSegment;
 
@@ -390,7 +358,6 @@ export class LinkPort {
         this.tempLinkEntryCircle.bounds.height = 3;
         this.tempLinkEntryCircle.opacity = 0.4;
       }
-      //this.tempLinkEntryCircle.position = entrySegment.point;
     };
   }
   private animateExitCircle(){
@@ -408,7 +375,6 @@ export class LinkPort {
         this.tempLinkExitCircle.bounds.height = 3;
         this.tempLinkExitCircle.opacity = 0.4;
       }
-      //this.tempLinkExitCircle.position = exitSegment.point;
     };
   }
   private onDeleteTempLink(){
@@ -422,24 +388,25 @@ export class LinkPort {
     }
     this.tempLink.tempLinkPath.onFrame = ()=>{};
   }
-/*
-  public createLink(toWbShape, point){
-    if(toWbShape){//링크 연결대상이 존재하여 링크 생성하는 경우
-      let toLinkPort = toWbShape.linkPortMap.get(this.getCloseDirection(toWbShape, point));
-      let newLink:Path = new Path({
-        segments: [this.calcLinkPortPosition()],
-        strokeColor: "black",
-        strokeWidth: "1",
-        strokeCap: 'round',
-        strokeJoin: 'round',
-      });
-      newLink.add( toLinkPort.calcLinkPortPosition() );
-      let newLinkInfo = new LinkInfo(this, toLinkPort, newLink);
-      this.linkInfoList.push(newLinkInfo);
-      this.layerService.globalSelectedGroup.extractAllFromSelection();
-    }
+
+  exportToDto(): LinkPortDto {
+    let fromLinkDtoList = new Array<EditableLinkDto>();
+    let toLinkDtoList = new Array<EditableLinkDto>();
+
+    this.fromLinkList.forEach((value, index, array)=>{
+      fromLinkDtoList.push(value.exportToDto());
+    });
+    this.toLinkList.forEach((value, index, array)=>{
+      toLinkDtoList.push(value.exportToDto());
+    });
+    return new LinkPortDto(
+      this.direction,
+      this.owner.id,
+      fromLinkDtoList,
+      toLinkDtoList
+    );
   }
-*/
+
 
   get posCalcService(): PositionCalcService {
     return this._posCalcService;
@@ -448,20 +415,6 @@ export class LinkPort {
   set posCalcService(value: PositionCalcService) {
     this._posCalcService = value;
   }
-
-/*
-  private adjustTempLinkPosition(){
-    if(this.tempLinkPath.segments.length > 1){
-      this.tempLinkPath.firstSegment.point = this.calcLinkPortPosition();
-    }
-  }
-*/
-/*
-  private resetTempLink(){
-    this.tempLinkPath.removeSegments();
-    this.onDeleteTempLink();
-  }
-*/
 
   get owner() {
     return this._owner;

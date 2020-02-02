@@ -22,6 +22,7 @@ import {PointerMode} from '../../Pointer/pointer-mode-enum-service/pointer-mode-
 import {PointerModeManagerService} from '../../Pointer/pointer-mode-manager-service/pointer-mode-manager.service';
 import {WhiteboardItemType} from '../../../Helper/data-type-enum/data-type.enum';
 import {EditableItemGroup} from '../../Whiteboard-Item/ItemGroup/EditableItemGroup/editable-item-group';
+import {DebugingService} from '../../../Helper/DebugingHelper/debuging.service';
 
 @Injectable({
   providedIn: 'root'
@@ -39,6 +40,7 @@ export class ContextMenuService {
     private layerService: DrawingLayerManagerService,
     private editTextManagementService: EditTextManagementService,
     private pointerModeManagerService: PointerModeManagerService,
+    private debugingService:DebugingService
   ) { }
 
   public initializeContextMenuService(contextMenu: MatMenu, contextMenuTrigger: MatMenuTrigger) {
@@ -136,6 +138,7 @@ export class ContextMenuService {
   }
 
   public onClickContextMenu(menuItem: string) {
+    let gsg = this.layerService.globalSelectedGroup;
     switch (menuItem) {
       // item
       case ShapeContextMenu.DELETE:
@@ -171,6 +174,12 @@ export class ContextMenuService {
           testWbItem.parentEdtGroup.destroyItem();
         }
         this.layerService.globalSelectedGroup.extractAllFromSelection();
+        break;
+      case GroupContextMenu.COPY:
+        gsg.doCopy();
+        break;
+      case GroupContextMenu.PASTE:
+        gsg.doPaste(new Point(this.debugingService.cursorX, this.debugingService.cursorY));
         break;
       default:
         break;

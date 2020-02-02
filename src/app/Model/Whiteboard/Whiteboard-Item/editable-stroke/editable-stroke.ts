@@ -32,6 +32,8 @@ export abstract class EditableStroke extends WhiteboardItem implements Editable{
     this.segments = path.segments;
     this.strokeWidth = path.strokeWidth;
     this.strokeColor = path.strokeColor;
+
+    this.notifyItemCreation();
   }
 
   public notifyItemModified() {
@@ -57,23 +59,23 @@ export abstract class EditableStroke extends WhiteboardItem implements Editable{
   }
 
   public exportToDto(): EditableStrokeDto {
-    let wbItemDto =  super.exportToDto();
-    let edtStrokeDto: EditableStrokeDto;
-    let strokeObject:Path = this.coreItem as Path;
-    let strokeColor:GachiColorDto = new GachiColorDto(
-      strokeObject.strokeColor.red, strokeObject.strokeColor.green, strokeObject.strokeColor.blue, strokeObject.strokeColor.alpha
-    );
+    let editableStrokeDto:EditableStrokeDto =  super.exportToDto() as EditableStrokeDto;
 
-    let segments = new Array<GachiPointDto>();
-    for(let i = segments.length-1 ; i >= 0; i--){
-      segments.push(new GachiPointDto(strokeObject.segments[i].point.x, strokeObject.segments[i].point.y))
+    //strokeColor 추출
+    let strokeObject:Path = this.coreItem as Path;
+    editableStrokeDto.strokeColor = GachiColorDto.createColor(strokeObject.strokeColor);
+
+    //strokeSegments 추출
+    editableStrokeDto.segments = new Array<GachiPointDto>();
+    for(let i = strokeObject.segments.length-1 ; i >= 0; i--){
+      editableStrokeDto.segments
+        .push(new GachiPointDto(strokeObject.segments[i].point.x, strokeObject.segments[i].point.y))
     }
 
-    edtStrokeDto = new EditableStrokeDto(
-      wbItemDto.id,wbItemDto.type,wbItemDto.center,
-      segments,strokeObject.strokeWidth,strokeColor,
-    );
-    return edtStrokeDto;
+    //strokeWidth 추출
+    editableStrokeDto.strokeWidth = strokeObject.strokeWidth;
+
+    return editableStrokeDto;
   }
 
   get segments(): Array<Segment> {

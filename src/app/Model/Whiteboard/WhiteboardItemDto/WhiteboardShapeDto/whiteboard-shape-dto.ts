@@ -1,5 +1,6 @@
 import {LinkPortDto} from './LinkPortDto/link-port-dto';
 import {WhiteboardItemDto} from '../whiteboard-item-dto';
+import {GachiPointDto} from '../PointDto/gachi-point-dto';
 
 export class WhiteboardShapeDto extends WhiteboardItemDto{
   private _width;
@@ -8,18 +9,18 @@ export class WhiteboardShapeDto extends WhiteboardItemDto{
   private _borderWidth;
   private _fillColor;
   private _opacity;
-  private _LinkPortsDto:Array<LinkPortDto>;
+  private _linkPortsDto:Array<LinkPortDto>;
 
 
-  constructor(id, type, center, width, height, borderColor, borderWidth, fillColor, opacity, LinkPortsDto: Array<LinkPortDto>) {
-    super(id, type, center);
+  constructor(id, type, center: GachiPointDto, isGrouped, parentEdtGroupId, width, height, borderColor, borderWidth, fillColor, opacity, linkPortsDto: Array<LinkPortDto>) {
+    super(id, type, center, isGrouped, parentEdtGroupId);
     this._width = width;
     this._height = height;
     this._borderColor = borderColor;
     this._borderWidth = borderWidth;
     this._fillColor = fillColor;
     this._opacity = opacity;
-    this._LinkPortsDto = LinkPortsDto;
+    this._linkPortsDto = linkPortsDto;
   }
 
   get width() {
@@ -70,11 +71,11 @@ export class WhiteboardShapeDto extends WhiteboardItemDto{
     this._opacity = value;
   }
 
-  get LinkPortsDto(): Array<LinkPortDto> {
-    return this._LinkPortsDto;
+  get linkPortsDto(): Array<LinkPortDto> {
+    return this._linkPortsDto;
   }
 
-  set LinkPortsDto(value: Array<LinkPortDto>) {
-    this._LinkPortsDto = value;
+  set linkPortsDto(value: Array<LinkPortDto>) {
+    this._linkPortsDto = value;
   }
 }
