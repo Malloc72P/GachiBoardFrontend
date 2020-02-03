@@ -129,7 +129,6 @@ export class WhiteboardMainComponent implements OnInit {
 
     this.whiteboardPaperProject.activeLayer.onFrame = (event)=>{
       if(event.count%10 === 0){
-        this.minimapSyncService.syncMinimap();
         // TODO : Tracker Test Code
         this.cursorTrackerService.refreshPoint();
       }

@@ -141,6 +141,9 @@ export class WhiteboardItemFactory {
       newPath.add( new Point(newPoint.x, newPoint.y) );
     }
 
+    //newPath.simplify(3);
+    newPath.smooth();
+
     return newPath
   }
 
