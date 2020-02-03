@@ -10,9 +10,10 @@ import {ZoomEvent} from "../../InfiniteCanvas/ZoomControl/ZoomEvent/zoom-event";
 import {ZoomEventEnum} from "../../InfiniteCanvas/ZoomControl/ZoomEvent/zoom-event-enum.enum";
 import {GlobalSelectedGroup} from "../../Whiteboard-Item/ItemGroup/GlobalSelectedGroup/global-selected-group";
 import {InfiniteCanvasService} from "../../InfiniteCanvas/infinite-canvas.service";
+import {subPanelStatus} from "./sub-panel-status";
+import {EditableRaster} from "../../Whiteboard-Item/Whiteboard-Shape/editable-raster/editable-raster";
 // @ts-ignore
 import Rectangle = paper.Rectangle;
-import {subPanelStatus} from "./sub-panel-status";
 
 @Injectable({
   providedIn: 'root'
@@ -78,6 +79,9 @@ export class HorizonContextMenuService {
       case HorizonContextMenuTypes.GROUP:
         this.setMenuForGroup();
         break;
+      case HorizonContextMenuTypes.RASTER:
+        this.setMenuForItem();
+        break;
     }
   }
 
@@ -88,7 +92,9 @@ export class HorizonContextMenuService {
     // GSG 에 선택된 아이템이 한개 (단일선택)
     } else {
       let item = wbItemGroup[0];
-      if(item instanceof EditableShape) {
+      if(item instanceof EditableRaster) {
+        return HorizonContextMenuTypes.RASTER;
+      } else if(item instanceof EditableShape) {
         return HorizonContextMenuTypes.SHAPE;
       } else if(item instanceof EditableStroke) {
         return HorizonContextMenuTypes.STROKE;
@@ -144,6 +150,13 @@ export class HorizonContextMenuService {
     this._menuItemArray = new Array<HorizonContextMenuActions>(
       HorizonContextMenuActions.LOCK,
       HorizonContextMenuActions.UNGROUP,
+      HorizonContextMenuActions.MORE,
+    );
+  }
+
+  private setMenuForItem() {
+    this._menuItemArray = new Array<HorizonContextMenuActions>(
+      HorizonContextMenuActions.LOCK,
       HorizonContextMenuActions.MORE,
     );
   }

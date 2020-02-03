@@ -16,6 +16,6 @@ export enum HorizonContextMenuTypes {
   STROKE,
   ITEMS,
   GROUP,
-
+  RASTER,
 }
 

@@ -187,7 +187,7 @@ export class ContextMenuService {
   }
 
   private deleteItem() {
-    this.item.destroyItem();
+    this.layerService.globalSelectedGroup.destroyItem();
   }
 
   private addImage() {

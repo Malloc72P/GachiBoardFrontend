@@ -291,6 +291,8 @@ export class ItemGroup extends WhiteboardItem {
       willBeDestroy.destroyItem();
     }
     this.wbItemGroup.splice(0, this.wbItemGroup.length);
+
+    this.layerService.horizonContextMenuService.close();
     this.resetMyItemAdjustor();
   }
 

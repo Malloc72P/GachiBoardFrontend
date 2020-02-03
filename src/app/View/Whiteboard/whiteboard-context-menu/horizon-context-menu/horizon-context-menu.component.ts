@@ -82,36 +82,10 @@ export class HorizonContextMenuComponent implements OnInit {
     }
   }
 
-  private colorToHTMLRGB(index: number) {
-    return this.colors[index].toCSS(false);
-  }
-
-  private onStrokeWidthChanged(event: MatSliderChange) {
-    this.horizonContextMenuService.globalSelectedGroup.wbItemGroup[0].coreItem.strokeWidth = event.value;
-  }
-
-  private onColorPickerClicked(index: number) {
-    this.horizonContextMenuService.globalSelectedGroup.wbItemGroup[0].coreItem.strokeColor = this.colors[index];
-  }
-
-  private onAddColorClicked() {
-    let color = new Color(this.colorPickerPicked);
-    this.colors.push(color);
-    this.onColorPickerClicked(this.colors.length - 1);
-  }
-
-  private initLineSubPanel() {
-
-  }
-
   // ################ Getter & Setter #################
 
   get isHidden(): boolean {
     return this.horizonContextMenuService.isHidden;
-  }
-
-  get isHiddenSubPanel(): subPanelStatus {
-    return this.horizonContextMenuService.subPanelHidden;
   }
 
   get centerTop(): { x: number; y: number } {
@@ -120,9 +94,5 @@ export class HorizonContextMenuComponent implements OnInit {
 
   get menuItemArray(): HorizonContextMenuActions[] {
     return this.horizonContextMenuService.menuItemArray;
-  }
-
-  get horizonContextMenuActions(){
-    return HorizonContextMenuActions;
   }
 }
