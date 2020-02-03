@@ -44,9 +44,8 @@ import {ContextMenuService} from "../../ContextMenu/context-menu-service/context
 import {EditableLink} from '../../Whiteboard-Item/Whiteboard-Shape/LinkPort/EditableLink/editable-link';
 import {LinkerModeChangeEvent} from './LinkModeManagerService/LinkerModeChangeEvent/linker-mode-change-event';
 import {LinkerMode} from './LinkModeManagerService/LinkMode/linker-mode';
-import {SizeHandler} from '../../Whiteboard-Item/ItemAdjustor/ItemHandler/SizeHandler/size-handler';
-import {ItemHandler} from '../../Whiteboard-Item/ItemAdjustor/ItemHandler/item-handler';
 import {EditableItemGroup} from '../../Whiteboard-Item/ItemGroup/EditableItemGroup/editable-item-group';
+import {HorizonContextMenuService} from "../../ContextMenu/horizon-context-menu-service/horizon-context-menu.service";
 
 
 @Injectable({
@@ -81,6 +80,7 @@ export class DrawingLayerManagerService {
   constructor(
     private _posCalcService:PositionCalcService,
     private _infiniteCanvasService:InfiniteCanvasService,
+    private _horizonContextMenuService: HorizonContextMenuService,
   ) {
     this._whiteboardItemArray = new Array<WhiteboardItem>();
     this._editableLinkArray = new Array<EditableLink>();
@@ -102,6 +102,9 @@ export class DrawingLayerManagerService {
       }
     });
     this.globalSelectedGroup = GlobalSelectedGroup.getInstance(this.getWbId(), this);
+
+    // horizon Context Menu 초기화
+    this.horizonContextMenuService.initializeHorizonContextMenuService(this.globalSelectedGroup);
 
     //#### 이걸로 화이트보드 배경 선택시 현재 선택된 그룹을 해제함
     this.currentProject.view.onMouseDown = (event)=>{
@@ -582,6 +585,9 @@ export class DrawingLayerManagerService {
 
   set isEditableLinkSelected(value: Boolean) {
     this._isEditableLinkSelected = value;
+  }
+  get horizonContextMenuService(): HorizonContextMenuService {
+    return this._horizonContextMenuService;
   }
 
 //#####################################

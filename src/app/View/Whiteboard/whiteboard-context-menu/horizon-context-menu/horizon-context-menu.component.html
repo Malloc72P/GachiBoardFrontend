@@ -1,0 +1,17 @@
+<div id="horizonContextMenu" class="context-menu-wrapper"
+     [hidden]="isHidden"
+     [style.left]="centerTop.x + 'px'"
+     [style.top]="centerTop.y + 'px'">
+  <mat-card class="context-panel-wrapper">
+    <button mat-button class="context-menu-button"
+            *ngFor="let item of menuItemArray"
+            (click)="onClickMenuItem(item)">
+      <svg class="button-icon">
+        <use [attr.xlink:href]="getMenuButtonIcon(item)"/>
+      </svg>
+    </button>
+  </mat-card>
+</div>
+
+<app-sub-panel-for-line></app-sub-panel-for-line>
+<app-sub-panel-for-fill></app-sub-panel-for-fill>

@@ -1,0 +1,25 @@
+<svg id="ungroup" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 24 24">
+  <defs>
+    <clipPath id="d">
+      <use xlink:href="#a"/>
+    </clipPath>
+    <clipPath id="e">
+      <use xlink:href="#b"/>
+    </clipPath>
+    <clipPath id="f">
+      <use xlink:href="#c"/>
+    </clipPath>
+    <path d="M4.5 6H10v5.5H4.5V6z" id="a"/>
+    <path d="M19.5 8.75c0 1.52-1.23 2.75-2.75 2.75S14 10.27 14 8.75 15.23 6 16.75 6s2.75 1.23 2.75 2.75z" id="b"/>
+    <path d="M12.3 13.12L15.5 18H9l3.3-4.88z" id="c"/>
+  </defs>
+  <g clip-path="url(#d)">
+    <use xlink:href="#a" fill-opacity="0" stroke="#000"/>
+  </g>
+  <g clip-path="url(#e)">
+    <use xlink:href="#b" fill-opacity="0" stroke="#000"/>
+  </g>
+  <g clip-path="url(#f)">
+    <use xlink:href="#c" fill-opacity="0" stroke="#000"/>
+  </g>
+</svg>

@@ -22,6 +22,7 @@ import {MouseButtonEventEnum} from '../MouseButtonEventEnum/mouse-button-event-e
 import {PointerModeEvent} from '../PointerModeEvent/pointer-mode-event';
 import {DrawingLayerManagerService} from '../../InfiniteCanvas/DrawingLayerManager/drawing-layer-manager.service';
 import {PanelManagerService} from '../../Panel/panel-manager-service/panel-manager.service';
+import {CursorChangeService} from "../cursor-change-service/cursor-change.service";
 
 @Injectable({
   providedIn: 'root'
@@ -31,7 +32,6 @@ export class PointerModeManagerService {
   public currentPointerMode: number;
   public mouseDown = false;
   public currentProject;
-
 
   constructor(
       public brushService                 : BrushService,
@@ -45,8 +45,9 @@ export class PointerModeManagerService {
       private posCalcService              : PositionCalcService,
       private minimapSyncService          : MinimapSyncService,
       private normalPointerService        : NormalPointerService,
-      private layerService        : DrawingLayerManagerService,
-      private panelManager: PanelManagerService,
+      private layerService                : DrawingLayerManagerService,
+      private panelManager                : PanelManagerService,
+      private cursorChangeService         : CursorChangeService,
     ) {
   }
 
@@ -62,6 +63,7 @@ export class PointerModeManagerService {
     this.lassoSelector.initializeLassoSelectorService(this.currentProject);
     this.shape.initializeShapeService(this.currentProject);
     this.normalPointerService.initializeNormalPointerService(this.currentProject);
+    this.cursorChangeService.initializeCursorChangeService();
 
     htmlCanvasObject.addEventListener("mousedown", (event) => {
       this.onMouseDown(event);
@@ -90,12 +92,13 @@ export class PointerModeManagerService {
 
   private _toolPanelToggleGroupValue;
 
-  modeChange(mode: number) {
+  modeChange(mode: PointerMode) {
     this.currentPointerMode = this.toolPanelToggleGroupValue = mode;
+    this.cursorChangeService.change(mode);
     this.layerService.pointerModeEventEmitter.emit(new PointerModeEvent(mode));
   }
 
-  public onClickPanelItem(panelItem: number) {
+  public onClickPanelItem(panelItem: PointerMode) {
     switch (panelItem) {
       case PointerMode.POINTER:
         this.modeChange(panelItem);
@@ -260,6 +263,7 @@ export class PointerModeManagerService {
         break;
       case PointerMode.MOVE:
         this.canvasMoverService.onMouseDown(event);
+        this.cursorChangeService.changeToGrabbing();
         break;
       case PointerMode.DRAW:
         this.brushService.createPath(event);
@@ -341,6 +345,7 @@ export class PointerModeManagerService {
         break;
       case PointerMode.MOVE:
         this.canvasMoverService.onMouseUp(event);
+        this.cursorChangeService.changeToGrab();
         break;
       case PointerMode.DRAW:
         this.brushService.endPath();

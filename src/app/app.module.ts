@@ -65,6 +65,11 @@ import {ContextMenuService} from "./Model/Whiteboard/ContextMenu/context-menu-se
 import {NormalPointerService} from './Model/Whiteboard/Pointer/normal-pointer-service/normal-pointer.service';
 import {LinkModeManagerService} from './Model/Whiteboard/InfiniteCanvas/DrawingLayerManager/LinkModeManagerService/link-mode-manager.service';
 import {CursorTrackerService} from "./Model/Whiteboard/CursorTracker/cursor-tracker-service/cursor-tracker.service";
+import {CursorChangeService} from "./Model/Whiteboard/Pointer/cursor-change-service/cursor-change.service";
+import { HorizonContextMenuComponent } from './View/Whiteboard/whiteboard-context-menu/horizon-context-menu/horizon-context-menu.component';
+import { SubPanelForLineComponent } from './View/Whiteboard/whiteboard-context-menu/horizon-context-menu/sub-panel-line/sub-panel-for-line.component';
+import { SubPanelForFillComponent } from './View/Whiteboard/whiteboard-context-menu/horizon-context-menu/sub-panel-fill/sub-panel-for-fill.component';
+import {HorizonContextMenuService} from "./Model/Whiteboard/ContextMenu/horizon-context-menu-service/horizon-context-menu.service";
 
 const appRoutes: Routes = [
   {
@@ -115,6 +120,9 @@ const appRoutes: Routes = [
     AreYouSurePanelComponent,
     ToolShapePanelComponent,
     WhiteboardContextMenuComponent,
+    HorizonContextMenuComponent,
+    SubPanelForLineComponent,
+    SubPanelForFillComponent,
   ],
   entryComponents: [
     KanbanComponent,
@@ -189,6 +197,8 @@ const appRoutes: Routes = [
     ContextMenuService,
     LinkModeManagerService,
     CursorTrackerService,
+    CursorChangeService,
+    HorizonContextMenuService,
   ],
   bootstrap: [AppComponent]
 })

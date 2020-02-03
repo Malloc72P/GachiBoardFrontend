@@ -95,9 +95,13 @@ export class ItemGroup extends WhiteboardItem {
     };
     this.backgroundRect.onMouseDrag = (event) => {
       this.onMouseDrag(event);
+      // TODO : HorizonContextMenuService Test Code
+      this.layerService.horizonContextMenuService.close();
     };
     this.backgroundRect.onMouseUp = (event) => {
       this.onMouseUp(event);
+      // TODO : HorizonContextMenuService Test Code
+      this.layerService.horizonContextMenuService.open();
     };
     this.backgroundRect.onDoubleClick = ()=>{
       console.log("ItemGroup >> onDoubleClick >> 진입함");
