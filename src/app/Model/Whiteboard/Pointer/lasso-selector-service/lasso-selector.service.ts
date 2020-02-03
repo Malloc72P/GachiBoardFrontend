@@ -100,7 +100,9 @@ export class LassoSelectorService {
     } else {
       return;
     }
-    this.newPath.closePath();
+    if(this.newPath){
+      this.newPath.closePath();
+    }
 
     if(!this.layerService.isSelecting()){
       this.selectBound();

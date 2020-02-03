@@ -12,8 +12,6 @@ export enum RasterContextMenu {
 export enum GroupContextMenu {
   EDIT = "Edit",
   DELETE = "Delete",
-  GROUP = "Group",
-  UNGROUP = "Un Group",
   COPY = "copy",
   PASTE = "paste",
 }

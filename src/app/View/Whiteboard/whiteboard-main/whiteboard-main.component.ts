@@ -137,6 +137,7 @@ export class WhiteboardMainComponent implements OnInit {
 
   @HostListener('document:keydown', ['$event'])
   keydownHandler(event) {
+    event.preventDefault();
 
     // textEditor 에선 스킵
     if (event.target === document.getElementById("textEditor")) {
@@ -197,6 +198,10 @@ export class WhiteboardMainComponent implements OnInit {
           break;
         case "KeyV":
           gsg.doPaste(new Point(this.debugingService.cursorX, this.debugingService.cursorY));
+          //TODO 좌표 얻는 출처를 상현이의 커밋쪽을 기준으로 수정해야 함.
+          break;
+        case "KeyG":
+          this.layerService.groupSelectedItems();
           //TODO 좌표 얻는 출처를 상현이의 커밋쪽을 기준으로 수정해야 함.
           break;
       }

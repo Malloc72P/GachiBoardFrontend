@@ -86,6 +86,12 @@ export class HorizonContextMenuService {
   }
 
   private instanceCheckItem(wbItemGroup: Array<WhiteboardItem>): HorizonContextMenuTypes {
+    //EditableItemGroup으로 잡힌 경우, GSG에 있는 대상은 EditableItemGroup이 아닌,
+    //해당 그룹 안의 WbItem들이다. 그러므로 별도의 체크 메서드를 통해, 먼저 검사한다.
+    if(this.instanceCheckEdtGroup()){
+      return HorizonContextMenuTypes.GROUP;
+    }
+
     // GSG 에 선택된 아이템이 한개이상 (다중선택)
     if(wbItemGroup.length > 1) {
       return HorizonContextMenuTypes.ITEMS;
@@ -103,6 +109,27 @@ export class HorizonContextMenuService {
       }
     }
     console.log("HorizonContextMenuComponent >> instanceCheckItem >> wbItemGroup : ", wbItemGroup);
+  }
+
+  private instanceCheckEdtGroup(){
+    let gsg = this.globalSelectedGroup;
+    let edtGroupId = -1;
+
+    if(gsg.wbItemGroup[0].isGrouped && gsg.wbItemGroup[0].parentEdtGroup.id){
+      edtGroupId = gsg.wbItemGroup[0].parentEdtGroup.id;
+    }else{//첫번째 선택된 아이템부터 그룹화 되어 있지 않음. 그러므로 리턴 false
+      return false;
+    }
+
+    for (let i = 1; i < gsg.wbItemGroup.length; i++) {
+      let currWbItem = gsg.wbItemGroup[i];
+      if(currWbItem.isGrouped && currWbItem.parentEdtGroup.id === edtGroupId){
+        //그룹화 되어 있으면서 같은 그룹인 경우
+      }else {//현재 아이템이 그룹화 되어 있지 않거나, 다른 그룹의 아이템인 경우 return false
+        return false;
+      }
+    }
+    return true;
   }
 
   // #################### Menu Set ######################

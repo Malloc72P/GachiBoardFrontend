@@ -3,30 +3,9 @@
     <clipPath id="e">
       <use xlink:href="#a"/>
     </clipPath>
-    <clipPath id="f">
-      <use xlink:href="#b"/>
-    </clipPath>
-    <clipPath id="g">
-      <use xlink:href="#c"/>
-    </clipPath>
-    <clipPath id="h">
-      <use xlink:href="#d"/>
-    </clipPath>
-    <path d="M1.88 1.88H22.5V22.5H1.88V1.88z" id="a"/>
-    <path d="M4.5 6H10v5.5H4.5V6z" id="b"/>
-    <path d="M19.5 8.75c0 1.52-1.23 2.75-2.75 2.75S14 10.27 14 8.75 15.23 6 16.75 6s2.75 1.23 2.75 2.75z" id="c"/>
-    <path d="M12.3 13.12L15.5 18H9l3.3-4.88z" id="d"/>
+    <path d="M11 24v-2h-4v2h4zm8-22h3v3h2v-5h-5v2zm-19 15h2v-4h-2v4zm0-6h2v-4h-2v4zm2-6v-3h3v-2h-5v5h2zm22 2h-2v4h2v-4zm0 6h-2v4h2v-4zm-2 6v3h-3v2h5v-5h-2zm-17 3h-3v-3h-2v5h5v-2zm12 2v-2h-4v2h4zm-6-22v-2h-4v2h4zm6 0v-2h-4v2h4zm0 8v7h-7v-7h7zm2-2h-11v11h11v-11zm-3-3v2h-9v9h-2v-11h11z" id="a"/>
   </defs>
   <g clip-path="url(#e)">
-    <use xlink:href="#a" fill-opacity="0" stroke="#000" stroke-width="1.4"/>
-  </g>
-  <g clip-path="url(#f)">
-    <use xlink:href="#b" fill-opacity="0" stroke="#000"/>
-  </g>
-  <g clip-path="url(#g)">
-    <use xlink:href="#c" fill-opacity="0" stroke="#000"/>
-  </g>
-  <g clip-path="url(#h)">
-    <use xlink:href="#d" fill-opacity="0" stroke="#000"/>
+    <use xlink:href="#a" fill-opacity="1" stroke="#000" stroke-width="0.5"/>
   </g>
 </svg>

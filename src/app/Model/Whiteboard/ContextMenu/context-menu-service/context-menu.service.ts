@@ -161,20 +161,6 @@ export class ContextMenuService {
       case ContextMenu.ADD_IMAGE:
         this.addImage();
         break;
-      case GroupContextMenu.GROUP:
-        let newEdtGroup:EditableItemGroup = this.layerService.addToDrawingLayer(null, WhiteboardItemType.EDITABLE_GROUP) as EditableItemGroup;
-        this.layerService.globalSelectedGroup.wbItemGroup.forEach((value, index, array)=>{
-          newEdtGroup.addItem(value);
-        });
-        this.layerService.globalSelectedGroup.extractAllFromSelection();
-        break;
-      case GroupContextMenu.UNGROUP:
-        let testWbItem = this.layerService.globalSelectedGroup.wbItemGroup[0];
-        if(testWbItem.isGrouped && testWbItem.parentEdtGroup){
-          testWbItem.parentEdtGroup.destroyItem();
-        }
-        this.layerService.globalSelectedGroup.extractAllFromSelection();
-        break;
       case GroupContextMenu.COPY:
         gsg.doCopy();
         break;

@@ -493,6 +493,35 @@ export class DrawingLayerManagerService {
   }
   //########
 
+  public groupSelectedItems(){
+    let gsg = this.globalSelectedGroup;
+    for (let i = 0; i < gsg.wbItemGroup.length; i++) {
+      let currWbItem = gsg.wbItemGroup[i];
+      if(currWbItem.isGrouped && currWbItem.parentEdtGroup){
+        currWbItem.parentEdtGroup.destroyItem();
+      }
+    }
+
+    let newEdtGroup:EditableItemGroup = this.addToDrawingLayer(null, WhiteboardItemType.EDITABLE_GROUP) as EditableItemGroup;
+
+    this.globalSelectedGroup.wbItemGroup.forEach((value, index, array)=>{
+      newEdtGroup.addItem(value);
+    });
+
+    this.globalSelectedGroup.extractAllFromSelection();
+  }
+
+  public ungroupSelectedItems(){
+    let gsg = this.globalSelectedGroup;
+    for (let i = 0; i < gsg.wbItemGroup.length; i++) {
+      let currWbItem = gsg.wbItemGroup[i];
+      if(currWbItem.isGrouped && currWbItem.parentEdtGroup){
+        currWbItem.parentEdtGroup.destroyItem();
+      }
+    }
+    this.globalSelectedGroup.extractAllFromSelection();
+  }
+
   // #################### on Event Method #####################
 
   private onLongTouch(event: TouchEvent, contextMenu: ContextMenuService) {

@@ -7,6 +7,7 @@ import {HorizonContextMenuActions} from "../../../../Model/Whiteboard/ContextMen
 import {HorizonContextMenuService} from "../../../../Model/Whiteboard/ContextMenu/horizon-context-menu-service/horizon-context-menu.service";
 import {MatSliderChange} from "@angular/material/slider";
 import {subPanelStatus} from "../../../../Model/Whiteboard/ContextMenu/horizon-context-menu-service/sub-panel-status";
+import {DrawingLayerManagerService} from '../../../../Model/Whiteboard/InfiniteCanvas/DrawingLayerManager/drawing-layer-manager.service';
 
 
 @Component({
@@ -26,6 +27,7 @@ export class HorizonContextMenuComponent implements OnInit {
 
   constructor(
     private horizonContextMenuService: HorizonContextMenuService,
+    private layerService: DrawingLayerManagerService,
   ) { }
 
   ngOnInit() {
@@ -53,8 +55,10 @@ export class HorizonContextMenuComponent implements OnInit {
       case HorizonContextMenuActions.ARROW_WING:
         break;
       case HorizonContextMenuActions.GROUP:
+        this.layerService.groupSelectedItems();
         break;
       case HorizonContextMenuActions.UNGROUP:
+        this.layerService.ungroupSelectedItems();
         break;
     }
   }
@@ -83,6 +87,10 @@ export class HorizonContextMenuComponent implements OnInit {
   }
 
   // ################ Getter & Setter #################
+
+  convertEnumToName(enumNumber){
+    return HorizonContextMenuActions[enumNumber];
+  }
 
   get isHidden(): boolean {
     return this.horizonContextMenuService.isHidden;
