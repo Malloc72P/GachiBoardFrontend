@@ -68,8 +68,17 @@ export class GlobalSelectedGroup extends ItemGroup {
           tempGsgArray.push(data);
           observerCounter--;
           console.log("GlobalSelectedGroup >>  >> observerCounter : ",observerCounter);
+
           if(observerCounter <= 0){
+            // #### 복제가 완전히 완료된 경우, 해당 조건문에 진입함 ####
+
+            
+
+            //copiedDtoArray 리셋
             this.extractCopiedItems();
+
+
+
             observer.next(tempGsgArray);
           }
         });
