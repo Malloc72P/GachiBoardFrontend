@@ -2,7 +2,7 @@ import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { SubPanelForLineComponent } from './sub-panel-for-line.component';
 
-describe('HorizonContextMenuSubPanelForLineComponent', () => {
+describe('SubPanelForLineComponent', () => {
   let component: SubPanelForLineComponent;
   let fixture: ComponentFixture<SubPanelForLineComponent>;
 

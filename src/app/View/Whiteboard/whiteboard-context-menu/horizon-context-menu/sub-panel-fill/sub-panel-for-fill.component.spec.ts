@@ -2,7 +2,7 @@ import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { SubPanelForFillComponent } from './sub-panel-for-fill.component';
 
-describe('SubPanelFillComponent', () => {
+describe('SubPanelForFillComponent', () => {
   let component: SubPanelForFillComponent;
   let fixture: ComponentFixture<SubPanelForFillComponent>;
 

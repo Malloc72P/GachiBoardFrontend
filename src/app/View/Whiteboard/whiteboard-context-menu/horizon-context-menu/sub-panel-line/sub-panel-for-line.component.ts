@@ -2,7 +2,7 @@ import * as paper from 'paper';
 // @ts-ignore
 import Color = paper.Color;
 
-import {Component, Input, OnInit, Output} from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import {MatSliderChange} from "@angular/material/slider";
 import {HorizonContextMenuService} from "../../../../../Model/Whiteboard/ContextMenu/horizon-context-menu-service/horizon-context-menu.service";
 import {HorizonContextMenuActions} from "../../../../../Model/Whiteboard/ContextMenu/horizon-context-menu-service/horizon-context-menu.enum";
@@ -10,8 +10,8 @@ import {subPanelStatus} from "../../../../../Model/Whiteboard/ContextMenu/horizo
 
 @Component({
   selector: 'app-sub-panel-for-line',
-  templateUrl: './sub-panel-for-line.html',
-  styleUrls: ['./sub-panel-for-line.css']
+  templateUrl: './sub-panel-for-line.component.html',
+  styleUrls: ['./sub-panel-for-line.component.css']
 })
 export class SubPanelForLineComponent implements OnInit {
   // TODO : 유저 데이터에 있을 컬러를 colors 로 지정해주면 댐 -- 전역에서 사용하는 user-color

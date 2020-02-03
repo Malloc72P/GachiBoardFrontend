@@ -69,6 +69,7 @@ import {CursorChangeService} from "./Model/Whiteboard/Pointer/cursor-change-serv
 import { HorizonContextMenuComponent } from './View/Whiteboard/whiteboard-context-menu/horizon-context-menu/horizon-context-menu.component';
 import { SubPanelForLineComponent } from './View/Whiteboard/whiteboard-context-menu/horizon-context-menu/sub-panel-line/sub-panel-for-line.component';
 import { SubPanelForFillComponent } from './View/Whiteboard/whiteboard-context-menu/horizon-context-menu/sub-panel-fill/sub-panel-for-fill.component';
+import {HorizonContextMenuService} from "./Model/Whiteboard/ContextMenu/horizon-context-menu-service/horizon-context-menu.service";
 
 const appRoutes: Routes = [
   {
@@ -197,6 +198,7 @@ const appRoutes: Routes = [
     LinkModeManagerService,
     CursorTrackerService,
     CursorChangeService,
+    HorizonContextMenuService,
   ],
   bootstrap: [AppComponent]
 })

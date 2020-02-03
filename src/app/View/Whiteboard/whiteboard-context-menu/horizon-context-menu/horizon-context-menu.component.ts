@@ -4,11 +4,9 @@ import Color = paper.Color;
 
 import {Component, Input, OnInit} from '@angular/core';
 import {HorizonContextMenuActions} from "../../../../Model/Whiteboard/ContextMenu/horizon-context-menu-service/horizon-context-menu.enum";
-import {
-  HorizonContextMenuService,
-  subPanelStatus
-} from "../../../../Model/Whiteboard/ContextMenu/horizon-context-menu-service/horizon-context-menu.service";
+import {HorizonContextMenuService} from "../../../../Model/Whiteboard/ContextMenu/horizon-context-menu-service/horizon-context-menu.service";
 import {MatSliderChange} from "@angular/material/slider";
+import {subPanelStatus} from "../../../../Model/Whiteboard/ContextMenu/horizon-context-menu-service/sub-panel-status";
 
 
 @Component({
