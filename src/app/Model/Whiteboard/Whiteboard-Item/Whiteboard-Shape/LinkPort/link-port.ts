@@ -3,30 +3,14 @@ import {LinkPortDirectionEnum} from './LinkPortDirectionEnum/link-port-direction
 
 import * as paper from 'paper';
 // @ts-ignore
-import Path = paper.Path;
-// @ts-ignore
 import Point = paper.Point;
-// @ts-ignore
-import Item = paper.Item;
-// @ts-ignore
-import Segment = paper.Segment;
-// @ts-ignore
-import Color = paper.Color;
-// @ts-ignore
-import PointText = paper.PointText;
-// @ts-ignore
-import Group = paper.Group;
-// @ts-ignore
-import Rectangle = paper.Rectangle;
 // @ts-ignore
 import Circle = paper.Path.Circle;
 
 import {PositionCalcService} from '../../../PositionCalc/position-calc.service';
-import {HandlerDirection} from '../../ItemAdjustor/ItemHandler/handler-direction.enum';
 import {HandlerOption} from '../../ItemAdjustor/item-adjustor';
 import {ZoomEvent} from '../../../InfiniteCanvas/ZoomControl/ZoomEvent/zoom-event';
 import {ZoomEventEnum} from '../../../InfiniteCanvas/ZoomControl/ZoomEvent/zoom-event-enum.enum';
-import {WhiteboardItem} from '../../whiteboard-item';
 import {DrawingLayerManagerService} from '../../../InfiniteCanvas/DrawingLayerManager/drawing-layer-manager.service';
 import {EventEmitter} from '@angular/core';
 import {LinkEvent} from './LinkEvent/link-event';
@@ -35,8 +19,6 @@ import {EditableLink} from './EditableLink/editable-link';
 import {LinkerModeEnum} from '../../../InfiniteCanvas/DrawingLayerManager/LinkModeManagerService/LinkMode/linker-mode-enum.enum';
 import {SimpleLineLink} from './EditableLink/SimpleLineLink/simple-line-link';
 import {SimpleArrowLink} from './EditableLink/SimpleArrowLink/simple-arrow-link';
-import {WhiteboardShapeDto} from '../../../WhiteboardItemDto/WhiteboardShapeDto/whiteboard-shape-dto';
-import {GachiColorDto} from '../../../WhiteboardItemDto/ColorDto/gachi-color-dto';
 import {LinkPortDto} from '../../../WhiteboardItemDto/WhiteboardShapeDto/LinkPortDto/link-port-dto';
 import {EditableLinkDto} from '../../../WhiteboardItemDto/WhiteboardShapeDto/LinkPortDto/EditableLinkDto/editable-link-dto';
 
@@ -192,7 +174,7 @@ export class LinkPort {
     };
   }
 
-  private addLink(newLink){
+  public addLink(newLink){
     this.fromLinkList.splice(this.fromLinkList.length, 0, newLink);
     let toLinkList = newLink.toLinkPort.toLinkList;
     toLinkList.splice(toLinkList.length, 0, newLink);

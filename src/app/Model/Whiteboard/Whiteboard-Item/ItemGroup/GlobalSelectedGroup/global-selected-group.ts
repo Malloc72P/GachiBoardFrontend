@@ -13,6 +13,9 @@ import {WhiteboardItemFactory} from '../../../InfiniteCanvas/WhiteboardItemFacto
 import Item = paper.Item;
 import {merge, Observable} from 'rxjs';
 import {EditableRaster} from '../../Whiteboard-Shape/editable-raster/editable-raster';
+import {WbItemFactoryResult} from '../../../InfiniteCanvas/WhiteboardItemFactory/WbItemFactoryResult/wb-item-factory-result';
+import {CopiedLinkData} from './CopiedLinkData/copied-link-data';
+import {WhiteboardShapeDto} from '../../../WhiteboardItemDto/WhiteboardShapeDto/whiteboard-shape-dto';
 
 export class GlobalSelectedGroup extends ItemGroup {
   private static globalSelectedGroup: GlobalSelectedGroup;
@@ -52,38 +55,14 @@ export class GlobalSelectedGroup extends ItemGroup {
     this.copiedDtoArray.splice(0, this.copiedDtoArray.length);
   }
 
-  public pasteSelectedWbItems(){
+  public waitForCloneOperation() :Observable<any>{
     console.log("GlobalSelectedGroup >> pasteSelectedWbItems >> 진입함");
-    this.extractAllFromSelection();
-
-    return new Observable((observer)=>{
-      let observerCounter = this.copiedDtoArray.length;
-      let tempGsgArray = new Array<WhiteboardItem>();
-
-      for (let i = 0; i < this.copiedDtoArray.length; i++) {
-        let currDto = this.copiedDtoArray[i];
-        WhiteboardItemFactory.cloneWbItem(currDto).subscribe((data)=>{
-          console.log("GlobalSelectedGroup >>  >> data : ",data);
-          //this.insertOneIntoSelection(data);
-          tempGsgArray.push(data);
-          observerCounter--;
-          console.log("GlobalSelectedGroup >>  >> observerCounter : ",observerCounter);
-
-          if(observerCounter <= 0){
-            // #### 복제가 완전히 완료된 경우, 해당 조건문에 진입함 ####
-
-            
-
-            //copiedDtoArray 리셋
-            this.extractCopiedItems();
-
-
-
-            observer.next(tempGsgArray);
-          }
-        });
-
-      }
+    return new Observable<any>((observer)=>{
+      WhiteboardItemFactory.cloneWbItems(this.copiedDtoArray).subscribe((copiedItems:Array<WhiteboardItem>)=>{
+        this.extractAllFromSelection();
+        this.extractCopiedItems();
+        observer.next(copiedItems);
+      });
     });
   }
 
@@ -94,7 +73,7 @@ export class GlobalSelectedGroup extends ItemGroup {
   }
   public doPaste(newPosition){
     if(this.copiedDtoArray.length > 0){
-      this.pasteSelectedWbItems().subscribe((data:Array<WhiteboardItem>)=>{
+      this.waitForCloneOperation().subscribe((data:Array<WhiteboardItem>)=>{
         console.log("GlobalSelectedGroup >> subscribe finally pasted >> 진입함");
         console.log("GlobalSelectedGroup >>  >> newPosition : ",newPosition);
         for (let i = 0; i < data.length; i++) {

@@ -125,6 +125,7 @@ export abstract class EditableLink implements Editable{
   public abstract refreshLink();
   // #### 실제 링크 메서드
   public abstract linkToWbShape(upPoint)  : EditableLink;
+  public abstract manuallyLinkToWbShape(toWbShape:WhiteboardShape, toLinkPortDirection) : EditableLink;
 
   protected onLinkEstablished(){
     let adjustorCircle = new Circle( this.linkObject.lastSegment.point, HandlerOption.circleRadius );

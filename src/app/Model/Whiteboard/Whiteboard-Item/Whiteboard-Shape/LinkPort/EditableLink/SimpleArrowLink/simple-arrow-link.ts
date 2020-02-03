@@ -118,6 +118,37 @@ export class SimpleArrowLink extends EditableLink{
     this.onLinkEstablished();
     return this;
   }
+  public manuallyLinkToWbShape(toWbShape:WhiteboardShape, toLinkPortDirection) : EditableLink{
+    this.destroyTempLink();
+    this.toLinkPort = toWbShape.linkPortMap.get(toLinkPortDirection);
+    this.setToLinkEventEmitter();
+
+    this.startPoint = this.fromLinkPort.calcLinkPortPosition();
+
+    let upPoint = this.toLinkPort.calcLinkPortPosition();
+
+    let vector = this.startPoint.subtract(upPoint);
+
+    let arrowVector = vector.normalize(this.normalizeFactor);
+    // @ts-ignore
+    let arrowLeftWing = upPoint.add(arrowVector.rotate(35));
+    // @ts-ignore
+    let arrowRightWing = upPoint.add(arrowVector.rotate(-35));
+
+    this.linkObject.add( this.fromLinkPort.calcLinkPortPosition() );
+    this.linkObject.add(upPoint);
+    this.linkObject.add(arrowLeftWing);
+    this.linkObject.add(upPoint);
+    this.linkObject.add(arrowRightWing);
+    this.linkObject.add(upPoint);
+
+    this.linkObject.onFrame = (event)=>{
+      this.refreshLink();
+    };
+    this.layerService.drawingLayer.addChild(this.linkObject);
+    this.onLinkEstablished();
+    return this;
+  }
   // ####
 
   // ####

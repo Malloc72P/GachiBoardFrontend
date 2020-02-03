@@ -32,6 +32,26 @@ export class SimpleLineLink extends EditableLink {
     this.tempLinkPath.add(draggedPoint);
   }
 
+  public manuallyLinkToWbShape(toWbShape:WhiteboardShape, toLinkPortDirection) : EditableLink{
+    this.destroyTempLink();
+    this.toLinkPort = toWbShape.linkPortMap.get(toLinkPortDirection);
+    this.setToLinkEventEmitter();
+
+    this.startPoint = this.fromLinkPort.calcLinkPortPosition();
+    let draggedPoint = this.toLinkPort.calcLinkPortPosition();
+
+    this.linkObject.add(this.fromLinkPort.calcLinkPortPosition());
+    this.linkObject.add(draggedPoint);
+
+    this.linkObject.onFrame = (event)=>{
+      this.refreshLink();
+    };
+    this.layerService.drawingLayer.addChild(this.linkObject);
+    this.onLinkEstablished();
+    return this;
+  }
+
+
   // ####
 
   // #### 실제 링크 메서드
