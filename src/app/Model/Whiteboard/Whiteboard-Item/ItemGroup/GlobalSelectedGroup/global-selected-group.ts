@@ -69,7 +69,7 @@ export class GlobalSelectedGroup extends ItemGroup {
   public insertOneIntoSelection(wbItem: WhiteboardItem) {
     this.insertOneIntoGroup(wbItem);
 
-    this.layerService.horizonContextMenuService.open(this.group.bounds, this.wbItemGroup);
+    this.layerService.horizonContextMenuService.open();
   }
 
   public extractAllFromSelection() {

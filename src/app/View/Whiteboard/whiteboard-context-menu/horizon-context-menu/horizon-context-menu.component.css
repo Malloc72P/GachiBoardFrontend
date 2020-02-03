@@ -19,27 +19,3 @@
   width: 24px;
   height: 24px;
 }
-
-.sub-panel-wrapper {
-  padding: 8px;
-  width: 128px;
-}
-
-.color-selector {
-  display: inline-block;
-  width: 20px;
-  height: 20px;
-  border-radius: 15px;
-  cursor: pointer;
-  margin: 5px;
-}
-
-.color-selector-add {
-  transform: translate(0, -5px);
-  display: inline-block;
-  fill: lightgray;
-  cursor: pointer;
-  width: 20px;
-  height: 20px;
-  margin: 5px;
-}

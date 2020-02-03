@@ -67,6 +67,8 @@ import {LinkModeManagerService} from './Model/Whiteboard/InfiniteCanvas/DrawingL
 import {CursorTrackerService} from "./Model/Whiteboard/CursorTracker/cursor-tracker-service/cursor-tracker.service";
 import {CursorChangeService} from "./Model/Whiteboard/Pointer/cursor-change-service/cursor-change.service";
 import { HorizonContextMenuComponent } from './View/Whiteboard/whiteboard-context-menu/horizon-context-menu/horizon-context-menu.component';
+import { SubPanelForLineComponent } from './View/Whiteboard/whiteboard-context-menu/horizon-context-menu/sub-panel-line/sub-panel-for-line.component';
+import { SubPanelForFillComponent } from './View/Whiteboard/whiteboard-context-menu/horizon-context-menu/sub-panel-fill/sub-panel-for-fill.component';
 
 const appRoutes: Routes = [
   {
@@ -118,6 +120,8 @@ const appRoutes: Routes = [
     ToolShapePanelComponent,
     WhiteboardContextMenuComponent,
     HorizonContextMenuComponent,
+    SubPanelForLineComponent,
+    SubPanelForFillComponent,
   ],
   entryComponents: [
     KanbanComponent,

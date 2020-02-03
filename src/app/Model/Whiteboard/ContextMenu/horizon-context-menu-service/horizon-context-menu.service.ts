@@ -1,25 +1,25 @@
 import * as paper from 'paper';
 
-import {EventEmitter, Injectable} from '@angular/core';
+import {Injectable} from '@angular/core';
 import {HorizonContextMenuActions, HorizonContextMenuTypes} from "./horizon-context-menu.enum";
 import {WhiteboardItem} from "../../Whiteboard-Item/whiteboard-item";
 import {PositionCalcService} from "../../PositionCalc/position-calc.service";
 import {EditableShape} from "../../Whiteboard-Item/Whiteboard-Shape/EditableShape/editable-shape";
 import {EditableStroke} from "../../Whiteboard-Item/editable-stroke/editable-stroke";
-// @ts-ignore
-import Rectangle = paper.Rectangle;
 import {ZoomEvent} from "../../InfiniteCanvas/ZoomControl/ZoomEvent/zoom-event";
 import {ZoomEventEnum} from "../../InfiniteCanvas/ZoomControl/ZoomEvent/zoom-event-enum.enum";
-import {DrawingLayerManagerService} from "../../InfiniteCanvas/DrawingLayerManager/drawing-layer-manager.service";
 import {GlobalSelectedGroup} from "../../Whiteboard-Item/ItemGroup/GlobalSelectedGroup/global-selected-group";
 import {InfiniteCanvasService} from "../../InfiniteCanvas/infinite-canvas.service";
+// @ts-ignore
+import Rectangle = paper.Rectangle;
+import {subPanelStatus} from "./sub-panel-status";
 
 @Injectable({
   providedIn: 'root'
 })
 export class HorizonContextMenuService {
   private _isHidden = true;
-  private _subPanelHidden = new subPanelIsHidden();
+  private _subPanelHidden = new subPanelStatus();
   private _centerTop = { x: 0, y: 0};
   private _menuItemArray = new Array<HorizonContextMenuActions>();
   private _globalSelectedGroup: GlobalSelectedGroup;
@@ -199,49 +199,11 @@ export class HorizonContextMenuService {
     return this._menuItemArray;
   }
 
-  get subPanelHidden(): subPanelIsHidden {
+  get subPanelHidden(): subPanelStatus {
     return this._subPanelHidden;
   }
 
   get globalSelectedGroup(): GlobalSelectedGroup {
     return this._globalSelectedGroup;
-  }
-}
-
-export class subPanelIsHidden {
-  public subPanel = new Map<HorizonContextMenuActions, boolean>();
-
-  constructor() {
-    this.subPanel.set(HorizonContextMenuActions.LINE, true);
-  }
-
-  public isHidden(panel: HorizonContextMenuActions) {
-    return this.subPanel.get(panel);
-  }
-
-  public hideThis(panel: HorizonContextMenuActions) {
-    this.subPanel.set(panel, true);
-  }
-
-  public revealThis(panel: HorizonContextMenuActions) {
-    this.subPanel.set(panel, false);
-  }
-
-  public toggleThis(panel: HorizonContextMenuActions) {
-    this.subPanel.set(panel, !this.isHidden(panel));
-  }
-
-  public hideAll() {
-    this.subPanel.forEach((value, key) => {
-      this.subPanel.set(key, true);
-    });
-  }
-
-  public hideOther(panel: HorizonContextMenuActions) {
-    this.subPanel.forEach((value, key) => {
-      if(key !== panel) {
-        this.subPanel.set(key, true);
-      }
-    });
   }
 }

@@ -2,11 +2,11 @@ import * as paper from 'paper';
 // @ts-ignore
 import Color = paper.Color;
 
-import {Component, OnInit} from '@angular/core';
+import {Component, Input, OnInit} from '@angular/core';
 import {HorizonContextMenuActions} from "../../../../Model/Whiteboard/ContextMenu/horizon-context-menu-service/horizon-context-menu.enum";
 import {
   HorizonContextMenuService,
-  subPanelIsHidden
+  subPanelStatus
 } from "../../../../Model/Whiteboard/ContextMenu/horizon-context-menu-service/horizon-context-menu.service";
 import {MatSliderChange} from "@angular/material/slider";
 
@@ -36,11 +36,13 @@ export class HorizonContextMenuComponent implements OnInit {
   // ################### Private Method #####################
 
   private onClickMenuItem(action: HorizonContextMenuActions) {
+    this.horizonContextMenuService.subPanelHidden.hideOther(action);
     switch (action) {
       case HorizonContextMenuActions.LINE:
         this.horizonContextMenuService.subPanelHidden.toggleThis(action);
         break;
       case HorizonContextMenuActions.FILL:
+        this.horizonContextMenuService.subPanelHidden.toggleThis(action);
         break;
       case HorizonContextMenuActions.LOCK:
         break;
@@ -91,10 +93,16 @@ export class HorizonContextMenuComponent implements OnInit {
   }
 
   private onColorPickerClicked(index: number) {
-
+    this.horizonContextMenuService.globalSelectedGroup.wbItemGroup[0].coreItem.strokeColor = this.colors[index];
   }
 
   private onAddColorClicked() {
+    let color = new Color(this.colorPickerPicked);
+    this.colors.push(color);
+    this.onColorPickerClicked(this.colors.length - 1);
+  }
+
+  private initLineSubPanel() {
 
   }
 
@@ -104,7 +112,7 @@ export class HorizonContextMenuComponent implements OnInit {
     return this.horizonContextMenuService.isHidden;
   }
 
-  get isHiddenSubPanel(): subPanelIsHidden {
+  get isHiddenSubPanel(): subPanelStatus {
     return this.horizonContextMenuService.subPanelHidden;
   }
 
