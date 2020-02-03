@@ -140,9 +140,8 @@ export class WhiteboardItemFactory {
       let newPoint = edtStrokeDto.segments[i];
       newPath.add( new Point(newPoint.x, newPoint.y) );
     }
-
-    //newPath.simplify(3);
-    newPath.smooth();
+    newPath.smooth({ type: 'catmull-rom', factor: 0.5 });
+    //newPath.simplify(1);
 
     return newPath
   }
