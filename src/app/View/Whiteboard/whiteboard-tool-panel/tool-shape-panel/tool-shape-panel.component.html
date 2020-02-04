@@ -22,7 +22,7 @@
   <hr>
   <div>
     <svg class="color-selector-svg">
-      <use [attr.xlink:href]="transparencySelectedToHTML()" (click)="onColorPickerClicked(-1)"/>
+      <use [attr.href]="transparencySelectedToHTML()" (click)="onColorPickerClicked(-1)"/>
     </svg>
     <div *ngFor="let color of colors; index as i" class="color-selector {{colorSelectedToHTML(i)}}"
          [style.background-color]="colorToHTMLRGB(color)"

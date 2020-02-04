@@ -60,7 +60,7 @@ export class HorizonContextMenuService {
   }
 
   public refreshPosition() {
-    this.setMenuPosition(this._globalSelectedGroup.group.bounds);
+    this.setMenuPosition(this.coreItem.bounds);
   }
 
   // ################### Private Method #####################

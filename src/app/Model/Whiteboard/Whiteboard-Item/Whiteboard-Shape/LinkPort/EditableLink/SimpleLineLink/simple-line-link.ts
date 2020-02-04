@@ -55,6 +55,8 @@ export class SimpleLineLink extends EditableLink {
 
     this.linkObject.onFrame = (event) => {
       this.refreshLink();
+      // TODO : EventEmitter 사용 고려
+      this.layerService.horizonContextMenuService.refreshPosition();
     };
     this.layerService.drawingLayer.addChild(this.linkObject);
     this.onLinkEstablished();

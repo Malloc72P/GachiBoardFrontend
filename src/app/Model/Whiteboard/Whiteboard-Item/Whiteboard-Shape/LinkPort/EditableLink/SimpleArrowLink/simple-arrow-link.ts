@@ -113,6 +113,7 @@ export class SimpleArrowLink extends EditableLink{
 
     this.linkObject.onFrame = (event)=>{
       this.refreshLink();
+      this.layerService.horizonContextMenuService.refreshPosition();
     };
     this.layerService.drawingLayer.addChild(this.linkObject);
     this.onLinkEstablished();

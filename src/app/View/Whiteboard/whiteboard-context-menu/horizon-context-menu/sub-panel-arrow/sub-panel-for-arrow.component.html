@@ -6,8 +6,8 @@
     <div>
       <div *ngFor="let style of arrowStyles; index as i" class="selector">
         <svg width="24" height="24">
-          <use [attr.xlink:href]="'/assets/images/context-menu/arrows.svg#' + style"/>
-          <use [attr.xlink:href]="'/assets/images/context-menu/arrows.svg#' + selectedSVG" *ngIf="true"/>
+          <use [attr.href]="'/assets/images/context-menu/arrows.svg#' + style"/>
+          <use [attr.href]="'/assets/images/context-menu/arrows.svg#' + selectedSVG" *ngIf="true"/>
         </svg>
       </div>
     </div>
