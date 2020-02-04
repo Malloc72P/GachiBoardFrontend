@@ -37,11 +37,11 @@ export class SubPanelForLineComponent implements OnInit {
   }
 
   private onStrokeWidthChanged(event: MatSliderChange) {
-    this.coreItem.strokeWidth = event.value;
+    this.menu.coreItem.strokeWidth = event.value;
   }
 
   private onColorPickerClicked(index: number) {
-    this.coreItem.strokeColor = this.colors[index];
+    this.menu.coreItem.strokeColor = this.colors[index];
   }
 
   private onAddColorClicked() {
@@ -52,7 +52,7 @@ export class SubPanelForLineComponent implements OnInit {
 
   private colorSelectedToHTML(index: number) {
     if(this.menu.globalSelectedGroup.wbItemGroup.length > 0) {
-      if(this.colors[index].equals(this.coreItem.strokeColor)) {
+      if(this.colors[index].equals(this.menu.coreItem.strokeColor)) {
         return "selected";
       } else {
         return;
@@ -64,17 +64,9 @@ export class SubPanelForLineComponent implements OnInit {
 
   get strokeWidth(): number {
     if(this.menu.globalSelectedGroup.wbItemGroup.length > 0) {
-      return this.coreItem.strokeWidth;
+      return this.menu.coreItem.strokeWidth;
     } else {
       return 1;
-    }
-  }
-
-  get coreItem() {
-    if(this.menu.item instanceof WhiteboardItem) {
-      return this.menu.item.coreItem;
-    } else if(this.menu.item instanceof SimpleArrowLink) {
-      return this.menu.item.linkObject;
     }
   }
 

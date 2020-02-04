@@ -49,7 +49,7 @@ export class HorizonContextMenuService {
 
   public open() {
     this.setMenuItem(this.instanceCheckItem(this._globalSelectedGroup.wbItemGroup));
-    this.setMenuPosition(this._globalSelectedGroup.group.bounds);
+    this.setMenuPosition(this.coreItem.bounds);
     this._isHidden = false;
     this.initMenuSizeValue();
   }
@@ -91,6 +91,7 @@ export class HorizonContextMenuService {
   private instanceCheckItem(wbItemGroup: Array<WhiteboardItem>): HorizonContextMenuTypes {
     // GSG 에 선택된 아이템이 한개이상 (다중선택)
     if(wbItemGroup.length > 1) {
+      this._item = wbItemGroup;
       return HorizonContextMenuTypes.ITEMS;
     // GSG 에 선택된 아이템이 한개 (단일선택)
     } else {
@@ -243,5 +244,15 @@ export class HorizonContextMenuService {
 
   get item() {
     return this._item;
+  }
+
+  get coreItem() {
+    if(this.item instanceof WhiteboardItem) {
+      return this.item.coreItem;
+    } else if(this.item instanceof SimpleArrowLink) {
+      return this.item.linkObject;
+    } else if(Array.isArray(this.item)) {
+      return this.globalSelectedGroup.group;
+    }
   }
 }

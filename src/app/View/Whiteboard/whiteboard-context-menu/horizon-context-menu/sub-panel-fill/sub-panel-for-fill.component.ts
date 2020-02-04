@@ -23,7 +23,7 @@ export class SubPanelForFillComponent implements OnInit {
   private colorPickerPicked;
 
   constructor(
-    private horizonContextMenuService: HorizonContextMenuService,
+    private menu: HorizonContextMenuService,
   ) { }
 
   ngOnInit() {
@@ -34,7 +34,7 @@ export class SubPanelForFillComponent implements OnInit {
   }
 
   private onColorPickerClicked(index: number) {
-    this.horizonContextMenuService.globalSelectedGroup.wbItemGroup[0].coreItem.fillColor = this.colors[index];
+    this.menu.coreItem.fillColor = this.colors[index];
   }
 
   private onAddColorClicked() {
@@ -44,8 +44,8 @@ export class SubPanelForFillComponent implements OnInit {
   }
 
   private colorSelectedToHTML(index: number) {
-    if(this.horizonContextMenuService.globalSelectedGroup.wbItemGroup.length > 0) {
-      if(this.colors[index].equals(this.horizonContextMenuService.globalSelectedGroup.wbItemGroup[0].coreItem.fillColor)) {
+    if(this.menu.globalSelectedGroup.wbItemGroup.length > 0) {
+      if(this.colors[index].equals(this.menu.coreItem.fillColor)) {
         return "selected";
       } else {
         return;
@@ -56,11 +56,11 @@ export class SubPanelForFillComponent implements OnInit {
   }
 
   get centerTop(): { x: number; y: number } {
-    return this.horizonContextMenuService.centerTop;
+    return this.menu.centerTop;
   }
 
   get isHiddenSubPanel(): subPanelStatus {
-    return this.horizonContextMenuService.subPanelHidden;
+    return this.menu.subPanelHidden;
   }
 
   get horizonContextMenuActions() {
