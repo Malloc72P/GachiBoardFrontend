@@ -186,8 +186,8 @@ export abstract class EditableLink implements Editable{
       this.showLinkObject();
     };
     this.linkAdjustors.set(LinkAdjustorPositionEnum.END_OF_LINK, adjustorCircle);
-    this.id = this.layerService.getWbId();
-    this.layerService.addWbLink(this);
+    /*this.id = this.layerService.getWbId();
+    this.layerService.addWbLink(this);*/
   }
 
   // #### 링크 삭제 메서드

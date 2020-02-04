@@ -179,6 +179,8 @@ export class LinkPort {
     let toLinkList = newLink.toLinkPort.toLinkList;
     toLinkList.splice(toLinkList.length, 0, newLink);
     this.owner.notifyItemModified();
+    newLink.id = this.layerService.getWbId();
+    this.layerService.addWbLink(newLink);
     newLink.toLinkPort.owner.notifyItemModified();
   }
 
