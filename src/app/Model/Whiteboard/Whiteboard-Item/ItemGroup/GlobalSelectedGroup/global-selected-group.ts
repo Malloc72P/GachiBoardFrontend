@@ -72,7 +72,7 @@ export class GlobalSelectedGroup extends ItemGroup {
           if(observerCounter <= 0){
             // #### 복제가 완전히 완료된 경우, 해당 조건문에 진입함 ####
 
-            
+
 
             //copiedDtoArray 리셋
             this.extractCopiedItems();
@@ -142,12 +142,12 @@ export class GlobalSelectedGroup extends ItemGroup {
 
   public insertOneIntoSelection(wbItem: WhiteboardItem) {
     this.insertOneIntoGroup(wbItem);
-
     this.layerService.horizonContextMenuService.open();
   }
 
   public extractAllFromSelection() {
     this.layerService.horizonContextMenuService.close();
+    this.isLinkSelected = false;
     this.extractAllFromGroup();
   }
 

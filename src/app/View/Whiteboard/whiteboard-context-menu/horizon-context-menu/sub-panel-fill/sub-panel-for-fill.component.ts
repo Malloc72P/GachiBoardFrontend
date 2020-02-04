@@ -10,7 +10,7 @@ import {subPanelStatus} from "../../../../../Model/Whiteboard/ContextMenu/horizo
 @Component({
   selector: 'app-sub-panel-for-fill',
   templateUrl: './sub-panel-for-fill.component.html',
-  styleUrls: ['./sub-panel-for-fill.component.css']
+  styleUrls: ['../horizon-context-menu.component.css']
 })
 export class SubPanelForFillComponent implements OnInit {
   // TODO : 유저 데이터에 있을 컬러를 colors 로 지정해주면 댐 -- 전역에서 사용하는 user-color

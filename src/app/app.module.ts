@@ -70,6 +70,7 @@ import { HorizonContextMenuComponent } from './View/Whiteboard/whiteboard-contex
 import { SubPanelForLineComponent } from './View/Whiteboard/whiteboard-context-menu/horizon-context-menu/sub-panel-line/sub-panel-for-line.component';
 import { SubPanelForFillComponent } from './View/Whiteboard/whiteboard-context-menu/horizon-context-menu/sub-panel-fill/sub-panel-for-fill.component';
 import {HorizonContextMenuService} from "./Model/Whiteboard/ContextMenu/horizon-context-menu-service/horizon-context-menu.service";
+import { SubPanelForArrowComponent } from './View/Whiteboard/whiteboard-context-menu/horizon-context-menu/sub-panel-arrow/sub-panel-for-arrow.component';
 
 const appRoutes: Routes = [
   {
@@ -123,6 +124,7 @@ const appRoutes: Routes = [
     HorizonContextMenuComponent,
     SubPanelForLineComponent,
     SubPanelForFillComponent,
+    SubPanelForArrowComponent,
   ],
   entryComponents: [
     KanbanComponent,

@@ -51,6 +51,7 @@ export class HorizonContextMenuComponent implements OnInit {
       case HorizonContextMenuActions.MORE:
         break;
       case HorizonContextMenuActions.ARROW_WING:
+        this.horizonContextMenuService.subPanelHidden.toggleThis(action);
         break;
       case HorizonContextMenuActions.GROUP:
         break;
@@ -74,7 +75,7 @@ export class HorizonContextMenuComponent implements OnInit {
       case HorizonContextMenuActions.MORE:
         return "/assets/images/context-menu/more.svg#more";
       case HorizonContextMenuActions.ARROW_WING:
-        return "/assets/images/context-menu/arrow_wing.svg#arrow_wing";
+        return "/assets/images/context-menu/arrow.svg#arrow";
       case HorizonContextMenuActions.GROUP:
         return "/assets/images/context-menu/group.svg#group";
       case HorizonContextMenuActions.UNGROUP:
