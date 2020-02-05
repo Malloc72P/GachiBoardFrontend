@@ -46,6 +46,7 @@ import {LinkerModeChangeEvent} from './LinkModeManagerService/LinkerModeChangeEv
 import {LinkerMode} from './LinkModeManagerService/LinkMode/linker-mode';
 import {EditableItemGroup} from '../../Whiteboard-Item/ItemGroup/EditableItemGroup/editable-item-group';
 import {HorizonContextMenuService} from "../../ContextMenu/horizon-context-menu-service/horizon-context-menu.service";
+import {CursorChangeService} from "../../Pointer/cursor-change-service/cursor-change.service";
 
 
 @Injectable({
@@ -81,6 +82,7 @@ export class DrawingLayerManagerService {
     private _posCalcService:PositionCalcService,
     private _infiniteCanvasService:InfiniteCanvasService,
     private _horizonContextMenuService: HorizonContextMenuService,
+    private _cursorChangeService: CursorChangeService,
   ) {
     this._whiteboardItemArray = new Array<WhiteboardItem>();
     this._editableLinkArray = new Array<EditableLink>();
@@ -597,6 +599,10 @@ export class DrawingLayerManagerService {
   }
   get horizonContextMenuService(): HorizonContextMenuService {
     return this._horizonContextMenuService;
+  }
+
+  get cursorChanger(): CursorChangeService {
+    return this._cursorChangeService;
   }
 
 //#####################################

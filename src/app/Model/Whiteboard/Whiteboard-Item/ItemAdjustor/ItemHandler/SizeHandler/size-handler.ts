@@ -70,4 +70,12 @@ export class SizeHandler extends ItemHandler{
     this.adjustSizeFrom = this.getOppositeHandlerPosition(this.handlerDirection);
   }
 
+  public onMouseEnter() {
+    this.owner.layerService.cursorChanger.changeResize(this.handlerDirection);
+  }
+
+  public onMouseLeave() {
+    this.owner.layerService.cursorChanger.syncCurrentPointerMode(this.owner.layerService.currentPointerMode);
+  }
+
 }
