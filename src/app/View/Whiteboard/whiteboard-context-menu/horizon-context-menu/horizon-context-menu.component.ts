@@ -47,6 +47,7 @@ export class HorizonContextMenuComponent implements OnInit {
       case HorizonContextMenuActions.UNLOCK:
         break;
       case HorizonContextMenuActions.FONT_STYLE:
+        this.horizonContextMenuService.subPanelHidden.toggleThis(action);
         break;
       case HorizonContextMenuActions.MORE:
         break;

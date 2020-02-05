@@ -8,6 +8,7 @@ export class TextStyle {
   private _fontFamily: string;
   private _fontSize: number;
   private _fontWeight: string;
+  private _fontColor: string;
   private _isItalic;
   private _isUnderline;
   private _horizontalAlign: Align;
@@ -53,6 +54,14 @@ export class TextStyle {
 
   set fontSize(value) {
     this._fontSize = value;
+  }
+
+  get fontColor(): string {
+    return this._fontColor;
+  }
+
+  set fontColor(value: string) {
+    this._fontColor = value;
   }
 
   get fontWeight() {

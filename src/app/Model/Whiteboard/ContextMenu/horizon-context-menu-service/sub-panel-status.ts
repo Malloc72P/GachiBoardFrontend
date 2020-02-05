@@ -7,6 +7,7 @@ export class subPanelStatus {
     this.subPanel.set(HorizonContextMenuActions.LINE, true);
     this.subPanel.set(HorizonContextMenuActions.FILL, true);
     this.subPanel.set(HorizonContextMenuActions.ARROW_WING, true);
+    this.subPanel.set(HorizonContextMenuActions.FONT_STYLE, true);
   }
 
   public isHidden(panel: HorizonContextMenuActions) {

@@ -132,7 +132,9 @@ export abstract class EditableShape extends WhiteboardShape {
     let adjustedTextContent = this.getAdjustedTextContent(
       convertedText,
       this.layerService.posCalcService.advConvertLengthNgToPaper(this.coreItem.bounds.width),
-      this.layerService.posCalcService.advConvertLengthNgToPaper(this.coreItem.bounds.height));
+      this.layerService.posCalcService.advConvertLengthNgToPaper(this.coreItem.bounds.height),
+      this.textStyle
+    );
 
     this.modifyEditText(adjustedTextContent, this.rawTextContent);
 
@@ -162,17 +164,15 @@ export abstract class EditableShape extends WhiteboardShape {
     this.editText.bringToFront();
   }
 
-  private getAdjustedTextContent(text: string, width: number, height: number) {
+  private getAdjustedTextContent(text: string, width: number, height: number, textStyle: TextStyle) {
     let calcText = '';
     let charWidth;
     let calcWidth = 0;
     let charHeight;
     let calcHeight = 0;
 
-    width -= EditableShape.EDIT_TEXT_PADDING * 2;
-    height -= EditableShape.EDIT_TEXT_PADDING * 2;
-
-    let textStyle = new TextStyle();
+    width -= EditableShape.EDIT_TEXT_PADDING * 2 + 2;
+    height -= EditableShape.EDIT_TEXT_PADDING * 2 + 2;
 
     if (text === '') {
       calcText = '';

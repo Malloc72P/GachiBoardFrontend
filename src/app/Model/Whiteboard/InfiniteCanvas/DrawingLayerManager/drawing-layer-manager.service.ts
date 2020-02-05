@@ -440,7 +440,7 @@ export class DrawingLayerManagerService {
     let edtWidth = this.posCalcService.advConvertLengthPaperToNg(bound.width);
     let edtHeight = this.posCalcService.advConvertLengthPaperToNg(bound.height);
 
-    let textStyle = new TextStyle();
+    let textStyle = editableShape.textStyle;
 
     // EditText HTML Element 스타일 설정
     htmlTextEditorWrapper.style.left = htmlEditorPoint.x + "px";
@@ -449,9 +449,11 @@ export class DrawingLayerManagerService {
     htmlTextEditorWrapper.style.height = edtHeight - padding * 2 + "px";
 
     htmlTextEditorElement.style.width = edtWidth - padding * 2 + "px";
+    htmlTextEditorElement.style.color = textStyle.fontColor;
     htmlTextEditorElement.style.fontFamily = textStyle.fontFamily;
     htmlTextEditorElement.style.fontSize = textStyle.fontSize + "px";
     htmlTextEditorElement.style.fontWeight = textStyle.fontWeight;
+    htmlTextEditorElement.style.fontStyle = textStyle.isItalic ? "italic" : "";
 
     // 숨겨져있던 Editable 영역 표시
     window.setTimeout(() => {
