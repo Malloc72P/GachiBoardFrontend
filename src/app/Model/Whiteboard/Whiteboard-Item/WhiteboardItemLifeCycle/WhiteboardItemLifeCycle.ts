@@ -4,7 +4,7 @@ import {EditableLink} from '../Whiteboard-Shape/LinkPort/EditableLink/editable-l
 export class ItemLifeCycleEvent {
   id;
   item:WhiteboardItem;
-  action;
+  action:ItemLifeCycleEnum;
   constructor(id, item, action){
     this.id = id;
     this.item = item;

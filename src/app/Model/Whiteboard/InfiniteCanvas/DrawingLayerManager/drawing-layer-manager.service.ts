@@ -46,6 +46,7 @@ import {LinkerModeChangeEvent} from './LinkModeManagerService/LinkerModeChangeEv
 import {LinkerMode} from './LinkModeManagerService/LinkMode/linker-mode';
 import {EditableItemGroup} from '../../Whiteboard-Item/ItemGroup/EditableItemGroup/editable-item-group';
 import {HorizonContextMenuService} from "../../ContextMenu/horizon-context-menu-service/horizon-context-menu.service";
+import {WorkHistoryManager} from './WorkHistoryManager/work-history-manager';
 
 
 @Injectable({
@@ -169,6 +170,7 @@ export class DrawingLayerManagerService {
 
   }
   private initLifeCycleHandler(){
+    WorkHistoryManager.initInstance(this.wbItemLifeCycleEventEmitter);
     this.wbItemLifeCycleEventEmitter.subscribe((data:ItemLifeCycleEvent)=>{
       if(!data){
         return;

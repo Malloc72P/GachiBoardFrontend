@@ -25,6 +25,8 @@ import {LinkModeManagerService} from '../../../Model/Whiteboard/InfiniteCanvas/D
 import {CursorTrackerService} from "../../../Model/Whiteboard/CursorTracker/cursor-tracker-service/cursor-tracker.service";
 import {WhiteboardItemDto} from '../../../Model/Whiteboard/WhiteboardItemDto/whiteboard-item-dto';
 import {WhiteboardItemFactory} from '../../../Model/Whiteboard/InfiniteCanvas/WhiteboardItemFactory/whiteboard-item-factory';
+import {WorkHistoryManager} from '../../../Model/Whiteboard/InfiniteCanvas/DrawingLayerManager/WorkHistoryManager/work-history-manager';
+import {ItemLifeCycleEnum} from '../../../Model/Whiteboard/Whiteboard-Item/WhiteboardItemLifeCycle/WhiteboardItemLifeCycle';
 
 @Component({
   selector: 'app-whiteboard-main',
@@ -190,8 +192,10 @@ export class WhiteboardMainComponent implements OnInit {
         break;
     }
 
-    if (event.ctrlKey) {//컨트롤 필요한 단축키 처리
-      let gsg = this.layerService.globalSelectedGroup;
+    let gsg = this.layerService.globalSelectedGroup;
+    let workHistoryManager = WorkHistoryManager.getInstance();
+
+    if (event.ctrlKey && !event.shiftKey) {//컨트롤 필요한 단축키 처리
       switch (event.code) {
         case "KeyC":
           gsg.doCopy();
@@ -204,7 +208,32 @@ export class WhiteboardMainComponent implements OnInit {
           this.layerService.groupSelectedItems();
           //TODO 좌표 얻는 출처를 상현이의 커밋쪽을 기준으로 수정해야 함.
           break;
+        case "KeyZ":
+          let workData = workHistoryManager.undoTask();
+          if(workData){
+            console.log("\n\n");
+            console.log("WhiteboardMainComponent >> keydownHandler >> currentOperation : ",ItemLifeCycleEnum[workData.action]);
+            console.log("WhiteboardMainComponent >> keydownHandler >> workData : ",workData.wbItemDto);
+            console.log("\n\n");
+          }else {
+            console.log("WhiteboardMainComponent >> keydownHandler >> undo 할 태스크 없음");
+          }
+          break;
       }
+    }
+    else if(event.ctrlKey && event.shiftKey){//Ctrl + Shift
+      if (event.code === "KeyZ") {
+        let workData = workHistoryManager.redoTask();
+        if (workData) {
+          console.log('\n\n');
+          console.log('WhiteboardMainComponent >> keydownHandler >> currentOperation : ', ItemLifeCycleEnum[workData.action]);
+          console.log('WhiteboardMainComponent >> keydownHandler >> workData : ', workData.wbItemDto);
+          console.log("\n\n");
+        }else {
+          console.log("WhiteboardMainComponent >> keydownHandler >> redo 할 태스크 없음");
+        }
+      }
+
     }
 
     // 모드 귀속
