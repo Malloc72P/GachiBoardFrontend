@@ -66,6 +66,10 @@ export abstract class EditableShape extends WhiteboardShape {
         }
       }
     };//onFrame
+    this.textStyle.changed.subscribe(() => {
+      console.log("EditableShape >> textStyle >> Changed");
+      this.refreshItem();
+    });
     this.notifyItemCreation();
   }
 
@@ -107,17 +111,17 @@ export abstract class EditableShape extends WhiteboardShape {
 
   public refreshItem() {
     console.log('EditableShape >> refreshItem >> 진입함');
-    let newtopLeft = new Point(this.group.bounds.topLeft.x, this.group.bounds.topLeft.y);
+    let newTopLeft = new Point(this.group.bounds.topLeft.x, this.group.bounds.topLeft.y);
 
-    let newWidth = this.group.bounds.width + 0;
-    let newHeight = this.group.bounds.height + 0;
+    let newWidth = this.group.bounds.width;
+    let newHeight = this.group.bounds.height;
 
     this.group.matrix.reset();
     this.editText.matrix.reset();
 
     this.coreItem.bounds.width = newWidth;
     this.coreItem.bounds.height = newHeight;
-    this.coreItem.bounds.topLeft = newtopLeft;
+    this.coreItem.bounds.topLeft = newTopLeft;
 
     this.group.addChild(this.editText);
     this.group.addChild(this.coreItem);
@@ -138,9 +142,6 @@ export abstract class EditableShape extends WhiteboardShape {
 
     this.modifyEditText(adjustedTextContent, this.rawTextContent);
 
-    //this.topLeft.x = this.coreItem.bounds.topLeft.x;
-    //this.topLeft.y = this.coreItem.bounds.topLeft.y;
-
     this.editText.bringToFront();
 
     this.lifeCycleEventEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.MODIFY));
@@ -158,6 +159,7 @@ export abstract class EditableShape extends WhiteboardShape {
     this.editText.fontFamily = this.textStyle.fontFamily;
     this.editText.fontSize = this.textStyle.fontSize;
     this.editText.fontWeight = this.textStyle.fontWeight;
+    this.editText.fillColor = new Color(this.textStyle.fontColor);
 
     this.textBound = new Rectangle(this.editText.bounds);
 
@@ -239,7 +241,8 @@ export abstract class EditableShape extends WhiteboardShape {
     let editableShapeDto:EditableShapeDto =  super.exportToDto() as EditableShapeDto;
     editableShapeDto.textContent = this.textContent;
     editableShapeDto.rawTextContent = this.rawTextContent;
-    editableShapeDto.textStyle = this.textStyle;
+    editableShapeDto.textStyle = this.textStyle.clone();
+    // editableShapeDto.textStyle = this.textStyle;
     return editableShapeDto;
   }
 

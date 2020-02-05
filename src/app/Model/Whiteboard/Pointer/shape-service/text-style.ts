@@ -1,3 +1,5 @@
+import {EventEmitter} from "@angular/core";
+
 export enum Align {
   LEFT,
   CENTER,
@@ -7,37 +9,26 @@ export enum Align {
 export class TextStyle {
   private _fontFamily: string;
   private _fontSize: number;
-  private _fontWeight: string;
   private _fontColor: string;
-  private _isItalic;
-  private _isUnderline;
+  private _isItalic: boolean;
+  private _isBold: boolean;
   private _horizontalAlign: Align;
   private _verticalAlign: Align;
+  private _changeEmitter: EventEmitter<any>;
 
-  constructor(fontFamily?: string, fontSize?: number, horizontalAlign?: Align, verticalAlign?: Align) {
-    if(fontFamily) {
-      this._fontFamily = fontFamily;
-    } else {
-      this._fontFamily = "sans-serif";
-    }
-    if(fontSize) {
-      this._fontSize = fontSize;
-    } else {
-      this._fontSize = 12;
-    }
-    if(horizontalAlign) {
-      this._horizontalAlign = horizontalAlign;
-    } else {
-      this._horizontalAlign = Align.CENTER;
-    }
-    if(verticalAlign) {
-      this._verticalAlign = verticalAlign;
-    } else {
-      this._verticalAlign = Align.CENTER;
-    }
-    this._fontWeight = 'normal';
-    this._isItalic = false;
-    this._isUnderline = false;
+  constructor(fontFamily?: string, fontSize?: number, fontColor?: string, isBold?: boolean, isItalic?: boolean, horizontalAlign?: Align, verticalAlign?: Align) {
+    this._changeEmitter = new EventEmitter<any>();
+    this.fontFamily = fontFamily ? fontFamily : "sans-serif";
+    this.fontSize = fontSize ? fontSize : 12;
+    this.fontColor = fontColor ? fontColor : "black";
+    this.horizontalAlign = horizontalAlign ? horizontalAlign : Align.CENTER;
+    this.verticalAlign = verticalAlign ? verticalAlign : Align.CENTER;
+    this.isBold = isBold ? isBold : false;
+    this.isItalic = isItalic ? isItalic : false;
+  }
+
+  public clone() {
+    return new TextStyle(this.fontFamily, this.fontSize, this.fontColor, this.isBold, this.isItalic, this.horizontalAlign, this.verticalAlign);
   }
 
   get fontFamily() {
@@ -46,6 +37,7 @@ export class TextStyle {
 
   set fontFamily(value) {
     this._fontFamily = value;
+    this._changeEmitter.emit();
   }
 
   get fontSize() {
@@ -54,6 +46,7 @@ export class TextStyle {
 
   set fontSize(value) {
     this._fontSize = value;
+    this._changeEmitter.emit();
   }
 
   get fontColor(): string {
@@ -62,14 +55,16 @@ export class TextStyle {
 
   set fontColor(value: string) {
     this._fontColor = value;
+    this._changeEmitter.emit();
   }
 
-  get fontWeight() {
-    return this._fontWeight;
+  get isBold(): boolean {
+    return this._isBold;
   }
 
-  set fontWeight(value) {
-    this._fontWeight = value;
+  set isBold(value: boolean) {
+    this._isBold = value;
+    this._changeEmitter.emit();
   }
 
   get isItalic() {
@@ -78,14 +73,7 @@ export class TextStyle {
 
   set isItalic(value) {
     this._isItalic = value;
-  }
-
-  get isUnderline() {
-    return this._isUnderline;
-  }
-
-  set isUnderline(value) {
-    this._isUnderline = value;
+    this._changeEmitter.emit();
   }
 
   get horizontalAlign() {
@@ -94,6 +82,7 @@ export class TextStyle {
 
   set horizontalAlign(value) {
     this._horizontalAlign = value;
+    this._changeEmitter.emit();
   }
 
   get verticalAlign() {
@@ -102,5 +91,18 @@ export class TextStyle {
 
   set verticalAlign(value) {
     this._verticalAlign = value;
+    this._changeEmitter.emit();
+  }
+
+  get fontWeight(): string {
+    let weight = "";
+    this.isBold ? weight += "bold" : null;
+    this.isItalic ? weight += " italic" : null;
+
+    return weight;
+  }
+
+  get changed(): EventEmitter<any> {
+    return this._changeEmitter;
   }
 }

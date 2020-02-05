@@ -1,4 +1,4 @@
-import {Injectable} from '@angular/core';
+import {EventEmitter, Injectable} from '@angular/core';
 import {PositionCalcService} from '../../PositionCalc/position-calc.service';
 import {ShapeStyle, WhiteboardItemType} from '../../../Helper/data-type-enum/data-type.enum';
 import {TextStyle} from "./text-style";

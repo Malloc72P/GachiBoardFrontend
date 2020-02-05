@@ -230,6 +230,7 @@ export class WhiteboardItemFactory {
         fontFamily  : editableShapeDto.textStyle.fontFamily,
         fontSize    : editableShapeDto.textStyle.fontSize,
         fontWeight  : editableShapeDto.textStyle.fontWeight,
+        fillColor   : editableShapeDto.textStyle.fontColor,
       }
     );
     return tempPointText;

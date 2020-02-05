@@ -2,12 +2,13 @@ import * as paper from 'paper';
 // @ts-ignore
 import Color = paper.Color;
 
-import { Component, OnInit } from '@angular/core';
+import {Component, Input, OnInit} from '@angular/core';
 import {subPanelStatus} from "../../../../../Model/Whiteboard/ContextMenu/horizon-context-menu-service/sub-panel-status";
 import {HorizonContextMenuActions} from "../../../../../Model/Whiteboard/ContextMenu/horizon-context-menu-service/horizon-context-menu.enum";
 import {HorizonContextMenuService} from "../../../../../Model/Whiteboard/ContextMenu/horizon-context-menu-service/horizon-context-menu.service";
-import {FormBuilder, FormGroup} from "@angular/forms";
+import {FormBuilder, FormGroup, Validators} from "@angular/forms";
 import {MatButtonToggleChange} from "@angular/material/button-toggle";
+import {EditableShape} from "../../../../../Model/Whiteboard/Whiteboard-Item/Whiteboard-Shape/EditableShape/editable-shape";
 
 @Component({
   selector: 'app-sub-panel-for-font',
@@ -28,13 +29,16 @@ export class SubPanelForFontComponent implements OnInit {
   private colorPickerPicked;
   private fontStyle: FormGroup;
 
+  private minSize = 10;
+  private maxSize = 100;
+
   constructor(
     private menu: HorizonContextMenuService,
     private formBuilder: FormBuilder,
   ) {
     this.fontStyle = formBuilder.group({
       family: "Hi",
-      size: 10,
+      size: [10, [Validators.min(10), Validators.max(100)]]
     });
   }
 
@@ -44,13 +48,18 @@ export class SubPanelForFontComponent implements OnInit {
   // ############## Font Size ###############
 
   private onChangeFontSize() {
-    this.menu.item.editText.fontSize = this.fontStyle.value.size;
+    let changedSize = this.fontStyle.value.size;
+
+    if(!(changedSize >= this.minSize && changedSize <= this.maxSize)) {
+      return;
+    }
+
     this.menu.item.textStyle.fontSize = this.fontStyle.value.size;
   }
 
   get fontSize(): string {
-    if(this.menu.item) {
-      return this.menu.item.editText.fontSize + "";
+    if(this.menu.item instanceof EditableShape) {
+      return this.menu.item.textStyle.fontSize + "";
     } else {
       return 10 + "";
     }
@@ -59,18 +68,23 @@ export class SubPanelForFontComponent implements OnInit {
   // ############# Font Weight ##############
 
   private onChangeFontWeight(event: MatButtonToggleChange) {
-    if(event.value.includes("bold")) {
-      this.menu.item.textStyle.fontWeight = "bold";
-      this.menu.item.editText.fontWeight = "bold";
-    } else {
-      this.menu.item.textStyle.fontWeight = "";
-      this.menu.item.editText.fontWeight = "";
+    this.menu.item.textStyle.isBold = event.value.includes("bold");
+    this.menu.item.textStyle.isItalic = event.value.includes("italic");
+
+  }
+
+  get isBold(): boolean {
+    if(this.menu.item instanceof EditableShape) {
+      return this.menu.item.textStyle.isBold;
     }
-    if(event.value.includes("italic")) {
-      this.menu.item.textStyle.isItalic = true;
-      this.menu.item.textStyle.fontWeight += " italic";
-      this.menu.item.editText.fontWeight += " italic";
+    return false;
+  }
+
+  get isItalic(): boolean {
+    if(this.menu.item instanceof EditableShape) {
+      return this.menu.item.textStyle.isItalic;
     }
+    return false;
   }
 
   // ################ Color #################
@@ -80,7 +94,6 @@ export class SubPanelForFontComponent implements OnInit {
   }
 
   private onColorPickerClicked(index: number) {
-    this.menu.item.editText.fillColor = this.colors[index];
     this.menu.item.textStyle.fontColor = this.colors[index].toCSS(false);
   }
 
@@ -91,7 +104,7 @@ export class SubPanelForFontComponent implements OnInit {
   }
 
   private colorSelectedToHTML(index: number) {
-    if(this.menu.globalSelectedGroup.wbItemGroup.length > 0) {
+    if(this.menu.item instanceof EditableShape) {
       if(this.colors[index].equals(this.menu.item.editText.fillColor)) {
         return "selected";
       } else {

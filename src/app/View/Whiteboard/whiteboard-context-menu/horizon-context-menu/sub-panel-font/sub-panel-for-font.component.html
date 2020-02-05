@@ -20,12 +20,12 @@
                  min="10" max="100" formControlName="size">
         </mat-form-field>
         <mat-button-toggle-group multiple class="divide-two" (change)="onChangeFontWeight($event)">
-          <mat-button-toggle value="bold">
+          <mat-button-toggle value="bold" [checked]="isBold">
             <svg xmlns="http://www.w3.org/2000/svg" class="button-icon" viewBox="0 0 24 24">
               <use href="/assets/images/context-menu/font-weight.svg#bold"/>
             </svg>
           </mat-button-toggle>
-          <mat-button-toggle value="italic">
+          <mat-button-toggle value="italic" [checked]="isItalic">
             <svg xmlns="http://www.w3.org/2000/svg" class="button-icon" viewBox="0 0 24 24">
             <use href="/assets/images/context-menu/font-weight.svg#italic"/>
             </svg>
