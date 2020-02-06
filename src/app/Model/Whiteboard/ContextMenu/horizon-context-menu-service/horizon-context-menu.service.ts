@@ -51,6 +51,7 @@ export class HorizonContextMenuService {
     this.setMenuItem(this.instanceCheckItem(this._globalSelectedGroup.wbItemGroup));
     this.setMenuPosition(this.coreItem.bounds);
     this._isHidden = false;
+    this.subPanelHidden.hideAll();
     this.initMenuSizeValue();
   }
 

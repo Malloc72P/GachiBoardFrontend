@@ -469,6 +469,11 @@ export class DrawingLayerManagerService {
 
   private setEditorStyle(element, width, padding, style) {
     element.style.width = width - padding * 2 + "px";
+    this.setEditorTextStyle(style);
+  }
+
+  public setEditorTextStyle(style) {
+    let element = document.getElementById("textEditor");
     element.style.color = style.fontColor;
     element.style.fontFamily = style.fontFamily;
     element.style.fontSize = style.fontSize + "px";

@@ -139,8 +139,6 @@ export class WhiteboardMainComponent implements OnInit {
 
   @HostListener('document:keydown', ['$event'])
   keydownHandler(event) {
-    event.preventDefault();
-
     // textEditor 에선 스킵
     if (event.target === document.getElementById("textEditor")) {
       return;
@@ -149,6 +147,8 @@ export class WhiteboardMainComponent implements OnInit {
     if (this.pointerModeManager.mouseDown) {
       return;
     }
+
+    event.preventDefault();
     // 전역
     switch (event.code) {
       case "KeyQ":

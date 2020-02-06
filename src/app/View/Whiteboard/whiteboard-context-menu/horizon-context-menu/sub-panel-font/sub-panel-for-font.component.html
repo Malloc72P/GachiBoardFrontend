@@ -7,9 +7,8 @@
       <div class="font-family-wrapper">
         <mat-form-field class="fit">
           <mat-label>Style</mat-label>
-          <mat-select formControlName="family">
-            <mat-option value="hi">Hi</mat-option>
-            <mat-option value="hello">Hello</mat-option>
+          <mat-select formControlName="family" [value]="fontFamily" (selectionChange)="onChangeFontFamily()">
+            <mat-option *ngFor="let font of fontFamilyList" [value]="font">{{font}}</mat-option>
           </mat-select>
         </mat-form-field>
       </div>

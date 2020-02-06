@@ -69,6 +69,7 @@ export abstract class EditableShape extends WhiteboardShape {
     this.textStyle.changed.subscribe(() => {
       console.log("EditableShape >> textStyle >> Changed");
       this.refreshItem();
+      this.layerService.setEditorTextStyle(this.textStyle);
     });
     this.notifyItemCreation();
   }
@@ -142,7 +143,9 @@ export abstract class EditableShape extends WhiteboardShape {
 
     this.modifyEditText(adjustedTextContent, this.rawTextContent);
 
-    this.editText.bringToFront();
+    if(!this.layerService.isEditingText) {
+      this.editText.bringToFront();
+    }
 
     this.lifeCycleEventEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.MODIFY));
     //this.notifyOwnerChangeEventToLinkPort();
