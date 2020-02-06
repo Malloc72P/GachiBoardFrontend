@@ -27,6 +27,7 @@ import {DrawingLayerManagerService} from './DrawingLayerManager/drawing-layer-ma
 import {GlobalSelectedGroup} from '../Whiteboard-Item/ItemGroup/GlobalSelectedGroup/global-selected-group';
 import {ZoomEvent} from './ZoomControl/ZoomEvent/zoom-event';
 import {ZoomEventEnum} from './ZoomControl/ZoomEvent/zoom-event-enum.enum';
+import {CursorChangeService} from "../Pointer/cursor-change-service/cursor-change.service";
 
 interface BoundaryObserver {
   position: Point;
@@ -73,7 +74,7 @@ export class InfiniteCanvasService {
 
   constructor(
     private posCalcService  : PositionCalcService,
-    private minimapSyncService  : MinimapSyncService
+    private minimapSyncService  : MinimapSyncService,
   ) {
 
   }

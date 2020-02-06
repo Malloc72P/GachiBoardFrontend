@@ -47,6 +47,7 @@ import {LinkerMode} from './LinkModeManagerService/LinkMode/linker-mode';
 import {EditableItemGroup} from '../../Whiteboard-Item/ItemGroup/EditableItemGroup/editable-item-group';
 import {HorizonContextMenuService} from "../../ContextMenu/horizon-context-menu-service/horizon-context-menu.service";
 import {WorkHistoryManager} from './WorkHistoryManager/work-history-manager';
+import {CursorChangeService} from "../../Pointer/cursor-change-service/cursor-change.service";
 
 
 @Injectable({
@@ -82,6 +83,7 @@ export class DrawingLayerManagerService {
     private _posCalcService:PositionCalcService,
     private _infiniteCanvasService:InfiniteCanvasService,
     private _horizonContextMenuService: HorizonContextMenuService,
+    private _cursorChangeService: CursorChangeService,
   ) {
     this._whiteboardItemArray = new Array<WhiteboardItem>();
     this._editableLinkArray = new Array<EditableLink>();
@@ -112,6 +114,7 @@ export class DrawingLayerManagerService {
       if(this.isEditingText){
         console.log("DrawingLayerManagerService >> onMouseDown >> isEditingText 진입함");
         this.endEditText();
+        this.horizonContextMenuService.close();
         return;
       }
       if(this.globalSelectedGroup.getNumberOfChild() > 0){
@@ -442,18 +445,10 @@ export class DrawingLayerManagerService {
     let edtWidth = this.posCalcService.advConvertLengthPaperToNg(bound.width);
     let edtHeight = this.posCalcService.advConvertLengthPaperToNg(bound.height);
 
-    let textStyle = new TextStyle();
-
     // EditText HTML Element 스타일 설정
-    htmlTextEditorWrapper.style.left = htmlEditorPoint.x + "px";
-    htmlTextEditorWrapper.style.top = htmlEditorPoint.y  + "px";
-    htmlTextEditorWrapper.style.width = edtWidth - padding * 2 + "px";
-    htmlTextEditorWrapper.style.height = edtHeight - padding * 2 + "px";
+    this.setWrapperStyle(htmlTextEditorWrapper, htmlEditorPoint, edtWidth, edtHeight, padding);
 
-    htmlTextEditorElement.style.width = edtWidth - padding * 2 + "px";
-    htmlTextEditorElement.style.fontFamily = textStyle.fontFamily;
-    htmlTextEditorElement.style.fontSize = textStyle.fontSize + "px";
-    htmlTextEditorElement.style.fontWeight = textStyle.fontWeight;
+    this.setEditorStyle(htmlTextEditorElement, edtWidth, padding, editableShape.textStyle);
 
     // 숨겨져있던 Editable 영역 표시
     window.setTimeout(() => {
@@ -463,6 +458,22 @@ export class DrawingLayerManagerService {
     //rawText를 넣으면 태그 문자열이 노출됨 <div>사쿠라</div>세이버  이런식으로 출력됨
     htmlTextEditorElement.innerText = editableShape.textContent;
     this.editTextShape = editableShape;
+  }
+
+  private setWrapperStyle(element, point, width, height, padding) {
+    element.style.left = point.x + "px";
+    element.style.top = point.y  + "px";
+    element.style.width = width - padding * 2 + "px";
+    element.style.height = height - padding * 2 + "px";
+  }
+
+  private setEditorStyle(element, width, padding, style) {
+    element.style.width = width - padding * 2 + "px";
+    element.style.color = style.fontColor;
+    element.style.fontFamily = style.fontFamily;
+    element.style.fontSize = style.fontSize + "px";
+    element.style.fontWeight = style.isBold ? "bold" : "normal";
+    element.style.fontStyle = style.isItalic ? "italic" : "";
   }
 
   //#####################
@@ -619,6 +630,10 @@ export class DrawingLayerManagerService {
   }
   get horizonContextMenuService(): HorizonContextMenuService {
     return this._horizonContextMenuService;
+  }
+
+  get cursorChanger(): CursorChangeService {
+    return this._cursorChangeService;
   }
 
 //#####################################

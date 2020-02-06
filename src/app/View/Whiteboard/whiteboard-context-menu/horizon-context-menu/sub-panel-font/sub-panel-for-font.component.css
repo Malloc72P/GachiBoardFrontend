@@ -1,0 +1,41 @@
+.fit {
+  width: 100%;
+}
+
+.size-wrapper {
+  width: 40%;
+}
+
+.font-family-wrapper {
+
+}
+
+.font-weight-wrapper {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.font-color-wrapper {
+  margin: 0 4px;
+}
+
+.divide-two {
+
+}
+
+.sub-panel-wrapper {
+  padding: 8px;
+  width: 128px;
+}
+
+::ng-deep .font-weight-wrapper .mat-button-toggle-label-content {
+  line-height: 30px !important;
+  padding: 0 6px !important;
+  height: 30px;
+}
+
+.button-icon {
+  width: 16px;
+  height: 16px;
+}

@@ -49,10 +49,12 @@ export class HorizonContextMenuComponent implements OnInit {
       case HorizonContextMenuActions.UNLOCK:
         break;
       case HorizonContextMenuActions.FONT_STYLE:
+        this.horizonContextMenuService.subPanelHidden.toggleThis(action);
         break;
       case HorizonContextMenuActions.MORE:
         break;
       case HorizonContextMenuActions.ARROW_WING:
+        this.horizonContextMenuService.subPanelHidden.toggleThis(action);
         break;
       case HorizonContextMenuActions.GROUP:
         this.layerService.groupSelectedItems();
@@ -78,7 +80,7 @@ export class HorizonContextMenuComponent implements OnInit {
       case HorizonContextMenuActions.MORE:
         return "/assets/images/context-menu/more.svg#more";
       case HorizonContextMenuActions.ARROW_WING:
-        return "/assets/images/context-menu/arrow_wing.svg#arrow_wing";
+        return "/assets/images/context-menu/arrow.svg#arrow";
       case HorizonContextMenuActions.GROUP:
         return "/assets/images/context-menu/group.svg#group";
       case HorizonContextMenuActions.UNGROUP:

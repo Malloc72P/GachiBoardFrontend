@@ -17,6 +17,7 @@ app-tool-brush-panel, app-tool-highlighter-panel, app-tool-shape-panel {
   left: 62px;
   top: 50%;
 }
+
 app-project-supporter-pannel {
   position: absolute;
   left: 6px;
@@ -25,7 +26,7 @@ app-project-supporter-pannel {
 }
 
 #textEditor {
-  z-index: 10000;
+  z-index: 100;
   text-align: center;
   display: inline-block;
 

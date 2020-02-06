@@ -1,4 +1,4 @@
-import {Injectable} from '@angular/core';
+import {EventEmitter, Injectable} from '@angular/core';
 import {PositionCalcService} from '../../PositionCalc/position-calc.service';
 import {ShapeStyle, WhiteboardItemType} from '../../../Helper/data-type-enum/data-type.enum';
 import {TextStyle} from "./text-style";
@@ -202,72 +202,6 @@ export class ShapeService {
         break;
     }
   }
-
-  private textEditStart(pointTextItem) {
-
-    let shapeGroup:Group = pointTextItem.parent as Group;
-    // 기존 텍스트 제거
-    //WhiteboardItem정보 가져오기
-    let shapeItem = this.layerService.getWhiteboardItem(pointTextItem) as EditableShape;
-    shapeItem.isEditing = true;
-    shapeItem.editText.sendToBack();
-
-    // EditText bound 계산
-    let bound = shapeItem.coreItem.bounds;
-
-    let htmlEditorPoint = this.posCalcService.advConvertPaperToNg(new Point(shapeItem.group.bounds.topLeft.x, shapeItem.group.bounds.topLeft.y));
-
-    let edtWidth = this.posCalcService.advConvertLengthPaperToNg(bound.width);
-    let edtHeight = this.posCalcService.advConvertLengthPaperToNg(bound.height);
-
-    let textStyle = new TextStyle();
-
-    // EditText HTML Element 스타일 설정
-    this.HTMLTextEditorWrapper.style.left = htmlEditorPoint.x + "px";
-    this.HTMLTextEditorWrapper.style.top = htmlEditorPoint.y  + "px";
-    this.HTMLTextEditorWrapper.style.width = edtWidth - this.padding * 2 + "px";
-    this.HTMLTextEditorWrapper.style.height = edtHeight - this.padding * 2 + "px";
-
-    this.HTMLTextEditorElement.style.width = edtWidth - this.padding * 2 + "px";
-    this.HTMLTextEditorElement.style.fontFamily = textStyle.fontFamily;
-    this.HTMLTextEditorElement.style.fontSize = textStyle.fontSize + "px";
-    this.HTMLTextEditorElement.style.fontWeight = textStyle.fontWeight;
-
-    // 숨겨져있던 Editable 영역 표시
-    this._isHiddenEditText = false;
-    window.setTimeout(() => {
-      this.HTMLTextEditorElement.focus();
-    }, 0);
-
-    //rawText를 넣으면 태그 문자열이 노출됨 <div>사쿠라</div>세이버  이런식으로 출력됨
-    this.HTMLTextEditorElement.innerText = shapeItem.textContent;
-
-    this.outsideHandler = (event) => this.onClickOutsidePanel(event, this.HTMLCanvasElement, pointTextItem);
-
-    document.addEventListener("mousedown", this.outsideHandler);
-    document.addEventListener("touchstart", this.outsideHandler);
-  }
-
-
-  //===============================================
-  private textEditEnd(firedPointText) {
-    console.log("ShapeService >> textEditEnd >> firedPointText : ",firedPointText);
-    this.HTMLTextEditorElement.blur();
-    this._isHiddenEditText = true;
-    // #1 Shape 아이템 변수 찾아옴
-    let shapeItem:EditableShape = this.layerService.getWhiteboardItem(firedPointText.parent) as EditableShape;
-
-    //에디트 텍스트 값 변경 >>> rawTextContent만 수정하고 refreshItem을 호출하면 알아서 content수정하고 크기조절하고 다 해줌
-    shapeItem.rawTextContent = this.HTMLTextEditorElement.innerHTML;
-    shapeItem.refreshItem();
-
-    this.HTMLTextEditorElement.innerText = "";
-
-    document.removeEventListener("mousedown", this.outsideHandler);
-    document.removeEventListener("touchstart", this.outsideHandler);
-    shapeItem.isEditing = false;
-  }
-
 
   private initEvent(event: MouseEvent | TouchEvent): Points {
     let points: Points;

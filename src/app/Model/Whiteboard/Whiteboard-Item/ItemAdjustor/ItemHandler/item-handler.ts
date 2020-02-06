@@ -60,6 +60,18 @@ export abstract class ItemHandler {
       }
       this.onMouseUp(event);
     };
+    this.handlerCircleObject.onMouseEnter = () => {
+      if(!this.owner.checkEditable()){
+        return;
+      }
+      this.onMouseEnter();
+    };
+    this.handlerCircleObject.onMouseLeave = () => {
+      if(!this.owner.checkEditable()){
+        return;
+      }
+      this.onMouseLeave();
+    };
   }
 
   public refreshPosition(){
@@ -69,6 +81,8 @@ export abstract class ItemHandler {
   public abstract onMouseDown(event);
   public abstract onMouseDrag(event);
   public abstract onMouseUp(event);
+  public abstract onMouseEnter();
+  public abstract onMouseLeave();
 
   protected getHandlerPosition(handlerDirection){
     let bounds = this.guideLine.bounds;

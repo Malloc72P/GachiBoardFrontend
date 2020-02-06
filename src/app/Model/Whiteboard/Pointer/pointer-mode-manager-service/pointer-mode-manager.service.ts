@@ -94,7 +94,7 @@ export class PointerModeManagerService {
 
   modeChange(mode: PointerMode) {
     this.currentPointerMode = this.toolPanelToggleGroupValue = mode;
-    this.cursorChangeService.change(mode);
+    this.cursorChangeService.syncCurrentPointerMode(mode);
     this.layerService.pointerModeEventEmitter.emit(new PointerModeEvent(mode));
   }
 

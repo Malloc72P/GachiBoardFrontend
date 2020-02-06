@@ -1,6 +1,6 @@
 import * as paper from 'paper';
 
-import {Injectable} from '@angular/core';
+import {EventEmitter, Injectable} from '@angular/core';
 import {HorizonContextMenuActions, HorizonContextMenuTypes} from "./horizon-context-menu.enum";
 import {WhiteboardItem} from "../../Whiteboard-Item/whiteboard-item";
 import {PositionCalcService} from "../../PositionCalc/position-calc.service";
@@ -12,8 +12,10 @@ import {GlobalSelectedGroup} from "../../Whiteboard-Item/ItemGroup/GlobalSelecte
 import {InfiniteCanvasService} from "../../InfiniteCanvas/infinite-canvas.service";
 import {subPanelStatus} from "./sub-panel-status";
 import {EditableRaster} from "../../Whiteboard-Item/Whiteboard-Shape/editable-raster/editable-raster";
+import {SimpleArrowLink} from "../../Whiteboard-Item/Whiteboard-Shape/LinkPort/EditableLink/SimpleArrowLink/simple-arrow-link";
 // @ts-ignore
 import Rectangle = paper.Rectangle;
+import {EditableLink} from "../../Whiteboard-Item/Whiteboard-Shape/LinkPort/EditableLink/editable-link";
 
 @Injectable({
   providedIn: 'root'
@@ -24,6 +26,7 @@ export class HorizonContextMenuService {
   private _centerTop = { x: 0, y: 0};
   private _menuItemArray = new Array<HorizonContextMenuActions>();
   private _globalSelectedGroup: GlobalSelectedGroup;
+  private _item;
 
   private menuWidth: number;
   private menuHeight: number;
@@ -46,7 +49,7 @@ export class HorizonContextMenuService {
 
   public open() {
     this.setMenuItem(this.instanceCheckItem(this._globalSelectedGroup.wbItemGroup));
-    this.setMenuPosition(this._globalSelectedGroup.group.bounds);
+    this.setMenuPosition(this.coreItem.bounds);
     this._isHidden = false;
     this.initMenuSizeValue();
   }
@@ -57,7 +60,7 @@ export class HorizonContextMenuService {
   }
 
   public refreshPosition() {
-    this.setMenuPosition(this._globalSelectedGroup.group.bounds);
+    this.setMenuPosition(this.coreItem.bounds);
   }
 
   // ################### Private Method #####################
@@ -94,21 +97,40 @@ export class HorizonContextMenuService {
 
     // GSG 에 선택된 아이템이 한개이상 (다중선택)
     if(wbItemGroup.length > 1) {
+      this._item = wbItemGroup;
       return HorizonContextMenuTypes.ITEMS;
     // GSG 에 선택된 아이템이 한개 (단일선택)
     } else {
       let item = wbItemGroup[0];
-      if(item instanceof EditableRaster) {
+      if(this._globalSelectedGroup.isLinkSelected) {
+        this._item = this.findLink(item as EditableShape);
+        return HorizonContextMenuTypes.ARROW;
+      } else if(item instanceof EditableRaster) {
+        this._item = item;
         return HorizonContextMenuTypes.RASTER;
       } else if(item instanceof EditableShape) {
+        this._item = item;
         return HorizonContextMenuTypes.SHAPE;
       } else if(item instanceof EditableStroke) {
+        this._item = item;
         return HorizonContextMenuTypes.STROKE;
       } else {
-        console.log("HorizonContextMenuService >> instanceCheckItem >> item : ", item);
+        this._item = item;
       }
     }
-    console.log("HorizonContextMenuComponent >> instanceCheckItem >> wbItemGroup : ", wbItemGroup);
+  }
+
+  private findLink(item: EditableShape): SimpleArrowLink {
+    let findItem = undefined;
+    item.linkPortMap.forEach(value => {
+      value.fromLinkList.forEach( valueOfValue => {
+        if(valueOfValue.isSelected) {
+          findItem = valueOfValue;
+        }
+      })
+    });
+
+    return findItem;
   }
 
   private instanceCheckEdtGroup(){
@@ -245,5 +267,19 @@ export class HorizonContextMenuService {
 
   get globalSelectedGroup(): GlobalSelectedGroup {
     return this._globalSelectedGroup;
+  }
+
+  get item() {
+    return this._item;
+  }
+
+  get coreItem() {
+    if(this.item instanceof WhiteboardItem) {
+      return this.item.coreItem;
+    } else if(this.item instanceof SimpleArrowLink) {
+      return this.item.linkObject;
+    } else if(Array.isArray(this.item)) {
+      return this.globalSelectedGroup.group;
+    }
   }
 }

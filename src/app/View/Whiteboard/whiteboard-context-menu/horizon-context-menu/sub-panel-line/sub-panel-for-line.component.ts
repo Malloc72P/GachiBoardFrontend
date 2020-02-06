@@ -7,11 +7,13 @@ import {MatSliderChange} from "@angular/material/slider";
 import {HorizonContextMenuService} from "../../../../../Model/Whiteboard/ContextMenu/horizon-context-menu-service/horizon-context-menu.service";
 import {HorizonContextMenuActions} from "../../../../../Model/Whiteboard/ContextMenu/horizon-context-menu-service/horizon-context-menu.enum";
 import {subPanelStatus} from "../../../../../Model/Whiteboard/ContextMenu/horizon-context-menu-service/sub-panel-status";
+import {WhiteboardItem} from "../../../../../Model/Whiteboard/Whiteboard-Item/whiteboard-item";
+import {SimpleArrowLink} from "../../../../../Model/Whiteboard/Whiteboard-Item/Whiteboard-Shape/LinkPort/EditableLink/SimpleArrowLink/simple-arrow-link";
 
 @Component({
   selector: 'app-sub-panel-for-line',
   templateUrl: './sub-panel-for-line.component.html',
-  styleUrls: ['./sub-panel-for-line.component.css']
+  styleUrls: ['../horizon-context-menu.component.css']
 })
 export class SubPanelForLineComponent implements OnInit {
   // TODO : 유저 데이터에 있을 컬러를 colors 로 지정해주면 댐 -- 전역에서 사용하는 user-color
@@ -24,7 +26,7 @@ export class SubPanelForLineComponent implements OnInit {
   private colorPickerPicked;
 
   constructor(
-    private horizonContextMenuService: HorizonContextMenuService,
+    private menu: HorizonContextMenuService,
   ) { }
 
   ngOnInit() {
@@ -35,11 +37,11 @@ export class SubPanelForLineComponent implements OnInit {
   }
 
   private onStrokeWidthChanged(event: MatSliderChange) {
-    this.horizonContextMenuService.globalSelectedGroup.wbItemGroup[0].coreItem.strokeWidth = event.value;
+    this.menu.coreItem.strokeWidth = event.value;
   }
 
   private onColorPickerClicked(index: number) {
-    this.horizonContextMenuService.globalSelectedGroup.wbItemGroup[0].coreItem.strokeColor = this.colors[index];
+    this.menu.coreItem.strokeColor = this.colors[index];
   }
 
   private onAddColorClicked() {
@@ -49,8 +51,8 @@ export class SubPanelForLineComponent implements OnInit {
   }
 
   private colorSelectedToHTML(index: number) {
-    if(this.horizonContextMenuService.globalSelectedGroup.wbItemGroup.length > 0) {
-      if(this.colors[index].equals(this.horizonContextMenuService.globalSelectedGroup.wbItemGroup[0].coreItem.strokeColor)) {
+    if(this.menu.globalSelectedGroup.wbItemGroup.length > 0) {
+      if(this.colors[index].equals(this.menu.coreItem.strokeColor)) {
         return "selected";
       } else {
         return;
@@ -61,19 +63,19 @@ export class SubPanelForLineComponent implements OnInit {
   }
 
   get strokeWidth(): number {
-    if(this.horizonContextMenuService.globalSelectedGroup.wbItemGroup.length > 0) {
-      return this.horizonContextMenuService.globalSelectedGroup.wbItemGroup[0].coreItem.strokeWidth;
+    if(this.menu.globalSelectedGroup.wbItemGroup.length > 0) {
+      return this.menu.coreItem.strokeWidth;
     } else {
       return 1;
     }
   }
 
   get centerTop(): { x: number; y: number } {
-    return this.horizonContextMenuService.centerTop;
+    return this.menu.centerTop;
   }
 
   get isHiddenSubPanel(): subPanelStatus {
-    return this.horizonContextMenuService.subPanelHidden;
+    return this.menu.subPanelHidden;
   }
 
   get horizonContextMenuActions() {

@@ -72,8 +72,8 @@ export class LinkPort {
       }
       else if(data.action === LinkEventEnum.LINK_CLICKED){
         if(!this.owner.isSelected){
-          this.layerService.globalSelectedGroup.insertOneIntoSelection(this.owner);
           this.layerService.globalSelectedGroup.isLinkSelected = true;
+          this.layerService.globalSelectedGroup.insertOneIntoSelection(this.owner);
           this.linkEventEmitter.emit(new LinkEvent(LinkEventEnum.WB_ITEM_SELECTED, this));
         }
       }
