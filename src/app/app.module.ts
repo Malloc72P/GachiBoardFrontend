@@ -2,16 +2,16 @@ import { BrowserModule } from '@angular/platform-browser';
 import {NgModule} from '@angular/core';
 
 import { AppComponent } from './app.component';
-import { LoginPageComponent } from './View/SocialLogin/login-page/login-page.component';
+import { LoginPageComponent } from './View/NormalPages/SocialLogin/login-page/login-page.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import {
   MatAutocompleteModule,
   MatButtonModule,
   MatButtonToggleModule,
   MatCardModule, MatCheckboxModule, MatChipsModule, MatDialogModule,
-  MatDividerModule, MatFormFieldModule, MatGridListModule, MatIconModule, MatInputModule, MatMenuModule,
+  MatDividerModule, MatFormFieldModule, MatGridListModule, MatIconModule, MatInputModule, MatListModule, MatMenuModule,
   MatRadioModule,
-  MatRippleModule, MatSelectModule,
+  MatRippleModule, MatSelectModule, MatSidenavModule,
   MatSliderModule, MatToolbarModule, MatTooltipModule
 } from '@angular/material';
 import { RouterModule, Routes } from '@angular/router';
@@ -21,7 +21,7 @@ import { RouterHelperService } from './Model/Helper/router-helper-service/router
 import { AuthRequestService } from './Controller/SocialLogin/auth-request/auth-request.service';
 import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import { AuthInterceptorService } from './Controller/SocialLogin/auth-interceptor/auth-interceptor.service';
-import { AuthProcessComponent } from './View/SocialLogin/auth-process/auth-process.component';
+import { AuthProcessComponent } from './View/NormalPages/SocialLogin/auth-process/auth-process.component';
 import {PointerModeManagerService} from './Model/Whiteboard/Pointer/pointer-mode-manager-service/pointer-mode-manager.service';
 
 import {PositionCalcService} from "./Model/Whiteboard/PositionCalc/position-calc.service";
@@ -70,17 +70,32 @@ import { HorizonContextMenuComponent } from './View/Whiteboard/whiteboard-contex
 import { SubPanelForLineComponent } from './View/Whiteboard/whiteboard-context-menu/horizon-context-menu/sub-panel-line/sub-panel-for-line.component';
 import { SubPanelForFillComponent } from './View/Whiteboard/whiteboard-context-menu/horizon-context-menu/sub-panel-fill/sub-panel-for-fill.component';
 import {HorizonContextMenuService} from "./Model/Whiteboard/ContextMenu/horizon-context-menu-service/horizon-context-menu.service";
+import { HomePageComponent } from './View/NormalPages/home-page/home-page.component';
+import { MainPageComponent } from './View/NormalPages/main-page/main-page.component';
+import { GachiFooterComponent } from './View/NormalPages/page-sub-parts/footer/gachi-footer/gachi-footer.component';
+import { RightButtonGroupComponent } from './View/NormalPages/page-sub-parts/header/right-button-group/right-button-group.component';
+import { GachiHeaderComponent } from './View/NormalPages/page-sub-parts/header/gachi-header/gachi-header.component';
 
 const appRoutes: Routes = [
+  {
+    path: 'homepage',
+    component: HomePageComponent,
+    data: { title: 'Home' }
+  },
+  {
+    path: 'mainpage',
+    component: MainPageComponent,
+    data: { title: 'MainPage' }
+  },
+  {
+    path: '',
+    redirectTo: 'homepage',
+    pathMatch: 'full'
+  },
   {
     path: 'login',
     component: LoginPageComponent,
     data: { title: 'SocialLogin' }
-  },
-  {
-    path: '',
-    redirectTo: 'whiteboard',
-    pathMatch: 'full'
   },
   {
     path: 'whiteboard',
@@ -95,7 +110,7 @@ const appRoutes: Routes = [
   {
     path: 'login/failure',
     component: AuthProcessComponent,
-    data: { title: 'Whiteboard' }
+    data: { title: 'homepage' }
   }
 ];
 
@@ -123,6 +138,11 @@ const appRoutes: Routes = [
     HorizonContextMenuComponent,
     SubPanelForLineComponent,
     SubPanelForFillComponent,
+    HomePageComponent,
+    MainPageComponent,
+    GachiFooterComponent,
+    RightButtonGroupComponent,
+    GachiHeaderComponent,
   ],
   entryComponents: [
     KanbanComponent,
@@ -164,7 +184,9 @@ const appRoutes: Routes = [
     MatSelectModule,
     MatMenuModule,
     MatCheckboxModule,
-    MatTooltipModule
+    MatTooltipModule,
+    MatSidenavModule,
+    MatListModule
   ],
   providers: [
     RouterHelperService,
@@ -199,6 +221,7 @@ const appRoutes: Routes = [
     CursorTrackerService,
     CursorChangeService,
     HorizonContextMenuService,
+    AuthRequestService,
   ],
   bootstrap: [AppComponent]
 })

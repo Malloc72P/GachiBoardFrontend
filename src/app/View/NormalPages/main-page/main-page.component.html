@@ -1,0 +1,24 @@
+<div class="main-outer-wrapper">
+
+  <div class="main-main-wrapper">
+    <app-gachi-header [headerMode]="'mainpage'"></app-gachi-header>
+
+    <mat-sidenav-container class="example-sidenav-container">
+      <mat-sidenav class="main-sidebar"
+                   #mainLeftDrawer [mode]="mobileQuery.matches ? 'over' : 'side'">
+        <mat-nav-list>
+          <h3 class="main-sidebar-row-font">Testing</h3>
+          <h3 class="main-sidebar-row-font">Testing</h3>
+          <h3 class="main-sidebar-row-font">Testing</h3>
+          <h3 class="main-sidebar-row-font">Testing</h3>
+        </mat-nav-list>
+      </mat-sidenav>
+
+      <mat-sidenav-content class="main-article-wrapper">
+        <h3>Testing</h3>
+      </mat-sidenav-content>
+    </mat-sidenav-container>
+
+  </div>
+  <app-gachi-footer></app-gachi-footer>
+</div>

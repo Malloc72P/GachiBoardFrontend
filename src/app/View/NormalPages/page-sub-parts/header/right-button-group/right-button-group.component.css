@@ -1,0 +1,36 @@
+.header-right-wrapper{
+  display: flex;
+  width: 100%;
+}
+
+.header-right{
+  margin-left: 4px;
+  font-size: 13pt;
+  color: rgba(0, 0, 0, 0.6);
+}
+
+/* *************************************************** */
+/* right-button-group.component.css MEDIA QUERY START */
+/* *************************************************** */
+.header-desktop{
+  display: inline;
+}
+.header-mobile{
+  display: none;
+}
+
+@media (max-width: 700px) {
+  .header-desktop{
+    display: none;
+  }
+  .header-mobile{
+    display: inline;
+  }
+}
+
+.header-spacer{
+  flex: 1 1 auto;
+}
+/* **************************************************** */
+/* right-button-group.component.css MEDIA QUERY END */
+/* **************************************************** */

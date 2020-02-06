@@ -1,0 +1,207 @@
+.main-outer-wrapper{
+  width: 100%;
+  height: 100%;
+  overflow-y: auto;
+  /*background: rgba(69, 96, 255, 0.15);*/
+}
+.main-main-wrapper{
+  z-index: 2;
+  position: relative;
+  display: inline-block;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  padding: 0 16px;
+  height: 100%;
+  /*background: rgba(0, 200, 81, 0.22);*/
+}
+
+/* ********************************* */
+/* ********* main Side Bar ********* */
+/* ********************************* */
+
+.main-sidebar-row-font{
+  margin: 14px 0;
+}
+
+.example-container {
+  display: flex;
+  flex-direction: column;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+}
+.main-sidebar{
+  min-width: 200px;
+  padding: 16px 12px;
+  text-align: center;
+}
+
+.example-is-mobile .example-toolbar {
+  position: fixed;
+  /* Make sure the toolbar will stay on top of the content as it scrolls past. */
+  z-index: 2;
+}
+
+h1.example-app-name {
+  margin-left: 8px;
+}
+
+.example-sidenav-container {
+  /* When the sidenav is not fixed, stretch the sidenav container to fill the available space. This
+     causes `<mat-sidenav-content>` to act as our scrolling element for desktop layouts. */
+  height: 100%;
+  flex: 1;
+}
+
+.example-is-mobile .example-sidenav-container {
+  /* When the sidenav is fixed, don't constrain the height of the sidenav container. This allows the
+     `<body>` to be our scrolling element for mobile layouts. */
+  flex: 1 0 auto;
+}
+
+/* ********************************* */
+/* ********* main Side Bar ********* */
+/* ********************************* */
+
+
+
+/* ******************************* */
+/* ********* main Header ********* */
+/* ******************************* */
+.main-header-wrapper{
+  width: 100%;
+  /*background: rgba(200, 0, 11, 0.45);*/
+}
+.main-header{
+  height: 62px;
+  padding: 15px 30px;
+  /*border-radius: 15px;*/
+  /*background: rgba(200, 198, 16, 0.45);*/
+}
+.main-header-logo{
+  margin-right: 16px;
+  /*font-weight: bold;*/
+  font-size: 23pt;
+}
+.main-header-sub{
+  margin-left: 10px;
+  margin-right: 10px;
+  font-size: 13pt;
+  color: rgba(0, 0, 0, 0.6);
+}
+.main-header-right{
+  margin-left: 4px;
+  font-size: 13pt;
+  color: rgba(0, 0, 0, 0.6);
+}
+.main-header-spacer{
+  flex: 1 1 auto;
+}
+/* ******************************* */
+/* ********* main Header ********* */
+/* ******************************* */
+
+/* ******************************** */
+/* ********* main Article ********* */
+/* ******************************** */
+.main-article-wrapper{
+  /*background: rgba(8, 0, 248, 0.33);*/
+  padding: 16px 24px;
+}
+.main-article-title{
+  display: inline-block;
+  margin: 0 12px 0 12px;
+  font-size: 48px;
+  font-weight: normal !important;
+}
+.main-article-subtitle{
+  display: inline-block;
+  margin: 0 3px 0 3px;
+  font-size: 22px;
+  opacity: 0.7;
+  font-weight: normal !important;
+}
+.main-article-divider{
+  margin: 16px 0;
+}
+/* ************************************ */
+/* ********* main Article - A ********* */
+/* ************************************ */
+
+.main-articleA-titleWrapper{
+  text-align: center;
+  padding: 30px 0 60px 0;
+}
+
+.main-articleA-banner{
+  margin-top: 140px;
+  width: 100%;
+  border-radius: 15px;
+  box-shadow: 0px 3px 18px -3px rgba(0,0,0,0.75);
+}
+/* ************************************ */
+/* ********* main Article - A ********* */
+/* ************************************ */
+
+/* ************************************ */
+/* ********* main Article - B ********* */
+/* ************************************ */
+.main-articleB-titleWrapper{
+  text-align: center;
+  padding: 30px 0 60px 0;
+}
+
+.main-articleB-banner{
+  margin-top: 140px;
+  width: 100%;
+  border-radius: 15px;
+  box-shadow: 0px 3px 18px -3px rgba(0,0,0,0.75);
+}
+/* ************************************ */
+/* ********* main Article - B ********* */
+/* ************************************ */
+
+/* ******************************** */
+/* ********* main Article ********* */
+/* ******************************** */
+
+/* ******************************** */
+/* ********* main Footer ********* */
+/* ******************************** */
+.main-footer-wrapper{
+  height: 120px;
+  margin: 200px 0 0 0;
+}
+/* ******************************** */
+/* ********* main Footer ********* */
+/* ******************************** */
+
+
+/* ******************************** */
+/* ********* Back Ground ********* */
+/* ******************************** */
+.main-bg-particles{
+  z-index: 0;
+}
+/* ******************************** */
+/* ********* Back Ground ********* */
+/* ******************************** */
+.main-header-desktop{
+  display: inline;
+}
+.main-header-mobile{
+  display: none;
+}
+
+@media (max-width: 700px) {
+  .main-header-desktop{
+    display: none;
+  }
+  .main-header-mobile{
+    display: inline;
+  }
+}
+

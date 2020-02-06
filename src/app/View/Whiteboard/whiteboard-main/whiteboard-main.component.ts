@@ -53,23 +53,6 @@ export class WhiteboardMainComponent implements OnInit {
   }
 
   requestProtectedApi() {
-    this.apiRequester.protectedApi()
-      .subscribe((data: UserDTO) => {
-        let userInfo: UserDTO = {
-          email: data.email,
-          idToken: data.idToken,
-          userName: data.userName,
-          authToken: this.apiRequester.getAccessToken(),
-        };
-        this.apiRequester.setUserInfo(userInfo);
-        // console.log("PaperMainComponent >> constructor >> getUserInfo : ", this.apiRequester.getUserInfo());
-        // TODO : 세션처리
-        // this.wsManager = new WhiteboardWebsocketManager(this.apiRequester, this.wsService, this.debugService, this.project1);
-        // this.wsManager.tryInitializewsService();
-      }, (error) => {
-        // console.log(error);
-        this.routerHelper.goToLoginPage();
-      });
   }
 
   constructor(

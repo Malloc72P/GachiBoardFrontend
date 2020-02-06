@@ -1,6 +1,6 @@
 import {Component, OnInit} from '@angular/core';
-import { HttpHelper } from '../../../Model/Helper/http-helper/http-helper';
-import {AuthRequestService} from '../../../Controller/SocialLogin/auth-request/auth-request.service';
+import { HttpHelper } from '../../../../Model/Helper/http-helper/http-helper';
+import {AuthRequestService} from '../../../../Controller/SocialLogin/auth-request/auth-request.service';
 
 @Component({
   selector: 'app-auth-page',
