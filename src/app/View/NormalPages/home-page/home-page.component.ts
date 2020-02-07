@@ -19,10 +19,8 @@ export class HomePageComponent implements OnInit {
   ngOnInit() {
     this.sidebarManagerService.sidebarEventEmitter
       .subscribe((event:GachiSidebarEvent)=>{
-        switch (event.action) {
-          case GachiSidebarEventEnum.TOGGLE_RIGHT_SIDEBAR:
-            this.rightSidebar.toggle();
-            break;
+        if (event.action === GachiSidebarEventEnum.TOGGLE_RIGHT_SIDEBAR) {
+          this.rightSidebar.toggle();
         }
       });
 

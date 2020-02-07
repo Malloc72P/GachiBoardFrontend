@@ -1,5 +1,6 @@
 import {AfterViewInit, Component, Input, OnInit, Renderer2, ViewChild} from '@angular/core';
 import {HtmlHelperService} from '../../../../../Model/NormalPagesManager/HtmlHelperService/html-helper.service';
+import {RouterHelperService} from '../../../../../Model/Helper/router-helper-service/router-helper.service';
 
 @Component({
   selector: 'app-project-card',
@@ -19,7 +20,8 @@ export class ProjectCardComponent implements OnInit, AfterViewInit {
 
   constructor(
     private renderer: Renderer2,
-    private htmlHelperService:HtmlHelperService
+    private htmlHelperService:HtmlHelperService,
+    private routerHelperService:RouterHelperService
   ) { }
 
   ngOnInit() {
@@ -51,6 +53,10 @@ export class ProjectCardComponent implements OnInit, AfterViewInit {
   onMouseLeave(event){
     this.renderer.setStyle(this.projectCardEl, 'transform',
       "matrix3d(1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1)" );
+  }
+
+  onProjectCardClick(projectId){
+    this.routerHelperService.goToProjectPage(projectId);
   }
 
 }

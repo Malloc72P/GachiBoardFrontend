@@ -1,13 +1,14 @@
 <div #projectCard style="display: inline-block;"
      matTooltip="PROJECT {{projectTitle}}에 입장"
      matTooltipPosition="above"
+      (click)="onProjectCardClick(projectTitle)"
       (pointerenter)="onMouseEnter($event)"
       (pointermove)="onMouseMove($event)"
       (pointerleave)="onMouseLeave($event)">
   <mat-card class="project-card-wrapper">
     <div class="card-left-column"></div>
     <mat-card-header>
-      <mat-card-title>PROJECT {{projectTitle}}</mat-card-title>
+      <mat-card-title class="text-ellipsis">PROJECT {{projectTitle}}</mat-card-title>
       <mat-card-subtitle>
         {{projectSubTitle}}
         <br> 시작일 : {{startDate}}

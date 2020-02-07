@@ -14,67 +14,6 @@
   /*background: rgba(0, 200, 81, 0.22);*/
 }
 
-
-/* ******************************* */
-/* ********* main Header ********* */
-/* ******************************* */
-.main-header-wrapper{
-  width: 100%;
-  /*background: rgba(200, 0, 11, 0.45);*/
-}
-.main-header{
-  height: 62px;
-  padding: 15px 30px;
-  /*border-radius: 15px;*/
-  /*background: rgba(200, 198, 16, 0.45);*/
-}
-.main-header-logo{
-  margin-right: 16px;
-  /*font-weight: bold;*/
-  font-size: 23pt;
-}
-.main-header-sub{
-  margin-left: 10px;
-  margin-right: 10px;
-  font-size: 13pt;
-  color: rgba(0, 0, 0, 0.6);
-}
-.main-header-right{
-  margin-left: 4px;
-  font-size: 13pt;
-  color: rgba(0, 0, 0, 0.6);
-}
-.main-header-spacer{
-  flex: 1 1 auto;
-}
-/* ******************************* */
-/* ********* main Header ********* */
-/* ******************************* */
-
-/* *************************************************** */
-/* main-page.component.css main-sidebar START */
-/* *************************************************** */
-
-.main-sidebar{
-  background: #f5f5f5;
-  min-width: 200px;
-  padding: 16px 12px;
-  text-align: center;
-  height: 100%;
-}
-
-.example-sidenav-container {
-  /* When the sidenav is not fixed, stretch the sidenav container to fill the available space. This
-     causes `<mat-sidenav-content>` to act as our scrolling element for desktop layouts. */
-  height: 100%;
-  flex: 1;
-}
-
-
-/* **************************************************** */
-/* main-page.component.css main-sidebar END */
-/* **************************************************** */
-
 /* ******************************** */
 /* ********* main Article ********* */
 /* ******************************** */
@@ -86,127 +25,14 @@
 .main-article-card{
   margin-bottom: 50px;
 }
-.main-article-title{
-  display: inline-block;
-  margin: 0 12px 0 12px;
-  font-size: 48px;
-  font-weight: normal !important;
-}
-.main-article-subtitle{
-  display: inline-block;
-  margin: 0 3px 0 3px;
-  font-size: 22px;
-  opacity: 0.7;
-  font-weight: normal !important;
-}
-.main-article-divider{
-  margin: 16px 0;
-}
-/* ************************************ */
-/* ********* main Article - A ********* */
-/* ************************************ */
-
-.main-articleA-titleWrapper{
-  text-align: center;
-  padding: 30px 0 60px 0;
-}
-
-.main-articleA-banner{
-  margin-top: 140px;
-  width: 100%;
-  border-radius: 15px;
-  box-shadow: 0px 3px 18px -3px rgba(0,0,0,0.75);
-}
-/* ************************************ */
-/* ********* main Article - A ********* */
-/* ************************************ */
-
-/* ************************************ */
-/* ********* main Article - B ********* */
-/* ************************************ */
-.main-articleB-titleWrapper{
-  text-align: center;
-  padding: 30px 0 60px 0;
-}
-
-.main-articleB-banner{
-  margin-top: 140px;
-  width: 100%;
-  border-radius: 15px;
-  box-shadow: 0px 3px 18px -3px rgba(0,0,0,0.75);
-}
-.main-article-card-title{
-  font-size: 24px;
-}
-.main-help-text-wrapper{
+.project-item-wrapper{
   display: flex;
   flex-flow: column;
-  border-top: 2px solid rgba(147, 147, 147, 0.41);
-  padding: 12px 8px;
+  margin-bottom: 24px;
 }
-.main-help-title{
-  margin-right: 6px;
-  font-family: 'Do Hyeon', sans-serif;
-  font-weight: unset !important;
-  font-size: 22px;
-}
-.main-help-text{
-  margin-right: 6px;
-  font-family: 'Do Hyeon', sans-serif;
-  font-weight: unset !important;
-  font-size: 16px;
-}
-
-.help-left-column{
-  width: 7px;
-  background: red;
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-}
-/* ************************************ */
-/* ********* main Article - B ********* */
-/* ************************************ */
-
 /* ******************************** */
 /* ********* main Article ********* */
 /* ******************************** */
 
-/* ******************************** */
-/* ********* main Footer ********* */
-/* ******************************** */
-.main-footer-wrapper{
-  height: 120px;
-  margin: 200px 0 0 0;
-}
-/* ******************************** */
-/* ********* main Footer ********* */
-/* ******************************** */
 
-
-/* ******************************** */
-/* ********* Back Ground ********* */
-/* ******************************** */
-.main-bg-particles{
-  z-index: 0;
-}
-/* ******************************** */
-/* ********* Back Ground ********* */
-/* ******************************** */
-.main-header-desktop{
-  display: inline;
-}
-.main-header-mobile{
-  display: none;
-}
-
-@media (max-width: 700px) {
-  .main-header-desktop{
-    display: none;
-  }
-  .main-header-mobile{
-    display: inline;
-  }
-}
 

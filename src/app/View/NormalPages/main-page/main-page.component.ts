@@ -8,6 +8,7 @@ import {
   GachiSidebarEventEnum
 } from '../../../Model/NormalPagesManager/gachi-sidebar-manager/GachiSidebarEvent/GachiSidebarEvent';
 import {UserDTO} from '../../../DTO/user-dto';
+import {MatSidenav} from '@angular/material';
 
 @Component({
   selector: 'app-main-page',
@@ -16,6 +17,7 @@ import {UserDTO} from '../../../DTO/user-dto';
 })
 export class MainPageComponent implements OnInit {
   @ViewChild('mainLeftDrawer', {static: true}) mainLeftDrawer;
+  @ViewChild('drawer', {static: true}) rightSidebar:MatSidenav;
   private userName = "";
   constructor(
     private authRequestService:AuthRequestService,
@@ -36,6 +38,9 @@ export class MainPageComponent implements OnInit {
         console.log("GachiLeftSidebarComponent >> subscribe >> event : ",event);
         if (event.action === GachiSidebarEventEnum.TOGGLE_LEFT_SIDEBAR) {
           this.mainLeftDrawer.toggle();
+        }
+        else if (event.action === GachiSidebarEventEnum.TOGGLE_RIGHT_SIDEBAR) {
+          this.rightSidebar.toggle();
         }
       });
 

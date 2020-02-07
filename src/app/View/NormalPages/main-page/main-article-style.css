@@ -1,0 +1,58 @@
+.main-article-card{
+  margin-bottom: 50px;
+}
+.card-content-wrapper{
+  border-top: 2px solid rgba(147, 147, 147, 0.41);
+}
+
+.main-article-title{
+  display: inline-block;
+  margin: 0 12px 0 12px;
+  font-size: 48px;
+  font-weight: normal !important;
+}
+.main-article-subtitle{
+  display: inline-block;
+  margin: 0 3px 0 3px;
+  font-size: 22px;
+  opacity: 0.7;
+  font-weight: normal !important;
+}
+.main-article-divider{
+  margin: 16px 0;
+}
+
+.main-article-card-title{
+  font-size: 24px;
+}
+.main-help-text-wrapper{
+  display: flex;
+  flex-flow: column;
+  border-top: 2px solid rgba(147, 147, 147, 0.41);
+  padding: 12px 8px;
+}
+.main-help-title{
+  margin-right: 6px;
+  font-family: 'Do Hyeon', sans-serif;
+  font-weight: unset !important;
+  font-size: 22px;
+}
+.main-help-text{
+  margin-right: 6px;
+  font-family: 'Do Hyeon', sans-serif;
+  font-weight: unset !important;
+  font-size: 16px;
+}
+
+.help-left-column{
+  width: 7px;
+  background: red;
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+}
+.project-item-wrapper{
+  display: block;
+  margin-bottom: 24px;
+}

@@ -83,6 +83,9 @@ import { GachiLeftSidebarComponent } from './View/NormalPages/page-sub-parts/sid
 import { ProjectCardComponent } from './View/NormalPages/page-sub-parts/cards/project-card/project-card.component';
 import {UserCardComponent} from './View/NormalPages/page-sub-parts/cards/user-card/user-card.component';
 import {HtmlHelperService} from './Model/NormalPagesManager/HtmlHelperService/html-helper.service';
+import { MainPageRootComponent } from './View/NormalPages/main-page/main-page-root/main-page-root.component';
+import { MainPageProjectComponent } from './View/NormalPages/main-page/main-page-project/main-page-project.component';
+import { KanbanCardComponent } from './View/NormalPages/page-sub-parts/cards/kanban-card/kanban-card.component';
 
 const appRoutes: Routes = [
   {
@@ -93,7 +96,26 @@ const appRoutes: Routes = [
   {
     path: 'mainpage',
     component: MainPageComponent,
-    data: { title: 'MainPage' }
+    data: { title: 'MainPage' },
+    children : [
+      {
+        path: '',
+        component: MainPageRootComponent,
+        outlet:'mainpage',
+      },
+    ]
+  },
+  {
+    path: 'project',
+    component: MainPageComponent,
+    data: { title: 'MainPage' },
+    children : [
+      {
+        path: '',
+        component: MainPageProjectComponent,
+        outlet:'mainpage',
+      },
+    ]
   },
   {
     path: '',
@@ -162,6 +184,9 @@ const appRoutes: Routes = [
     GachiLeftSidebarComponent,
     ProjectCardComponent,
     UserCardComponent,
+    MainPageRootComponent,
+    MainPageProjectComponent,
+    KanbanCardComponent,
   ],
   entryComponents: [
     KanbanComponent,

@@ -1,0 +1,69 @@
+<mat-toolbar color="primary">
+  <mat-icon class="main-article-card-title"
+            style="margin: 0 6px 4px 0">developer_board
+  </mat-icon>
+  <span class="main-article-card-title">PROJECT : {{projectId}}</span>
+  <span><button mat-button><mat-icon>more_vert</mat-icon></button></span>
+</mat-toolbar>
+
+<mat-card class="project-item-wrapper">
+  <mat-card-header>
+    <mat-card-title>In Progress</mat-card-title>
+  </mat-card-header>
+
+  <mat-card-content class="card-content-wrapper">
+    <app-kanban-card *ngFor="let kanbanItem of inProgressGroup.kanbanItemList"
+                     [kanbanItem]="kanbanItem">
+    </app-kanban-card>
+  </mat-card-content>
+</mat-card>
+
+
+<mat-card class="main-article-card">
+  <mat-toolbar>
+
+    <mat-icon class="main-article-card-title"
+              style="margin: 0 6px 4px 0">mood
+    </mat-icon>
+    <span class="main-article-card-title">같이보드의 사용설명서예요!</span>
+  </mat-toolbar>
+
+  <!--사용설명서 Outer Wrapper START-->
+  <mat-card class="project-item-wrapper">
+    <!--사용설명서 --- #1 START-->
+    <mat-accordion>
+      <mat-expansion-panel expanded="true">
+        <mat-expansion-panel-header>
+          <span class="main-help-title">1. 프로젝트 생성하기</span>
+        </mat-expansion-panel-header>
+
+        <div class="main-help-text-wrapper">
+          <div class="main-help-text">현재 페이지에서는 프로젝트를 생성할 수 있어요.</div>
+          <div class="main-help-text">프로젝트를 만들게 되면, 만든 사람이 해당 프로젝트의 관리자가 됩니다</div>
+          <div class="main-help-text">프로젝트의 관리자가 되면, 다른 사용자를 초대하거나 내보낼 수 있어요.</div>
+        </div>
+
+      </mat-expansion-panel>
+    </mat-accordion>
+    <!--사용설명서 --- #1 END-->
+
+    <!--사용설명서 --- #1 START-->
+    <mat-accordion>
+      <mat-expansion-panel expanded="true">
+        <mat-expansion-panel-header>
+          <span class="main-help-title">2. 프로젝트 이용하기</span>
+        </mat-expansion-panel-header>
+
+        <div class="main-help-text-wrapper">
+          <div class="main-help-text">프로젝트를 생성하면, 다양한 기능을 이용할 수 있어요</div>
+          <div class="main-help-text">프로젝트 구성원과 실시간으로 같이 사용할 수 있는 칸반, 화이트보드 서비스등이 있답니다.</div>
+          <div class="main-help-text">프로젝트 하나당, 하나의 칸반을 사용할 수 있어요.</div>
+          <div class="main-help-text">화이트보드는 최대 5개까지 생성할 수 있습니다.</div>
+        </div>
+
+      </mat-expansion-panel>
+    </mat-accordion>
+    <!--사용설명서 --- #1 END-->
+
+  </mat-card>
+</mat-card>
