@@ -1,6 +1,6 @@
 <span class="header-right-wrapper">
   <span *ngIf="headerMode === 'homepage'"
-           class="header-desktop">
+        class="header-desktop">
     <button mat-button
             class="header-sub">Product</button>
     <button mat-button
@@ -11,15 +11,15 @@
 
     <span *ngIf="isLoggedIn==false"
           class="header-desktop">
-    <a routerLink="/login" mat-button class="header-sub">Sign In</a>
-    <a routerLink="/login" mat-button class="header-sub">Sign Up </a>
-  </span>
+      <a routerLink="/login" mat-button class="header-sub">Sign In</a>
+      <a routerLink="/login" mat-button class="header-sub">Sign Up </a>
+    </span>
 
     <span class="header-mobile">
-    <button mat-button>
-      <mat-icon class="example-icon">menu</mat-icon>
-    </button>
-  </span>
+      <button mat-button>
+        <mat-icon class="example-icon">menu</mat-icon>
+      </button>
+    </span>
 
     <span *ngIf="isLoggedIn==true"
           class="header-desktop">
@@ -29,4 +29,6 @@
             (click)="onSignOutClick()"
             class="header-sub">Sign Out</button>
   </span>
+
 </span>
+

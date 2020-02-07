@@ -75,6 +75,7 @@ import { MainPageComponent } from './View/NormalPages/main-page/main-page.compon
 import { GachiFooterComponent } from './View/NormalPages/page-sub-parts/footer/gachi-footer/gachi-footer.component';
 import { RightButtonGroupComponent } from './View/NormalPages/page-sub-parts/header/right-button-group/right-button-group.component';
 import { GachiHeaderComponent } from './View/NormalPages/page-sub-parts/header/gachi-header/gachi-header.component';
+import { GachiRightSidebarComponent } from './View/NormalPages/page-sub-parts/sidebars/gachi-right-sidebar/gachi-right-sidebar.component';
 
 const appRoutes: Routes = [
   {
@@ -143,6 +144,7 @@ const appRoutes: Routes = [
     GachiFooterComponent,
     RightButtonGroupComponent,
     GachiHeaderComponent,
+    GachiRightSidebarComponent,
   ],
   entryComponents: [
     KanbanComponent,
