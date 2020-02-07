@@ -20,6 +20,9 @@ import Point = paper.Point;
 // @ts-ignore
 import Project = paper.Project;
 
+// @ts-ignore
+import Rectangle = paper.Rectangle;
+
 import {TextStyle} from '../../Pointer/shape-service/text-style';
 import {PositionCalcService} from '../../PositionCalc/position-calc.service';
 import {
@@ -48,6 +51,10 @@ import {EditableItemGroup} from '../../Whiteboard-Item/ItemGroup/EditableItemGro
 import {HorizonContextMenuService} from "../../ContextMenu/horizon-context-menu-service/horizon-context-menu.service";
 import {WorkHistoryManager} from './WorkHistoryManager/work-history-manager';
 import {CursorChangeService} from "../../Pointer/cursor-change-service/cursor-change.service";
+import value from "*.json";
+import {SizeHandler} from "../../Whiteboard-Item/ItemAdjustor/ItemHandler/SizeHandler/size-handler";
+import {ItemHandler} from "../../Whiteboard-Item/ItemAdjustor/ItemHandler/item-handler";
+import {WhiteboardShape} from "../../Whiteboard-Item/Whiteboard-Shape/whiteboard-shape";
 
 
 @Injectable({
@@ -73,6 +80,7 @@ export class DrawingLayerManagerService {
   private _idGenerator = 0;
   private _linkIdGenerator = 0;
 
+  private hitOption = { segments: true, stroke: true, fill: true, tolerance: 15 };
 
   @Output() wbItemLifeCycleEventEmitter:EventEmitter<any> = new EventEmitter<any>();
   @Output() pointerModeEventEmitter:EventEmitter<any> = new EventEmitter<any>();
@@ -110,43 +118,43 @@ export class DrawingLayerManagerService {
     this.horizonContextMenuService.initializeHorizonContextMenuService(this.globalSelectedGroup);
 
     //#### 이걸로 화이트보드 배경 선택시 현재 선택된 그룹을 해제함
-    this.currentProject.view.onMouseDown = (event)=>{
-      if(this.isEditingText){
-        console.log("DrawingLayerManagerService >> onMouseDown >> isEditingText 진입함");
-        this.endEditText();
-        this.horizonContextMenuService.close();
-        return;
-      }
-      if(this.globalSelectedGroup.getNumberOfChild() > 0){
-        let hitItem = this.getHittedItem(event.point);
-        if(!hitItem){
-          if(!this.checkHittedItemIsHandler(event.point)){
-            this.globalSelectedGroup.extractAllFromSelection();
-            return;
-          }
-        }
-      }else{
-        return;
-      }
-
-      // let point = this.initPoint(event.event);
-      // this.initFromPoint(point);
-      // if(event.event instanceof TouchEvent) {
-      //   this.longTouchTimer = setTimeout(this.onLongTouch, 500, event.event, this.contextMenu);
-      // }
-    };
-    // this.currentProject.view.onMouseDrag = (event) => {
-    //   // TODO : Canvas Mover 에서 드래그 이벤트 발생 안함
-    //   if(event.event instanceof TouchEvent) {
-    //     if(this.calcTolerance(this.initPoint(event.event))){
-    //       clearTimeout(this.longTouchTimer);
-    //     }
+    // this.currentProject.view.onMouseDown = (event)=>{
+    //   if(this.isEditingText){
+    //     console.log("DrawingLayerManagerService >> onMouseDown >> isEditingText 진입함");
+    //     this.endEditText();
+    //     this.horizonContextMenuService.close();
+    //     return;
     //   }
+    //   if(this.globalSelectedGroup.getNumberOfChild() > 0){
+    //     let hitItem = this.getHittedItem(event.point);
+    //     if(!hitItem){
+    //       if(!this.checkHittedItemIsHandler(event.point)){
+    //         this.globalSelectedGroup.extractAllFromSelection();
+    //         return;
+    //       }
+    //     }
+    //   }else{
+    //     return;
+    //   }
+    //
+    //   // let point = this.initPoint(event.event);
+    //   // this.initFromPoint(point);
+    //   // if(event.event instanceof TouchEvent) {
+    //   //   this.longTouchTimer = setTimeout(this.onLongTouch, 500, event.event, this.contextMenu);
+    //   // }
+    // };
+    // this.currentProject.view.onMouseDrag = (event) => {
+    // //   // TODO : Canvas Mover 에서 드래그 이벤트 발생 안함
+    // //   if(event.event instanceof TouchEvent) {
+    // //     if(this.calcTolerance(this.initPoint(event.event))){
+    // //       clearTimeout(this.longTouchTimer);
+    // //     }
+    // //   }
     // };
     // this.currentProject.view.onMouseUp = (event) => {
-    //   if(event.event instanceof TouchEvent) {
-    //     clearTimeout(this.longTouchTimer);
-    //   }
+    // //   if(event.event instanceof TouchEvent) {
+    // //     clearTimeout(this.longTouchTimer);
+    // //   }
     // };
   }
 
@@ -303,7 +311,8 @@ export class DrawingLayerManagerService {
     }
     return newWhiteboardItem
   }
-  public isSelecting(){
+
+  get isSelecting(): boolean {
     return this.globalSelectedGroup.getNumberOfChild() > 0;
   }
 
@@ -371,26 +380,77 @@ export class DrawingLayerManagerService {
     return tgt.data.struct;
   }
 
-  public getHittedItem(point) : WhiteboardItem{
-    let hitOption = { segments: true, stroke: true, fill: true, tolerance: 15 };
-    let children = this.whiteboardItemArray;
-    for(let i = children.length - 1 ; i >= 0; i-- ){
-      let value = children[i];
+  public getHittedItemHandler(point): ItemHandler {
+    return this.findInItemHandlers(point);
+  }
 
-      if(value.group.hitTest(point, hitOption)){
-        return value;
-      }
-      //그룹의 선택영역일 수 도 있으므로, 그룹 영역검사
-      if(value instanceof ItemGroup){
-        if(value.backgroundRect.contains(point)){
-          return value;
+  public getHittedLinkPort(point): LinkPort {
+    return this.findInLinkPorts(point);
+  }
+
+  public getHittedItem(point): WhiteboardItem {
+    return this.findInWhiteboardItems(point);
+  }
+
+  private findInItemHandlers(point): ItemHandler {
+    if(this.isSelecting) {
+      let handles = this.globalSelectedGroup.myItemAdjustor.sizeHandlers;
+      for(let [key, handle] of handles) {
+        if(handle.handlerCircleObject.hitTest(point, this.hitOption)) {
+          return handle;
         }
+      }
+    } else {
+      return null;
+    }
+  }
+
+  private findInLinkPorts(point): LinkPort {
+    if(this.isSelecting) {
+      if(this.globalSelectedGroup.getNumberOfChild() === 1) {
+        let portMap = (this.globalSelectedGroup.wbItemGroup[0] as WhiteboardShape).linkPortMap;
+        for(let [key, port] of portMap) {
+          if(port.handlerCircleObject.hitTest(point, this.hitOption)) {
+            return port;
+          }
+        }
+      }
+    }
+    return null;
+  }
+
+  private findInWhiteboardItems(point): WhiteboardItem {
+    let whiteboardItems = this.whiteboardItemArray;
+
+    for(let i = whiteboardItems.length - 1 ; i >= 0; i-- ){
+      let value = whiteboardItems[i];
+
+      // GSG면 건너뜀
+      if(value instanceof GlobalSelectedGroup) {
+        continue;
+      }
+      // ItemGroup도 건너뜀
+      if(value instanceof ItemGroup){
+        continue;
+      }
+
+      if(value.group.hitTest(point, this.hitOption)){
+        if(value.isGrouped) {
+          return value.parentEdtGroup;
+        }
+        return value;
       }
 
     }
     //못찾은 경우 null값 리턴
 
     return null;
+  }
+
+  public isHitGSG(point): boolean {
+    let hitOption = { segments: true, stroke: true, fill: true, tolerance: 15 };
+    return !!this.globalSelectedGroup.group.hitTest(point, hitOption);
+
   }
   private checkHittedItemIsHandler(point){
     //아직 링크 핸들러만 체크함

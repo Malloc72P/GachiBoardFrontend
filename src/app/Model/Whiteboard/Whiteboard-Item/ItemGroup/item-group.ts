@@ -51,7 +51,7 @@ export class ItemGroup extends WhiteboardItem {
     this.activateShadowEffect();
   }
 
-  protected amIAlreadyHaveThis(wbItem:WhiteboardItem){
+  public amIAlreadyHaveThis(wbItem:WhiteboardItem){
     for(let i = 0 ; i < this.wbItemGroup.length; i++){
       let currentItem = this.wbItemGroup[i];
       if(currentItem.id === wbItem.id){
@@ -90,32 +90,31 @@ export class ItemGroup extends WhiteboardItem {
     this.backgroundRect.opacity = 0.2;
     this.backgroundRect.name = 'BackgroundRect';
 
-    this.backgroundRect.onMouseDown = (event) => {
-      this.onMouseDown(event);
-    };
-    this.backgroundRect.onMouseDrag = (event) => {
-      this.onMouseDrag(event);
-      // TODO : HorizonContextMenuService Test Code
-      this.layerService.horizonContextMenuService.close();
-    };
-    this.backgroundRect.onMouseUp = (event) => {
-      this.onMouseUp(event);
-      // TODO : HorizonContextMenuService Test Code
-      this.layerService.horizonContextMenuService.open();
-    };
-    this.backgroundRect.onDoubleClick = ()=>{
-      console.log("ItemGroup >> onDoubleClick >> 진입함");
-    }
+    // this.backgroundRect.onMouseDown = (event) => {
+    //   this.onMouseDown(event);
+    // };
+    // this.backgroundRect.onMouseDrag = (event) => {
+    //   this.onMouseDrag(event);
+    //   // TODO : HorizonContextMenuService Test Code
+    //   this.layerService.horizonContextMenuService.close();
+    // };
+    // this.backgroundRect.onMouseUp = (event) => {
+    //   this.onMouseUp(event);
+    //   // TODO : HorizonContextMenuService Test Code
+    //   this.layerService.horizonContextMenuService.open();
+    // };
+    // this.backgroundRect.onDoubleClick = ()=>{
+    //   console.log("ItemGroup >> onDoubleClick >> 진입함");
+    // }
 
   }
 
   //### Mouse Event 콜백
   protected setCallback() {}
-  protected onMouseDown(event){
+  public onMouseDown(event){
     if(!this.checkMovable()){
       return;
     }
-    console.log("ItemGroup >> onMouseDown >> event : ",event);
     this.prevPoint = event.point;
     if(event.modifiers.control === true){
       //this.layerService.globalSelectedGroup.setMultipleSelectMode(this);
@@ -141,7 +140,23 @@ export class ItemGroup extends WhiteboardItem {
     }
 
   }
-  protected onMouseDrag(event){
+
+  public moveTo(event) {
+    if(!this.checkMovable()) {
+      return;
+    }
+    if(this.myItemAdjustor) {
+      this.myItemAdjustor.disable();
+    }
+    this.calcCurrentDistance(event);
+    if(this.checkEditable()) {
+      this.group.position.x += event.delta.x;
+      this.group.position.y += event.delta.y;
+      this.layerService.horizonContextMenuService.close();
+    }
+  }
+
+  public onMouseDrag(event){
     if(!this.checkMovable()){
       return;
     }
@@ -158,7 +173,17 @@ export class ItemGroup extends WhiteboardItem {
       this.group.position.y += event.delta.y;
     }
   }
-  protected onMouseUp(event){
+
+  public moveEnd() {
+    if(this.myItemAdjustor){
+      this.myItemAdjustor.enable();
+      this.resetMyItemAdjustor();
+    }
+    this.layerService.horizonContextMenuService.open();
+    this.lifeCycleEventEmitter.emit(new ItemLifeCycleEvent(this.id,this,ItemLifeCycleEnum.MODIFY));
+  }
+
+  public onMouseUp(event){
     this.calcCurrentDistance(event);
     if(!this.checkMovable()){
       return;
@@ -178,11 +203,10 @@ export class ItemGroup extends WhiteboardItem {
 
 
   public resetMyItemAdjustor(){
-    if(this.getNumberOfChild() === 1){
+    if(this.getNumberOfChild() > 0){
       this.activateSelectedMode();
       this.createBackgroundRect();
-    }
-    if(this.getNumberOfChild() === 0){
+    } else {
       this.deactivateSelectedMode();
       this.removeBackgroundRect();
     }
@@ -227,8 +251,6 @@ export class ItemGroup extends WhiteboardItem {
     this.wbItemGroup.push(wbItem);
     wbItem.isSelected = true;
     this.coreItem.addChild(wbItem.group);
-
-    this.resetMyItemAdjustor();
   }
 
   public extractOneFromGroup(wbItem: WhiteboardItem) {
@@ -248,6 +270,7 @@ export class ItemGroup extends WhiteboardItem {
         this.wbItemGroup.splice(i, 1);
         this.resetMyItemAdjustor();
         willBeExtract.refreshItem();
+
         return;
       }
     }

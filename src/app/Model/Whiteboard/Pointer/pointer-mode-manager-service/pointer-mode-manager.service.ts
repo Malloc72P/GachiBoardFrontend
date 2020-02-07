@@ -1,7 +1,6 @@
 import {Injectable} from '@angular/core';
 import {PointerMode} from '../pointer-mode-enum-service/pointer-mode-enum.service';
 
-import * as paper from 'paper';
 
 import {InfiniteCanvasService} from "../../InfiniteCanvas/infinite-canvas.service";
 import {BrushService} from '../brush-service/brush.service';
@@ -16,8 +15,9 @@ import {ShapeService} from '../shape-service/shape.service';
 import {NormalPointerService} from '../normal-pointer-service/normal-pointer.service';
 
 
+import * as paper from 'paper';
 // @ts-ignore
-import Point = paper.Point;
+import Project = paper.Project;
 import {MouseButtonEventEnum} from '../MouseButtonEventEnum/mouse-button-event-enum.enum';
 import {PointerModeEvent} from '../PointerModeEvent/pointer-mode-event';
 import {DrawingLayerManagerService} from '../../InfiniteCanvas/DrawingLayerManager/drawing-layer-manager.service';
@@ -31,7 +31,7 @@ import {CursorChangeService} from "../cursor-change-service/cursor-change.servic
 export class PointerModeManagerService {
   public currentPointerMode: number;
   public mouseDown = false;
-  public currentProject;
+  public currentProject: Project;
 
   constructor(
       public brushService                 : BrushService,
@@ -51,10 +51,9 @@ export class PointerModeManagerService {
     ) {
   }
 
-  public initializePointerModeManagerService(currentProject) {
+  public initializePointerModeManagerService(currentProject: Project) {
 
     this.currentPointerMode = PointerMode.POINTER;
-    const htmlCanvasObject = document.getElementById("cv1") as HTMLCanvasElement;
     this.currentProject = currentProject;
 
     this.canvasMoverService.initializeCanvasMoverService(this.currentProject);
@@ -65,24 +64,29 @@ export class PointerModeManagerService {
     this.normalPointerService.initializeNormalPointerService(this.currentProject);
     this.cursorChangeService.initializeCursorChangeService();
 
-    htmlCanvasObject.addEventListener("mousedown", (event) => {
-      this.onMouseDown(event);
-    });
-    htmlCanvasObject.addEventListener("mousemove", (event) => {
-      this.onMouseMove(event);
-    });
-    htmlCanvasObject.addEventListener("mouseup", (event) => {
-      this.onMouseUp(event);
-    });
-    htmlCanvasObject.addEventListener("touchstart", (event) => {
-      this.onTouchStart(event);
-    });
-    htmlCanvasObject.addEventListener("touchmove", (event) => {
-      this.onTouchMove(event);
-    });
-    htmlCanvasObject.addEventListener("touchend", (event) => {
-      this.onTouchEnd(event);
-    });
+    this.currentProject.view.onMouseDown = (event) => {
+      if(event.event instanceof MouseEvent) {
+        this.onMouseDown(event);
+      } else {
+        this.onTouchStart(event);
+      }
+    };
+
+    this.currentProject.view.onMouseDrag = (event) => {
+      if(event.event instanceof MouseEvent) {
+        this.onMouseMove(event);
+      } else {
+        this.onTouchMove(event);
+      }
+    };
+
+    this.currentProject.view.onMouseUp = (event) => {
+      if(event.event instanceof MouseEvent) {
+        this.onMouseUp(event);
+      } else {
+        this.onTouchEnd(event);
+      }
+    };
     this.modeChange(PointerMode.POINTER);
 
     this.layerService.pointerModeEventEmitter.subscribe((data:PointerModeEvent)=>{

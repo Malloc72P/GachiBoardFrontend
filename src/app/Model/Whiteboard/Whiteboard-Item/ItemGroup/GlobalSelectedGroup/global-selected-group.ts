@@ -120,7 +120,14 @@ export class GlobalSelectedGroup extends ItemGroup {
   }
 
   public insertOneIntoSelection(wbItem: WhiteboardItem) {
-    this.insertOneIntoGroup(wbItem);
+    if(wbItem instanceof ItemGroup) {
+      wbItem.wbItemGroup.forEach(value => {
+        this.insertOneIntoGroup(value);
+      });
+    } else {
+      this.insertOneIntoGroup(wbItem);
+    }
+    this.resetMyItemAdjustor();
     this.layerService.horizonContextMenuService.open();
   }
 
@@ -132,6 +139,11 @@ export class GlobalSelectedGroup extends ItemGroup {
 
   public removeOneFromGroup(wbItem) {
     this.extractOneFromGroup(wbItem);
+    if(this.wbItemGroup.length > 0) {
+      this.layerService.horizonContextMenuService.refreshPosition();
+    } else {
+      this.layerService.horizonContextMenuService.close();
+    }
   }
 
   destroyItem() {

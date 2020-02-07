@@ -23,7 +23,6 @@ export class SizeHandler extends ItemHandler{
 
   public onMouseDown(event) {
     this.initSizingDataBeforeResizing();
-    // TODO : HorizonContextMenuService Test Code
     this.owner.layerService.horizonContextMenuService.close();
   }
 

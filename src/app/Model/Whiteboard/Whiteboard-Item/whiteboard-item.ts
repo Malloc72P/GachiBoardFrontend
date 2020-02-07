@@ -19,6 +19,7 @@ import {MouseButtonEventEnum} from '../Pointer/MouseButtonEventEnum/mouse-button
 import {EditableItemGroup} from './ItemGroup/EditableItemGroup/editable-item-group';
 import {WhiteboardItemDto} from '../WhiteboardItemDto/whiteboard-item-dto';
 import {GachiPointDto} from '../WhiteboardItemDto/PointDto/gachi-point-dto';
+import {ItemGroup} from "./ItemGroup/item-group";
 
 export abstract class WhiteboardItem {
 
@@ -27,7 +28,7 @@ export abstract class WhiteboardItem {
   protected _group:Group;
   protected _topLeft: Point;
   protected _coreItem:Item;
-  protected _isSelected;
+  protected _isSelected: boolean;
   protected _myItemAdjustor:ItemAdjustor;
 
   private _isGrouped = false;
@@ -78,48 +79,48 @@ export abstract class WhiteboardItem {
     this.coreItem.shadowOffset = new Point(1,1);
   }
   protected setCallback() {
-    this.group.onMouseDown = (event) => {
-      if(this.isMouseEvent(event)){
-        if(!this.checkEditable()){
-          return;
-        }
-        //#### 마우스 이벤트 인 경우
-        switch (event.event.button) {
-          case MouseButtonEventEnum.LEFT_CLICK:
-            this.onPointerDownForEdit(event);
-            break;
-          case MouseButtonEventEnum.RIGHT_CLICK:
-            this.onPointerDownForContextMenu(event);
-            break;
-        }//switch
-
-      }//if
-      else{//#### 터치 이벤트 인 경우
-        //TODO 여기서 롱터치 여부를 구분해야 함
-        let point = this.initPoint(event.event);
-        this.initFromPoint(point);
-        this.longTouchTimer = setTimeout(this.onLongTouch, 500, event.event, this.layerService);
-        if(this.checkEditable()){
-          this.onPointerDownForEdit(event);
-        }
-      }
-    };
-    this.group.onMouseDrag = (event) => {
-      if(this.isTouchEvent(event)) {
-        if(this.calcTolerance(this.initPoint(event.event))){
-          clearTimeout(this.longTouchTimer); // 움직이면 롱터치 아님, 톨러런스 5
-        }
-      }
-    };
-    this.group.onMouseUp = (event) =>{
-      if(this.isTouchEvent(event)) {
-        clearTimeout(this.longTouchTimer); // 터치가 롱터치 반응 시간 안에 떼지면 롱터치 아님
-      }
-      if(!this.checkEditable()){
-        return;
-      }
-      this.setSingleSelectMode();
-    }
+    // this.group.onMouseDown = (event) => {
+    //   if(this.isMouseEvent(event)){
+    //     if(!this.checkEditable()){
+    //       return;
+    //     }
+    //     //#### 마우스 이벤트 인 경우
+    //     switch (event.event.button) {
+    //       case MouseButtonEventEnum.LEFT_CLICK:
+    //         this.onPointerDownForEdit(event);
+    //         break;
+    //       case MouseButtonEventEnum.RIGHT_CLICK:
+    //         this.onPointerDownForContextMenu(event);
+    //         break;
+    //     }//switch
+    //
+    //   }//if
+    //   else{//#### 터치 이벤트 인 경우
+    //     //TODO 여기서 롱터치 여부를 구분해야 함
+    //     let point = this.initPoint(event.event);
+    //     this.initFromPoint(point);
+    //     this.longTouchTimer = setTimeout(this.onLongTouch, 500, event.event, this.layerService);
+    //     if(this.checkEditable()){
+    //       this.onPointerDownForEdit(event);
+    //     }
+    //   }
+    // };
+    // this.group.onMouseDrag = (event) => {
+    //   if(this.isTouchEvent(event)) {
+    //     if(this.calcTolerance(this.initPoint(event.event))){
+    //       clearTimeout(this.longTouchTimer); // 움직이면 롱터치 아님, 톨러런스 5
+    //     }
+    //   }
+    // };
+    // this.group.onMouseUp = (event) =>{
+    //   if(this.isTouchEvent(event)) {
+    //     clearTimeout(this.longTouchTimer); // 터치가 롱터치 반응 시간 안에 떼지면 롱터치 아님
+    //   }
+    //   if(!this.checkEditable()){
+    //     return;
+    //   }
+    //   this.setSingleSelectMode();
+    // }
   }
   protected isMouseEvent(event){
     return event.event instanceof MouseEvent;
@@ -356,11 +357,11 @@ export abstract class WhiteboardItem {
     this._zoomEventEmitter = value;
   }
 
-  get isSelected() {
+  get isSelected(): boolean {
     return this._isSelected;
   }
 
-  set isSelected(value) {
+  set isSelected(value: boolean) {
     this._isSelected = value;
   }
   get layerService(): DrawingLayerManagerService {

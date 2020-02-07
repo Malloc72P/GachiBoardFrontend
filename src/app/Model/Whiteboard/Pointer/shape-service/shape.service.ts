@@ -75,7 +75,7 @@ export class ShapeService {
       this.handlePath.remove();
     }
     let points: Points;
-    points = this.initEvent(event);
+    points = this.initEvent(event.event);
 
     this.createHandleRectangle(points.point);
     this.createDrawMinBoundRectangle(points.point);
@@ -85,7 +85,7 @@ export class ShapeService {
 
   public drawPath(event) {
     let points: Points;
-    points = this.initEvent(event);
+    points = this.initEvent(event.event);
 
     // 시작 지점부터 가로, 세로가 minSize * 2인 크기 밖으로 넘어가지 않으면 도형 그리지 않음.
     // 결과적으로 클릭하고 조금만 드래그되어도 도형이 생성되는 문제 제어
@@ -117,7 +117,7 @@ export class ShapeService {
     }
 
 
-    if(event.shiftKey) {
+    if(event.event.shiftKey) {
       PointCalculator.forSquare(this.fromPoint, points.point);
     }
 
@@ -136,7 +136,7 @@ export class ShapeService {
     if(this.newPath == null) {
       return;
     }
-    let points = this.initEvent(event);
+    let points = this.initEvent(event.event);
 
     if(this.handlePath) {
       this.handlePath.remove();

@@ -129,6 +129,49 @@ export class LinkPort {
     };
   }
 
+  public onMouseDown(event) {
+    let currentLinkerMode = this.layerService.currentLinkerMode;
+
+    let strokeWidth = currentLinkerMode.strokeWidth;
+    let strokeColor = currentLinkerMode.strokeColor;
+    let fillColor   = currentLinkerMode.fillColor;
+
+    switch (currentLinkerMode.mode) {
+      case LinkerModeEnum.SIMPLE_lINE_lINK :
+        this.tempLink = new SimpleLineLink(this, strokeColor,strokeWidth,fillColor);
+        break;
+      case LinkerModeEnum.SIMPLE_DASHED_lINE_lINK :
+        this.tempLink = new SimpleLineLink(this, strokeColor,strokeWidth,fillColor,true);
+        break;
+      case LinkerModeEnum.SIMPLE_DASHED_ARROW_lINK :
+        this.tempLink = new SimpleArrowLink(this, strokeColor,strokeWidth,fillColor,true);
+        break;
+      case LinkerModeEnum.SIMPLE_ARROW_LINK :
+        this.tempLink = new SimpleArrowLink(this, strokeColor,strokeWidth,fillColor);
+        break;
+    }
+    this.tempLink.initTempLink(event.point);
+  }
+
+  public onMouseDrag(event) {
+    this.tempLink.drawTempLink(event.point);
+  }
+
+  public onMouseUp (event) {
+    let point = event.point;
+
+    let newLink = this.tempLink.linkToWbShape(point);
+    if(newLink){
+      this.addLink(newLink);
+    }
+    else{
+      if (this.tempLink) {
+        this.tempLink.destroyItem();
+        delete this.tempLink;
+      }
+    }
+  }
+
   private setMouseCallback(){
     this.handlerCircleObject.onMouseDown = (event)=>{
       let currentLinkerMode = this.layerService.currentLinkerMode;

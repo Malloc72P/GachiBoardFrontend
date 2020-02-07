@@ -59,7 +59,7 @@ export class LassoSelectorService {
     point = this.posCalcService.advConvertNgToPaper(point);
     // *선택이 되어있는지 확인
     // 선택 그룹이 있는지 확인
-    if(!this.layerService.isSelecting()){
+    if(!this.layerService.isSelecting){
       this.createLassoPath(point);
     }
 
@@ -83,7 +83,7 @@ export class LassoSelectorService {
     }
     point = this.posCalcService.advConvertNgToPaper(point);
 
-    if(!this.layerService.isSelecting()){
+    if(!this.layerService.isSelecting){
       this.newPath.add(point);
     }
     return;
@@ -104,7 +104,7 @@ export class LassoSelectorService {
       this.newPath.closePath();
     }
 
-    if(!this.layerService.isSelecting()){
+    if(!this.layerService.isSelecting){
       this.selectBound();
     }
     LassoSelectorService.removeItem(this.newPath);
