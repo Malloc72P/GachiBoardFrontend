@@ -206,9 +206,9 @@ export class PointerModeManagerService {
           break;
       }
     }
-    else if (event.touches.length == 2) {
+    else if (event.event.touches.length == 2) {
       //핀치줌
-      this.zoomCtrlService.onPinchZoomMove(event);
+      this.zoomCtrlService.onPinchZoomMove(event.event);
     }
 
   }

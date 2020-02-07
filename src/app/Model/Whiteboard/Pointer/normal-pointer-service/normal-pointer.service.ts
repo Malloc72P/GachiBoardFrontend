@@ -216,7 +216,6 @@ export class NormalPointerService {
 
   public moveCanvas(event) {
     let delta = this.initDelta(event.event);
-    console.log("NormalPointerService >> moveCanvas >> delta : ", delta);
 
     this.infiniteCanvasService.moveWithDelta(delta);
     this.infiniteCanvasService.solveDangerState();
