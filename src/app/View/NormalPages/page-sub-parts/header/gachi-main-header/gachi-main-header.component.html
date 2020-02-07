@@ -1,0 +1,22 @@
+<mat-card class="main-sub-header-wrapper">
+  <mat-toolbar class="main-sub-header" style="padding: 0">
+        <span class="sub-header-left">
+          <mat-card style="padding: 0;">
+            <button mat-button (click)="openLeftSidebar()">
+              <span class="sub-header-left-label">메뉴</span>
+              <mat-icon class="sub-header-left-toggle-on" [ngStyle]="isToggled === true && {'display':'inline'}">toggle_on</mat-icon>
+              <mat-icon class="sub-header-left-toggle-off" [ngStyle]="isToggled === false && {'display':'inline'}">toggle_off</mat-icon>
+            </button>
+          </mat-card>
+
+        </span>
+        <span class="sub-header-right">
+          <mat-card style="padding: 0;">
+            <button mat-button>
+              <span class="sub-header-right-label
+              sub-header-right-title">{{userName}}님이 참여중인 프로젝트 목록이예요</span>
+            </button>
+          </mat-card>
+        </span>
+  </mat-toolbar>
+</mat-card>

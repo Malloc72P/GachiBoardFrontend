@@ -2,43 +2,45 @@ import {ChangeDetectorRef, Component, OnDestroy, OnInit, ViewChild} from '@angul
 import {AuthRequestService} from '../../../Controller/SocialLogin/auth-request/auth-request.service';
 import {RouterHelperService} from '../../../Model/Helper/router-helper-service/router-helper.service';
 import {MediaMatcher} from '@angular/cdk/layout';
+import {GachiSidebarManagerService} from '../../../Model/NormalPagesManager/gachi-sidebar-manager/gachi-sidebar-manager.service';
+import {
+  GachiSidebarEvent,
+  GachiSidebarEventEnum
+} from '../../../Model/NormalPagesManager/gachi-sidebar-manager/GachiSidebarEvent/GachiSidebarEvent';
+import {UserDTO} from '../../../DTO/user-dto';
 
 @Component({
   selector: 'app-main-page',
   templateUrl: './main-page.component.html',
   styleUrls: ['./main-page.component.css', './../gachi-font.css']
 })
-export class MainPageComponent implements OnInit, OnDestroy {
+export class MainPageComponent implements OnInit {
   @ViewChild('mainLeftDrawer', {static: true}) mainLeftDrawer;
-
-  mobileQuery: MediaQueryList;
-  private _mobileQueryListener: () => void;
-
+  private userName = "";
   constructor(
     private authRequestService:AuthRequestService,
     private routerHelperService:RouterHelperService,
-    changeDetectorRef: ChangeDetectorRef, media: MediaMatcher
+    private sidebarManagerService:GachiSidebarManagerService
   ) {
-    this.mobileQuery = media.matchMedia('(max-width: 600px)');
-    this._mobileQueryListener = () => changeDetectorRef.detectChanges();
-    this.mobileQuery.addListener(this._mobileQueryListener);
-  }
 
-  ngOnDestroy(): void {
-    this.mobileQuery.removeListener(this._mobileQueryListener);
   }
 
   ngOnInit() {
-    this.authRequestService.protectedApi().subscribe(()=>{
-      this.mainLeftDrawer.toggle();
+    this.authRequestService.protectedApi()
+      .subscribe((userDto:UserDTO)=>{
+      this.userName = userDto.userName;
     });
+
+    this.sidebarManagerService.sidebarEventEmitter
+      .subscribe((event:GachiSidebarEvent)=>{
+        console.log("GachiLeftSidebarComponent >> subscribe >> event : ",event);
+        if (event.action === GachiSidebarEventEnum.TOGGLE_LEFT_SIDEBAR) {
+          this.mainLeftDrawer.toggle();
+        }
+      });
+
   }
 
-  private onSignoutClick(){
-    this.authRequestService.signOut();
-  }
-  private onLogoClick(){
-    this.routerHelperService.goToHomePage();
-  }
+
 
 }

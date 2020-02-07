@@ -16,18 +16,15 @@
     </span>
 
     <span class="header-mobile">
-      <button mat-button>
+      <button mat-button (click)="toggleRightSidebar()">
         <mat-icon class="example-icon">menu</mat-icon>
       </button>
     </span>
 
     <span *ngIf="isLoggedIn==true"
           class="header-desktop">
-    <a routerLink="/mainpage" mat-button
-       class="header-sub">My Project</a>
-    <button mat-button
-            (click)="onSignOutClick()"
-            class="header-sub">Sign Out</button>
+    <a routerLink="/mainpage" mat-button class="header-sub">My Project</a>
+    <a routerLink="/signout" mat-button class="header-sub">Sign Out</a>
   </span>
 
 </span>

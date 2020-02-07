@@ -1,0 +1,57 @@
+.main-sidebar-opener-wrapper{
+  display: inline-block;
+}
+.main-sidebar-opener{
+  font-size: 20px;
+  font-weight: lighter !important;
+}
+.sub-header-left-label{
+  font-size: 20px;
+  font-weight: lighter !important;
+}
+.main-sub-header-wrapper{
+  padding: 0 6px;
+}
+.main-sub-header{
+  /*padding: 0 16px;*/
+  display: flex;
+  border-radius: 15px;
+  /*margin-top: 16px;*/
+  /*margin-bottom: 16px;*/
+  height: 42px;
+}
+
+.sub-header-left{
+  width: 195px;
+  text-align: center;
+}
+
+.sub-header-left-toggle-on, .sub-header-left-toggle-off{
+  display: none;
+}
+
+.sub-header-spacer{
+  flex: 1 1 auto;
+}
+
+/* *************************************************** */
+/* gachi-main-header.component.css right text START */
+/* *************************************************** */
+.sub-header-right{
+  margin-left: 6px;
+  flex: 1;
+  text-align: left;
+}
+
+.sub-header-right-title{
+}
+
+.sub-header-right-label{
+  font-size: 20px;
+  font-weight: lighter !important;
+}
+
+
+/* **************************************************** */
+/* gachi-main-header.component.css right text END */
+/* **************************************************** */

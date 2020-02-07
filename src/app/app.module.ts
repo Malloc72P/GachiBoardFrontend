@@ -76,6 +76,13 @@ import { GachiFooterComponent } from './View/NormalPages/page-sub-parts/footer/g
 import { RightButtonGroupComponent } from './View/NormalPages/page-sub-parts/header/right-button-group/right-button-group.component';
 import { GachiHeaderComponent } from './View/NormalPages/page-sub-parts/header/gachi-header/gachi-header.component';
 import { GachiRightSidebarComponent } from './View/NormalPages/page-sub-parts/sidebars/gachi-right-sidebar/gachi-right-sidebar.component';
+import {GachiSidebarManagerService} from './Model/NormalPagesManager/gachi-sidebar-manager/gachi-sidebar-manager.service';
+import { SignOutComponent } from './View/NormalPages/SocialLogin/sign-out/sign-out.component';
+import { GachiMainHeaderComponent } from './View/NormalPages/page-sub-parts/header/gachi-main-header/gachi-main-header.component';
+import { GachiLeftSidebarComponent } from './View/NormalPages/page-sub-parts/sidebars/gachi-left-sidebar/gachi-left-sidebar.component';
+import { ProjectCardComponent } from './View/NormalPages/page-sub-parts/cards/project-card/project-card.component';
+import {UserCardComponent} from './View/NormalPages/page-sub-parts/cards/user-card/user-card.component';
+import {HtmlHelperService} from './Model/NormalPagesManager/HtmlHelperService/html-helper.service';
 
 const appRoutes: Routes = [
   {
@@ -97,6 +104,11 @@ const appRoutes: Routes = [
     path: 'login',
     component: LoginPageComponent,
     data: { title: 'SocialLogin' }
+  },
+  {
+    path: 'signout',
+    component: SignOutComponent,
+    data: { title: 'SignOut' }
   },
   {
     path: 'whiteboard',
@@ -145,6 +157,11 @@ const appRoutes: Routes = [
     RightButtonGroupComponent,
     GachiHeaderComponent,
     GachiRightSidebarComponent,
+    SignOutComponent,
+    GachiMainHeaderComponent,
+    GachiLeftSidebarComponent,
+    ProjectCardComponent,
+    UserCardComponent,
   ],
   entryComponents: [
     KanbanComponent,
@@ -188,7 +205,7 @@ const appRoutes: Routes = [
     MatCheckboxModule,
     MatTooltipModule,
     MatSidenavModule,
-    MatListModule
+    MatListModule,
   ],
   providers: [
     RouterHelperService,
@@ -224,6 +241,8 @@ const appRoutes: Routes = [
     CursorChangeService,
     HorizonContextMenuService,
     AuthRequestService,
+    GachiSidebarManagerService,
+    HtmlHelperService
   ],
   bootstrap: [AppComponent]
 })

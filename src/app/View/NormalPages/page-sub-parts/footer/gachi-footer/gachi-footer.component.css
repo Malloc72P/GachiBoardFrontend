@@ -3,6 +3,7 @@
 /* ******************************** */
 .home-footer-wrapper{
   height: 120px;
+  width: 100%;
 }
 .home-header-spacer{
   flex: 1 1 auto;

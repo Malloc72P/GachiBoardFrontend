@@ -1,55 +1,63 @@
-<div class="home-outer-wrapper">
+<mat-drawer-container class="home-outer-wrapper" hasBackdrop="true">
 
-  <div class="home-main-wrapper">
-    <app-gachi-header [headerMode]="'homepage'"></app-gachi-header>
+  <mat-drawer-content class="home-main-wrapper">
 
-    <article class="home-articleA-wrapper home-article-wrapper">
+    <div class="home-main-content-upper">
+      <app-gachi-header [headerMode]="'homepage'"></app-gachi-header>
+      <div class="home-main-content-articles">
+        <article class="home-articleA-wrapper home-article-wrapper">
 
-      <div class="home-articleA-titleWrapper">
-        <h1 class="home-article-title">언제나</h1>
-        <h1 class="home-article-title">같이보고</h1>
-        <h1 class="home-article-title">같이듣고</h1>
-        <h1 class="home-article-title">같이써요</h1>
+          <div class="home-articleA-titleWrapper">
+            <h1 class="home-article-title">언제나</h1>
+            <h1 class="home-article-title">같이보고</h1>
+            <h1 class="home-article-title">같이듣고</h1>
+            <h1 class="home-article-title">같이써요</h1>
 
-        <mat-divider class="home-article-divider">
-        </mat-divider>
+            <mat-divider class="home-article-divider">
+            </mat-divider>
 
-        <h4 class="home-article-subtitle">동료들이 멀리 떨어져 있어도</h4>
-        <h4 class="home-article-subtitle">마치 옆에 있는 것처럼</h4>
-        <h4 class="home-article-subtitle">동료들과 아이디어를 주고 받을 수 있어요</h4>
+            <h4 class="home-article-subtitle">동료들이 멀리 떨어져 있어도</h4>
+            <h4 class="home-article-subtitle">마치 옆에 있는 것처럼</h4>
+            <h4 class="home-article-subtitle">동료들과 아이디어를 주고 받을 수 있어요</h4>
+          </div>
+
+          <img class="home-articleA-banner"
+               alt="homepage-main-banner"
+               src="assets/images/normal-pages/home-page/home-banner.jpg" >
+
+        </article>
+
+        <article class="home-articleB-wrapper home-article-wrapper">
+
+          <div class="home-articleB-titleWrapper">
+            <h1 class="home-article-title"> 무제한의 </h1>
+            <h1 class="home-article-title"> 화이트보드에서 </h1>
+            <h1 class="home-article-title"> 동료들과 함께 </h1>
+            <h1 class="home-article-title"> 아이디어를 </h1>
+            <h1 class="home-article-title"> 공유하세요 </h1>
+
+            <mat-divider class="home-article-divider">
+            </mat-divider>
+
+            <h4 class="home-article-subtitle">여백이 부족해서</h4>
+            <h4 class="home-article-subtitle">못쓰는 일은</h4>
+            <h4 class="home-article-subtitle">이제 안녕</h4>
+          </div>
+
+          <img class="home-articleB-banner"
+               alt="homepage-main-banner"
+               src="assets/images/normal-pages/home-page/coop.gif" >
+
+        </article>
       </div>
+    </div>
 
-      <img class="home-articleA-banner"
-        alt="homepage-main-banner"
-        src="assets/images/normal-pages/home-page/home-banner.jpg" >
+    <app-gachi-footer></app-gachi-footer>
+  </mat-drawer-content>
 
-    </article>
-
-    <article class="home-articleB-wrapper home-article-wrapper">
-
-      <div class="home-articleB-titleWrapper">
-        <h1 class="home-article-title"> 무제한의 </h1>
-        <h1 class="home-article-title"> 화이트보드에서 </h1>
-        <h1 class="home-article-title"> 동료들과 함께 </h1>
-        <h1 class="home-article-title"> 아이디어를 </h1>
-        <h1 class="home-article-title"> 공유하세요 </h1>
-
-        <mat-divider class="home-article-divider">
-        </mat-divider>
-
-        <h4 class="home-article-subtitle">여백이 부족해서</h4>
-        <h4 class="home-article-subtitle">못쓰는 일은</h4>
-        <h4 class="home-article-subtitle">이제 안녕</h4>
-      </div>
-
-      <img class="home-articleB-banner"
-        alt="homepage-main-banner"
-        src="assets/images/normal-pages/home-page/coop.gif" >
-
-    </article>
-  </div>
-
-  <app-gachi-right-sidebar></app-gachi-right-sidebar>
-  <app-gachi-footer></app-gachi-footer>
-
-</div>
+  <mat-drawer #drawer class="sidebar-wrapper"
+              mode="push"
+              position="end">
+    <app-gachi-right-sidebar></app-gachi-right-sidebar>
+  </mat-drawer>
+</mat-drawer-container>

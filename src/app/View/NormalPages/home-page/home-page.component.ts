@@ -1,4 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, OnInit, ViewChild} from '@angular/core';
+import {
+  GachiSidebarEvent,
+  GachiSidebarEventEnum
+} from '../../../Model/NormalPagesManager/gachi-sidebar-manager/GachiSidebarEvent/GachiSidebarEvent';
+import {GachiSidebarManagerService} from '../../../Model/NormalPagesManager/gachi-sidebar-manager/gachi-sidebar-manager.service';
+import {MatSidenav} from '@angular/material';
 
 @Component({
   selector: 'app-home-page',
@@ -6,10 +12,20 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./home-page.component.css', './../gachi-font.css']
 })
 export class HomePageComponent implements OnInit {
+  @ViewChild('drawer', {static: true}) rightSidebar:MatSidenav;
 
-  constructor() { }
+  constructor(private sidebarManagerService:GachiSidebarManagerService) { }
 
   ngOnInit() {
+    this.sidebarManagerService.sidebarEventEmitter
+      .subscribe((event:GachiSidebarEvent)=>{
+        switch (event.action) {
+          case GachiSidebarEventEnum.TOGGLE_RIGHT_SIDEBAR:
+            this.rightSidebar.toggle();
+            break;
+        }
+      });
+
   }
 
 }

@@ -8,19 +8,28 @@
   z-index: 2;
   position: relative;
   display: inline-block;
-  left: 50%;
-  transform: translateX(-50%);
-  max-width: 1170px;
-  padding: 0 16px;
-  height: 100%;
+
+  width: 100%;
   /*background: rgba(0, 200, 81, 0.22);*/
 }
-
+.mat-drawer-content{
+  height: unset;
+  overflow: visible;
+}
 
 
 /* ******************************** */
 /* ********* Home Article ********* */
 /* ******************************** */
+.home-main-content-upper{
+  position: relative;
+  left: 50%;
+  transform: translateX(-50%);
+  max-width: 1170px;
+}
+.home-main-content-articles{
+  padding: 0 24px;
+}
 .home-article-wrapper{
   /*background: rgba(8, 0, 248, 0.33);*/
   margin-top: 100px;

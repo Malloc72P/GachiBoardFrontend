@@ -11,61 +11,8 @@
   left: 50%;
   transform: translateX(-50%);
   width: 100%;
-  padding: 0 16px;
-  height: 100%;
   /*background: rgba(0, 200, 81, 0.22);*/
 }
-
-/* ********************************* */
-/* ********* main Side Bar ********* */
-/* ********************************* */
-
-.main-sidebar-row-font{
-  margin: 14px 0;
-}
-
-.example-container {
-  display: flex;
-  flex-direction: column;
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
-}
-.main-sidebar{
-  min-width: 200px;
-  padding: 16px 12px;
-  text-align: center;
-}
-
-.example-is-mobile .example-toolbar {
-  position: fixed;
-  /* Make sure the toolbar will stay on top of the content as it scrolls past. */
-  z-index: 2;
-}
-
-h1.example-app-name {
-  margin-left: 8px;
-}
-
-.example-sidenav-container {
-  /* When the sidenav is not fixed, stretch the sidenav container to fill the available space. This
-     causes `<mat-sidenav-content>` to act as our scrolling element for desktop layouts. */
-  height: 100%;
-  flex: 1;
-}
-
-.example-is-mobile .example-sidenav-container {
-  /* When the sidenav is fixed, don't constrain the height of the sidenav container. This allows the
-     `<body>` to be our scrolling element for mobile layouts. */
-  flex: 1 0 auto;
-}
-
-/* ********************************* */
-/* ********* main Side Bar ********* */
-/* ********************************* */
-
 
 
 /* ******************************* */
@@ -104,12 +51,40 @@ h1.example-app-name {
 /* ********* main Header ********* */
 /* ******************************* */
 
+/* *************************************************** */
+/* main-page.component.css main-sidebar START */
+/* *************************************************** */
+
+.main-sidebar{
+  background: #f5f5f5;
+  min-width: 200px;
+  padding: 16px 12px;
+  text-align: center;
+  height: 100%;
+}
+
+.example-sidenav-container {
+  /* When the sidenav is not fixed, stretch the sidenav container to fill the available space. This
+     causes `<mat-sidenav-content>` to act as our scrolling element for desktop layouts. */
+  height: 100%;
+  flex: 1;
+}
+
+
+/* **************************************************** */
+/* main-page.component.css main-sidebar END */
+/* **************************************************** */
+
 /* ******************************** */
 /* ********* main Article ********* */
 /* ******************************** */
 .main-article-wrapper{
   /*background: rgba(8, 0, 248, 0.33);*/
-  padding: 16px 24px;
+  padding: 0 0 0 12px;
+  height: 100%;
+}
+.main-article-card{
+  margin-bottom: 50px;
 }
 .main-article-title{
   display: inline-block;
@@ -159,6 +134,36 @@ h1.example-app-name {
   width: 100%;
   border-radius: 15px;
   box-shadow: 0px 3px 18px -3px rgba(0,0,0,0.75);
+}
+.main-article-card-title{
+  font-size: 24px;
+}
+.main-help-text-wrapper{
+  display: flex;
+  flex-flow: column;
+  border-top: 2px solid rgba(147, 147, 147, 0.41);
+  padding: 12px 8px;
+}
+.main-help-title{
+  margin-right: 6px;
+  font-family: 'Do Hyeon', sans-serif;
+  font-weight: unset !important;
+  font-size: 22px;
+}
+.main-help-text{
+  margin-right: 6px;
+  font-family: 'Do Hyeon', sans-serif;
+  font-weight: unset !important;
+  font-size: 16px;
+}
+
+.help-left-column{
+  width: 7px;
+  background: red;
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
 }
 /* ************************************ */
 /* ********* main Article - B ********* */

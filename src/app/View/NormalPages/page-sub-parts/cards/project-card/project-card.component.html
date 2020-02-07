@@ -1,0 +1,35 @@
+<div #projectCard style="display: inline-block;"
+     matTooltip="PROJECT {{projectTitle}}에 입장"
+     matTooltipPosition="above"
+      (pointerenter)="onMouseEnter($event)"
+      (pointermove)="onMouseMove($event)"
+      (pointerleave)="onMouseLeave($event)">
+  <mat-card class="project-card-wrapper">
+    <div class="card-left-column"></div>
+    <mat-card-header>
+      <mat-card-title>PROJECT {{projectTitle}}</mat-card-title>
+      <mat-card-subtitle>
+        {{projectSubTitle}}
+        <br> 시작일 : {{startDate}}
+        <br> 진행중인 작업 : {{inProgress}}
+      </mat-card-subtitle>
+    </mat-card-header>
+    <mat-divider class="card-divider"></mat-divider>
+
+    <mat-card-content class="card-content-wrapper">
+      <mat-card-title>Teammate</mat-card-title>
+      <div class="card-content-user-wrapper">
+        <app-user-card class="user-card" [userName]="'레이몬드 셴'"
+                       [imgSrc]="'/assets/images/supporter/kanban/male.jpg'"></app-user-card>
+        <app-user-card class="user-card"  [userName]="'존 브래포드'"
+                       [imgSrc]="'/assets/images/supporter/kanban/male.jpg'"></app-user-card>
+        <app-user-card class="user-card"  [userName]="'리처드 타이건'"
+                       [imgSrc]="'/assets/images/supporter/kanban/male.jpg'"></app-user-card>
+      </div>
+
+      <div class="card-content-user-wrapper">
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+</div>

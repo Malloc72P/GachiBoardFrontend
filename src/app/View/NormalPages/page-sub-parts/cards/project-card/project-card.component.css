@@ -1,0 +1,61 @@
+/* *************************************************** */
+/* project-card.component.css font START */
+/* *************************************************** */
+
+mat-card-title, mat-card-subtitle{
+  font-family: 'Do Hyeon', sans-serif;
+  font-weight: unset !important;
+}
+
+/* **************************************************** */
+/* project-card.component.css font END */
+/* **************************************************** */
+
+/* *************************************************** */
+/* project-card.component.css card-content START */
+/* *************************************************** */
+
+.card-content-wrapper{
+  margin-left: 16px;
+  margin-top: 16px;
+}
+.card-content-user-wrapper{
+  display: inline-block;
+}
+.user-card{
+
+}
+/* **************************************************** */
+/* project-card.component.css card-content END */
+/* **************************************************** */
+
+/* *************************************************** */
+/* project-card.component.css card-decorator START */
+/* *************************************************** */
+.card-left-column{
+  width: 7px;
+  background: red;
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+}
+.card-divider{
+  margin-bottom: 12px;
+}
+/* **************************************************** */
+/* project-card.component.css card-decorator END */
+/* **************************************************** */
+
+.project-card-wrapper{
+  display: inline-block;
+  width: 300px;
+  margin: 18px 18px 18px 0;
+  opacity: 0.9;
+  transition: 0.2s;
+}
+.project-card-wrapper:hover{
+  opacity: 1;
+  box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.12);
+  cursor: pointer;
+}

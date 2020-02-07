@@ -35,7 +35,6 @@ export class AuthRequestService {
     }
   }
   public setAuthToken(token){
-    console.log("AuthRequestService >> setAuthToken >> token : ",token);
     localStorage.setItem('accessToken', token);
   }
   public setUserInfo(userInfo: UserDTO){
@@ -61,7 +60,7 @@ export class AuthRequestService {
     localStorage.removeItem("accessToken");
   }
 
-  signOutProcess(){
+  private signOutProcess(){
     this.removeAccessToken();
     this.authEventEmitter.emit(
       new AuthEvent(AuthEventEnum.SIGN_OUT, this.userInfo)
@@ -76,11 +75,9 @@ export class AuthRequestService {
     return new Observable<UserDTO>((observer)=>{
 
       let accessToken = localStorage.getItem('accessToken');
-      console.log("AuthRequestService >>  >> accessToken : ",accessToken);
       this.setAuthToken(accessToken);
       this.apiRequester.post( HttpHelper.api.protected.uri )
         .subscribe((data)=>{
-          console.log("AuthRequestService >> protectedApi >> data : ",data);
           let userDto:UserDTO = new UserDTO(
             data.userDto._id,
             data.userDto.email,
