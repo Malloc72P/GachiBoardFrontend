@@ -50,6 +50,10 @@ export class NormalPointerService {
     this.currentProject = currentProject;
   }
 
+  // ##############################################
+  // ################ onMouseDown #################
+  // ##############################################
+
   public onMouseDown(event){
 
     // 선택된 아이템이 없음
@@ -58,7 +62,8 @@ export class NormalPointerService {
       if(this.isItemHit(event.point)) {
       }
       // 아이템 선택 실패 - 캔버스 이동
-      this.canvasMovedByMouse(event.event);
+      this.initDelta(event.event);
+      // this.moveCanvas(event);
     } else {
       // 핸들러 선택 시도
       if(this.isHandlerHit(event.point)) {
@@ -88,6 +93,59 @@ export class NormalPointerService {
       // GSG 영역 밖에서 시작 (선택 해제)
         this.layerService.globalSelectedGroup.extractAllFromSelection();
       }
+    }
+  }
+
+  // ##############################################
+  // ################ onMouseMove #################
+  // ##############################################
+
+  public onMouseMove(event){
+    if(!this.layerService.isSelecting){
+      this.moveCanvas(event);
+    } else {
+      if(this.action === NORMAL_POINTER_ACTIONS.DRAGGING_ITEM) {
+        this.layerService.globalSelectedGroup.moveTo(event);
+      }
+      if(this.action === NORMAL_POINTER_ACTIONS.HANDLING_iTEM || this.action === NORMAL_POINTER_ACTIONS.LINK_EDITING) {
+        this.selectedHandle.onMouseDrag(event);
+      }
+    }
+  }
+
+  // ##############################################
+  // ################# onMouseUp ##################
+  // ##############################################
+
+  public onMouseUp(event){
+    if(!this.layerService.isSelecting){
+      // this.moveCanvas(event);
+    } else {
+      if(this.action === NORMAL_POINTER_ACTIONS.DRAGGING_ITEM) {
+        this.layerService.globalSelectedGroup.moveEnd();
+      }
+      if(this.action === NORMAL_POINTER_ACTIONS.HANDLING_iTEM || this.action === NORMAL_POINTER_ACTIONS.LINK_EDITING) {
+        this.selectedHandle.onMouseUp(event);
+      }
+    }
+    this.action = NORMAL_POINTER_ACTIONS.NOT_THING;
+    this.isMultipleSelectMode = false;
+  }
+
+  public onTouchStart(event){
+    this.prevTouchPoint = this.posCalcService.reflectZoomWithPoint(
+      new Point(event.touches[0].clientX, event.touches[0].clientY)
+    );
+
+  }
+  public onTouchMove(event){
+    if(!this.layerService.isSelecting){
+      this.movedByTouch(event);
+    }
+  }
+  public onTouchEnd(event){
+    if(!this.layerService.isSelecting){
+      this.movedByTouch(event);
     }
   }
 
@@ -156,50 +214,30 @@ export class NormalPointerService {
     return false;
   }
 
-  public onMouseMove(event){
-    if(!this.layerService.isSelecting){
-      this.canvasMovedByMouse(event.event);
+  public moveCanvas(event) {
+    let delta = this.initDelta(event.event);
+    console.log("NormalPointerService >> moveCanvas >> delta : ", delta);
+
+    this.infiniteCanvasService.moveWithDelta(delta);
+    this.infiniteCanvasService.solveDangerState();
+  }
+
+  private initDelta(html5Event: MouseEvent | TouchEvent): Point{
+    let delta: Point;
+
+    if(html5Event instanceof MouseEvent) {
+      delta = new Point(html5Event.movementX, html5Event.movementY);
+      this.prevPoint.x = html5Event.x;
+      this.prevPoint.y = html5Event.y;
     } else {
-      if(this.action === NORMAL_POINTER_ACTIONS.DRAGGING_ITEM) {
-        this.layerService.globalSelectedGroup.moveTo(event);
-      }
-      if(this.action === NORMAL_POINTER_ACTIONS.HANDLING_iTEM || this.action === NORMAL_POINTER_ACTIONS.LINK_EDITING) {
-        this.selectedHandle.onMouseDrag(event);
-      }
+      delta = new Point(html5Event.touches[0].clientX - this.prevPoint.x, html5Event.touches[0].clientY - this.prevPoint.y);
+      this.prevPoint.x = html5Event.touches[0].clientX;
+      this.prevPoint.y = html5Event.touches[0].clientY;
     }
+
+    return delta;
   }
 
-  public onMouseUp(event){
-    if(!this.layerService.isSelecting){
-      this.canvasMovedByMouse(event.event);
-    } else {
-      if(this.action === NORMAL_POINTER_ACTIONS.DRAGGING_ITEM) {
-        this.layerService.globalSelectedGroup.moveEnd();
-      }
-      if(this.action === NORMAL_POINTER_ACTIONS.HANDLING_iTEM || this.action === NORMAL_POINTER_ACTIONS.LINK_EDITING) {
-        this.selectedHandle.onMouseUp(event);
-      }
-    }
-    this.action = NORMAL_POINTER_ACTIONS.NOT_THING;
-    this.isMultipleSelectMode = false;
-  }
-
-  public onTouchStart(event){
-    this.prevTouchPoint = this.posCalcService.reflectZoomWithPoint(
-      new Point(event.touches[0].clientX, event.touches[0].clientY)
-    );
-
-  }
-  public onTouchMove(event){
-    if(!this.layerService.isSelecting){
-      this.movedByTouch(event);
-    }
-  }
-  public onTouchEnd(event){
-    if(!this.layerService.isSelecting){
-      this.movedByTouch(event);
-    }
-  }
   public canvasMovedByMouse(event){
     let delta = this.posCalcService.reflectZoomWithPoint(
       new Point( -event.movementX, -event.movementY )

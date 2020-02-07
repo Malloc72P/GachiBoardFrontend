@@ -147,7 +147,7 @@ export class PointerModeManagerService {
 
     switch (this.currentPointerMode) {
       case PointerMode.POINTER:
-        this.normalPointerService.onTouchStart(event);
+        this.normalPointerService.onMouseDown(event);
         break;
       case PointerMode.MOVE:
         this.canvasMoverService.onTouchStart(event);
@@ -176,13 +176,13 @@ export class PointerModeManagerService {
   private onTouchMove(event) {
     event.preventDefault();
 
-    if(event.touches.length == 1){
+    if(event.event.touches.length == 1){
       if(this.zoomCtrlService.isZooming > 0){
         return;
       }
       switch (this.currentPointerMode) {
         case PointerMode.POINTER:
-          this.normalPointerService.onTouchMove(event);
+          this.normalPointerService.onMouseMove(event);
           break;
         case PointerMode.MOVE:
           this.canvasMoverService.onTouchMove(event);
@@ -221,7 +221,7 @@ export class PointerModeManagerService {
     }else if ( this.zoomCtrlService.isZooming == 0){
       switch (this.currentPointerMode) {
         case PointerMode.POINTER:
-          this.normalPointerService.onTouchEnd(event);
+          this.normalPointerService.onMouseUp(event);
           break;
         case PointerMode.MOVE:
           this.canvasMoverService.onTouchEnd(event);
@@ -304,6 +304,7 @@ export class PointerModeManagerService {
     if(this.mouseDown) {
       switch (this.currentPointerMode) {
         case PointerMode.POINTER:
+          console.log("PointerModeManagerService >> onMouseMove >> event.delta : ", event.delta);
           this.normalPointerService.onMouseMove(event);
           break;
         case PointerMode.MOVE:
@@ -316,6 +317,7 @@ export class PointerModeManagerService {
           this.highlighter.drawPath(event);
           break;
         case PointerMode.SHAPE:
+          console.log("PointerModeManagerService >> onMouseMove >> event.delta : ", event.delta);
           this.shape.drawPath(event);
           break;
         case PointerMode.ERASER:
