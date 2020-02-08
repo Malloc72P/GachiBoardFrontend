@@ -39,6 +39,9 @@ export class HorizonContextMenuService {
   public initializeHorizonContextMenuService(globalSelectedGroup: GlobalSelectedGroup){
     this._globalSelectedGroup = globalSelectedGroup;
     this.infiniteCanvasService.zoomEventEmitter.subscribe((zoomEvent: ZoomEvent) => {
+      if(this.isHidden) {
+        return;
+      }
       if(zoomEvent.action === ZoomEventEnum.ZOOM_CHANGED) {
         setTimeout(() => {
           this.refreshPosition();
@@ -252,6 +255,10 @@ export class HorizonContextMenuService {
 
   get isHidden(): boolean {
     return this._isHidden;
+  }
+
+  get isOpen(): boolean {
+    return !this.isHidden;
   }
 
   get centerTop(): { x: number; y: number } {

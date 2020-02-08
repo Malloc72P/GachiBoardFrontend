@@ -234,7 +234,7 @@ export class NormalPointerService {
       this.prevPoint.y = html5Event.touches[0].clientY;
     }
 
-    return delta;
+    return this.posCalcService.reflectZoomWithPoint(delta);
   }
 
   public canvasMovedByMouse(event){

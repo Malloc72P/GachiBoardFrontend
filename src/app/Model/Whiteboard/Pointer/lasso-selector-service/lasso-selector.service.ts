@@ -18,6 +18,7 @@ import {WhiteboardShape} from "../../Whiteboard-Item/Whiteboard-Shape/whiteboard
 import {EditableItemGroup} from '../../Whiteboard-Item/ItemGroup/EditableItemGroup/editable-item-group';
 import {ItemGroup} from '../../Whiteboard-Item/ItemGroup/item-group';
 import {GlobalSelectedGroup} from '../../Whiteboard-Item/ItemGroup/GlobalSelectedGroup/global-selected-group';
+import {ZoomEvent} from "../../InfiniteCanvas/ZoomControl/ZoomEvent/zoom-event";
 
 
 @Injectable({
@@ -25,7 +26,6 @@ import {GlobalSelectedGroup} from '../../Whiteboard-Item/ItemGroup/GlobalSelecte
 })
 export class LassoSelectorService {
   private newPath: paper.Path;
-  private previousPoint: paper.Point;
   private currentProject: paper.Project;
   private strokeWidth = 1;
   private dashLength = 5;
@@ -34,9 +34,14 @@ export class LassoSelectorService {
   constructor(
     private posCalcService: PositionCalcService,
     private layerService: DrawingLayerManagerService,
-    private infiniteCanvasService: InfiniteCanvasService,
   ) {
-
+    this.layerService.infiniteCanvasService.zoomEventEmitter.subscribe((zoomEvent: ZoomEvent) => {
+      if(!!this.newPath) {
+        let dashLength = this.dashLength / zoomEvent.zoomFactor;
+        this.newPath.dashArray = [dashLength, dashLength];
+        this.newPath.strokeWidth = this.strokeWidth / zoomEvent.zoomFactor;
+      }
+    });
   }
 
   public initializeLassoSelectorService(project: paper.Project) {
@@ -44,62 +49,23 @@ export class LassoSelectorService {
   }
 
   public createPath(event) {
-
-    let point: paper.Point;
-
-    // 입력 타입에 맞게 필요한 값들 초기화
-    if(event instanceof MouseEvent) {
-      point = new paper.Point(event.x, event.y);
-    } else if (event instanceof TouchEvent) {
-      point = new paper.Point(event.touches[0].clientX, event.touches[0].clientY);
-      this.previousPoint = new paper.Point(point);
-    } else {
-      return;
-    }
-    point = this.posCalcService.advConvertNgToPaper(point);
     // *선택이 되어있는지 확인
     // 선택 그룹이 있는지 확인
     if(!this.layerService.isSelecting){
-      this.createLassoPath(point);
+      this.createLassoPath(event.point);
     }
 
     return;
   }
 
   public drawPath(event) {
-    let point: paper.Point;
-    let delta: paper.Point;
-
-    // 입력 타입에 맞게 필요한 값들 초기화
-    if(event instanceof MouseEvent) {
-      point = new paper.Point(event.x, event.y);
-      delta = new paper.Point(event.movementX, event.movementY);
-    } else if (event instanceof TouchEvent) {
-      point = new paper.Point(event.touches[0].clientX, event.touches[0].clientY);
-      delta = new paper.Point (point.x - this.previousPoint.x, point.y - this.previousPoint.y);
-      this.previousPoint = new paper.Point(point);
-    } else {
-      return;
-    }
-    point = this.posCalcService.advConvertNgToPaper(point);
-
     if(!this.layerService.isSelecting){
-      this.newPath.add(point);
+
+      this.newPath.add(event.point);
     }
-    return;
   }
 
   public endPath(event) {
-    let point: paper.Point;
-
-    if(event instanceof MouseEvent) {
-      point = new paper.Point(event.x, event.y);
-    } else if (event instanceof TouchEvent) {
-      point = new paper.Point(event.changedTouches[0].clientX, event.changedTouches[0].clientY);
-      this.previousPoint = new paper.Point(point);
-    } else {
-      return;
-    }
     if(this.newPath){
       this.newPath.closePath();
     }
@@ -107,7 +73,8 @@ export class LassoSelectorService {
     if(!this.layerService.isSelecting){
       this.selectBound();
     }
-    LassoSelectorService.removeItem(this.newPath);
+
+    this.removeItem(this.newPath);
   }
 
   private selectBound() {
@@ -117,26 +84,26 @@ export class LassoSelectorService {
       if(wbItem instanceof GlobalSelectedGroup){
         continue
       }
-      if(LassoSelectorService.isInside(this.newPath, wbItem.group)){
+      if(this.isInside(this.newPath, wbItem.group)){
         this.layerService.globalSelectedGroup.insertOneIntoSelection(wbItem);
       }
     }
   }
 
-  private static isInside(selection, item) {
+  private isInside(selection, item) {
     return selection.contains(item.bounds.center);
   }
-  private static removeItem(item:Item){
+  private removeItem(item:Item){
     if(item){
       item.remove();
     }
   }
   public removeLassoPath(){
-    LassoSelectorService.removeItem(this.newPath);
+    this.removeItem(this.newPath);
   }
   private createLassoPath(point){
     this.removeLassoPath();
-    let zoomFactor = this.infiniteCanvasService.zoomFactor;
+    let zoomFactor = this.posCalcService.getZoomState();
     if(this.newPath){
       this.newPath.remove();
     }

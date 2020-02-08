@@ -32,7 +32,7 @@ export class ToolHighlighterPanelComponent implements OnInit {
   }
 
   onStrokeWidthChanged() {
-    this.pointerModeManagerService.highlighter.setWidth(this.strokeWidth);
+    this.pointerModeManagerService.highlighter.setWidth = this.strokeWidth;
   }
   colorToHTMLRGB(index: number) {
     let tempColor = this.colors[index].clone();
@@ -48,7 +48,7 @@ export class ToolHighlighterPanelComponent implements OnInit {
   }
   onColorPickerClicked(index: number) {
     this.strokeColorIndex = index;
-    this.pointerModeManagerService.highlighter.setColor(this.colors[index]);
+    this.pointerModeManagerService.highlighter.setColor = this.colors[index];
     this.panelManger.toolIconColor[PointerMode.HIGHLIGHTER] = this.colorToHTMLRGB(index);
   }
   onAddColorClicked() {

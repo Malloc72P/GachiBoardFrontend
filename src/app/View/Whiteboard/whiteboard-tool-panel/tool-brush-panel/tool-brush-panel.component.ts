@@ -34,7 +34,7 @@ export class ToolBrushPanelComponent implements OnInit {
   }
 
   onStrokeWidthChanged() {
-    this.pointerModeManagerService.brushService.setWidth(this.strokeWidth);
+    this.pointerModeManagerService.brushService.setWidth = this.strokeWidth;
   }
   colorToHTMLRGB(index: number) {
     return this.colors[index].toCSS(false);
@@ -48,7 +48,7 @@ export class ToolBrushPanelComponent implements OnInit {
   }
   onColorPickerClicked(index: number) {
     this.strokeColorIndex = index;
-    this.pointerModeManagerService.brushService.setColor(this.colors[index]);
+    this.pointerModeManagerService.brushService.setColor = this.colors[index];
     this.panelManger.toolIconColor[PointerMode.DRAW] = this.colors[index].toCSS(false);
   }
   onAddColorClicked() {

@@ -150,7 +150,7 @@ export class PointerModeManagerService {
         this.normalPointerService.onMouseDown(event);
         break;
       case PointerMode.MOVE:
-        this.canvasMoverService.onTouchStart(event);
+        this.canvasMoverService.onMouseDown(event);
         break;
       case PointerMode.DRAW:
         this.brushService.createPath(event);
@@ -185,7 +185,7 @@ export class PointerModeManagerService {
           this.normalPointerService.onMouseMove(event);
           break;
         case PointerMode.MOVE:
-          this.canvasMoverService.onTouchMove(event);
+          this.canvasMoverService.onMouseMove(event);
           break;
         case PointerMode.DRAW:
           this.brushService.drawPath(event);
@@ -224,7 +224,7 @@ export class PointerModeManagerService {
           this.normalPointerService.onMouseUp(event);
           break;
         case PointerMode.MOVE:
-          this.canvasMoverService.onTouchEnd(event);
+          this.canvasMoverService.onMouseUp(event);
           break;
         case PointerMode.DRAW:
           this.brushService.endPath();
@@ -304,7 +304,6 @@ export class PointerModeManagerService {
     if(this.mouseDown) {
       switch (this.currentPointerMode) {
         case PointerMode.POINTER:
-          console.log("PointerModeManagerService >> onMouseMove >> event.delta : ", event.delta);
           this.normalPointerService.onMouseMove(event);
           break;
         case PointerMode.MOVE:
@@ -317,7 +316,6 @@ export class PointerModeManagerService {
           this.highlighter.drawPath(event);
           break;
         case PointerMode.SHAPE:
-          console.log("PointerModeManagerService >> onMouseMove >> event.delta : ", event.delta);
           this.shape.drawPath(event);
           break;
         case PointerMode.ERASER:

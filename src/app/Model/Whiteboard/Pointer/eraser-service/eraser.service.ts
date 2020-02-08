@@ -17,13 +17,6 @@ export class EraserService {
   private newPath: paper.Path;
   private currentProject: paper.Project;
 
-  private hitOptions = {
-    segments: true,
-    stroke: true,
-    fill: true,
-    tolerance: 5
-  };
-
   constructor(
     private posCalcService: PositionCalcService,
     private layerService:DrawingLayerManagerService,
@@ -33,57 +26,29 @@ export class EraserService {
     this.currentProject = project;
   }
 
-  public setWidth(value: number) {
-    this.strokeWidth = value;
-  }
-
   public createPath(event) {
-    let point: paper.Point;
-
-    if(this.newPath){
+    if(!!this.newPath){
       this.endPath();
     }
 
-    if(event instanceof MouseEvent) {
-      point = new paper.Point(event.x, event.y);
-    } else if (event instanceof TouchEvent) {
-      point = new paper.Point(event.touches[0].clientX, event.touches[0].clientY);
-    } else {
-      return;
-    }
-    point = this.posCalcService.advConvertNgToPaper(point);
-    this.newPath = new paper.Path({
-      segments: [new paper.Point(point.x, point.y)],
-      strokeWidth: this.strokeWidth,
-      strokeColor: 'lightgray',
-      strokeCap: 'round',
-      strokeJoin: 'round',
-    });
-    this.newPath.data.type = DataType.EREASER;
-    this.removeProcess(point);
+    this.createEraseStroke(event.point);
+    // this.newPath.data.type = DataType.EREASER;
+    this.removeProcess(event.point);
   }
-  public drawPath(event) {
-    let point: paper.Point;
 
-    if(event instanceof MouseEvent) {
-      point = new paper.Point(event.x, event.y);
-    } else if (event instanceof TouchEvent) {
-      point = new paper.Point(event.touches[0].clientX, event.touches[0].clientY);
-    } else {
-      return;
-    }
-    point = this.posCalcService.advConvertNgToPaper(point);
-    this.newPath.add(new paper.Point(point.x, point.y));
-    this.removeProcess(point);
+  public drawPath(event) {
+    this.newPath.add(event.point);
+    this.removeProcess(event.point);
   }
+
   public endPath() {
     this.newPath.remove();
   }
 
   private removeProcess(point:paper.Point) {
 
-    let foundItem:WhiteboardItem = this.layerService.getHittedItem(point);
-    if(foundItem){
+    let foundItem: WhiteboardItem = this.layerService.getHittedItem(point, this.strokeWidth / 2);
+    if(foundItem) {
       if(this.itemChecker(foundItem)) {
         foundItem.destroyItem();
       }
@@ -105,6 +70,20 @@ export class EraserService {
       default:
         return true;
     }
+  }
+
+  private createEraseStroke(point) {
+    this.newPath = new paper.Path({
+      segments: [new paper.Point(point.x, point.y)],
+      strokeWidth: this.strokeWidth,
+      strokeColor: 'lightgray',
+      strokeCap: 'round',
+      strokeJoin: 'round',
+    });
+  }
+
+  set setWidth(value: number) {
+    this.strokeWidth = value;
   }
 }
 

@@ -388,8 +388,8 @@ export class DrawingLayerManagerService {
     return this.findInLinkPorts(point);
   }
 
-  public getHittedItem(point): WhiteboardItem {
-    return this.findInWhiteboardItems(point);
+  public getHittedItem(point, tolerance?: number): WhiteboardItem {
+    return this.findInWhiteboardItems(point, tolerance);
   }
 
   private findInItemHandlers(point): ItemHandler {
@@ -419,7 +419,7 @@ export class DrawingLayerManagerService {
     return null;
   }
 
-  private findInWhiteboardItems(point): WhiteboardItem {
+  private findInWhiteboardItems(point, tolerance?: number): WhiteboardItem {
     let whiteboardItems = this.whiteboardItemArray;
 
     for(let i = whiteboardItems.length - 1 ; i >= 0; i-- ){
@@ -434,7 +434,19 @@ export class DrawingLayerManagerService {
         continue;
       }
 
-      if(value.group.hitTest(point, this.hitOption)){
+      let hitOption: { fill: boolean, segments: boolean, stroke: boolean, tolerance: number };
+
+      if(!!tolerance) {
+        hitOption = {
+          fill: this.hitOption.fill,
+          segments: this.hitOption.segments,
+          stroke: this.hitOption.stroke,
+          tolerance: tolerance
+        }
+      } else {
+        hitOption = this.hitOption;
+      }
+      if(value.group.hitTest(point, hitOption)){
         if(value.isGrouped) {
           return value.parentEdtGroup;
         }
