@@ -408,10 +408,13 @@ export class DrawingLayerManagerService {
   private findInLinkPorts(point): LinkPort {
     if(this.isSelecting) {
       if(this.globalSelectedGroup.getNumberOfChild() === 1) {
-        let portMap = (this.globalSelectedGroup.wbItemGroup[0] as WhiteboardShape).linkPortMap;
-        for(let [key, port] of portMap) {
-          if(port.handlerCircleObject.hitTest(point, this.hitOption)) {
-            return port;
+        let wbItem = this.globalSelectedGroup.wbItemGroup[0];
+        if(wbItem instanceof WhiteboardShape) {
+          let portMap = wbItem.linkPortMap;
+          for(let [key, port] of portMap) {
+            if(port.handlerCircleObject.hitTest(point, this.hitOption)) {
+              return port;
+            }
           }
         }
       }

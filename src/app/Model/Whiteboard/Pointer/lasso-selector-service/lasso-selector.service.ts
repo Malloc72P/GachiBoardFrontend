@@ -19,6 +19,7 @@ import {EditableItemGroup} from '../../Whiteboard-Item/ItemGroup/EditableItemGro
 import {ItemGroup} from '../../Whiteboard-Item/ItemGroup/item-group';
 import {GlobalSelectedGroup} from '../../Whiteboard-Item/ItemGroup/GlobalSelectedGroup/global-selected-group';
 import {ZoomEvent} from "../../InfiniteCanvas/ZoomControl/ZoomEvent/zoom-event";
+import {NormalPointerService} from "../normal-pointer-service/normal-pointer.service";
 
 
 @Injectable({
@@ -34,6 +35,7 @@ export class LassoSelectorService {
   constructor(
     private posCalcService: PositionCalcService,
     private layerService: DrawingLayerManagerService,
+    private normalPointer: NormalPointerService,
   ) {
     this.layerService.infiniteCanvasService.zoomEventEmitter.subscribe((zoomEvent: ZoomEvent) => {
       if(!!this.newPath) {
@@ -52,6 +54,14 @@ export class LassoSelectorService {
     // *선택이 되어있는지 확인
     // 선택 그룹이 있는지 확인
     if(!this.layerService.isSelecting){
+      if(!this.isItemHit(event.point)) {
+        this.createLassoPath(event.point);
+      }
+    } else {
+      if(this.normalPointer.tryItemsHit(event)) {
+        return;
+      }
+      this.normalPointer.tryDragging(event);
       this.createLassoPath(event.point);
     }
 
@@ -60,8 +70,9 @@ export class LassoSelectorService {
 
   public drawPath(event) {
     if(!this.layerService.isSelecting){
-
       this.newPath.add(event.point);
+    } else {
+      this.normalPointer.doDragging(event);
     }
   }
 
@@ -72,9 +83,22 @@ export class LassoSelectorService {
 
     if(!this.layerService.isSelecting){
       this.selectBound();
+    } else {
+      this.normalPointer.endDragging(event);
     }
 
     this.removeItem(this.newPath);
+  }
+
+  private isItemHit(point): boolean {
+    let hitItem = this.layerService.getHittedItem(point);
+
+    if(hitItem) {
+      this.layerService.globalSelectedGroup.insertOneIntoSelection(hitItem);
+      return true;
+    } else {
+      return false;
+    }
   }
 
   private selectBound() {
@@ -102,6 +126,7 @@ export class LassoSelectorService {
     this.removeItem(this.newPath);
   }
   private createLassoPath(point){
+    console.log("LassoSelectorService >> createLassoPath >>  : ", );
     this.removeLassoPath();
     let zoomFactor = this.posCalcService.getZoomState();
     if(this.newPath){

@@ -30,7 +30,6 @@ export class NormalPointerService {
   private currentProject: Project;
 
   private action: NORMAL_POINTER_ACTIONS;
-  private _isMultipleSelectMode = false;
 
   private prevTouchPoint = new Point(0,0);
   private prevPoint = new Point(0,0);
@@ -65,34 +64,13 @@ export class NormalPointerService {
       this.initDelta(event.event);
       // this.moveCanvas(event);
     } else {
-      // 핸들러 선택 시도
-      if(this.isHandlerHit(event.point)) {
-        // 선택 성공함 -> 아이템 핸들링 모드로 변경
-        this.selectedHandle.onMouseDown(event);
-        this.action = NORMAL_POINTER_ACTIONS.HANDLING_iTEM;
+      // 이 MouseDown 이 어떤 아이템을 Hit 했는지 찾아봄
+      if(this.tryItemsHit(event)) {
         return;
       }
 
-      // 링크포트 선택 시도
-      if(this.isLinkPortHit(event.point)) {
-        // 선택 성공함 -> 링크 수정 모드로 변경
-        this.selectedHandle.onMouseDown(event);
-        this.action = NORMAL_POINTER_ACTIONS.LINK_EDITING;
-        return;
-      }
-
-      // 아이템 선택 시도
-      if(this.itemSelect(event)) {
-        // 선택 성공함 -> 드래그 안하고 선택 해제도 안함
-        return;
-      }
-      // GSG의 영역으로 시작 (아이템 드래그)
-      if(this.isHitGSG(event.point)) {
-        this.action = NORMAL_POINTER_ACTIONS.DRAGGING_ITEM;
-      } else {
-      // GSG 영역 밖에서 시작 (선택 해제)
-        this.layerService.globalSelectedGroup.extractAllFromSelection();
-      }
+      // GSG 의 영역을 Hit 해서 드래깅을 해야할지 선택 취소를 해야할지 체크
+      this.tryDragging(event);
     }
   }
 
@@ -117,19 +95,14 @@ export class NormalPointerService {
   // ################# onMouseUp ##################
   // ##############################################
 
+
+
   public onMouseUp(event){
     if(!this.layerService.isSelecting){
       // this.moveCanvas(event);
     } else {
-      if(this.action === NORMAL_POINTER_ACTIONS.DRAGGING_ITEM) {
-        this.layerService.globalSelectedGroup.moveEnd();
-      }
-      if(this.action === NORMAL_POINTER_ACTIONS.HANDLING_iTEM || this.action === NORMAL_POINTER_ACTIONS.LINK_EDITING) {
-        this.selectedHandle.onMouseUp(event);
-      }
+      this.endDragging(event);
     }
-    this.action = NORMAL_POINTER_ACTIONS.NOT_THING;
-    this.isMultipleSelectMode = false;
   }
 
   public onTouchStart(event){
@@ -148,6 +121,64 @@ export class NormalPointerService {
       this.movedByTouch(event);
     }
   }
+
+  // ###### Public Method To Reuse #######
+  // lasso Selector 에서 사용중
+
+  public tryItemsHit(event): boolean {
+    // 핸들러 선택 시도
+    if(this.isHandlerHit(event.point)) {
+      // 선택 성공함 -> 아이템 핸들링 모드로 변경
+      this.selectedHandle.onMouseDown(event);
+      this.action = NORMAL_POINTER_ACTIONS.HANDLING_iTEM;
+      return true;
+    }
+
+    // 링크포트 선택 시도
+    if(this.isLinkPortHit(event.point)) {
+      // 선택 성공함 -> 링크 수정 모드로 변경
+      this.selectedHandle.onMouseDown(event);
+      this.action = NORMAL_POINTER_ACTIONS.LINK_EDITING;
+      return true;
+    }
+
+    // 아이템 선택 시도
+    if(this.itemSelect(event)) {
+      // 선택 성공함 -> 드래그 안하고 선택 해제도 안함
+      return true;
+    }
+  }
+
+  public tryDragging(event) {
+    // GSG의 영역으로 시작 (아이템 드래그)
+    if(this.isHitGSG(event.point)) {
+      this.action = NORMAL_POINTER_ACTIONS.DRAGGING_ITEM;
+    } else {
+      // GSG 영역 밖에서 시작 (선택 해제)
+      this.layerService.globalSelectedGroup.extractAllFromSelection();
+    }
+  }
+
+  public doDragging(event) {
+    if(this.action === NORMAL_POINTER_ACTIONS.DRAGGING_ITEM) {
+      this.layerService.globalSelectedGroup.moveTo(event);
+    }
+    if(this.action === NORMAL_POINTER_ACTIONS.HANDLING_iTEM || this.action === NORMAL_POINTER_ACTIONS.LINK_EDITING) {
+      this.selectedHandle.onMouseDrag(event);
+    }
+  }
+
+  public endDragging(event) {
+    if(this.action === NORMAL_POINTER_ACTIONS.DRAGGING_ITEM) {
+      this.layerService.globalSelectedGroup.moveEnd();
+    }
+    if(this.action === NORMAL_POINTER_ACTIONS.HANDLING_iTEM || this.action === NORMAL_POINTER_ACTIONS.LINK_EDITING) {
+      this.selectedHandle.onMouseUp(event);
+    }
+    this.action = NORMAL_POINTER_ACTIONS.NOT_THING;
+  }
+
+  // #####################################
 
   private isHandlerHit(point): boolean {
     let handle = this.layerService.getHittedItemHandler(point);
@@ -260,13 +291,5 @@ export class NormalPointerService {
 
     this.prevTouchPoint.x = endPoint.x;
     this.prevTouchPoint.y = endPoint.y;
-  }
-
-  set isMultipleSelectMode(value: boolean) {
-    this._isMultipleSelectMode = value;
-  }
-
-  get isMultipleSelectMode(): boolean {
-    return this._isMultipleSelectMode;
   }
 }
