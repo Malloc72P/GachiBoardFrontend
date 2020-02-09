@@ -4,6 +4,8 @@ import {WhiteboardShape} from '../../../whiteboard-shape';
 import {SimpleArrowLinkDto} from '../../../../../WhiteboardItemDto/WhiteboardShapeDto/LinkPortDto/EditableLinkDto/SimpleArrowLinkDto/simple-arrow-link-dto';
 import {SimpleLineLinkDto} from '../../../../../WhiteboardItemDto/WhiteboardShapeDto/LinkPortDto/EditableLinkDto/SimpleLineLinkDto/simple-line-link-dto';
 import {WhiteboardItemType} from '../../../../../../Helper/data-type-enum/data-type.enum';
+import {LinkEvent} from "../../LinkEvent/link-event";
+import {LinkEventEnum} from "../../LinkEvent/link-event-enum.enum";
 
 export class SimpleLineLink extends EditableLink {
 
@@ -92,6 +94,7 @@ export class SimpleLineLink extends EditableLink {
     if (this.fromLinkPort && this.toLinkPort) {
       this.linkObject.firstSegment.point = this.fromLinkPort.calcLinkPortPosition();
       this.linkObject.lastSegment.point = this.toLinkPort.calcLinkPortPosition();
+      this.toLinkEventEmitter.emit(new LinkEvent(LinkEventEnum.WB_ITEM_MODIFIED, this));
     }
   }
 

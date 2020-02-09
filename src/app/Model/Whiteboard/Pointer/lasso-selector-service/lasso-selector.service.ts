@@ -91,10 +91,11 @@ export class LassoSelectorService {
   }
 
   private isItemHit(point): boolean {
-    let hitItem = this.layerService.getHittedItem(point);
+    let hitItem = this.layerService.getHittedItem(point, null, true);
 
     if(hitItem) {
-      this.layerService.globalSelectedGroup.insertOneIntoSelection(hitItem);
+      this.layerService.globalSelectedGroup.insertOneIntoSelection(
+        hitItem instanceof WhiteboardItem ? hitItem : hitItem.fromLinkPort.owner);
       return true;
     } else {
       return false;

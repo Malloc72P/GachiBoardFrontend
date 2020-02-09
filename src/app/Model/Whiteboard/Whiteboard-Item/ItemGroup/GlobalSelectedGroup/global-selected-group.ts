@@ -16,6 +16,9 @@ import {EditableRaster} from '../../Whiteboard-Shape/editable-raster/editable-ra
 import {WbItemFactoryResult} from '../../../InfiniteCanvas/WhiteboardItemFactory/WbItemFactoryResult/wb-item-factory-result';
 import {CopiedLinkData} from './CopiedLinkData/copied-link-data';
 import {WhiteboardShapeDto} from '../../../WhiteboardItemDto/WhiteboardShapeDto/whiteboard-shape-dto';
+import {EditableLink} from "../../Whiteboard-Shape/LinkPort/EditableLink/editable-link";
+import {LinkEvent} from "../../Whiteboard-Shape/LinkPort/LinkEvent/link-event";
+import {LinkEventEnum} from "../../Whiteboard-Shape/LinkPort/LinkEvent/link-event-enum.enum";
 
 export class GlobalSelectedGroup extends ItemGroup {
   private static globalSelectedGroup: GlobalSelectedGroup;
@@ -119,11 +122,15 @@ export class GlobalSelectedGroup extends ItemGroup {
     this.extractAllFromSelection();
   }
 
-  public insertOneIntoSelection(wbItem: WhiteboardItem) {
+  public insertOneIntoSelection(wbItem: WhiteboardItem | EditableLink) {
     if(wbItem instanceof ItemGroup) {
       wbItem.wbItemGroup.forEach(value => {
         this.insertOneIntoGroup(value);
       });
+    } else if(wbItem instanceof EditableLink) {
+      this.insertOneIntoGroup(wbItem.fromLinkPort.owner);
+      wbItem.select();
+      this.isLinkSelected = true;
     } else {
       this.insertOneIntoGroup(wbItem);
     }

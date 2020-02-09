@@ -19,13 +19,14 @@ import Point = paper.Point;
 import Circle = paper.Path.Circle;
 
 import {MouseButtonEventEnum} from '../../../../Pointer/MouseButtonEventEnum/mouse-button-event-enum.enum';
-import {LinkAdjustorPositionEnum} from './linkAdjustorPositionEnum/link-adjustor-position-enum.enum';
 import {HandlerOption, ItemAdjustor} from '../../../ItemAdjustor/item-adjustor';
 import {WhiteboardShape} from '../../whiteboard-shape';
 import {WhiteboardShapeDto} from '../../../../WhiteboardItemDto/WhiteboardShapeDto/whiteboard-shape-dto';
 import {GachiColorDto} from '../../../../WhiteboardItemDto/ColorDto/gachi-color-dto';
 import {EditableLinkDto} from '../../../../WhiteboardItemDto/WhiteboardShapeDto/LinkPortDto/EditableLinkDto/editable-link-dto';
 import {WhiteboardItemType} from '../../../../../Helper/data-type-enum/data-type.enum';
+import {LinkHandler} from "./LinkHandler/link-handler";
+import {LinkAdjustorPositionEnum} from "./LinkAdjustorPositionEnum/link-adjustor-position-enum.enum";
 
 export abstract class EditableLink implements Editable{
   private _id;
@@ -47,6 +48,7 @@ export abstract class EditableLink implements Editable{
 
   private _fromLinkEventEmitter:EventEmitter<any>;
   private _toLinkEventEmitter:EventEmitter<any>;
+  private _linkEventEmitter = new EventEmitter<LinkEvent>();
 
   private _strokeColor;
   private _strokeWidth;
@@ -56,7 +58,7 @@ export abstract class EditableLink implements Editable{
 
   protected static readonly DEFAULT_DASH_LENGTH = 5;
 
-  protected linkAdjustors:Map<any, Circle>;
+  private _linkHandles :Map<any, LinkHandler>;
 
   protected constructor(type, fromLinkPort: LinkPort, strokeColor?, strokeWidth?, fillColor?, isDashed?) {
     strokeColor   = (strokeColor) ? (strokeColor) : (LinkerColorEnum.BLACK);
@@ -66,7 +68,7 @@ export abstract class EditableLink implements Editable{
 
     this._type = type;
 
-    this.linkAdjustors = new Map<any, Circle>();
+    this._linkHandles = new Map<any, LinkHandler>();
 
     this.strokeColor  = strokeColor;
     this.strokeWidth  = strokeWidth;
@@ -83,7 +85,6 @@ export abstract class EditableLink implements Editable{
     this.layerService = this.fromLinkPort.owner.layerService;
 
     this.linkObject = this.createLinkObject();
-    this.bindEventHandler(this.linkObject);
   }
   protected createLinkObject(){
     return new Path({
@@ -95,22 +96,7 @@ export abstract class EditableLink implements Editable{
       dashArray: [this._dashLength, this._dashLength]
     });
   }
-  protected bindEventHandler(newPath){
 
-    newPath.onMouseDown = (event)=>{
-    };
-    newPath.onMouseUp = (event) =>{
-      console.log("EditableLink >> onMouseUp >> this : ",this);
-      switch (event.event.button) {
-        case MouseButtonEventEnum.LEFT_CLICK:
-          this._isSelected = true;
-          this.fromLinkEventEmitter.emit(new LinkEvent(LinkEventEnum.LINK_CLICKED, this));
-          break;
-        case MouseButtonEventEnum.RIGHT_CLICK:
-          break;
-      }//switch
-    }
-  }
   protected activateAdjustMode(){
 
   }
@@ -128,66 +114,72 @@ export abstract class EditableLink implements Editable{
   public abstract manuallyLinkToWbShape(toWbShape:WhiteboardShape, toLinkPortDirection) : EditableLink;
 
   protected onLinkEstablished(){
-    let adjustorCircle = new Circle( this.linkObject.lastSegment.point, HandlerOption.circleRadius );
-    // @ts-ignore
-    adjustorCircle.fillColor = HandlerOption.fillColor;
-    // @ts-ignore
-    adjustorCircle.strokeColor = HandlerOption.strokeColor;
-
-    adjustorCircle.visible = false;
-
-    let prevIsSelected = this._isSelected;
-    adjustorCircle.onFrame = (event)=>{
-      if(this.linkObject.lastSegment){
-        if(prevIsSelected !== this._isSelected){
-          adjustorCircle.visible = this._isSelected;
-          prevIsSelected = this._isSelected;
-        }
-        if(this._isSelected){
-          adjustorCircle.position = this.linkObject.lastSegment.point;
-          adjustorCircle.bringToFront();
-        }
-
-      }
-    };
-    adjustorCircle.onMouseDown = (event)=>{
-      console.log("EditableLink >> onMouseDown >> 진입함");
-      this.hideLinkObject();
-      this.initTempLink(event.point);
-      //this.linkObject.lastSegment.point = event.point;
-    };
-    adjustorCircle.onMouseDrag = (event)=>{
-      console.log("EditableLink >> onMouseDrag >> 진입함");
-      this.drawTempLink(event.point);
-      //this.linkObject.lastSegment.point = event.point;
-    };
-    adjustorCircle.onMouseUp = (event)=>{
-      console.log("EditableLink >> onMouseUp >> 진입함");
-      this.destroyTempLink();
-      //####
-      let point = event.point;
-      let hitWbShape:WhiteboardShape = this.layerService.getHittedItem(point) as WhiteboardShape;
-      if(hitWbShape && hitWbShape.id !== this.fromLinkPort.owner.id && hitWbShape.linkPortMap){
-        console.log("EditableLink >> onMouseUp >> hitWbShape");
-
-        let toLinkPort = hitWbShape.linkPortMap.get(hitWbShape.getClosestLinkPort(point));
-
-        if(toLinkPort === this.toLinkPort){
-          this.showLinkObject();
-          return;
-        }
-
-        this.toLinkPort = toLinkPort;
-        this.setToLinkEventEmitter();
-      }
-      else {
-        console.log("EditableLink >> onMouseUp >> hit failed");
-      }
-      this.showLinkObject();
-    };
-    this.linkAdjustors.set(LinkAdjustorPositionEnum.END_OF_LINK, adjustorCircle);
+    // let adjustorCircle = new Circle( this.linkObject.lastSegment.point, HandlerOption.circleRadius );
+    // // @ts-ignore
+    // adjustorCircle.fillColor = HandlerOption.fillColor;
+    // // @ts-ignore
+    // adjustorCircle.strokeColor = HandlerOption.strokeColor;
+    //
+    // adjustorCircle.visible = false;
+    //
+    // let prevIsSelected = this._isSelected;
+    // adjustorCircle.onFrame = (event)=>{
+    //   if(this.linkObject.lastSegment){
+    //     if(prevIsSelected !== this._isSelected){
+    //       adjustorCircle.visible = this._isSelected;
+    //       prevIsSelected = this._isSelected;
+    //     }
+    //     if(this._isSelected){
+    //       adjustorCircle.position = this.linkObject.lastSegment.point;
+    //       adjustorCircle.bringToFront();
+    //     }
+    //
+    //   }
+    // };
+    // adjustorCircle.onMouseDown = (event)=>{
+    //   console.log("EditableLink >> onMouseDown >> 진입함");
+    //   this.hideLinkObject();
+    //   this.initTempLink(event.point);
+    //   //this.linkObject.lastSegment.point = event.point;
+    // };
+    // adjustorCircle.onMouseDrag = (event)=>{
+    //   console.log("EditableLink >> onMouseDrag >> 진입함");
+    //   this.drawTempLink(event.point);
+    //   //this.linkObject.lastSegment.point = event.point;
+    // };
+    // adjustorCircle.onMouseUp = (event)=>{
+    //   console.log("EditableLink >> onMouseUp >> 진입함");
+    //   this.destroyTempLink();
+    //   //####
+    //   let point = event.point;
+    //   let hitWbShape: WhiteboardShape = this.layerService.getHittedItem(point) as WhiteboardShape;
+    //   if(hitWbShape && hitWbShape.id !== this.fromLinkPort.owner.id && hitWbShape.linkPortMap){
+    //     console.log("EditableLink >> onMouseUp >> hitWbShape");
+    //
+    //     let toLinkPort = hitWbShape.linkPortMap.get(hitWbShape.getClosestLinkPort(point));
+    //
+    //     if(toLinkPort === this.toLinkPort){
+    //       this.showLinkObject();
+    //       return;
+    //     }
+    //
+    //     this.toLinkPort = toLinkPort;
+    //     this.setToLinkEventEmitter();
+    //   }
+    //   else {
+    //     console.log("EditableLink >> onMouseUp >> hit failed");
+    //   }
+    //   this.showLinkObject();
+    // };
+    let linkHandler = new LinkHandler(this, 'skyblue');
+    this._linkHandles.set(LinkAdjustorPositionEnum.END_OF_LINK, linkHandler);
     /*this.id = this.layerService.getWbId();
     this.layerService.addWbLink(this);*/
+  }
+
+  public select() {
+    this.linkEventEmitter.emit(new LinkEvent(LinkEventEnum.WB_ITEM_SELECTED, this));
+    this.isSelected = true;
   }
 
   // #### 링크 삭제 메서드
@@ -200,13 +192,15 @@ export abstract class EditableLink implements Editable{
     if(this.linkObject){
       this.linkObject.remove();
     }
-    if(this.linkAdjustors){
-      this.linkAdjustors.forEach((value, key, map)=>{
-        value.remove();
+    if(this._linkHandles){
+      this._linkHandles.forEach((value, key, map)=>{
+        value.destroy();
       });
     }
     this.layerService.deleteWbLink(this);
   }
+
+
   public hideLinkObject(){
     this.linkObject.visible = false;
   }
@@ -216,13 +210,13 @@ export abstract class EditableLink implements Editable{
   // ####
 
   // ####이벤트 발생기 핸들러
-  protected setFromLinkEventEmitter(){
+  public setFromLinkEventEmitter(){
     this.fromLinkEventEmitter = this.fromLinkPort.linkEventEmitter;
     this.fromLinkEventEmitter.subscribe((data:LinkEvent)=>{
       this.setLinkEventHandler(data);
     });
   }
-  protected setToLinkEventEmitter(){
+  public setToLinkEventEmitter(){
     this.toLinkEventEmitter = this.toLinkPort.linkEventEmitter;
     this.toLinkEventEmitter.subscribe((data:LinkEvent)=>{
       this.setLinkEventHandler(data);
@@ -293,7 +287,14 @@ export abstract class EditableLink implements Editable{
   }
 
   set toLinkPort(value: LinkPort) {
+    if(!!this.toLinkEventEmitter) {
+      this.toLinkEventEmitter.emit(new LinkEvent(LinkEventEnum.WB_ITEM_MODIFIED, this));
+    }
     this._toLinkPort = value;
+  }
+
+  get isHide(): boolean {
+    return this.linkObject.visible;
   }
 
   get linkHeadSize() {
@@ -425,5 +426,13 @@ export abstract class EditableLink implements Editable{
 
   set type(value) {
     this._type = value;
+  }
+
+  get linkHandles(): Map<any, LinkHandler> {
+    return this._linkHandles;
+  }
+
+  get linkEventEmitter(): EventEmitter<LinkEvent> {
+    return this._linkEventEmitter;
   }
 }

@@ -175,7 +175,7 @@ export class SimpleArrowLink extends EditableLink{
 
       segments[ArrowSegmentEnum.LEFT_WING].point = arrowLeftWing;
       segments[ArrowSegmentEnum.RIGHT_WING].point = arrowRightWing;
-
+      this.toLinkEventEmitter.emit(new LinkEvent(LinkEventEnum.WB_ITEM_MODIFIED, this));
     }
   }
 

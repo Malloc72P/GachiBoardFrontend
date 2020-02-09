@@ -55,6 +55,8 @@ import value from "*.json";
 import {SizeHandler} from "../../Whiteboard-Item/ItemAdjustor/ItemHandler/SizeHandler/size-handler";
 import {ItemHandler} from "../../Whiteboard-Item/ItemAdjustor/ItemHandler/item-handler";
 import {WhiteboardShape} from "../../Whiteboard-Item/Whiteboard-Shape/whiteboard-shape";
+import {LinkHandler} from "../../Whiteboard-Item/Whiteboard-Shape/LinkPort/EditableLink/LinkHandler/link-handler";
+import {LinkAdjustorPositionEnum} from "../../Whiteboard-Item/Whiteboard-Shape/LinkPort/EditableLink/LinkAdjustorPositionEnum/link-adjustor-position-enum.enum";
 
 
 @Injectable({
@@ -388,8 +390,12 @@ export class DrawingLayerManagerService {
     return this.findInLinkPorts(point);
   }
 
-  public getHittedItem(point, tolerance?: number): WhiteboardItem {
-    return this.findInWhiteboardItems(point, tolerance);
+  public getHittedItem(point, tolerance?: number, includeEditableLink?: boolean): WhiteboardItem | EditableLink {
+    return this.findInWhiteboardItems(point, tolerance, includeEditableLink);
+  }
+
+  public getHittedLinkHandler(point): LinkHandler {
+    return this.findInLinkHandlers(point);
   }
 
   private findInItemHandlers(point): ItemHandler {
@@ -402,6 +408,28 @@ export class DrawingLayerManagerService {
       }
     } else {
       return null;
+    }
+  }
+
+  private findInLinkHandlers(point): LinkHandler {
+    if(this.isSelecting) {
+      if(this.globalSelectedGroup.isLinkSelected) {
+        let item = this.globalSelectedGroup.wbItemGroup[0] as WhiteboardShape;
+        for(let [key, value] of item.linkPortMap) {
+          for(let fromLink of value.fromLinkList) {
+            if(fromLink.isSelected) {
+              let handle =  fromLink.linkHandles.get(LinkAdjustorPositionEnum.END_OF_LINK);
+              if(handle.coreItem.hitTest(point, this.hitOption)) {
+                console.log("DrawingLayerManagerService >> findInLinkHandlers >> handle hit : ", handle);
+                return handle;
+              }
+            }
+          }
+        }
+      }
+      else {
+        return null;
+      }
     }
   }
 
@@ -422,7 +450,7 @@ export class DrawingLayerManagerService {
     return null;
   }
 
-  private findInWhiteboardItems(point, tolerance?: number): WhiteboardItem {
+  private findInWhiteboardItems(point, tolerance?: number, includeEditableLink?: boolean): WhiteboardItem | EditableLink {
     let whiteboardItems = this.whiteboardItemArray;
 
     for(let i = whiteboardItems.length - 1 ; i >= 0; i-- ){
@@ -454,6 +482,20 @@ export class DrawingLayerManagerService {
           return value.parentEdtGroup;
         }
         return value;
+      }
+
+      if(!!!includeEditableLink) {
+        continue;
+      }
+
+      if(value instanceof WhiteboardShape) {
+        for(let [key, linkPort] of value.linkPortMap) {
+          for(let fromLink of linkPort.fromLinkList) {
+            if(fromLink.linkObject.hitTest(point, hitOption)) {
+              return fromLink;
+            }
+          }
+        }
       }
 
     }

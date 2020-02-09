@@ -26,6 +26,7 @@ import {TextStyle} from '../../Pointer/shape-service/text-style';
 import {EditableShape} from '../Whiteboard-Shape/EditableShape/editable-shape';
 import {WhiteboardShape} from '../Whiteboard-Shape/whiteboard-shape';
 import {ItemGroupDto} from '../../WhiteboardItemDto/ItemGroupDto/item-group-dto';
+import {EditableLink} from "../Whiteboard-Shape/LinkPort/EditableLink/editable-link";
 
 export class ItemGroup extends WhiteboardItem {
   private _wbItemGroup: Array<WhiteboardItem>;
@@ -51,7 +52,10 @@ export class ItemGroup extends WhiteboardItem {
     this.activateShadowEffect();
   }
 
-  public amIAlreadyHaveThis(wbItem:WhiteboardItem){
+  public amIAlreadyHaveThis(wbItem:WhiteboardItem | EditableLink){
+    if(wbItem instanceof EditableLink) {
+      wbItem = wbItem.fromLinkPort.owner;
+    }
     for(let i = 0 ; i < this.wbItemGroup.length; i++){
       let currentItem = this.wbItemGroup[i];
       if(currentItem.id === wbItem.id){
@@ -133,8 +137,10 @@ export class ItemGroup extends WhiteboardItem {
       else{
         let hitItem = this.layerService.getHittedItem(event.point);
 
-        if(this.amIAlreadyHaveThis(hitItem)){
-          this.layerService.globalSelectedGroup.extractOneFromGroup(hitItem);
+        if(hitItem instanceof WhiteboardItem) {
+          if(this.amIAlreadyHaveThis(hitItem)){
+            this.layerService.globalSelectedGroup.extractOneFromGroup(hitItem);
+          }
         }
       }
     }

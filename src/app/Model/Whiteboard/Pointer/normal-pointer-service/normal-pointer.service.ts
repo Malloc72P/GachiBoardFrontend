@@ -14,13 +14,17 @@ import Project = paper.Project;
 import {WhiteboardShape} from '../../Whiteboard-Item/Whiteboard-Shape/whiteboard-shape';
 import {WhiteboardItem} from '../../Whiteboard-Item/whiteboard-item';
 import {CanvasMoverService} from '../CanvasMover/canvas-mover.service';
+import {EditableLink} from "../../Whiteboard-Item/Whiteboard-Shape/LinkPort/EditableLink/editable-link";
+import {LinkEventEnum} from "../../Whiteboard-Item/Whiteboard-Shape/LinkPort/LinkEvent/link-event-enum.enum";
+import {LinkEvent} from "../../Whiteboard-Item/Whiteboard-Shape/LinkPort/LinkEvent/link-event";
 
 enum NORMAL_POINTER_ACTIONS{
   NOT_THING,
   DRAGGING_ITEM,
   HANDLING_iTEM,
   MOVING,
-  LINK_EDITING
+  LINK_ADDING,
+  LINK_EDITING,
 }
 
 @Injectable({
@@ -82,12 +86,7 @@ export class NormalPointerService {
     if(!this.layerService.isSelecting){
       this.moveCanvas(event);
     } else {
-      if(this.action === NORMAL_POINTER_ACTIONS.DRAGGING_ITEM) {
-        this.layerService.globalSelectedGroup.moveTo(event);
-      }
-      if(this.action === NORMAL_POINTER_ACTIONS.HANDLING_iTEM || this.action === NORMAL_POINTER_ACTIONS.LINK_EDITING) {
-        this.selectedHandle.onMouseDrag(event);
-      }
+      this.doDragging(event);
     }
   }
 
@@ -136,6 +135,14 @@ export class NormalPointerService {
 
     // 링크포트 선택 시도
     if(this.isLinkPortHit(event.point)) {
+      // 선택 성공함 -> 링크 추가 모드로 변경
+      this.selectedHandle.onMouseDown(event);
+      this.action = NORMAL_POINTER_ACTIONS.LINK_ADDING;
+      return true;
+    }
+
+    // 링크 핸들러 선택 시도
+    if(this.isLinkHandlerHit(event.point)) {
       // 선택 성공함 -> 링크 수정 모드로 변경
       this.selectedHandle.onMouseDown(event);
       this.action = NORMAL_POINTER_ACTIONS.LINK_EDITING;
@@ -163,7 +170,11 @@ export class NormalPointerService {
     if(this.action === NORMAL_POINTER_ACTIONS.DRAGGING_ITEM) {
       this.layerService.globalSelectedGroup.moveTo(event);
     }
-    if(this.action === NORMAL_POINTER_ACTIONS.HANDLING_iTEM || this.action === NORMAL_POINTER_ACTIONS.LINK_EDITING) {
+    if(
+      this.action === NORMAL_POINTER_ACTIONS.HANDLING_iTEM ||
+      this.action === NORMAL_POINTER_ACTIONS.LINK_ADDING ||
+      this.action === NORMAL_POINTER_ACTIONS.LINK_EDITING
+    ) {
       this.selectedHandle.onMouseDrag(event);
     }
   }
@@ -172,7 +183,11 @@ export class NormalPointerService {
     if(this.action === NORMAL_POINTER_ACTIONS.DRAGGING_ITEM) {
       this.layerService.globalSelectedGroup.moveEnd();
     }
-    if(this.action === NORMAL_POINTER_ACTIONS.HANDLING_iTEM || this.action === NORMAL_POINTER_ACTIONS.LINK_EDITING) {
+    if(
+      this.action === NORMAL_POINTER_ACTIONS.HANDLING_iTEM ||
+      this.action === NORMAL_POINTER_ACTIONS.LINK_ADDING ||
+      this.action === NORMAL_POINTER_ACTIONS.LINK_EDITING
+    ) {
       this.selectedHandle.onMouseUp(event);
     }
     this.action = NORMAL_POINTER_ACTIONS.NOT_THING;
@@ -200,10 +215,20 @@ export class NormalPointerService {
     return false;
   }
 
-  private isItemHit(point): boolean {
-    let hitItem = this.layerService.getHittedItem(point);
+  private isLinkHandlerHit(point): boolean {
+    let handle = this.layerService.getHittedLinkHandler(point);
 
-    if(hitItem) {
+    if(!!handle) {
+      this.selectedHandle = handle;
+      return true;
+    }
+    return false;
+  }
+
+  private isItemHit(point): boolean {
+    let hitItem = this.layerService.getHittedItem(point, null, true);
+
+    if(!!hitItem) {
       this.layerService.globalSelectedGroup.insertOneIntoSelection(hitItem);
       return true;
     } else {
@@ -216,7 +241,7 @@ export class NormalPointerService {
   }
 
   private itemSelect(event): boolean {
-    let hitItem = this.layerService.getHittedItem(event.point);
+    let hitItem = this.layerService.getHittedItem(event.point, null, true);
 
     // hitItem 있음
     if(!!hitItem) {
@@ -235,6 +260,7 @@ export class NormalPointerService {
       }
 
       // 컨트롤, 쉬프트 누르고 있는 상태 (다중 선택)
+      this.layerService.globalSelectedGroup.isLinkSelected = false;
       if(this.layerService.globalSelectedGroup.amIAlreadyHaveThis(hitItem)) {
         this.layerService.globalSelectedGroup.removeOneFromGroup(hitItem);
       } else {
@@ -243,6 +269,14 @@ export class NormalPointerService {
       return true;
     }
     return false;
+  }
+
+  private selectSingleItem() {
+
+  }
+
+  private selectMultipleItem() {
+
   }
 
   public moveCanvas(event) {
