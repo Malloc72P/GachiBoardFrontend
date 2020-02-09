@@ -241,27 +241,44 @@ export class NormalPointerService {
   }
 
   private itemSelect(event): boolean {
+    // 컨트롤, 쉬프트 안누르고 있는 상태
+    if(
+      event.modifiers.control !== true && event.modifiers.shift !== true &&
+      event.modifiers.command !== true
+    ) {
+      return this.selectSingleItem(event);
+    }
+
+    // 컨트롤, 쉬프트 누르고 있는 상태 (다중 선택)
+    return this.selectMultipleItem(event);
+  }
+
+  private selectSingleItem(event) {
     let hitItem = this.layerService.getHittedItem(event.point, null, true);
 
-    // hitItem 있음
     if(!!hitItem) {
-      // 컨트롤, 쉬프트 안누르고 있는 상태
-      if(event.modifiers.control !== true && event.modifiers.shift !== true) {
-        // GSG에 있는 객체 잡음 (드래그 및 선택 해제 로직으로 넘어감)
-        if(this.isHitGSG(event.point)) {
-          return false;
-        }
-
-        // GSG에 없는 객체 잡음 (단일 선택)
-        this.layerService.globalSelectedGroup.extractAllFromSelection();
-        this.layerService.globalSelectedGroup.insertOneIntoSelection(hitItem);
-
-        return true;
+      // GSG 에 있는 객체 잡음 (드래그 및 선택 해제 로직으로 넘어감)
+      if(this.isHitGSG(event.point)) {
+        return false;
       }
 
-      // 컨트롤, 쉬프트 누르고 있는 상태 (다중 선택)
-      this.layerService.globalSelectedGroup.isLinkSelected = false;
+      // GSG 에 없는 객체 잡음 (단일 선택)
+      this.layerService.globalSelectedGroup.extractAllFromSelection();
+      this.layerService.globalSelectedGroup.insertOneIntoSelection(hitItem);
+
+      return true;
+    }
+  }
+
+  private selectMultipleItem(event) {
+    let hitItem = this.layerService.getHittedItem(event.point, null, false);
+
+    // hitItem 이 없거나 링크가 선택되어있으면 선택 안함
+    if(!!hitItem && !this.layerService.globalSelectedGroup.isLinkSelected) {
+      console.log('NormalPointerService >> selectMultipleItem >> hitItem : ', hitItem);
+      console.log('NormalPointerService >> selectMultipleItem >> check : ', this.layerService.globalSelectedGroup.amIAlreadyHaveThis(hitItem));
       if(this.layerService.globalSelectedGroup.amIAlreadyHaveThis(hitItem)) {
+        console.log('NormalPointerService >> selectMultipleItem >> deselect hitItem : ', hitItem);
         this.layerService.globalSelectedGroup.removeOneFromGroup(hitItem);
       } else {
         this.layerService.globalSelectedGroup.insertOneIntoSelection(hitItem);
@@ -269,14 +286,6 @@ export class NormalPointerService {
       return true;
     }
     return false;
-  }
-
-  private selectSingleItem() {
-
-  }
-
-  private selectMultipleItem() {
-
   }
 
   public moveCanvas(event) {
