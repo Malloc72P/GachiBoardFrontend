@@ -275,10 +275,7 @@ export class NormalPointerService {
 
     // hitItem 이 없거나 링크가 선택되어있으면 선택 안함
     if(!!hitItem && !this.layerService.globalSelectedGroup.isLinkSelected) {
-      console.log('NormalPointerService >> selectMultipleItem >> hitItem : ', hitItem);
-      console.log('NormalPointerService >> selectMultipleItem >> check : ', this.layerService.globalSelectedGroup.amIAlreadyHaveThis(hitItem));
       if(this.layerService.globalSelectedGroup.amIAlreadyHaveThis(hitItem)) {
-        console.log('NormalPointerService >> selectMultipleItem >> deselect hitItem : ', hitItem);
         this.layerService.globalSelectedGroup.removeOneFromGroup(hitItem);
       } else {
         this.layerService.globalSelectedGroup.insertOneIntoSelection(hitItem);
@@ -299,7 +296,7 @@ export class NormalPointerService {
     let delta: Point;
 
     if(html5Event instanceof MouseEvent) {
-      delta = new Point(html5Event.movementX, html5Event.movementY);
+      delta = new Point(html5Event.x - this.prevPoint.x, html5Event.y - this.prevPoint.y);
       this.prevPoint.x = html5Event.x;
       this.prevPoint.y = html5Event.y;
     } else {
