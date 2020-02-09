@@ -42,7 +42,7 @@
           <!--######칸반 셀 - 1-->
           <mat-card *ngFor="let group of kanbanGroupWrapper"
                     class="kanban-grid-cell card-1"
-                    [ngStyle]="{'height' : posCalcService.getHeightOfBrowser() - 160 + 'px'}">
+                    [ngStyle]="{'height' : htmlHelperService.getHeightOfBrowser() - 160 + 'px'}">
             <mat-toolbar color="{{group.groupColor}}" class="kanban-group-header">
               <mat-toolbar-row>
                 <span class="flex-spacer"></span>
@@ -71,7 +71,7 @@
                       (pointerenter)="group.isFocused = true"
                       (pointerleave)="group.isFocused = false"
                       [ngClass]="{'card-1-focused' : group.isFocused && isDragging}"
-                      [ngStyle]="{'height' : posCalcService.getHeightOfBrowser() - 270 + 'px'}"
+                      [ngStyle]="{'height' : htmlHelperService.getHeightOfBrowser() - 270 + 'px'}"
                       [cdkDropListData]="group.kanbanItemList"
                       (cdkDropListDropped)="drop($event)">
               <!--그리드 셀 컨텐츠( 여기서 칸반 아이템 출력 )-->

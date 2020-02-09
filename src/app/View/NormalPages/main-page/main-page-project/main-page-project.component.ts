@@ -5,11 +5,19 @@ import {KanbanItem} from '../../../../Model/Whiteboard/ProjectSupporter/Kanban/K
 import {KanbanItemColor} from '../../../../Model/Whiteboard/ProjectSupporter/Kanban/KanbanItemColorEnumManager/kanban-item-color.service';
 import {KanbanTagListManagerService} from '../../../../Model/Whiteboard/ProjectSupporter/Kanban/KanbanTagListManager/kanban-tag-list-manager.service';
 import {UserManagerService} from '../../../../Model/UserManager/user-manager.service';
+import {KanbanComponent} from '../../../Whiteboard/project-supporter-pannel/kanban/kanban.component';
+import {MatDialog} from '@angular/material';
+import {PositionCalcService} from '../../../../Model/Whiteboard/PositionCalc/position-calc.service';
+import {HtmlHelperService} from '../../../../Model/NormalPagesManager/HtmlHelperService/html-helper.service';
 
 @Component({
   selector: 'app-main-page-project',
   templateUrl: './main-page-project.component.html',
-  styleUrls: ['./main-page-project.component.css', './../main-article-style.css', './../../gachi-font.css']
+  styleUrls: ['./main-page-project.component.css',
+    './../main-article-style.css',
+    './../../gachi-font.css',
+    './../../../Whiteboard/project-supporter-pannel/project-supporter-pannel.component.css',
+    './../../../Whiteboard/project-supporter-pannel/popup-pannel-commons.css']
 })
 export class MainPageProjectComponent implements OnInit {
   private projectId = "";
@@ -23,6 +31,8 @@ export class MainPageProjectComponent implements OnInit {
     private route: ActivatedRoute,
     private tagListMgrService:KanbanTagListManagerService,
     private userManagerService:UserManagerService,
+    private htmlHelperService:HtmlHelperService,
+    public dialog: MatDialog,
   ) {
     this.projectId = this.route.snapshot.paramMap.get('projectId');
     this.kanbanGroups = new Array<KanbanGroup>();
@@ -54,6 +64,24 @@ export class MainPageProjectComponent implements OnInit {
   }
 
   ngOnInit() {
+  }
+
+  openKanbanPanel(kanbanObject){
+    console.log("MainPageProjectComponent >> openKanbanPanel >> kanbanObject : ",kanbanObject);
+
+    console.log("MainPageProjectComponent >> openKanbanPanel >> this.htmlHelperService.getWidthOfBrowser() : ",this.htmlHelperService.getWidthOfBrowser());
+
+    const dialogRef = this.dialog.open(KanbanComponent, {
+      width: this.htmlHelperService.getWidthOfBrowser()+"px",
+      height: this.htmlHelperService.getHeightOfBrowser()+"px",
+      maxWidth: this.htmlHelperService.getWidthOfBrowser()+"px",
+      data: {}
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      console.log('The dialog was closed');
+
+    });
   }
 
 

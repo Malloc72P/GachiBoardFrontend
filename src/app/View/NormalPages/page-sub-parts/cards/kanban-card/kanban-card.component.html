@@ -1,23 +1,25 @@
-<mat-card class="kanban-item-card">
-  <div class="kanban-item-title-left-color"
-       [ngStyle]="{ 'background-color' : kanbanItem.getColor() }"></div>
-  <mat-card-title class="kanban-card-title text-ellipsis">
-    <p>{{kanbanItem.title}}</p>
-    <span class="flex-spacer"></span>
-  </mat-card-title>
+<div class="kanban-item-card-wrapper">
+  <mat-card class="kanban-item-card">
+    <div class="kanban-item-title-left-color"
+         [ngStyle]="{ 'background-color' : kanbanItem.getColor() }"></div>
+    <mat-card-title class="kanban-card-title text-ellipsis">
+      <p>{{kanbanItem.title}}</p>
+      <span class="flex-spacer"></span>
+    </mat-card-title>
 
-  <mat-card class="kanban-item-manager-wrapper">
-    <img mat-card-image
-         class="kanban-item-manager-image"
-         src="/assets/images/supporter/kanban/male.jpg"/>
-    <mat-card-subtitle class="kanban-item-manager-name text-ellipsis">
-      {{kanbanItem.userInfo.name}}
-    </mat-card-subtitle>
+    <mat-card class="kanban-item-manager-wrapper">
+      <img mat-card-image
+           class="kanban-item-manager-image"
+           src="/assets/images/supporter/kanban/male.jpg"/>
+      <mat-card-subtitle class="kanban-item-manager-name text-ellipsis">
+        {{kanbanItem.userInfo.name}}
+      </mat-card-subtitle>
+    </mat-card>
+    <!--마테리얼 칩 영역-->
+    <mat-chip-list>
+      <mat-chip *ngFor="let tagItem of kanbanItem.tagList"
+                title="{{tagItem.title}}">{{tagItem.title}}
+      </mat-chip>
+    </mat-chip-list>
   </mat-card>
-  <!--마테리얼 칩 영역-->
-  <mat-chip-list>
-    <mat-chip *ngFor="let tagItem of kanbanItem.tagList"
-              title="{{tagItem.title}}">{{tagItem.title}}
-    </mat-chip>
-  </mat-chip-list>
-</mat-card>
+</div>

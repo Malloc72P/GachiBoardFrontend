@@ -86,6 +86,8 @@ import {HtmlHelperService} from './Model/NormalPagesManager/HtmlHelperService/ht
 import { MainPageRootComponent } from './View/NormalPages/main-page/main-page-root/main-page-root.component';
 import { MainPageProjectComponent } from './View/NormalPages/main-page/main-page-project/main-page-project.component';
 import { KanbanCardComponent } from './View/NormalPages/page-sub-parts/cards/kanban-card/kanban-card.component';
+import { WhiteboardCardComponent } from './View/NormalPages/page-sub-parts/cards/whiteboard-card/whiteboard-card.component';
+import { UserOverlayCardComponent } from './View/NormalPages/page-sub-parts/cards/user-overlay-card/user-overlay-card.component';
 
 const appRoutes: Routes = [
   {
@@ -187,6 +189,8 @@ const appRoutes: Routes = [
     MainPageRootComponent,
     MainPageProjectComponent,
     KanbanCardComponent,
+    WhiteboardCardComponent,
+    UserOverlayCardComponent,
   ],
   entryComponents: [
     KanbanComponent,

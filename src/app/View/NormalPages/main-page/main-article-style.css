@@ -1,8 +1,11 @@
 .main-article-card{
   margin-bottom: 50px;
+  padding: 0;
 }
 .card-content-wrapper{
   border-top: 2px solid rgba(147, 147, 147, 0.41);
+  width: 96%;
+  padding-top: 24px;
 }
 
 .main-article-title{
@@ -24,6 +27,12 @@
 
 .main-article-card-title{
   font-size: 24px;
+}
+.main-kanban-icon{
+  display: inline-block;
+  width: 32px;
+  height: 32px;
+  margin-right: 12px;
 }
 .main-help-text-wrapper{
   display: flex;
@@ -55,4 +64,5 @@
 .project-item-wrapper{
   display: block;
   margin-bottom: 24px;
+  background-color: rgb(245, 245, 245);
 }

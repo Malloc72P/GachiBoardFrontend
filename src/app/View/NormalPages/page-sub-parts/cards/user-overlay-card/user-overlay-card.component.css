@@ -1,0 +1,18 @@
+.popup-participant-list{
+  position: relative;
+  display: inline-block;
+  transition: 0.2s;
+  min-width: 38px;
+  min-height: 60px;
+  opacity: 1;
+}
+.wb-card-participant-img{
+  width: 64px;
+  height: 64px;
+}
+.wb-card-participant-name-wrapper{
+  text-align: center;
+  background: #7F7F7F;
+  padding: 2px 6px;
+  border-radius: 4px;
+}

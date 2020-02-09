@@ -1,6 +1,5 @@
 import {Component, OnInit} from '@angular/core';
 import {PopupManagerService} from '../../../../Model/PopupManager/popup-manager.service';
-import {PositionCalcService} from '../../../../Model/Whiteboard/PositionCalc/position-calc.service';
 import {CdkDragDrop, moveItemInArray, transferArrayItem} from '@angular/cdk/drag-drop';
 import {MatDialog, MatDialogRef} from '@angular/material';
 import {KanbanTagListManagerService,TagItem
@@ -13,6 +12,7 @@ import {KanbanGroup} from '../../../../Model/Whiteboard/ProjectSupporter/Kanban/
 import {KanbanItem} from '../../../../Model/Whiteboard/ProjectSupporter/Kanban/KanbanItem/kanban-item';
 import {KanbanGroupSettingComponent} from './kanban-group-setting/kanban-group-setting.component';
 import {KanbanTagManagementComponent} from './kanban-tag-management/kanban-tag-management.component';
+import {HtmlHelperService} from '../../../../Model/NormalPagesManager/HtmlHelperService/html-helper.service';
 
 @Component({
   selector: 'app-kanban',
@@ -33,10 +33,10 @@ export class KanbanComponent implements OnInit {
 
   constructor(
     private popupManagerService:PopupManagerService,
-    private posCalcService:PositionCalcService,
     public dialogRef: MatDialogRef<KanbanComponent>,
     private tagListMgrService:KanbanTagListManagerService,
     private userManagerService:UserManagerService,
+    private htmlHelperService:HtmlHelperService,
     public dialog: MatDialog
   ) {
     this.kanbanGroupWrapper = new Array<KanbanGroup>();

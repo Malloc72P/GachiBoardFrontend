@@ -1,0 +1,72 @@
+<div #wbCard class="wb-card-outer-wrapper"
+     [ngStyle]="{ 'margin' : marginValue}"
+     (pointerenter)="isHovering = true;"
+     (pointerleave)="isHovering = false;">
+  <mat-card class="wb-card-wrapper">
+    <mat-card-content class="wb-card-content-wrapper"
+                      [ngStyle]="isHovering === true && { 'background' : '#7F7F7F' }">
+      <img class="wb-card-profile-image"
+           src="assets/images/normal-pages/project/whiteboard.png">
+    </mat-card-content>
+
+    <div class="wb-card-header-wrapper">
+      <div class="wb-card-title wb-card-bottom-row">
+        <button mat-button class="wb-card-title-button">
+          <mat-icon >turned_in_not</mat-icon>
+        </button>
+        <span class="text-ellipsis">Whiteboard : 판금장갑 경량화</span>
+        <span class="wb-bottom-spacer"></span>
+        <button mat-button class="wb-card-title-button">
+          <mat-icon >more_vert</mat-icon>
+        </button>
+      </div>
+      <div class="wb-card-subtitle wb-card-bottom-row">
+        <span class="text-ellipsis">19.08.24 생성됨</span>
+        <span class="wb-bottom-spacer"></span>
+        <button mat-raised-button class="wb-card-title-button wb-card-enter-button">
+          <span>입장하기</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="wb-card-participant-wrapper wb-card-hidden"
+         [ngClass]="{'wb-card-show' : isHovering}">
+      <app-user-overlay-card [isHovering]="isHovering"
+                             [userName]="'chen'"
+                             [marginValue]="'6px 0 6px 0'"
+                             [imgSize]="'42px'"
+                             [fontColor]="'white'"
+                             [fontSize]="'16px'"
+                             [enableSpashAnime]="true"
+                             [imgSrc]="'assets/images/normal-pages/project/chen.png'">
+      </app-user-overlay-card>
+      <app-user-overlay-card [isHovering]="isHovering"
+                             [userName]="'texas'"
+                             [marginValue]="'6px 0 6px 0'"
+                             [imgSize]="'42px'"
+                             [fontColor]="'white'"
+                             [fontSize]="'16px'"
+                             [enableSpashAnime]="true"
+                             [imgSrc]="'assets/images/normal-pages/project/texas.png'">
+      </app-user-overlay-card>
+      <app-user-overlay-card [isHovering]="isHovering"
+                             [userName]="'amiya'"
+                             [marginValue]="'6px 0 6px 0'"
+                             [imgSize]="'42px'"
+                             [fontColor]="'white'"
+                             [fontSize]="'16px'"
+                             [enableSpashAnime]="true"
+                             [imgSrc]="'assets/images/normal-pages/project/amiya.png'">
+      </app-user-overlay-card>
+      <app-user-overlay-card [isHovering]="isHovering"
+                             [userName]="'skadi'"
+                             [marginValue]="'6px 0 6px 0'"
+                             [imgSize]="'42px'"
+                             [fontColor]="'white'"
+                             [fontSize]="'16px'"
+                             [enableSpashAnime]="true"
+                             [imgSrc]="'assets/images/normal-pages/project/skadi.png'">
+      </app-user-overlay-card>
+    </div>
+  </mat-card>
+</div>
