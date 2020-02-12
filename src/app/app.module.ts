@@ -88,6 +88,8 @@ import { MainPageProjectComponent } from './View/NormalPages/main-page/main-page
 import { KanbanCardComponent } from './View/NormalPages/page-sub-parts/cards/kanban-card/kanban-card.component';
 import { WhiteboardCardComponent } from './View/NormalPages/page-sub-parts/cards/whiteboard-card/whiteboard-card.component';
 import { UserOverlayCardComponent } from './View/NormalPages/page-sub-parts/cards/user-overlay-card/user-overlay-card.component';
+import { CreateProjectComponent } from './View/NormalPages/main-page/main-page-root/create-project/create-project.component';
+import {ProjectRequesterService} from './Controller/Project/project-requester.service';
 
 const appRoutes: Routes = [
   {
@@ -191,6 +193,7 @@ const appRoutes: Routes = [
     KanbanCardComponent,
     WhiteboardCardComponent,
     UserOverlayCardComponent,
+    CreateProjectComponent,
   ],
   entryComponents: [
     KanbanComponent,
@@ -199,6 +202,7 @@ const appRoutes: Routes = [
     KanbanGroupSettingComponent,
     KanbanTagManagementComponent,
     AreYouSurePanelComponent,
+    CreateProjectComponent
   ],
   imports: [
     BrowserModule,
@@ -271,7 +275,8 @@ const appRoutes: Routes = [
     HorizonContextMenuService,
     AuthRequestService,
     GachiSidebarManagerService,
-    HtmlHelperService
+    HtmlHelperService,
+    ProjectRequesterService
   ],
   bootstrap: [AppComponent]
 })

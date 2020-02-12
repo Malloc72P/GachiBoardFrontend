@@ -1,4 +1,4 @@
-import {EditableLinkDto} from '../../../../WhiteboardItemDto/WhiteboardShapeDto/LinkPortDto/EditableLinkDto/editable-link-dto';
+import {EditableLinkDto} from '../../../../../../DTO/WhiteboardItemDto/WhiteboardShapeDto/LinkPortDto/EditableLinkDto/editable-link-dto';
 import {WhiteboardShape} from '../../../Whiteboard-Shape/whiteboard-shape';
 
 export class CopiedLinkData {

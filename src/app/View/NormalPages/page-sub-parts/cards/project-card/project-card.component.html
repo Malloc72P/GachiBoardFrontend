@@ -1,18 +1,15 @@
 <div #projectCard style="display: inline-block;"
-     matTooltip="PROJECT {{projectTitle}}에 입장"
+     matTooltip="PROJECT {{projectDto.projectTitle}}에 입장"
      matTooltipPosition="above"
-      (click)="onProjectCardClick(projectTitle)"
-      (pointerenter)="onMouseEnter($event)"
-      (pointermove)="onMouseMove($event)"
-      (pointerleave)="onMouseLeave($event)">
+      (click)="onProjectCardClick(projectDto.projectTitle)">
   <mat-card class="project-card-wrapper">
     <div class="card-left-column"></div>
     <mat-card-header>
-      <mat-card-title class="text-ellipsis">PROJECT {{projectTitle}}</mat-card-title>
+      <mat-card-title class="text-ellipsis">PROJECT {{projectDto.projectTitle}}</mat-card-title>
       <mat-card-subtitle>
-        {{projectSubTitle}}
-        <br> 시작일 : {{startDate}}
-        <br> 진행중인 작업 : {{inProgress}}
+        Created By {{getCreaterName( projectDto.participantList, projectDto.createdBy )}}
+        <br> 시작일 : {{projectDto.startDate | date:"medium"}}
+        <!--<br> 진행중인 작업 : {{projectDto.kanbanData.inProgressGroup.kanbanItemList[0]}}-->
       </mat-card-subtitle>
     </mat-card-header>
     <mat-divider class="card-divider"></mat-divider>
@@ -20,11 +17,8 @@
     <mat-card-content class="card-content-wrapper">
       <mat-card-title>Teammate</mat-card-title>
       <div class="card-content-user-wrapper">
-        <app-user-card class="user-card" [userName]="'레이몬드 셴'"
-                       [imgSrc]="'/assets/images/supporter/kanban/male.jpg'"></app-user-card>
-        <app-user-card class="user-card"  [userName]="'존 브래포드'"
-                       [imgSrc]="'/assets/images/supporter/kanban/male.jpg'"></app-user-card>
-        <app-user-card class="user-card"  [userName]="'리처드 타이건'"
+        <app-user-card *ngFor="let participantDto of projectDto.participantList"
+                       class="user-card" [participantDto]="participantDto"
                        [imgSrc]="'/assets/images/supporter/kanban/male.jpg'"></app-user-card>
       </div>
 

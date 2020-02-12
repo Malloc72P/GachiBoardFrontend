@@ -1,5 +1,5 @@
 import {WhiteboardShapeDto} from '../whiteboard-shape-dto';
-import {TextStyle} from '../../../Pointer/shape-service/text-style';
+import {TextStyle} from '../../../../Model/Whiteboard/Pointer/shape-service/text-style';
 import {LinkPortDto} from '../LinkPortDto/link-port-dto';
 import {GachiPointDto} from '../../PointDto/gachi-point-dto';
 

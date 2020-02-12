@@ -19,6 +19,7 @@ export class MainPageComponent implements OnInit {
   @ViewChild('mainLeftDrawer', {static: true}) mainLeftDrawer;
   @ViewChild('drawer', {static: true}) rightSidebar:MatSidenav;
   private userName = "";
+  private userDto = new UserDTO();
   constructor(
     private authRequestService:AuthRequestService,
     private routerHelperService:RouterHelperService,
@@ -31,6 +32,7 @@ export class MainPageComponent implements OnInit {
     this.authRequestService.protectedApi()
       .subscribe((userDto:UserDTO)=>{
       this.userName = userDto.userName;
+      this.userDto = userDto;
     });
 
     this.sidebarManagerService.sidebarEventEmitter

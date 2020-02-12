@@ -39,6 +39,14 @@ export class HttpHelper {
     signOut: new ApiRequest(
       "/auth/signOut", ApiRequestTypeEnum.POST
     ),
+    project : {
+      create : new ApiRequest(
+        "/project", ApiRequestTypeEnum.POST
+      ),
+      getList : new ApiRequest(
+        "/project", ApiRequestTypeEnum.GET
+      )
+    }
   };
 
   public static getContentType(){

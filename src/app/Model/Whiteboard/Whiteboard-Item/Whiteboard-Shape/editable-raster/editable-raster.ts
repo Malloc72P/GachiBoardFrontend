@@ -16,8 +16,8 @@ import {EventEmitter} from '@angular/core';
 import {WhiteboardShape} from '../whiteboard-shape';
 import {ItemLifeCycleEnum, ItemLifeCycleEvent} from '../../WhiteboardItemLifeCycle/WhiteboardItemLifeCycle';
 import {PositionCalcService} from '../../../PositionCalc/position-calc.service';
-import {EditableRasterDto} from '../../../WhiteboardItemDto/WhiteboardShapeDto/EditableRasterDto/editable-raster-dto';
-import {EditableShapeDto} from '../../../WhiteboardItemDto/WhiteboardShapeDto/EditableShapeDto/editable-shape-dto';
+import {EditableRasterDto} from '../../../../../DTO/WhiteboardItemDto/WhiteboardShapeDto/EditableRasterDto/editable-raster-dto';
+import {EditableShapeDto} from '../../../../../DTO/WhiteboardItemDto/WhiteboardShapeDto/EditableShapeDto/editable-shape-dto';
 import {WhiteboardItemType} from '../../../../Helper/data-type-enum/data-type.enum';
 
 export abstract class EditableRaster extends WhiteboardShape {

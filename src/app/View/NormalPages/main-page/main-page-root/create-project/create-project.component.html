@@ -1,0 +1,38 @@
+<div>
+  <mat-toolbar color="primary">
+    <mat-toolbar-row>
+        <span>
+          <mat-icon class="gachi-icon">add_circle
+          </mat-icon>
+          프로젝트 생성하기
+        </span>
+      <span class="flex-spacer"></span>
+      <button mat-button color="Basic"
+              (click)="onNoClick()">
+        <mat-icon class="gachi-icon">close</mat-icon>
+      </button>
+    </mat-toolbar-row>
+  </mat-toolbar>
+  <div class="gachi-form-wrapper">
+    <form #kanbanCreateForm
+          (ngSubmit)="onSubmit()"
+          [formGroup]="projectFormGroup"
+          class="gachi-form">
+
+      <!-- Project Title -->
+      <mat-form-field class="gachi-full-width">
+        <input matInput placeholder="Project title"
+               formControlName="projectTitle">
+        <mat-error *ngIf="projectFormGroup.get('projectTitle').hasError('required')">
+          Project title is <strong>required</strong>
+        </mat-error>
+      </mat-form-field>
+
+      <mat-divider class="gachi-divider"></mat-divider>
+      <div class="gachi-button-wrapper">
+        <button mat-button (click)="onNoClick()">Cancel</button>
+        <button mat-button type="submit">Create</button>
+      </div>
+    </form>
+  </div>
+</div>

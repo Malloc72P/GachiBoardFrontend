@@ -1,6 +1,6 @@
 import {EditableShapeDto} from '../editable-shape-dto';
 import {LinkPortDto} from '../../LinkPortDto/link-port-dto';
-import {TextStyle} from '../../../../Pointer/shape-service/text-style';
+import {TextStyle} from '../../../../../Model/Whiteboard/Pointer/shape-service/text-style';
 import {GachiPointDto} from '../../../PointDto/gachi-point-dto';
 
 export class EditableCircleDto extends EditableShapeDto{

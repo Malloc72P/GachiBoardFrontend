@@ -25,7 +25,7 @@ import {EditableStroke} from '../editable-stroke/editable-stroke';
 import {TextStyle} from '../../Pointer/shape-service/text-style';
 import {EditableShape} from '../Whiteboard-Shape/EditableShape/editable-shape';
 import {WhiteboardShape} from '../Whiteboard-Shape/whiteboard-shape';
-import {ItemGroupDto} from '../../WhiteboardItemDto/ItemGroupDto/item-group-dto';
+import {ItemGroupDto} from '../../../../DTO/WhiteboardItemDto/ItemGroupDto/item-group-dto';
 
 export class ItemGroup extends WhiteboardItem {
   private _wbItemGroup: Array<WhiteboardItem>;

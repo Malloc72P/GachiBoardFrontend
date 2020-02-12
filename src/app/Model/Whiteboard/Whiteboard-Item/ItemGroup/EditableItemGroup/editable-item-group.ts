@@ -23,7 +23,7 @@ import {Editable} from '../../InterfaceEditable/editable';
 import {WhiteboardItemType} from '../../../../Helper/data-type-enum/data-type.enum';
 import {WhiteboardItem} from '../../whiteboard-item';
 import {ItemLifeCycleEnum, ItemLifeCycleEvent} from '../../WhiteboardItemLifeCycle/WhiteboardItemLifeCycle';
-import {EditableItemGroupDto} from '../../../WhiteboardItemDto/ItemGroupDto/EditableItemGroupDto/editable-item-group-dto';
+import {EditableItemGroupDto} from '../../../../../DTO/WhiteboardItemDto/ItemGroupDto/EditableItemGroupDto/editable-item-group-dto';
 
 export class EditableItemGroup extends ItemGroup implements Editable{
   constructor(id, layerService) {

@@ -78,6 +78,7 @@ export class AuthRequestService {
       this.setAuthToken(accessToken);
       this.apiRequester.post( HttpHelper.api.protected.uri )
         .subscribe((data)=>{
+          console.log("AuthRequestService >>  >> data : ",data);
           let userDto:UserDTO = new UserDTO(
             data.userDto._id,
             data.userDto.email,
@@ -85,9 +86,12 @@ export class AuthRequestService {
             data.userDto.idToken,
             data.userDto.accessToken,
             data.userDto.userName,
+            data.userDto.profileImg
           );
+          userDto.participatingProjects = data.userDto.participatingProjects;
 
           this.setUserInfo(userDto);
+          this.authEventEmitter.emit(new AuthEvent(AuthEventEnum.SIGN_IN, userDto));
           observer.next(userDto);
         }, (error)=>{
           console.warn("AuthRequestService >>  >> error : ", error);

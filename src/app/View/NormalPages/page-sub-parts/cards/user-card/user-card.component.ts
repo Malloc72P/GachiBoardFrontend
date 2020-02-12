@@ -1,5 +1,6 @@
 import {Component, Input, OnInit} from '@angular/core';
 import {UserDTO} from '../../../../../DTO/user-dto';
+import {ParticipantDto} from '../../../../../DTO/ProjectDto/ParticipantDto/participant-dto';
 
 @Component({
   selector: 'app-user-card',
@@ -7,8 +8,8 @@ import {UserDTO} from '../../../../../DTO/user-dto';
   styleUrls: ['./user-card.component.css']
 })
 export class UserCardComponent implements OnInit {
-  @Input() userName;
   @Input() imgSrc;
+  @Input() participantDto:ParticipantDto;
   constructor() { }
 
   ngOnInit() {

@@ -1,5 +1,5 @@
 import {WhiteboardItem} from '../../../Whiteboard-Item/whiteboard-item';
-import {WhiteboardItemDto} from '../../../WhiteboardItemDto/whiteboard-item-dto';
+import {WhiteboardItemDto} from '../../../../../DTO/WhiteboardItemDto/whiteboard-item-dto';
 
 export class WbItemFactoryResult {
   private _newWbItem:WhiteboardItem;

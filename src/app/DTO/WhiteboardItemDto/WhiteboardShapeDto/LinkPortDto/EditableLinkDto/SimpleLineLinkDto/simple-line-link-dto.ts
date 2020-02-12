@@ -1,7 +1,7 @@
 import {EditableLinkDto} from '../editable-link-dto';
 import {GachiColorDto} from '../../../../ColorDto/gachi-color-dto';
 import {GachiPointDto} from '../../../../PointDto/gachi-point-dto';
-import {WhiteboardItemType} from '../../../../../../Helper/data-type-enum/data-type.enum';
+import {WhiteboardItemType} from '../../../../../../Model/Helper/data-type-enum/data-type.enum';
 
 export class SimpleLineLinkDto extends EditableLinkDto{
 

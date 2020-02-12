@@ -1,6 +1,7 @@
 import {AfterViewInit, Component, Input, OnInit, Renderer2, ViewChild} from '@angular/core';
 import {HtmlHelperService} from '../../../../../Model/NormalPagesManager/HtmlHelperService/html-helper.service';
 import {RouterHelperService} from '../../../../../Model/Helper/router-helper-service/router-helper.service';
+import {ProjectDto} from '../../../../../DTO/ProjectDto/project-dto';
 
 @Component({
   selector: 'app-project-card',
@@ -9,10 +10,7 @@ import {RouterHelperService} from '../../../../../Model/Helper/router-helper-ser
 })
 export class ProjectCardComponent implements OnInit, AfterViewInit {
   @ViewChild('projectCard', {static: false}) projectCard;
-  @Input() projectTitle;
-  @Input() projectSubTitle;
-  @Input() startDate;
-  @Input() inProgress;
+  @Input() projectDto:ProjectDto;
 
   private projectCardEl:HTMLElement;
 
@@ -58,5 +56,15 @@ export class ProjectCardComponent implements OnInit, AfterViewInit {
   onProjectCardClick(projectId){
     this.routerHelperService.goToProjectPage(projectId);
   }
+
+  public getCreaterName(participantList, createdBy){
+    for(let i = 0 ; i < participantList.length; i++){
+      let currParticipant = participantList[i];
+      if(createdBy === currParticipant.idToken){
+        return currParticipant.userName;
+      }
+    }
+  }
+
 
 }

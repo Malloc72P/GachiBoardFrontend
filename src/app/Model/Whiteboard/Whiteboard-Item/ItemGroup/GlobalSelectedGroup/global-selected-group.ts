@@ -7,7 +7,7 @@ import {WhiteboardItem} from '../../whiteboard-item';
 import {SelectEvent} from '../../../InfiniteCanvas/DrawingLayerManager/SelectEvent/select-event';
 import {SelectEventEnum} from '../../../InfiniteCanvas/DrawingLayerManager/SelectEventEnum/select-event.enum';
 import {WhiteboardShape} from '../../Whiteboard-Shape/whiteboard-shape';
-import {WhiteboardItemDto} from '../../../WhiteboardItemDto/whiteboard-item-dto';
+import {WhiteboardItemDto} from '../../../../../DTO/WhiteboardItemDto/whiteboard-item-dto';
 import {WhiteboardItemFactory} from '../../../InfiniteCanvas/WhiteboardItemFactory/whiteboard-item-factory';
 // @ts-ignore
 import Item = paper.Item;
@@ -15,7 +15,7 @@ import {merge, Observable} from 'rxjs';
 import {EditableRaster} from '../../Whiteboard-Shape/editable-raster/editable-raster';
 import {WbItemFactoryResult} from '../../../InfiniteCanvas/WhiteboardItemFactory/WbItemFactoryResult/wb-item-factory-result';
 import {CopiedLinkData} from './CopiedLinkData/copied-link-data';
-import {WhiteboardShapeDto} from '../../../WhiteboardItemDto/WhiteboardShapeDto/whiteboard-shape-dto';
+import {WhiteboardShapeDto} from '../../../../../DTO/WhiteboardItemDto/WhiteboardShapeDto/whiteboard-shape-dto';
 
 export class GlobalSelectedGroup extends ItemGroup {
   private static globalSelectedGroup: GlobalSelectedGroup;
