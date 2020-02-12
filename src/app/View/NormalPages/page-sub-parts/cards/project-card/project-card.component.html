@@ -1,20 +1,64 @@
 <div #projectCard style="display: inline-block;"
      matTooltip="PROJECT {{projectDto.projectTitle}}에 입장"
      matTooltipPosition="above"
-      (click)="onProjectCardClick(projectDto.projectTitle)">
+     [ngStyle]="{ 'margin' : marginValue}"
+     (pointerenter)="isHovering = true;"
+     (pointerleave)="isHovering = false;">
   <mat-card class="project-card-wrapper">
-    <div class="card-left-column"></div>
-    <mat-card-header>
-      <mat-card-title class="text-ellipsis">PROJECT {{projectDto.projectTitle}}</mat-card-title>
+    <mat-card-header class="project-title-wrapper">
+      <mat-card-title class="project-title text-ellipsis">PROJECT {{projectDto.projectTitle}}</mat-card-title>
+    </mat-card-header>
+
+    <mat-card-content class="project-card-content-wrapper"
+                      [ngStyle]="isHovering === true && { 'background' : '#7F7F7F' }">
+      <img class="project-card-banner-image"
+           src="assets/images/normal-pages/project/project.png">
+      <div class="wb-card-participant-wrapper wb-card-hidden"
+           [ngClass]="{'wb-card-show' : isHovering}">
+        <app-user-overlay-card *ngFor="let currUser of projectDto.participantList"
+                               [isHovering]="isHovering"
+                               [userName]="currUser.userName"
+                               [marginValue]="'6px 0 6px 0'"
+                               [imgSize]="'42px'"
+                               [fontColor]="'white'"
+                               [fontSize]="'16px'"
+                               [enableSpashAnime]="true"
+                               [imgSrc]="currUser.profileImg">
+        </app-user-overlay-card>
+      </div>
+    </mat-card-content>
+
+    <mat-divider></mat-divider>
+    <div class="project-card-bottom-wrapper">
+      <div class="project-card-title project-card-bottom-row">
+        <span class="text-ellipsis">
+          프로젝트 게시자 : {{getCreaterName( projectDto.participantList, projectDto.createdBy )}}
+        </span>
+        <span class="flex-spacer"></span>
+        <button mat-button class="project-card-title-button">
+          <mat-icon >more_vert</mat-icon>
+        </button>
+      </div>
+      <div class="project-card-subtitle project-card-bottom-row">
+        <span class="text-ellipsis">시작일 : {{projectDto.startDate | date:"medium"}}</span>
+        <span class="flex-spacer"></span>
+        <button mat-raised-button
+                class="project-card-title-button project-card-enter-button"
+                (click)="onProjectCardClick(projectDto.projectTitle)">
+          <span>입장하기</span>
+        </button>
+      </div>
+    </div>
+
+    <!--<mat-card-header>
       <mat-card-subtitle>
         Created By {{getCreaterName( projectDto.participantList, projectDto.createdBy )}}
         <br> 시작일 : {{projectDto.startDate | date:"medium"}}
-        <!--<br> 진행중인 작업 : {{projectDto.kanbanData.inProgressGroup.kanbanItemList[0]}}-->
+        &lt;!&ndash;<br> 진행중인 작업 : {{projectDto.kanbanData.inProgressGroup.kanbanItemList[0]}}&ndash;&gt;
       </mat-card-subtitle>
-    </mat-card-header>
-    <mat-divider class="card-divider"></mat-divider>
+    </mat-card-header>-->
 
-    <mat-card-content class="card-content-wrapper">
+    <!--<mat-card-content class="card-content-wrapper">
       <mat-card-title>Teammate</mat-card-title>
       <div class="card-content-user-wrapper">
         <app-user-card *ngFor="let participantDto of projectDto.participantList"
@@ -24,7 +68,7 @@
 
       <div class="card-content-user-wrapper">
       </div>
-    </mat-card-content>
+    </mat-card-content>-->
   </mat-card>
 
 </div>

@@ -11,6 +11,9 @@ import {ProjectDto} from '../../../../../DTO/ProjectDto/project-dto';
 export class ProjectCardComponent implements OnInit, AfterViewInit {
   @ViewChild('projectCard', {static: false}) projectCard;
   @Input() projectDto:ProjectDto;
+  @Input()marginValue = '0px';
+
+  private isHovering = false;
 
   private projectCardEl:HTMLElement;
 

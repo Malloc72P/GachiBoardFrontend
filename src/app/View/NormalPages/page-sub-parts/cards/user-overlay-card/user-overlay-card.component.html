@@ -4,7 +4,7 @@
   <div style="padding: 3px;">
     <img class="wb-card-participant-img"
          src="{{imgSrc}}"
-         [ngClass]="{'wb-card-drop-shadow' : enableDropShadow}"
+         [ngClass]="{'wb-card-drop-shadow' : enableDropShadow && isHovering}"
          [ngStyle]="{ 'width' : imgSize, 'height' : imgSize,
                       'filter': 'drop-shadow(0px 0px 8px '+dropShadowColor+')'}">
 
