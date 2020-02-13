@@ -1,6 +1,8 @@
-import {ItemGroup} from '../item-group';
-
 import * as paper from 'paper';
+// @ts-ignore
+import Item = paper.Item;
+
+import {ItemGroup} from '../item-group';
 import {WhiteboardItemType} from '../../../../Helper/data-type-enum/data-type.enum';
 import {SelectModeEnum} from '../../../InfiniteCanvas/DrawingLayerManager/SelectModeEnum/select-mode-enum.enum';
 import {WhiteboardItem} from '../../whiteboard-item';
@@ -9,16 +11,8 @@ import {SelectEventEnum} from '../../../InfiniteCanvas/DrawingLayerManager/Selec
 import {WhiteboardShape} from '../../Whiteboard-Shape/whiteboard-shape';
 import {WhiteboardItemDto} from '../../../WhiteboardItemDto/whiteboard-item-dto';
 import {WhiteboardItemFactory} from '../../../InfiniteCanvas/WhiteboardItemFactory/whiteboard-item-factory';
-// @ts-ignore
-import Item = paper.Item;
-import {merge, Observable} from 'rxjs';
-import {EditableRaster} from '../../Whiteboard-Shape/editable-raster/editable-raster';
-import {WbItemFactoryResult} from '../../../InfiniteCanvas/WhiteboardItemFactory/WbItemFactoryResult/wb-item-factory-result';
-import {CopiedLinkData} from './CopiedLinkData/copied-link-data';
-import {WhiteboardShapeDto} from '../../../WhiteboardItemDto/WhiteboardShapeDto/whiteboard-shape-dto';
+import {Observable} from 'rxjs';
 import {EditableLink} from "../../Whiteboard-Shape/LinkPort/EditableLink/editable-link";
-import {LinkEvent} from "../../Whiteboard-Shape/LinkPort/LinkEvent/link-event";
-import {LinkEventEnum} from "../../Whiteboard-Shape/LinkPort/LinkEvent/link-event-enum.enum";
 
 export class GlobalSelectedGroup extends ItemGroup {
   private static globalSelectedGroup: GlobalSelectedGroup;
@@ -128,13 +122,15 @@ export class GlobalSelectedGroup extends ItemGroup {
         this.insertOneIntoGroup(value);
       });
     } else if(wbItem instanceof EditableLink) {
-      this.insertOneIntoGroup(wbItem.fromLinkPort.owner);
+      let owner = wbItem.fromLinkPort.owner;
+      this.insertOneIntoGroup(owner);
       wbItem.select();
       this.isLinkSelected = true;
     } else {
       this.insertOneIntoGroup(wbItem);
     }
     this.resetMyItemAdjustor();
+
     this.layerService.horizonContextMenuService.open();
   }
 
@@ -151,6 +147,7 @@ export class GlobalSelectedGroup extends ItemGroup {
     } else {
       this.layerService.horizonContextMenuService.close();
     }
+    this.notifyItemDeselected(wbItem);
   }
 
   destroyItem() {

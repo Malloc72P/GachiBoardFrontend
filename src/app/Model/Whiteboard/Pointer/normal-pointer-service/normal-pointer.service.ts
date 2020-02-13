@@ -1,22 +1,14 @@
-import {Injectable} from '@angular/core';
 import * as paper from 'paper';
-import {PositionCalcService} from '../../PositionCalc/position-calc.service';
-import {InfiniteCanvasService} from '../../InfiniteCanvas/infinite-canvas.service';
-import {LassoSelectorService} from '../lasso-selector-service/lasso-selector.service';
-import {DrawingLayerManagerService} from '../../InfiniteCanvas/DrawingLayerManager/drawing-layer-manager.service';
-import {DataType} from '../../../Helper/data-type-enum/data-type.enum';
-import {LinkPort} from '../../Whiteboard-Item/Whiteboard-Shape/LinkPort/link-port';
-
 // @ts-ignore
 import Point = paper.Point;
 // @ts-ignore
 import Project = paper.Project;
-import {WhiteboardShape} from '../../Whiteboard-Item/Whiteboard-Shape/whiteboard-shape';
-import {WhiteboardItem} from '../../Whiteboard-Item/whiteboard-item';
-import {CanvasMoverService} from '../CanvasMover/canvas-mover.service';
-import {EditableLink} from "../../Whiteboard-Item/Whiteboard-Shape/LinkPort/EditableLink/editable-link";
-import {LinkEventEnum} from "../../Whiteboard-Item/Whiteboard-Shape/LinkPort/LinkEvent/link-event-enum.enum";
-import {LinkEvent} from "../../Whiteboard-Item/Whiteboard-Shape/LinkPort/LinkEvent/link-event";
+
+import {Injectable} from '@angular/core';
+import {PositionCalcService} from '../../PositionCalc/position-calc.service';
+import {InfiniteCanvasService} from '../../InfiniteCanvas/infinite-canvas.service';
+import {DrawingLayerManagerService} from '../../InfiniteCanvas/DrawingLayerManager/drawing-layer-manager.service';
+
 
 enum NORMAL_POINTER_ACTIONS{
   NOT_THING,
@@ -74,7 +66,9 @@ export class NormalPointerService {
       }
 
       // GSG 의 영역을 Hit 해서 드래깅을 해야할지 선택 취소를 해야할지 체크
-      this.tryDragging(event);
+      if(!this.tryDragging(event)) {
+        this.initDelta(event.event);
+      }
     }
   }
 
@@ -94,30 +88,11 @@ export class NormalPointerService {
   // ################# onMouseUp ##################
   // ##############################################
 
-
-
   public onMouseUp(event){
     if(!this.layerService.isSelecting){
       // this.moveCanvas(event);
     } else {
       this.endDragging(event);
-    }
-  }
-
-  public onTouchStart(event){
-    this.prevTouchPoint = this.posCalcService.reflectZoomWithPoint(
-      new Point(event.touches[0].clientX, event.touches[0].clientY)
-    );
-
-  }
-  public onTouchMove(event){
-    if(!this.layerService.isSelecting){
-      this.movedByTouch(event);
-    }
-  }
-  public onTouchEnd(event){
-    if(!this.layerService.isSelecting){
-      this.movedByTouch(event);
     }
   }
 
@@ -156,14 +131,15 @@ export class NormalPointerService {
     }
   }
 
-  public tryDragging(event) {
+  public tryDragging(event): boolean {
     // GSG의 영역으로 시작 (아이템 드래그)
     if(this.isHitGSG(event.point)) {
       this.action = NORMAL_POINTER_ACTIONS.DRAGGING_ITEM;
-    } else {
-      // GSG 영역 밖에서 시작 (선택 해제)
-      this.layerService.globalSelectedGroup.extractAllFromSelection();
+      return true;
     }
+    // GSG 영역 밖에서 시작 (선택 해제)
+    this.layerService.globalSelectedGroup.extractAllFromSelection();
+    return false;
   }
 
   public doDragging(event) {

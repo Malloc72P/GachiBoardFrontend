@@ -29,7 +29,7 @@ export class SizeHandler extends ItemHandler{
   public onMouseDrag(event) {
     let resizePoint = event.point;
     let minSize = 5;
-    let selectedGroup = this.owner.layerService.globalSelectedGroup.group;
+    let selectedGroup = this.owner.layerService.globalSelectedGroup;
 
     let width = this.adjustSizeFrom.x - resizePoint.x;
     if(width < minSize && width >= 0) {
@@ -50,7 +50,9 @@ export class SizeHandler extends ItemHandler{
     } else if(event.modifiers.shift) {
       PointCalculator.forFixRatio(this.adjustSizeFrom, resizePoint, this.ratio);
     }
-    selectedGroup.bounds = new paper.Rectangle(this.adjustSizeFrom, event.point);
+
+    selectedGroup.resizeTo(new paper.Rectangle(this.adjustSizeFrom, event.point));
+
     this.owner.myItemAdjustor.refreshItemAdjustorSize();
   }
 

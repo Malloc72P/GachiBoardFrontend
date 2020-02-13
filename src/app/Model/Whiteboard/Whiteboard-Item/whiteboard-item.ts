@@ -7,6 +7,8 @@ import Group = paper.Group;
 import Color = paper.Color;
 // @ts-ignore
 import Point = paper.Point;
+// @ts-ignore
+import Rectangle = paper.Rectangle;
 
 import {EventEmitter} from '@angular/core';
 import {ItemAdjustor} from './ItemAdjustor/item-adjustor';
@@ -20,6 +22,7 @@ import {EditableItemGroup} from './ItemGroup/EditableItemGroup/editable-item-gro
 import {WhiteboardItemDto} from '../WhiteboardItemDto/whiteboard-item-dto';
 import {GachiPointDto} from '../WhiteboardItemDto/PointDto/gachi-point-dto';
 import {ItemGroup} from "./ItemGroup/item-group";
+import {ItemLifeCycleEnum, ItemLifeCycleEvent} from "./WhiteboardItemLifeCycle/WhiteboardItemLifeCycle";
 
 export abstract class WhiteboardItem {
 
@@ -44,8 +47,9 @@ export abstract class WhiteboardItem {
   protected _prevPoint = new Point(0,0);
   protected _selectMode;
 
-  protected _lifeCycleEventEmitter:EventEmitter<any>;
-  protected _zoomEventEmitter:EventEmitter<any>;
+  protected _wbItemsLifeCycleEventEmitter: EventEmitter<any>;
+  protected _lifeCycleEmitter = new EventEmitter<any>();
+  protected _zoomEventEmitter: EventEmitter<any>;
   protected constructor(id, type, item, layerService){
     this.id = id;
     this.isSelected = false;
@@ -64,63 +68,17 @@ export abstract class WhiteboardItem {
 
     this.layerService = layerService;
 
-    this.lifeCycleEventEmitter = this.layerService.wbItemLifeCycleEventEmitter;
+    this.wbItemsLifeCycleEventEmitter = this.layerService.wbItemLifeCycleEventEmitter;
     this.zoomEventEmitter = this.layerService.infiniteCanvasService.zoomEventEmitter;
 
-    this.layerService.selectModeEventEmitter.subscribe((data:SelectEvent)=>{
+    this.layerService.selectModeEventEmitter.subscribe((data: SelectEvent)=>{
       this.onSelectEvent(data);
     });
-    this.setCallback();
-
   }
   protected activateShadowEffect(){
     this.coreItem.shadowColor = new Color(0,0,0);
     this.coreItem.shadowBlur = 8;
     this.coreItem.shadowOffset = new Point(1,1);
-  }
-  protected setCallback() {
-    // this.group.onMouseDown = (event) => {
-    //   if(this.isMouseEvent(event)){
-    //     if(!this.checkEditable()){
-    //       return;
-    //     }
-    //     //#### 마우스 이벤트 인 경우
-    //     switch (event.event.button) {
-    //       case MouseButtonEventEnum.LEFT_CLICK:
-    //         this.onPointerDownForEdit(event);
-    //         break;
-    //       case MouseButtonEventEnum.RIGHT_CLICK:
-    //         this.onPointerDownForContextMenu(event);
-    //         break;
-    //     }//switch
-    //
-    //   }//if
-    //   else{//#### 터치 이벤트 인 경우
-    //     //TODO 여기서 롱터치 여부를 구분해야 함
-    //     let point = this.initPoint(event.event);
-    //     this.initFromPoint(point);
-    //     this.longTouchTimer = setTimeout(this.onLongTouch, 500, event.event, this.layerService);
-    //     if(this.checkEditable()){
-    //       this.onPointerDownForEdit(event);
-    //     }
-    //   }
-    // };
-    // this.group.onMouseDrag = (event) => {
-    //   if(this.isTouchEvent(event)) {
-    //     if(this.calcTolerance(this.initPoint(event.event))){
-    //       clearTimeout(this.longTouchTimer); // 움직이면 롱터치 아님, 톨러런스 5
-    //     }
-    //   }
-    // };
-    // this.group.onMouseUp = (event) =>{
-    //   if(this.isTouchEvent(event)) {
-    //     clearTimeout(this.longTouchTimer); // 터치가 롱터치 반응 시간 안에 떼지면 롱터치 아님
-    //   }
-    //   if(!this.checkEditable()){
-    //     return;
-    //   }
-    //   this.setSingleSelectMode();
-    // }
   }
   protected isMouseEvent(event){
     return event.event instanceof MouseEvent;
@@ -293,12 +251,12 @@ export abstract class WhiteboardItem {
     this._coreItem = value;
   }
 
-  get lifeCycleEventEmitter(): EventEmitter<any> {
-    return this._lifeCycleEventEmitter;
+  get wbItemsLifeCycleEventEmitter(): EventEmitter<any> {
+    return this._wbItemsLifeCycleEventEmitter;
   }
 
-  set lifeCycleEventEmitter(value: EventEmitter<any>) {
-    this._lifeCycleEventEmitter = value;
+  set wbItemsLifeCycleEventEmitter(value: EventEmitter<any>) {
+    this._wbItemsLifeCycleEventEmitter = value;
   }
 
   get id() {
@@ -419,5 +377,9 @@ export abstract class WhiteboardItem {
 
   set parentEdtGroup(value: EditableItemGroup) {
     this._parentEdtGroup = value;
+  }
+
+  get lifeCycleEmitter(): EventEmitter<any> {
+    return this._lifeCycleEmitter;
   }
 }

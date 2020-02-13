@@ -88,28 +88,9 @@ export class ItemGroup extends WhiteboardItem {
     }
     this.group.addChild(this.backgroundRect);
 
-    // @ts-ignore
-    //this.backgroundRect.fillColor = 'transparent';
-    this.backgroundRect.fillColor = "skyblue";
+    this.backgroundRect.fillColor = new Color("skyblue");
     this.backgroundRect.opacity = 0.2;
     this.backgroundRect.name = 'BackgroundRect';
-
-    // this.backgroundRect.onMouseDown = (event) => {
-    //   this.onMouseDown(event);
-    // };
-    // this.backgroundRect.onMouseDrag = (event) => {
-    //   this.onMouseDrag(event);
-    //   // TODO : HorizonContextMenuService Test Code
-    //   this.layerService.horizonContextMenuService.close();
-    // };
-    // this.backgroundRect.onMouseUp = (event) => {
-    //   this.onMouseUp(event);
-    //   // TODO : HorizonContextMenuService Test Code
-    //   this.layerService.horizonContextMenuService.open();
-    // };
-    // this.backgroundRect.onDoubleClick = ()=>{
-    //   console.log("ItemGroup >> onDoubleClick >> 진입함");
-    // }
 
   }
 
@@ -158,8 +139,20 @@ export class ItemGroup extends WhiteboardItem {
     if(this.checkEditable()) {
       this.group.position.x += event.delta.x;
       this.group.position.y += event.delta.y;
+
+      this.wbItemGroup.forEach(value => {
+        value.lifeCycleEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.MOVED));
+      });
+
       this.layerService.horizonContextMenuService.close();
     }
+  }
+
+  public resizeTo(bound: paper.Rectangle) {
+    this.group.bounds = bound;
+    this.wbItemGroup.forEach(value => {
+      value.lifeCycleEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.RESIZED));
+    });
   }
 
   public onMouseDrag(event){
@@ -186,8 +179,9 @@ export class ItemGroup extends WhiteboardItem {
       this.resetMyItemAdjustor();
     }
     this.layerService.horizonContextMenuService.open();
-    this.lifeCycleEventEmitter.emit(new ItemLifeCycleEvent(this.id,this,ItemLifeCycleEnum.MODIFY));
+    this.wbItemsLifeCycleEventEmitter.emit(new ItemLifeCycleEvent(this.id,this,ItemLifeCycleEnum.MODIFY));
   }
+
 
   public onMouseUp(event){
     this.calcCurrentDistance(event);
@@ -201,7 +195,7 @@ export class ItemGroup extends WhiteboardItem {
 
     this.resetDistance();
     this.setSingleSelectMode();
-    this.lifeCycleEventEmitter.emit(new ItemLifeCycleEvent(this.id,this,ItemLifeCycleEnum.MODIFY));
+    this.wbItemsLifeCycleEventEmitter.emit(new ItemLifeCycleEvent(this.id,this,ItemLifeCycleEnum.MODIFY));
     this.wbItemGroup.forEach((value, index, array)=>{
       value.refreshItem();
     })
@@ -257,6 +251,7 @@ export class ItemGroup extends WhiteboardItem {
     this.wbItemGroup.push(wbItem);
     wbItem.isSelected = true;
     this.coreItem.addChild(wbItem.group);
+    wbItem.lifeCycleEmitter.emit(new ItemLifeCycleEvent(wbItem.id, wbItem, ItemLifeCycleEnum.SELECTED));
   }
 
   public extractOneFromGroup(wbItem: WhiteboardItem) {
@@ -275,6 +270,7 @@ export class ItemGroup extends WhiteboardItem {
         drawingLayer.addChild(willBeExtract.group);
         this.wbItemGroup.splice(i, 1);
         this.resetMyItemAdjustor();
+        willBeExtract.lifeCycleEmitter.emit(new ItemLifeCycleEvent(willBeExtract.id, willBeExtract, ItemLifeCycleEnum.DESELECTED));
         willBeExtract.refreshItem();
 
         return;
@@ -308,6 +304,7 @@ export class ItemGroup extends WhiteboardItem {
         });
       }
       drawingLayer.addChild(willBeExtract.group);
+      willBeExtract.lifeCycleEmitter.emit(new ItemLifeCycleEvent(willBeExtract.id, willBeExtract, ItemLifeCycleEnum.DESELECTED));
       willBeExtract.refreshItem();
     }
     this.wbItemGroup.splice(0, this.wbItemGroup.length);
@@ -330,7 +327,7 @@ export class ItemGroup extends WhiteboardItem {
     super.destroyItem();
     //unGroup하는 작업 실시
     this.coreItem.remove();
-    this.lifeCycleEventEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.DESTROY));
+    this.wbItemsLifeCycleEventEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.DESTROY));
   }
 
   destroyItemAndChildren() {
@@ -348,11 +345,11 @@ export class ItemGroup extends WhiteboardItem {
   }
 
   public notifyItemCreation() {
-    this.lifeCycleEventEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.CREATE));
+    this.wbItemsLifeCycleEventEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.CREATE));
   }
 
   public notifyItemModified() {
-    this.lifeCycleEventEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.MODIFY));
+    this.wbItemsLifeCycleEventEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.MODIFY));
   }
 
   exportToDto(): ItemGroupDto {
@@ -370,7 +367,7 @@ export class ItemGroup extends WhiteboardItem {
     this.wbItemGroup.forEach((value, index, array)=>{
       value.refreshItem();
     });
-    this.lifeCycleEventEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.MODIFY));
+    this.wbItemsLifeCycleEventEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.MODIFY));
   }
 
 

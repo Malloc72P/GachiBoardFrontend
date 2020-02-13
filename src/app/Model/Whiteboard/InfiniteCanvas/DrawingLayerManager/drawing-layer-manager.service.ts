@@ -55,8 +55,8 @@ import value from "*.json";
 import {SizeHandler} from "../../Whiteboard-Item/ItemAdjustor/ItemHandler/SizeHandler/size-handler";
 import {ItemHandler} from "../../Whiteboard-Item/ItemAdjustor/ItemHandler/item-handler";
 import {WhiteboardShape} from "../../Whiteboard-Item/Whiteboard-Shape/whiteboard-shape";
-import {LinkHandler} from "../../Whiteboard-Item/Whiteboard-Shape/LinkPort/EditableLink/LinkHandler/link-handler";
 import {LinkAdjustorPositionEnum} from "../../Whiteboard-Item/Whiteboard-Shape/LinkPort/EditableLink/LinkAdjustorPositionEnum/link-adjustor-position-enum.enum";
+import {LinkHandler} from "../../Whiteboard-Item/Whiteboard-Shape/LinkPort/EditableLink/LinkHandler/link-handler";
 
 
 @Injectable({
@@ -118,46 +118,6 @@ export class DrawingLayerManagerService {
 
     // horizon Context Menu 초기화
     this.horizonContextMenuService.initializeHorizonContextMenuService(this.globalSelectedGroup);
-
-    //#### 이걸로 화이트보드 배경 선택시 현재 선택된 그룹을 해제함
-    // this.currentProject.view.onMouseDown = (event)=>{
-    //   if(this.isEditingText){
-    //     console.log("DrawingLayerManagerService >> onMouseDown >> isEditingText 진입함");
-    //     this.endEditText();
-    //     this.horizonContextMenuService.close();
-    //     return;
-    //   }
-    //   if(this.globalSelectedGroup.getNumberOfChild() > 0){
-    //     let hitItem = this.getHittedItem(event.point);
-    //     if(!hitItem){
-    //       if(!this.checkHittedItemIsHandler(event.point)){
-    //         this.globalSelectedGroup.extractAllFromSelection();
-    //         return;
-    //       }
-    //     }
-    //   }else{
-    //     return;
-    //   }
-    //
-    //   // let point = this.initPoint(event.event);
-    //   // this.initFromPoint(point);
-    //   // if(event.event instanceof TouchEvent) {
-    //   //   this.longTouchTimer = setTimeout(this.onLongTouch, 500, event.event, this.contextMenu);
-    //   // }
-    // };
-    // this.currentProject.view.onMouseDrag = (event) => {
-    // //   // TODO : Canvas Mover 에서 드래그 이벤트 발생 안함
-    // //   if(event.event instanceof TouchEvent) {
-    // //     if(this.calcTolerance(this.initPoint(event.event))){
-    // //       clearTimeout(this.longTouchTimer);
-    // //     }
-    // //   }
-    // };
-    // this.currentProject.view.onMouseUp = (event) => {
-    // //   if(event.event instanceof TouchEvent) {
-    // //     clearTimeout(this.longTouchTimer);
-    // //   }
-    // };
   }
 
   public addWbLink(editableLink:EditableLink){
@@ -528,30 +488,16 @@ export class DrawingLayerManagerService {
   private editTextShape;
 
   public startEditText() {
-    this.isEditingText = true;
-    let pointTextItem;
     let editableShape:EditableShape = this.globalSelectedGroup.wbItemGroup[0] as EditableShape;
-    if(this.globalSelectedGroup.getNumberOfChild() === 1){
-      if(editableShape instanceof EditableShape){
-        pointTextItem = editableShape.editText;
-        this.globalSelectedGroup.extractAllFromGroup();
-      }else{
-        return;
-      }
-    }
-    editableShape.isEditing = true;
-    let htmlTextEditorWrapper: HTMLElement;
-    let htmlTextEditorElement: HTMLElement;
-    let htmlCanvasElement: HTMLElement;
-
+    let pointTextItem = editableShape.editText;
+    let htmlTextEditorWrapper = document.getElementById("textEditorWrapper");
+    let htmlTextEditorElement = document.getElementById("textEditor");
     let padding = 5;
 
-    htmlTextEditorWrapper = document.getElementById("textEditorWrapper");
-    htmlTextEditorElement = document.getElementById("textEditor");
-    htmlCanvasElement = document.getElementById("cv1");
+    this.isEditingText = true;
+    editableShape.isEditing = true;
 
-    // 기존 텍스트 제거
-
+    // 기존 텍스트 숨김
     pointTextItem.sendToBack();
 
     // EditText bound 계산
@@ -568,36 +514,12 @@ export class DrawingLayerManagerService {
     this.setEditorStyle(htmlTextEditorElement, edtWidth, padding, editableShape.textStyle);
 
     // 숨겨져있던 Editable 영역 표시
-    window.setTimeout(() => {
-      htmlTextEditorElement.focus();
-    }, 0);
+    window.setTimeout(() => { htmlTextEditorElement.focus(); }, 0);
 
     //rawText를 넣으면 태그 문자열이 노출됨 <div>사쿠라</div>세이버  이런식으로 출력됨
     htmlTextEditorElement.innerText = editableShape.textContent;
     this.editTextShape = editableShape;
   }
-
-  private setWrapperStyle(element, point, width, height, padding) {
-    element.style.left = point.x + "px";
-    element.style.top = point.y  + "px";
-    element.style.width = width - padding * 2 + "px";
-    element.style.height = height - padding * 2 + "px";
-  }
-
-  private setEditorStyle(element, width, padding, style) {
-    element.style.width = width - padding * 2 + "px";
-    this.setEditorTextStyle(style);
-  }
-
-  public setEditorTextStyle(style) {
-    let element = document.getElementById("textEditor");
-    element.style.color = style.fontColor;
-    element.style.fontFamily = style.fontFamily;
-    element.style.fontSize = style.fontSize + "px";
-    element.style.fontWeight = style.isBold ? "bold" : "normal";
-    element.style.fontStyle = style.isItalic ? "italic" : "";
-  }
-
   //#####################
 
   public endEditText() {
@@ -625,6 +547,27 @@ export class DrawingLayerManagerService {
     editableShape.refreshItem();
 
     htmlTextEditorElement.innerText = "";
+  }
+
+  private setWrapperStyle(element, point, width, height, padding) {
+    element.style.left = point.x + "px";
+    element.style.top = point.y  + "px";
+    element.style.width = width - padding * 2 + "px";
+    element.style.height = height - padding * 2 + "px";
+  }
+
+  private setEditorStyle(element, width, padding, style) {
+    element.style.width = width - padding * 2 + "px";
+    this.setEditorTextStyle(style);
+  }
+
+  public setEditorTextStyle(style) {
+    let element = document.getElementById("textEditor");
+    element.style.color = style.fontColor;
+    element.style.fontFamily = style.fontFamily;
+    element.style.fontSize = style.fontSize + "px";
+    element.style.fontWeight = style.isBold ? "bold" : "normal";
+    element.style.fontStyle = style.isItalic ? "italic" : "";
   }
   //########
 
@@ -655,12 +598,6 @@ export class DrawingLayerManagerService {
       }
     }
     this.globalSelectedGroup.extractAllFromSelection();
-  }
-
-  // #################### on Event Method #####################
-
-  private onLongTouch(event: TouchEvent, contextMenu: ContextMenuService) {
-    contextMenu.openMenu(event);
   }
 
   //########## Getter & Setter ##########

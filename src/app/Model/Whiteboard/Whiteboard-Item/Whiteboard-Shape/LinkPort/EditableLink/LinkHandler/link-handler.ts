@@ -34,6 +34,7 @@ export class LinkHandler {
 
   public enable() {
     this.coreItem.visible = true;
+    this.coreItem.bringToFront();
     this.zoomEvent = this.zoomEventSubscription;
   }
 
@@ -60,6 +61,7 @@ export class LinkHandler {
       this.owner.hideLinkObject();
     }
     this.owner.drawTempLink(event.point);
+    this.disable();
   }
 
   public onMouseUp(event) {
@@ -70,6 +72,7 @@ export class LinkHandler {
       let toLinkPort = hitWbShape.linkPortMap.get(hitWbShape.getClosestLinkPort(event.point));
 
       if(toLinkPort === this.owner.toLinkPort) {
+        this.owner.refreshLink();
         this.owner.showLinkObject();
 
         return;
@@ -82,7 +85,9 @@ export class LinkHandler {
       }
       this.linkChangeEvent = this.linkChangeEventSubscription;
     }
+    this.owner.refreshLink();
     this.owner.showLinkObject();
+    this.enable();
   }
 
   private createHandler(fillColor: Color | string) {
