@@ -45,11 +45,11 @@ export class SimpleLineLink extends EditableLink {
     this.linkObject.add(this.fromLinkPort.calcLinkPortPosition());
     this.linkObject.add(draggedPoint);
 
-    this.linkObject.onFrame = (event)=>{
-      this.refreshLink();
-    };
+
     this.layerService.drawingLayer.addChild(this.linkObject);
     this.onLinkEstablished();
+    this.subscribeOwnerLifeCycleEvent();
+
     return this;
   }
 
@@ -75,13 +75,9 @@ export class SimpleLineLink extends EditableLink {
     this.linkObject.add(this.fromLinkPort.calcLinkPortPosition());
     this.linkObject.add(upPoint);
 
-    this.linkObject.onFrame = (event) => {
-      this.refreshLink();
-      // TODO : EventEmitter 사용 고려
-      this.layerService.horizonContextMenuService.refreshPosition();
-    };
     this.layerService.drawingLayer.addChild(this.linkObject);
     this.onLinkEstablished();
+    this.subscribeOwnerLifeCycleEvent();
     return this;
   }
 
@@ -95,6 +91,7 @@ export class SimpleLineLink extends EditableLink {
       this.linkObject.firstSegment.point = this.fromLinkPort.calcLinkPortPosition();
       this.linkObject.lastSegment.point = this.toLinkPort.calcLinkPortPosition();
       this.toLinkEventEmitter.emit(new LinkEvent(LinkEventEnum.WB_ITEM_MODIFIED, this));
+      this.layerService.horizonContextMenuService.refreshPosition();
     }
   }
 
