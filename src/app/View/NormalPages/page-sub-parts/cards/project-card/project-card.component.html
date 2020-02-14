@@ -1,15 +1,17 @@
 <div #projectCard style="display: inline-block;"
-     matTooltip="PROJECT {{projectDto.projectTitle}}에 입장"
-     matTooltipPosition="above"
      [ngStyle]="{ 'margin' : marginValue}"
      (pointerenter)="isHovering = true;"
      (pointerleave)="isHovering = false;">
   <mat-card class="project-card-wrapper">
-    <mat-card-header class="project-title-wrapper">
+    <mat-card-header class="project-title-wrapper"
+                     (click)="onProjectCardClick()"
+                     matRipple>
       <mat-card-title class="project-title text-ellipsis">PROJECT {{projectDto.projectTitle}}</mat-card-title>
     </mat-card-header>
 
     <mat-card-content class="project-card-content-wrapper"
+                      (click)="onProjectCardClick()"
+                      matRipple
                       [ngStyle]="isHovering === true && { 'background' : '#7F7F7F' }">
       <img class="project-card-banner-image"
            src="assets/images/normal-pages/project/project.png">
@@ -41,12 +43,6 @@
       </div>
       <div class="project-card-subtitle project-card-bottom-row">
         <span class="text-ellipsis">시작일 : {{projectDto.startDate | date:"medium"}}</span>
-        <span class="flex-spacer"></span>
-        <button mat-raised-button
-                class="project-card-title-button project-card-enter-button"
-                (click)="onProjectCardClick(projectDto.projectTitle)">
-          <span>입장하기</span>
-        </button>
       </div>
     </div>
 

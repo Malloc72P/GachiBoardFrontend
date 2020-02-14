@@ -7,6 +7,8 @@ import {ProjectRequesterService} from '../../../../Controller/Project/project-re
 import {UserDTO} from '../../../../DTO/user-dto';
 import {AuthRequestService} from '../../../../Controller/SocialLogin/auth-request/auth-request.service';
 import {AuthEvent} from '../../../../Controller/SocialLogin/auth-request/AuthEvent/AuthEvent';
+import {WebsocketManagerService} from '../../../../Controller/Controller-WebSocket/websocket-manager/websocket-manager.service';
+import {RouterHelperService} from '../../../../Model/Helper/router-helper-service/router-helper.service';
 
 @Component({
   selector: 'app-main-page-root',
@@ -20,9 +22,22 @@ export class MainPageRootComponent implements OnInit {
     public dialog: MatDialog,
     private projectRequesterService:ProjectRequesterService,
     private authRequestService:AuthRequestService,
+    private websocketManagerService:WebsocketManagerService,
+    private routerHelperService:RouterHelperService,
   ) {
-    this.userDto = this.authRequestService.getUserInfo();
+    let inviteCode = null;
+    inviteCode = localStorage.getItem("inviteCode");
+    if(inviteCode){
+      this.projectRequesterService.submitInviteCode(inviteCode)
+        .subscribe((data)=>{
+          console.log("MainPageRootComponent >> projectRequesterService >> data : ",data);
+          localStorage.removeItem("inviteCode");
+          this.routerHelperService.goToMainPage();
+      })
+    }
+
     this.projectList = new Array<ProjectDto>();
+    this.userDto = this.authRequestService.getUserInfo();
     this.authRequestService.authEventEmitter.subscribe((authEvent:AuthEvent)=>{
       let userDto = authEvent.userInfo;
       console.log("MainPageRootComponent >> authEventEmitter >> userDto : ",userDto);

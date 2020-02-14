@@ -12,7 +12,7 @@ import {
   MatDividerModule, MatFormFieldModule, MatGridListModule, MatIconModule, MatInputModule, MatListModule, MatMenuModule,
   MatRadioModule,
   MatRippleModule, MatSelectModule, MatSidenavModule,
-  MatSliderModule, MatToolbarModule, MatTooltipModule
+  MatSliderModule, MatStepperModule, MatToolbarModule, MatTooltipModule
 } from '@angular/material';
 import { RouterModule, Routes } from '@angular/router';
 import { WhiteboardMainComponent } from './View/Whiteboard/whiteboard-main/whiteboard-main.component';
@@ -91,6 +91,12 @@ import { UserOverlayCardComponent } from './View/NormalPages/page-sub-parts/card
 import { CreateProjectComponent } from './View/NormalPages/main-page/main-page-root/create-project/create-project.component';
 import {ProjectRequesterService} from './Controller/Project/project-requester.service';
 
+import { SocketIoModule, SocketIoConfig } from 'ngx-socket-io';
+import {HttpHelper} from './Model/Helper/http-helper/http-helper';
+import { CreateInviteCodeComponent } from './View/NormalPages/main-page/main-page-project/create-invite-code/create-invite-code.component';
+import { InvitationComponent } from './View/NormalPages/invitation/invitation.component';
+const config: SocketIoConfig = { url: HttpHelper.apiUrl, options: {} };
+
 const appRoutes: Routes = [
   {
     path: 'homepage',
@@ -125,6 +131,11 @@ const appRoutes: Routes = [
     path: '',
     redirectTo: 'homepage',
     pathMatch: 'full'
+  },
+  {
+    path: 'invitation',
+    component: InvitationComponent,
+    data: { title: 'Invitation' }
   },
   {
     path: 'login',
@@ -194,6 +205,8 @@ const appRoutes: Routes = [
     WhiteboardCardComponent,
     UserOverlayCardComponent,
     CreateProjectComponent,
+    CreateInviteCodeComponent,
+    InvitationComponent,
   ],
   entryComponents: [
     KanbanComponent,
@@ -202,7 +215,8 @@ const appRoutes: Routes = [
     KanbanGroupSettingComponent,
     KanbanTagManagementComponent,
     AreYouSurePanelComponent,
-    CreateProjectComponent
+    CreateProjectComponent,
+    CreateInviteCodeComponent
   ],
   imports: [
     BrowserModule,
@@ -239,6 +253,8 @@ const appRoutes: Routes = [
     MatTooltipModule,
     MatSidenavModule,
     MatListModule,
+    SocketIoModule.forRoot(config),
+    MatStepperModule,
   ],
   providers: [
     RouterHelperService,

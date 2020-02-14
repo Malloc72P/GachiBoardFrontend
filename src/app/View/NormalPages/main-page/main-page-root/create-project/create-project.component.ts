@@ -20,7 +20,7 @@ export class CreateProjectComponentData{
     './../../../gachi-panel.css']
 })
 export class CreateProjectComponent implements OnInit {
-  @ViewChild('kanbanCreateForm', {static: false}) formEl: ElementRef<HTMLFormElement>;
+  @ViewChild('projectCreateForm', {static: false}) formEl: ElementRef<HTMLFormElement>;
 
   projectFormGroup:FormGroup;
 
@@ -57,10 +57,6 @@ export class CreateProjectComponent implements OnInit {
         });
 
       });
-
-
-
-
   }
 
 

@@ -4,7 +4,15 @@ class ApiRequest {
     this.requestType = requestType;
   }
   public uri: string;
-  public requestType: number;
+  public requestType: ApiRequestTypeEnum;
+}
+class WebSocketRequest {
+  constructor(event, requestType){
+    this.event = event;
+    this.requestType = requestType;
+  }
+  public event: string;
+  public requestType: WebSocketTypeEnum;
 }
 export enum ApiRequestTypeEnum {
   GET,
@@ -12,6 +20,12 @@ export enum ApiRequestTypeEnum {
   PATCH,
   DELETE,
   REDIRECT
+}
+export enum WebSocketTypeEnum {
+  CREATE,
+  READ,
+  UPDATE,
+  DELETE
 }
 
 export class HttpHelper {
@@ -45,9 +59,27 @@ export class HttpHelper {
       ),
       getList : new ApiRequest(
         "/project", ApiRequestTypeEnum.GET
+      ),
+      generateInviteCode : new ApiRequest(
+        "/inviteCode", ApiRequestTypeEnum.POST
+      ),
+      submitInviteCode : new ApiRequest(
+        "/inviteCode", ApiRequestTypeEnum.GET
+      ),
+      invitation : new ApiRequest(
+        "/invitation", ApiRequestTypeEnum.REDIRECT
       )
     }
   };
+
+  public static readonly websocketApi = {
+    project : {
+      joinProject : new WebSocketRequest(
+        "project_join",WebSocketTypeEnum.READ
+      )
+    }
+  };
+
 
   public static getContentType(){
     return HttpHelper.contentType;

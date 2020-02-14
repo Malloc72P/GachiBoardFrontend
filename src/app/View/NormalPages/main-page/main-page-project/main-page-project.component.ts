@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, OnDestroy, OnInit} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 import {KanbanGroup} from '../../../../Model/Whiteboard/ProjectSupporter/Kanban/KanbanGroup/kanban-group';
 import {KanbanItem} from '../../../../Model/Whiteboard/ProjectSupporter/Kanban/KanbanItem/kanban-item';
@@ -9,6 +9,14 @@ import {KanbanComponent} from '../../../Whiteboard/project-supporter-pannel/kanb
 import {MatDialog} from '@angular/material';
 import {PositionCalcService} from '../../../../Model/Whiteboard/PositionCalc/position-calc.service';
 import {HtmlHelperService} from '../../../../Model/NormalPagesManager/HtmlHelperService/html-helper.service';
+import {WebsocketManagerService} from '../../../../Controller/Controller-WebSocket/websocket-manager/websocket-manager.service';
+import {AuthEvent} from '../../../../Controller/SocialLogin/auth-request/AuthEvent/AuthEvent';
+import {UserDTO} from '../../../../DTO/user-dto';
+import {AuthRequestService} from '../../../../Controller/SocialLogin/auth-request/auth-request.service';
+import {WsProjectController} from '../../../../Controller/Controller-WebSocket/websocket-manager/ProjectWsController/ws-project.controller';
+import {ProjectDto} from '../../../../DTO/ProjectDto/project-dto';
+import {CreateProjectComponent} from '../main-page-root/create-project/create-project.component';
+import {CreateInviteCodeComponent, CreateInviteCodeComponentData} from './create-invite-code/create-invite-code.component';
 
 @Component({
   selector: 'app-main-page-project',
@@ -19,8 +27,11 @@ import {HtmlHelperService} from '../../../../Model/NormalPagesManager/HtmlHelper
     './../../../Whiteboard/project-supporter-pannel/project-supporter-pannel.component.css',
     './../../../Whiteboard/project-supporter-pannel/popup-pannel-commons.css']
 })
-export class MainPageProjectComponent implements OnInit {
+export class MainPageProjectComponent implements OnInit, OnDestroy {
   private projectId = "";
+
+  private userDto:UserDTO = new UserDTO();
+  private projectDto:ProjectDto = new ProjectDto();
 
   todoGroup:KanbanGroup;
   inProgressGroup:KanbanGroup;
@@ -32,7 +43,9 @@ export class MainPageProjectComponent implements OnInit {
     private tagListMgrService:KanbanTagListManagerService,
     private userManagerService:UserManagerService,
     private htmlHelperService:HtmlHelperService,
+    private authRequestService:AuthRequestService,
     public dialog: MatDialog,
+    private websocketManagerService:WebsocketManagerService
   ) {
     this.projectId = this.route.snapshot.paramMap.get('projectId');
     this.kanbanGroups = new Array<KanbanGroup>();
@@ -57,14 +70,47 @@ export class MainPageProjectComponent implements OnInit {
     tagListMgrService.insertTagInTaglist(kanbanItem, "축전지 지속시간 개량성공", "red");
     tagListMgrService.insertTagInTaglist(kanbanItem, "축전지 충격 수용성 개량중", "red");
     this.inProgressGroup.kanbanItemList.push(kanbanItem);
-
-
-
     this.kanbanGroups.push(this.inProgressGroup);
+
+
+    this.userDto = this.authRequestService.getUserInfo();
+    this.authRequestService.authEventEmitter.subscribe((authEvent:AuthEvent)=>{
+      let userDto = authEvent.userInfo;
+      this.userDto = userDto;
+
+      this.getProjectDto();
+
+      this.joinProject(userDto);
+    });
   }
 
   ngOnInit() {
+
   }
+  ngOnDestroy(): void {
+    console.log("\n\n================================================");
+    console.log("MainPageProjectComponent >> ngOnDestroy >> 진입함");
+    console.log("================================================\n\n");
+    this.websocketManagerService.resetSocket();
+  }
+
+  private isRequestedJoin = false;
+  joinProject(userDto){
+    if (!this.isRequestedJoin) {
+      let wsProjectController = WsProjectController.getInstance();
+      wsProjectController.joinProject(userDto.idToken, userDto.accessToken, this.projectId);
+      this.isRequestedJoin = true;
+    }
+  }
+
+  getProjectDto(){
+    this.userDto.participatingProjects.forEach((value:ProjectDto) => {
+      if(value._id === this.projectId){
+        this.projectDto = value;
+      }
+    });
+  }
+
 
   openKanbanPanel(kanbanObject){
     console.log("MainPageProjectComponent >> openKanbanPanel >> kanbanObject : ",kanbanObject);
@@ -80,6 +126,21 @@ export class MainPageProjectComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe(result => {
       console.log('The dialog was closed');
+
+    });
+  }
+
+  onSendBtnClick(){
+    this.websocketManagerService.resetSocket();
+    /*this.websocketManagerService.sendMessage(this.userDto.idToken);*/
+  }
+  onInviteBtnClick(projectDto){
+    const dialogRef = this.dialog.open(CreateInviteCodeComponent, {
+      width: '480px',
+      data: new CreateInviteCodeComponentData(projectDto)
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
 
     });
   }

@@ -60,7 +60,7 @@ export class AuthRequestService {
     localStorage.removeItem("accessToken");
   }
 
-  private signOutProcess(){
+  public signOutProcess(){
     this.removeAccessToken();
     this.authEventEmitter.emit(
       new AuthEvent(AuthEventEnum.SIGN_OUT, this.userInfo)
@@ -90,6 +90,7 @@ export class AuthRequestService {
           );
           userDto.participatingProjects = data.userDto.participatingProjects;
 
+          console.log("AuthRequestService >>  >> userDto : ",userDto);
           this.setUserInfo(userDto);
           this.authEventEmitter.emit(new AuthEvent(AuthEventEnum.SIGN_IN, userDto));
           observer.next(userDto);

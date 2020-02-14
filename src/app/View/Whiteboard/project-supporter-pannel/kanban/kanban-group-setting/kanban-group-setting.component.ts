@@ -4,10 +4,8 @@ import {UserManagerService} from '../../../../../Model/UserManager/user-manager.
 import {KanbanItemColorService} from '../../../../../Model/Whiteboard/ProjectSupporter/Kanban/KanbanItemColorEnumManager/kanban-item-color.service';
 import {KanbanGroup} from '../../../../../Model/Whiteboard/ProjectSupporter/Kanban/KanbanGroup/kanban-group';
 import {FormControl, FormGroup, Validators} from '@angular/forms';
-import {KanbanItem} from '../../../../../Model/Whiteboard/ProjectSupporter/Kanban/KanbanItem/kanban-item';
-import {PositionCalcService} from '../../../../../Model/Whiteboard/PositionCalc/position-calc.service';
-import {KanbanTagManagementComponent} from '../kanban-tag-management/kanban-tag-management.component';
 import {AreYouSurePanelService} from '../../../../../Model/PopupManager/AreYouSurePanelManager/are-you-sure-panel.service';
+import {HtmlHelperService} from '../../../../../Model/NormalPagesManager/HtmlHelperService/html-helper.service';
 
 class KanbanGroupSettingDialogData {
   groups: Array<KanbanGroup>;
@@ -26,10 +24,10 @@ export class KanbanGroupSettingComponent implements OnInit {
 
   constructor(
     public dialogRef: MatDialogRef<KanbanGroupSettingComponent>,
-    private posCalcService: PositionCalcService,
     private userManagerService: UserManagerService,
     private colorService: KanbanItemColorService,
     private areYouSurePanelService: AreYouSurePanelService,
+    private htmlHelperService: HtmlHelperService,
     @Inject(MAT_DIALOG_DATA) public data: KanbanGroupSettingDialogData,
   ) {
     this.kanbanGroups = new Array<KanbanGroup>();

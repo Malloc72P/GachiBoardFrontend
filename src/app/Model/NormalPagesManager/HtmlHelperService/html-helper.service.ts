@@ -44,4 +44,8 @@ export class HtmlHelperService {
       document.documentElement.clientHeight
     );
   }
+  getKanbanGroupSettingPanelHeight(){
+    return this.getHeightOfBrowser() - this.getHeightOfBrowser() * 0.2;
+  }
+
 }

@@ -1,0 +1,52 @@
+<div>
+  <mat-toolbar color="primary">
+    <mat-toolbar-row>
+        <span>
+          <mat-icon class="gachi-icon">add_circle
+          </mat-icon>
+          프로젝트에 초대하기
+        </span>
+      <span class="flex-spacer"></span>
+      <button mat-button color="Basic"
+              (click)="onNoClick()">
+        <mat-icon class="gachi-icon">close</mat-icon>
+      </button>
+    </mat-toolbar-row>
+  </mat-toolbar>
+  <div class="gachi-form-wrapper">
+
+
+    <!--STEPPER-->
+    <mat-vertical-stepper #stepper linear="false">
+      <mat-step [stepControl]="inviteCodeFormGroup">
+        <ng-template matStepLabel><span>프로젝트 초대링크 생성하기</span></ng-template>
+        <p><span>몇명이나 초대하시겠어요?</span></p>
+        <form [formGroup]="inviteCodeFormGroup">
+          <mat-slider #remainSlider
+            style="margin-right: 26px;"
+            thumbLabel
+            [displayWith]="formatLabel"
+            tickInterval="1"
+            min="1"
+            max="6"></mat-slider>
+          <button mat-raised-button
+                  (click)="onGenerateCodeBtnClick()"><span>초대 링크 생성</span></button>
+        </form>
+      </mat-step>
+      <mat-step  [stepControl]="finishFormGroup">
+        <ng-template matStepLabel><span>링크생성 완료!</span></ng-template>
+        <p><span>아래의 초대링크를 복사해서 상대방에게 전달해주세요!</span></p>
+        <p><span>링크에 접속하면 프로젝트에 참가할 수 있어요.</span></p>
+        <mat-card class="invite-url-wrapper">
+          <h5 id="inviteUrl" class="invite-url text-ellipsis">{{this.inviteUrl}}</h5>
+          <button mat-raised-button (click)="onCopyBtnClick()">COPY</button>
+        </mat-card>
+        <div>
+          <button mat-button matStepperPrevious>Back</button>
+          <button mat-button (click)="stepper.reset()">Reset</button>
+        </div>
+      </mat-step>
+    </mat-vertical-stepper>
+    <!--STEPPER-->
+  </div>
+</div>

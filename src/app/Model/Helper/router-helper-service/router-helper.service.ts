@@ -16,6 +16,9 @@ export class RouterHelperService {
   goToLoginPage(){
     this.goToTarget("login");
   }
+  goToMainPage(){
+    this.goToTarget("mainpage");
+  }
   goToHomePage(){
     this.goToTarget("homepage");
   }

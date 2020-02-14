@@ -39,6 +39,33 @@ export class ProjectRequesterService {
     });
   }
 
+  generateInviteCode(projectId, remainCount) :Observable<any>{
+    return new Observable<any>((observer)=>{
+
+      this.apiRequester.post( HttpHelper.api.project.generateInviteCode.uri,
+        {projectId : projectId, remainCount : remainCount} )
+        .subscribe((data)=>{
+          observer.next(data);
+        }, (error)=>{
+          console.log("ProjectRequesterService >> createProject >> error : ",error);
+          this.authRequestService.signOutProcess();
+        });
+    });
+  }
+  submitInviteCode(inviteCode) :Observable<any>{
+    return new Observable<any>((observer)=>{
+      this.apiRequester.get( HttpHelper.api.project.submitInviteCode.uri,
+        {inviteCode : inviteCode} )
+        .subscribe((data)=>{
+          observer.next(data);
+        }, (error)=>{
+          console.log("ProjectRequesterService >> submitInviteCode >> error : ",error);
+          this.authRequestService.signOutProcess();
+        });
+    });
+  }
+
+
   getProjects(){
     return new Observable<ProjectDto>((observer)=>{
 
@@ -58,6 +85,7 @@ export class ProjectRequesterService {
           observer.next(data);
         }, (error)=>{
           console.log("ProjectRequesterService >> createProject >> error : ",error);
+          this.authRequestService.signOutProcess();
         });
     });
   }

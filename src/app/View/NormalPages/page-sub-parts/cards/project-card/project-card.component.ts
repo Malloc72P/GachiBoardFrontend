@@ -32,11 +32,7 @@ export class ProjectCardComponent implements OnInit, AfterViewInit {
     this.projectCardEl = this.projectCard.nativeElement
   }
 
-  onMouseEnter(event){
-
-  }
   onMouseMove(event){
-    //this.projectCard.style.transform = translate
 
     let offset = this.htmlHelperService.offset(this.projectCardEl);
     let relX:number = event.pageX - offset.left;
@@ -56,8 +52,8 @@ export class ProjectCardComponent implements OnInit, AfterViewInit {
       "matrix3d(1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1)" );
   }
 
-  onProjectCardClick(projectId){
-    this.routerHelperService.goToProjectPage(projectId);
+  onProjectCardClick(){
+    this.routerHelperService.goToProjectPage(this.projectDto._id);
   }
 
   public getCreaterName(participantList, createdBy){
