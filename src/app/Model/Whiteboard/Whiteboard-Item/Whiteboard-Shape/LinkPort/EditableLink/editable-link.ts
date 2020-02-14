@@ -1,8 +1,4 @@
 import * as paper from 'paper';
-// @ts-ignore
-import Path = paper.Path;
-// @ts-ignore
-import Point = paper.Point;
 
 import {LinkPort} from '../link-port';
 import {DrawingLayerManagerService} from '../../../../InfiniteCanvas/DrawingLayerManager/drawing-layer-manager.service';
@@ -19,6 +15,12 @@ import {GachiColorDto} from '../../../../WhiteboardItemDto/ColorDto/gachi-color-
 import {EditableLinkDto} from '../../../../WhiteboardItemDto/WhiteboardShapeDto/LinkPortDto/EditableLinkDto/editable-link-dto';
 import {LinkAdjustorPositionEnum} from "./LinkAdjustorPositionEnum/link-adjustor-position-enum.enum";
 import {LinkHandler} from "./LinkHandler/link-handler";
+import {ItemLifeCycleEnum, ItemLifeCycleEvent} from "../../../WhiteboardItemLifeCycle/WhiteboardItemLifeCycle";
+// @ts-ignore
+import Path = paper.Path;
+// @ts-ignore
+import Point = paper.Point;
+import {Subscription} from "rxjs";
 
 export abstract class EditableLink implements Editable {
   private _id;
@@ -41,6 +43,8 @@ export abstract class EditableLink implements Editable {
   private _fromLinkEventEmitter:EventEmitter<any>;
   private _toLinkEventEmitter:EventEmitter<any>;
   private _linkEventEmitter = new EventEmitter<LinkEvent>();
+  private fromPortOwnerSubscription: Subscription;
+  private toPortOwnerSubscription: Subscription;
 
   private _strokeColor;
   private _strokeWidth;
@@ -78,6 +82,27 @@ export abstract class EditableLink implements Editable {
 
     this.linkObject = this.createLinkObject();
   }
+
+  protected subscribeOwnerLifeCycleEvent() {
+    if(!!this.fromPortOwnerSubscription) {
+      this.fromPortOwnerSubscription.unsubscribe();
+    }
+    if(!!this.toPortOwnerSubscription) {
+      this.toPortOwnerSubscription.unsubscribe();
+    }
+
+    this.fromPortOwnerSubscription = this.fromLinkPort.owner.lifeCycleEmitter.subscribe((event: ItemLifeCycleEvent) => {
+      if(event.action === ItemLifeCycleEnum.MOVED || event.action === ItemLifeCycleEnum.RESIZED) {
+        this.refreshLink();
+      }
+    });
+    this.toPortOwnerSubscription = this.toLinkPort.owner.lifeCycleEmitter.subscribe((event: ItemLifeCycleEvent) => {
+      if(event.action === ItemLifeCycleEnum.MOVED || event.action === ItemLifeCycleEnum.RESIZED) {
+        this.refreshLink();
+      }
+    });
+  }
+
   protected createLinkObject(){
     return new Path({
       strokeColor: this.strokeColor,

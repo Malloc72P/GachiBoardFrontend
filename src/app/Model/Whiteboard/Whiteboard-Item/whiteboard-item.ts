@@ -114,10 +114,6 @@ export abstract class WhiteboardItem {
     }
   }
 
-  private onLongTouch(event, layerService: DrawingLayerManagerService) {
-    layerService.contextMenu.openMenu(event);
-  }
-
   private calcTolerance(point: Point) {
     return this.fromPoint.getDistance(point) > 10;
   }
@@ -242,6 +238,38 @@ export abstract class WhiteboardItem {
     );
     return wbItemDto;
   }
+
+  // ################ LifeCycle Emit Method #################
+
+  public emitCreate() {
+    this.lifeCycleEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.CREATE));
+  }
+
+  public emitModify() {
+    this.lifeCycleEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.MODIFY));
+  }
+
+  public emitDestroy() {
+    this.lifeCycleEmitter.emit(new ItemLifeCycleEvent(this.id, null, ItemLifeCycleEnum.DESTROY));
+  }
+
+  public emitMoved() {
+    this.lifeCycleEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.MOVED));
+  }
+
+  public emitResized() {
+    this.lifeCycleEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.RESIZED));
+  }
+
+  public emitSelected() {
+    this.lifeCycleEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.SELECTED));
+  }
+
+  public emitDeselected() {
+    this.lifeCycleEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.DESELECTED));
+  }
+
+  // ################ Getter & Setter #################
 
   get coreItem(): paper.Item {
     return this._coreItem;

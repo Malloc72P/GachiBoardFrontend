@@ -144,7 +144,7 @@ export class NormalPointerService {
 
   public doDragging(event) {
     if(this.action === NORMAL_POINTER_ACTIONS.DRAGGING_ITEM) {
-      this.layerService.globalSelectedGroup.moveTo(event);
+      this.layerService.globalSelectedGroup.moveByDelta(event);
     }
     if(
       this.action === NORMAL_POINTER_ACTIONS.HANDLING_iTEM ||

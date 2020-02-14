@@ -37,19 +37,8 @@ export class ItemGroup extends WhiteboardItem {
     this.coreItem = this.group;
     this.wbItemGroup = new Array<WhiteboardItem>();
     console.log('ItemGroup >> constructor >> 진입함');
-    let prevNumberOfChildren = this.getNumberOfChild();
 
     this.createBackgroundRect();
-    this.coreItem.onFrame = (event) => {
-      let currNumberOfChildren = this.getNumberOfChild();
-      if (prevNumberOfChildren !== currNumberOfChildren) {
-
-        this.resetMyItemAdjustor();
-
-        prevNumberOfChildren = this.getNumberOfChild();
-      }
-    };
-    this.activateShadowEffect();
   }
 
   public amIAlreadyHaveThis(wbItem:WhiteboardItem | EditableLink){
@@ -128,7 +117,7 @@ export class ItemGroup extends WhiteboardItem {
 
   }
 
-  public moveTo(event) {
+  public moveByDelta(event) {
     if(!this.checkMovable()) {
       return;
     }
@@ -141,17 +130,25 @@ export class ItemGroup extends WhiteboardItem {
       this.group.position.y += event.delta.y;
 
       this.wbItemGroup.forEach(value => {
-        value.lifeCycleEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.MOVED));
+        value.emitMoved();
       });
 
       this.layerService.horizonContextMenuService.close();
     }
   }
 
+  private moveTo(position: Point) {
+    this.group.position = position;
+
+    this.wbItemGroup.forEach(value => {
+      value.emitMoved();
+    });
+  }
+
   public resizeTo(bound: paper.Rectangle) {
     this.group.bounds = bound;
     this.wbItemGroup.forEach(value => {
-      value.lifeCycleEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.RESIZED));
+      value.emitResized();
     });
   }
 
@@ -239,8 +236,9 @@ export class ItemGroup extends WhiteboardItem {
 
   public relocateItemGroup(newPosition){
     if(this.myItemAdjustor){
-      this.group.position = newPosition;
+      this.moveTo(newPosition);
       this.myItemAdjustor.refreshItemAdjustorSize();
+      this.layerService.horizonContextMenuService.refreshPosition();
     }
   }
 
@@ -251,7 +249,11 @@ export class ItemGroup extends WhiteboardItem {
     this.wbItemGroup.push(wbItem);
     wbItem.isSelected = true;
     this.coreItem.addChild(wbItem.group);
-    wbItem.lifeCycleEmitter.emit(new ItemLifeCycleEvent(wbItem.id, wbItem, ItemLifeCycleEnum.SELECTED));
+    if(this.getNumberOfChild() > 1) {
+      this.wbItemGroup[0].emitDeselected();
+    } else {
+      wbItem.emitSelected();
+    }
   }
 
   public extractOneFromGroup(wbItem: WhiteboardItem) {
@@ -259,7 +261,7 @@ export class ItemGroup extends WhiteboardItem {
     for (let i = 0; i < this.wbItemGroup.length; i++) {
       if (this.wbItemGroup[i].id === wbItem.id) {
         let drawingLayer = this.coreItem.parent;
-        //자식을 drawingLayer로 옮겨줌.
+        //자식을 drawingLayer 로 옮겨줌.
         let willBeExtract = this.wbItemGroup[i];
         willBeExtract.isSelected = false;
         if(willBeExtract instanceof WhiteboardShape){
@@ -270,8 +272,12 @@ export class ItemGroup extends WhiteboardItem {
         drawingLayer.addChild(willBeExtract.group);
         this.wbItemGroup.splice(i, 1);
         this.resetMyItemAdjustor();
-        willBeExtract.lifeCycleEmitter.emit(new ItemLifeCycleEvent(willBeExtract.id, willBeExtract, ItemLifeCycleEnum.DESELECTED));
+        willBeExtract.emitDeselected();
         willBeExtract.refreshItem();
+
+        if(this.getNumberOfChild() === 1) {
+          this.wbItemGroup[0].emitSelected();
+        }
 
         return;
       }
@@ -304,7 +310,7 @@ export class ItemGroup extends WhiteboardItem {
         });
       }
       drawingLayer.addChild(willBeExtract.group);
-      willBeExtract.lifeCycleEmitter.emit(new ItemLifeCycleEvent(willBeExtract.id, willBeExtract, ItemLifeCycleEnum.DESELECTED));
+      willBeExtract.emitDeselected();
       willBeExtract.refreshItem();
     }
     this.wbItemGroup.splice(0, this.wbItemGroup.length);

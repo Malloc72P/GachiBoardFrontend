@@ -284,7 +284,7 @@ export class HorizonContextMenuService {
   get coreItem() {
     if(this.item instanceof WhiteboardItem) {
       return this.item.coreItem;
-    } else if(this.item instanceof SimpleArrowLink) {
+    } else if(this.item instanceof EditableLink) {
       return this.item.linkObject;
     } else if(Array.isArray(this.item)) {
       return this.globalSelectedGroup.group;

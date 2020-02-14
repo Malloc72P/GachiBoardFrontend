@@ -58,30 +58,6 @@ export abstract class EditableShape extends WhiteboardShape {
     this.layerService = layerService;
     this.isEditing = false;
 
-    // TODO : onFrame
-    // this.lifeCycleEventEmitter.subscribe((event: ItemLifeCycleEvent) => {
-    //   switch (event.action) {
-    //     case ItemLifeCycleEnum.CREATE:
-    //       break;
-    //     case ItemLifeCycleEnum.MODIFY:
-    //       let item = event.item as EditableShape;
-    //       item.editText.position = item.coreItem.bounds.center.clone();
-    //       editText.bringToFront();
-    //       break;
-    //     case ItemLifeCycleEnum.DESTROY:
-    //       break;
-    //   }
-    // });
-
-    // item.onFrame = (event) => {
-    //   if (event.count % 15 === 0) {
-    //     this.editText.position = new Point(this.coreItem.bounds.center);
-    //     if (!this.isEditing) {
-    //       editText.bringToFront();
-    //     }
-    //   }
-    // };//onFrame
-
     this.textStyle.changed.subscribe(() => {
       console.log("EditableShape >> textStyle >> Changed");
       this.refreshItem();

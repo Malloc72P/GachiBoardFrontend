@@ -68,6 +68,7 @@ export class GlobalSelectedGroup extends ItemGroup {
       this.copySelectedWbItems();
     }
   }
+
   public doPaste(newPosition){
     if(this.copiedDtoArray.length > 0){
       this.waitForCloneOperation().subscribe((data:Array<WhiteboardItem>)=>{
@@ -143,7 +144,7 @@ export class GlobalSelectedGroup extends ItemGroup {
   public removeOneFromGroup(wbItem) {
     this.extractOneFromGroup(wbItem);
     if(this.wbItemGroup.length > 0) {
-      this.layerService.horizonContextMenuService.refreshPosition();
+      this.layerService.horizonContextMenuService.open();
     } else {
       this.layerService.horizonContextMenuService.close();
     }

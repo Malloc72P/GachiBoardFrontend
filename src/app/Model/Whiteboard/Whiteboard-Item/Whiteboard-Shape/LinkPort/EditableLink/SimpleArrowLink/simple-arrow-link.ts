@@ -111,13 +111,9 @@ export class SimpleArrowLink extends EditableLink{
     this.linkObject.add(arrowRightWing);
     this.linkObject.add(upPoint);
 
-    this.linkObject.onFrame = (event)=>{
-      // this.refreshLink();
-      this.layerService.horizonContextMenuService.refreshPosition();
-    };
-
     this.layerService.drawingLayer.addChild(this.linkObject);
     this.onLinkEstablished();
+    this.subscribeOwnerLifeCycleEvent();
     return this;
   }
   public manuallyLinkToWbShape(toWbShape:WhiteboardShape, toLinkPortDirection) : EditableLink{
@@ -144,11 +140,9 @@ export class SimpleArrowLink extends EditableLink{
     this.linkObject.add(arrowRightWing);
     this.linkObject.add(upPoint);
 
-    // this.linkObject.onFrame = (event)=>{
-    //   this.refreshLink();
-    // };
     this.layerService.drawingLayer.addChild(this.linkObject);
     this.onLinkEstablished();
+    this.subscribeOwnerLifeCycleEvent();
     return this;
   }
   // ####
@@ -178,6 +172,8 @@ export class SimpleArrowLink extends EditableLink{
       segments[ArrowSegmentEnum.RIGHT_WING].point = arrowRightWing;
       this.toLinkEventEmitter.emit(new LinkEvent(LinkEventEnum.WB_ITEM_MODIFIED, this));
       this.linkObject.bringToFront();
+
+      this.layerService.horizonContextMenuService.refreshPosition();
     }
   }
 

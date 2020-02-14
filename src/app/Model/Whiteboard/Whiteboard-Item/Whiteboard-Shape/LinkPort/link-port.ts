@@ -229,11 +229,13 @@ export class LinkPort {
         case ItemLifeCycleEnum.MOVED:
         case ItemLifeCycleEnum.RESIZED:
           this.handlerCircleObject.position = this.calcLinkPortPosition();
+          this.handlerCircleObject.bringToFront();
           this.spreadHandler();
           break;
         case ItemLifeCycleEnum.SELECTED:
           if(this.layerService.globalSelectedGroup.getNumberOfChild() === 1) {
             this.handlerCircleObject.position = this.calcLinkPortPosition();
+            this.handlerCircleObject.bringToFront();
             this.spreadHandler();
             this.enable();
           }
@@ -424,7 +426,6 @@ export class LinkPort {
       this.tempLinkExitCircle.remove();
       this.tempLinkExitCircle = null;
     }
-    this.tempLink.tempLinkPath.onFrame = ()=>{};
   }
 
   exportToDto(): LinkPortDto {
