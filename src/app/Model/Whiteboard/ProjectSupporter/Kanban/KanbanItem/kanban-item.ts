@@ -7,7 +7,7 @@ import {ProjectDto} from '../../../../../DTO/ProjectDto/project-dto';
 import {UserManagerService} from '../../../../UserManager/user-manager.service';
 
 export class KanbanItem {
-  id:number;
+  _id:number;
   title:string;
   userInfo:ParticipantDto;
   private color;
@@ -40,7 +40,7 @@ export class KanbanItem {
 
   exportDto(parentGroup){
     let kanbanDto = new KanbanItemDto();
-    kanbanDto.id = this.id;
+    kanbanDto._id = this._id;
     kanbanDto.userInfo = this.userInfo.idToken;
     kanbanDto.color = this.color;
     kanbanDto.title = this.title;

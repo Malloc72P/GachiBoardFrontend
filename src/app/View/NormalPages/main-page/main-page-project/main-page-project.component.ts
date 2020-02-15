@@ -17,6 +17,7 @@ import {WsProjectController} from '../../../../Controller/Controller-WebSocket/w
 import {ProjectDto} from '../../../../DTO/ProjectDto/project-dto';
 import {CreateProjectComponent} from '../main-page-root/create-project/create-project.component';
 import {CreateInviteCodeComponent, CreateInviteCodeComponentData} from './create-invite-code/create-invite-code.component';
+import {WsKanbanController} from '../../../../Controller/Controller-WebSocket/websocket-manager/KanbanWsController/ws-kanban.controller';
 
 @Component({
   selector: 'app-main-page-project',
@@ -107,7 +108,8 @@ export class MainPageProjectComponent implements OnInit, OnDestroy {
     });
 
     dialogRef.afterClosed().subscribe(result => {
-      console.log('The dialog was closed');
+      /*let wsKanbanController = WsKanbanController.getInstance();
+      wsKanbanController.requestGetKanban();*/
 
     });
   }

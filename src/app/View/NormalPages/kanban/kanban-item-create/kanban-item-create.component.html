@@ -58,7 +58,7 @@
       <mat-divider class="kanban-item-edit-divider"></mat-divider>
       <div class="kanban-item-edit-button-wrapper">
         <button mat-button (click)="onNoClick()">Cancel</button>
-        <button mat-button type="submit">Create</button>
+        <button mat-button type="submit" [disabled]="!kanbanCreateFormGroup.valid">Create</button>
       </div>
     </form>
   </div>

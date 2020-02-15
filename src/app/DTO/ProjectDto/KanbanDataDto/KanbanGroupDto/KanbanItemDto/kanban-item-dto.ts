@@ -1,14 +1,18 @@
-
+export enum KanbanGroupEnum {
+  TODO          = "TODO",
+  IN_PROGRESS   = "In Progress",
+  DONE          = "DONE",
+}
 export class KanbanItemDto {
-  public id:number;
+  public _id:number;
   public title:string;
   public userInfo;
   public color;
   public tagIdList:Array<any>;
-  public parentGroup:string;
+  public parentGroup;
 
-  constructor(id?: number, title?: string, userInfo?, color?, tagIdList?: Array<any>, parentGroup?:string) {
-    this.id = id;
+  constructor(id?: number, title?: string, userInfo?, color?, tagIdList?: Array<any>, parentGroup?) {
+    this._id = id;
     this.title = title;
     this.userInfo = userInfo;
     this.color = color;

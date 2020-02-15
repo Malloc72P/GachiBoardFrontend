@@ -1,4 +1,4 @@
-import {Injectable} from '@angular/core';
+import {EventEmitter, Injectable, Output} from '@angular/core';
 import {Socket} from 'ngx-socket-io';
 import {AuthRequestService} from '../../SocialLogin/auth-request/auth-request.service';
 import {WsProjectController} from './ProjectWsController/ws-project.controller';
@@ -17,6 +17,10 @@ import {KanbanEventManagerService} from '../../../Model/Whiteboard/ProjectSuppor
   providedIn: 'root'
 })
 export class WebsocketManagerService {
+  @Output() wsEventEmitter:EventEmitter<any> = new EventEmitter<any>();
+  //SocketIO를 통해 데이터를 불러오고 싶을때 사용
+  //미리 해당 이벤트이미터를 subscribe하고, 데이터를 요청하는 메세지를 전송하면 됨
+
   public isConnected = false;
   private _userInfo:UserDTO;
   public currentProjectDto:ProjectDto;
@@ -50,6 +54,7 @@ export class WebsocketManagerService {
       let notVerifiedItem = this.notVerifiedKanbanItems[i];
       if(notVerifiedItem.wsPacketDto.wsPacketSeq === wsPacketDto.wsPacketSeq){
         verifiedIdx = i;
+        notVerifiedItem.kanbanItem._id = wsPacketDto.dataDto["_id"];
         break;
       }
     }//for

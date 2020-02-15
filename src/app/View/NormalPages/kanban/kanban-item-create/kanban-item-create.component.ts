@@ -31,9 +31,9 @@ export class KanbanItemCreateComponent implements OnInit {
     this.kanbanGroup = data.kanbanGroup;
 
     this.kanbanCreateFormGroup = new FormGroup({
-      title: new FormControl("", [Validators.required,]),
-      color: new FormControl("0"),
-      user: new FormControl(userManagerService.getUnassignedUserName())
+      title : new FormControl("", [Validators.required,]),
+      color : new FormControl("0"),
+      user  : new FormControl("", [Validators.required,])
     });
   }
 

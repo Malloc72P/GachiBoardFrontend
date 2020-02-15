@@ -13,9 +13,11 @@ import {KanbanTagManagementComponent} from './kanban-tag-management/kanban-tag-m
 import {HtmlHelperService} from '../../../Model/NormalPagesManager/HtmlHelperService/html-helper.service';
 import {ProjectDto} from '../../../DTO/ProjectDto/project-dto';
 import {WsKanbanController} from '../../../Controller/Controller-WebSocket/websocket-manager/KanbanWsController/ws-kanban.controller';
-import {KanbanItemDto} from '../../../DTO/ProjectDto/KanbanDataDto/KanbanGroupDto/KanbanItemDto/kanban-item-dto';
+import {KanbanItemDto, KanbanGroupEnum} from '../../../DTO/ProjectDto/KanbanDataDto/KanbanGroupDto/KanbanItemDto/kanban-item-dto';
 import {KanbanEventManagerService} from '../../../Model/Whiteboard/ProjectSupporter/Kanban/kanban-event-manager.service';
 import {KanbanEvent, KanbanEventEnum} from '../../../Model/Whiteboard/ProjectSupporter/Kanban/KanbanEvent/KanbanEvent';
+import {WebsocketManagerService} from '../../../Controller/Controller-WebSocket/websocket-manager/websocket-manager.service';
+import {WebsocketEvent, WebsocketEventEnum} from '../../../Controller/Controller-WebSocket/websocket-manager/WebsocketEvent/WebsocketEvent';
 
 export class KanbanComponentData {
   projectDto:ProjectDto;
@@ -41,10 +43,6 @@ export class KanbanComponent implements OnInit {
 
   private projectDto:ProjectDto = new ProjectDto();
 
-  private readonly TODO_GROUP_TITLE = "TODO";
-  private readonly In_Progress_GROUP_TITLE = "In Progress";
-  private readonly DONE_GROUP_TITLE = "DONE";
-
   constructor(
     private popupManagerService:PopupManagerService,
     public dialogRef: MatDialogRef<KanbanComponent>,
@@ -53,30 +51,34 @@ export class KanbanComponent implements OnInit {
     private htmlHelperService:HtmlHelperService,
     public dialog: MatDialog,
     private kanbanEventManager:KanbanEventManagerService,
+    private websocketManagerService:WebsocketManagerService,
     @Inject(MAT_DIALOG_DATA) public data: KanbanComponentData,
   ) {
     this.kanbanGroupWrapper = new Array<KanbanGroup>();
-    this.projectDto = data.projectDto;
+    this.projectDto = this.websocketManagerService.currentProjectDto;
     this.initKanbanInstance();
     this.subscribeEventEmitter();
   }
 
   initKanbanInstance(){
-    this.todoGroup = new KanbanGroup(this.TODO_GROUP_TITLE, "primary");
-    this.inProgressGroup = new KanbanGroup(this.In_Progress_GROUP_TITLE, "accent");
-    this.doneGroup = new KanbanGroup(this.DONE_GROUP_TITLE, "warn");
-
-    for(let kanbanItemDto of this.projectDto.kanbanData.todoGroup.kanbanItemList){
+    this.todoGroup        = new KanbanGroup(KanbanGroupEnum.TODO, "primary");
+    this.inProgressGroup  = new KanbanGroup(KanbanGroupEnum.IN_PROGRESS, "accent");
+    this.doneGroup        = new KanbanGroup(KanbanGroupEnum.DONE, "warn");
+    for(let kanbanItemDto of this.projectDto.kanbanData.todoGroup){
       let newKanbanItem:KanbanItem = KanbanItem.createItemByDto(kanbanItemDto, this.projectDto);
-      this.todoGroup.kanbanItemList.push(newKanbanItem);
+      //this.todoGroup.kanbanItemList.push(newKanbanItem);
+      console.log("KanbanComponent >> initKanbanInstance >> kanbanItemDto : ",kanbanItemDto);
+      this.enqueueByWs(kanbanItemDto);
     }
-    for(let kanbanItemDto of this.projectDto.kanbanData.inProgressGroup.kanbanItemList){
+    for(let kanbanItemDto of this.projectDto.kanbanData.inProgressGroup){
       let newKanbanItem = KanbanItem.createItemByDto(kanbanItemDto, this.projectDto);
-      this.inProgressGroup.kanbanItemList.push(newKanbanItem);
+      //this.inProgressGroup.kanbanItemList.push(newKanbanItem);
+      this.enqueueByWs(kanbanItemDto);
     }
-    for(let kanbanItemDto of this.projectDto.kanbanData.doneGroup.kanbanItemList){
+    for(let kanbanItemDto of this.projectDto.kanbanData.doneGroup){
       let newKanbanItem = KanbanItem.createItemByDto(kanbanItemDto, this.projectDto);
-      this.doneGroup.kanbanItemList.push(newKanbanItem);
+      //this.doneGroup.kanbanItemList.push(newKanbanItem);
+      this.enqueueByWs(kanbanItemDto);
     }
     this.kanbanGroupWrapper.push(this.todoGroup);
     this.kanbanGroupWrapper.push(this.inProgressGroup);
@@ -97,22 +99,25 @@ export class KanbanComponent implements OnInit {
   }
 
   enqueueTo(kanbanItem:KanbanItem, kanbanGroup:KanbanGroup){
-    kanbanGroup.kanbanItemList.splice(0, 0, kanbanItem);
+    kanbanGroup.kanbanItemList.splice(kanbanGroup.kanbanItemList.length, 0, kanbanItem);
     let wsKanbanController = WsKanbanController.getInstance();
 
     wsKanbanController.requestCreateKanban(kanbanItem, kanbanGroup);
   }
   enqueueByWs(kanbanItemDto:KanbanItemDto){//Ws === Websocket
+    console.log("KanbanComponent >> enqueueByWs >> kanbanItemDto : ",kanbanItemDto);
     let kanbanItem = new KanbanItem(kanbanItemDto.title,null,kanbanItemDto.color);
     kanbanItem.userInfo = UserManagerService.getParticipantByIdToken(kanbanItemDto.userInfo, this.projectDto);
-    switch (kanbanItemDto.parentGroup) {
-      case this.TODO_GROUP_TITLE:
+    kanbanItem._id = kanbanItemDto._id;
+    let groupEnum:KanbanGroupEnum = kanbanItemDto.parentGroup;
+    switch (groupEnum) {
+      case KanbanGroupEnum.TODO:
         this.todoGroup.kanbanItemList.push(kanbanItem);
         break;
-      case this.In_Progress_GROUP_TITLE:
+      case KanbanGroupEnum.IN_PROGRESS:
         this.inProgressGroup.kanbanItemList.push(kanbanItem);
         break;
-      case this.DONE_GROUP_TITLE:
+      case KanbanGroupEnum.DONE:
         this.doneGroup.kanbanItemList.push(kanbanItem);
         break;
     }
@@ -122,7 +127,36 @@ export class KanbanComponent implements OnInit {
     index = kanbanGroup.kanbanItemList.indexOf(kanbanItem);
     if(index >= 0){
       kanbanGroup.kanbanItemList.splice(index, 1);
+      let wsKanbanController = WsKanbanController.getInstance();
+
+      wsKanbanController.requestDeleteKanban(kanbanItem, kanbanGroup);
     }
+  }
+  deleteByWs(kanbanItemDto:KanbanItemDto){
+
+    let kanbanGroup:KanbanGroup;
+    let groupEnum:KanbanGroupEnum = kanbanItemDto.parentGroup;
+    switch (groupEnum) {
+      case KanbanGroupEnum.TODO:
+        kanbanGroup = this.todoGroup;
+        break;
+      case KanbanGroupEnum.IN_PROGRESS:
+        kanbanGroup = this.inProgressGroup;
+        break;
+      case KanbanGroupEnum.DONE:
+        kanbanGroup = this.doneGroup;
+        break;
+    }
+    let index = -1;
+    /*
+    index = kanbanGroup.kanbanItemList.indexOf(kanbanItem);
+
+    if(index >= 0){
+      kanbanGroup.kanbanItemList.splice(index, 1);
+      let wsKanbanController = WsKanbanController.getInstance();
+
+      wsKanbanController.requestDeleteKanban(kanbanItem, kanbanGroup);
+    }*/
   }
 
   ngOnInit() {
@@ -162,7 +196,6 @@ export class KanbanComponent implements OnInit {
     });
 
     dialogRef.afterClosed().subscribe((result) => {
-      console.log("KanbanComponent >>  >> result : ",result);
       this.enqueueTo(result.kanbanItem, result.kanbanGroup);
     });
 
