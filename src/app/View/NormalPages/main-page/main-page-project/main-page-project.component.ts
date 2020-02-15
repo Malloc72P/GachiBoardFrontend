@@ -1,13 +1,9 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
-import {ActivatedRoute, Router} from '@angular/router';
-import {KanbanGroup} from '../../../../Model/Whiteboard/ProjectSupporter/Kanban/KanbanGroup/kanban-group';
-import {KanbanItem} from '../../../../Model/Whiteboard/ProjectSupporter/Kanban/KanbanItem/kanban-item';
-import {KanbanItemColor} from '../../../../Model/Whiteboard/ProjectSupporter/Kanban/KanbanItemColorEnumManager/kanban-item-color.service';
+import {ActivatedRoute} from '@angular/router';
 import {KanbanTagListManagerService} from '../../../../Model/Whiteboard/ProjectSupporter/Kanban/KanbanTagListManager/kanban-tag-list-manager.service';
 import {UserManagerService} from '../../../../Model/UserManager/user-manager.service';
 import {KanbanComponent} from '../../kanban/kanban.component';
 import {MatDialog} from '@angular/material';
-import {PositionCalcService} from '../../../../Model/Whiteboard/PositionCalc/position-calc.service';
 import {HtmlHelperService} from '../../../../Model/NormalPagesManager/HtmlHelperService/html-helper.service';
 import {WebsocketManagerService} from '../../../../Controller/Controller-WebSocket/websocket-manager/websocket-manager.service';
 import {AuthEvent} from '../../../../Controller/SocialLogin/auth-request/AuthEvent/AuthEvent';
@@ -15,9 +11,13 @@ import {UserDTO} from '../../../../DTO/user-dto';
 import {AuthRequestService} from '../../../../Controller/SocialLogin/auth-request/auth-request.service';
 import {WsProjectController} from '../../../../Controller/Controller-WebSocket/websocket-manager/ProjectWsController/ws-project.controller';
 import {ProjectDto} from '../../../../DTO/ProjectDto/project-dto';
-import {CreateProjectComponent} from '../main-page-root/create-project/create-project.component';
 import {CreateInviteCodeComponent, CreateInviteCodeComponentData} from './create-invite-code/create-invite-code.component';
-import {WsKanbanController} from '../../../../Controller/Controller-WebSocket/websocket-manager/KanbanWsController/ws-kanban.controller';
+import {KanbanItemDto} from '../../../../DTO/ProjectDto/KanbanDataDto/KanbanGroupDto/KanbanItemDto/kanban-item-dto';
+import {
+  WebsocketEvent,
+  WebsocketEventEnum
+} from '../../../../Controller/Controller-WebSocket/websocket-manager/WebsocketEvent/WebsocketEvent';
+import {KanbanDataDto} from '../../../../DTO/ProjectDto/KanbanDataDto/kanban-data-dto';
 
 @Component({
   selector: 'app-main-page-project',
@@ -34,11 +34,8 @@ export class MainPageProjectComponent implements OnInit, OnDestroy {
   private userDto:UserDTO = new UserDTO();
   private projectDto:ProjectDto = new ProjectDto();
 
-  todoGroup:KanbanGroup;
-  inProgressGroup:KanbanGroup;
-  doneGroup:KanbanGroup;
+  inProgressGroup:Array<KanbanItemDto>;
 
-  kanbanGroups: Array<KanbanGroup>;
   constructor(
     private route: ActivatedRoute,
     private tagListMgrService:KanbanTagListManagerService,
@@ -50,19 +47,28 @@ export class MainPageProjectComponent implements OnInit, OnDestroy {
     private userManagerService1:UserManagerService,
   ) {
     this.projectId = this.route.snapshot.paramMap.get('projectId');
-    this.kanbanGroups = new Array<KanbanGroup>();
 
-    this.inProgressGroup = new KanbanGroup("In Progress", "accent");
+    this.inProgressGroup = new Array<KanbanItemDto>();
 
     this.userDto = this.authRequestService.getUserInfo();
     this.authRequestService.authEventEmitter.subscribe((authEvent:AuthEvent)=>{
       let userDto = authEvent.userInfo;
       this.userDto = userDto;
       this.getProjectDto();
+
       this.userManagerService.initService(this.projectDto);
 
       this.joinProject(userDto);
     });
+    this.websocketManagerService.wsEventEmitter.subscribe((wsEvent:WebsocketEvent)=>{
+      if(wsEvent.action === WebsocketEventEnum.GET_PROJECT_FULL_DATA){
+        let fullProjectDto:ProjectDto = wsEvent.data as KanbanDataDto;
+        let kanbanData:KanbanDataDto = fullProjectDto.kanbanData;
+        for(let kanbanItem of kanbanData.inProgressGroup){
+          this.inProgressGroup.push(kanbanItem);
+        }
+      }
+    })
   }
 
   ngOnInit() {

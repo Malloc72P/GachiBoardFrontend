@@ -8,5 +8,6 @@ export class WebsocketEvent {
   }
 }
 export enum WebsocketEventEnum {
-  GET_KANBAN_DATA
+  GET_KANBAN_DATA,
+  GET_PROJECT_FULL_DATA
 }

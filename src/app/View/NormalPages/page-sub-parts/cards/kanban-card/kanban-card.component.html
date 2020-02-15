@@ -1,9 +1,9 @@
 <div class="kanban-item-card-wrapper">
   <mat-card class="kanban-item-card">
     <div class="kanban-item-title-left-color"
-         [ngStyle]="{ 'background-color' : kanbanItem.getColor() }"></div>
+         [ngStyle]="{ 'background-color' : kanbanItemDto.color }"></div>
     <mat-card-title class="kanban-card-title text-ellipsis">
-      <p>{{kanbanItem.title}}</p>
+      <p>{{kanbanItemDto.title}}</p>
       <span class="flex-spacer"></span>
     </mat-card-title>
 
@@ -12,14 +12,14 @@
            class="kanban-item-manager-image"
            src="/assets/images/supporter/kanban/male.jpg"/>
       <mat-card-subtitle class="kanban-item-manager-name text-ellipsis">
-        {{kanbanItem.userInfo.name}}
+        {{kanbanItemDto.userInfo.name}}
       </mat-card-subtitle>
     </mat-card>
     <!--마테리얼 칩 영역-->
     <mat-chip-list>
-      <mat-chip *ngFor="let tagItem of kanbanItem.tagList"
+      <!--<mat-chip *ngFor="let tagItem of kanbanItem.tagList"
                 title="{{tagItem.title}}">{{tagItem.title}}
-      </mat-chip>
+      </mat-chip>-->
     </mat-chip-list>
   </mat-card>
 </div>

@@ -4,6 +4,7 @@ import {WebsocketManagerService} from '../websocket-manager.service';
 import {WebsocketPacketDto} from '../../../../DTO/WebsocketPacketDto/WebsocketPacketDto';
 import {WebsocketPacketActionEnum} from '../../../../DTO/WebsocketPacketDto/WebsocketPacketActionEnum';
 import {ProjectDto} from '../../../../DTO/ProjectDto/project-dto';
+import {WebsocketEvent, WebsocketEventEnum} from '../WebsocketEvent/WebsocketEvent';
 
 export class WsProjectController {
   private socket:Socket;
@@ -36,9 +37,16 @@ export class WsProjectController {
     console.warn("WsProjectController >> onParticipantJoin >> 진입함");
     this.socket.on(HttpHelper.websocketApi.project.joinProject.event,
       (wsPacket:WebsocketPacketDto)=>{
-      console.log("WebsocketManagerService >> onParticipantJoin >> data : ",wsPacket);
-      if(wsPacket.action === WebsocketPacketActionEnum.SPECIAL){
-        this.websocketManager.currentProjectDto = wsPacket.dataDto as ProjectDto;
+      console.log("WsProjectController >>  >> wsPacket : ",wsPacket);
+      switch (wsPacket.action) {
+        case WebsocketPacketActionEnum.SPECIAL:
+          break;
+        case WebsocketPacketActionEnum.ACK:
+          this.websocketManager.currentProjectDto = wsPacket.dataDto as ProjectDto;
+          this.websocketManager.wsEventEmitter.emit(new WebsocketEvent(WebsocketEventEnum.GET_PROJECT_FULL_DATA, wsPacket.dataDto));
+          break;
+        case WebsocketPacketActionEnum.NAK:
+          break;
       }
     })
   }
