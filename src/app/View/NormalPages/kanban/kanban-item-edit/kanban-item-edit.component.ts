@@ -1,11 +1,11 @@
 import {Component, Inject, OnInit} from '@angular/core';
 import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material';
-import {UserManagerService} from '../../../../../Model/UserManager/user-manager.service';
+import {UserManagerService} from '../../../../Model/UserManager/user-manager.service';
 import {FormControl, Validators} from '@angular/forms';
 import {
   KanbanItemColorService
-} from '../../../../../Model/Whiteboard/ProjectSupporter/Kanban/KanbanItemColorEnumManager/kanban-item-color.service';
-import {KanbanItem} from '../../../../../Model/Whiteboard/ProjectSupporter/Kanban/KanbanItem/kanban-item';
+} from '../../../../Model/Whiteboard/ProjectSupporter/Kanban/KanbanItemColorEnumManager/kanban-item-color.service';
+import {KanbanItem} from '../../../../Model/Whiteboard/ProjectSupporter/Kanban/KanbanItem/kanban-item';
 
 export class EditKanbanDialogData {
   kanbanItem:KanbanItem;
@@ -34,7 +34,7 @@ export class KanbanItemEditComponent implements OnInit {
       Validators.required,
     ]);
     this.colorFormControl = new FormControl(this.kanbanItem.getColorNumber());
-    this.userFormControl = new FormControl(this.kanbanItem.userInfo.name);
+    this.userFormControl = new FormControl(this.kanbanItem.userInfo.userName);
     console.log("KanbanItemEditComponent >> constructor >> colorService : ",colorService.getEnumEntryArray());
     console.log("KanbanItemEditComponent >> constructor >> colorFormControl : ",this.colorFormControl.value);
     this.selected = this.colorFormControl.value;
@@ -56,7 +56,7 @@ export class KanbanItemEditComponent implements OnInit {
     })
   }
   onResetClick(){
-    this.userFormControl.setValue(this.kanbanItem.userInfo.name);
+    this.userFormControl.setValue(this.kanbanItem.userInfo.userName);
     this.titleFormControl.setValue(this.kanbanItem.title);
   }
 

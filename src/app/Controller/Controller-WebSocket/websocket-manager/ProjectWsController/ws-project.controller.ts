@@ -1,6 +1,9 @@
 import {Socket} from 'ngx-socket-io';
 import {HttpHelper} from '../../../../Model/Helper/http-helper/http-helper';
 import {WebsocketManagerService} from '../websocket-manager.service';
+import {WebsocketPacketDto} from '../../../../DTO/WebsocketPacketDto/WebsocketPacketDto';
+import {WebsocketPacketActionEnum} from '../../../../DTO/WebsocketPacketDto/WebsocketPacketActionEnum';
+import {ProjectDto} from '../../../../DTO/ProjectDto/project-dto';
 
 export class WsProjectController {
   private socket:Socket;
@@ -20,29 +23,22 @@ export class WsProjectController {
   /* *************************************************** */
 
   joinProject(idToken, accessToken, project_id){
-    if(this.websocketManager.isConnected){
-      return;
-    }
     console.warn("WsProjectController >> joinProject >> 진입함");
     let param = {
       idToken : idToken,
       accessToken : accessToken,
       project_id : project_id,
     };
-    this.socket.emit(HttpHelper.websocketApi.project.joinProject.event,
-      param,
-      (data)=>{
-        console.log("WebsocketManagerService >>  >> data : ",data);
-      });
+    this.socket.emit(HttpHelper.websocketApi.project.joinProject.event,param);
   }
 
   private onParticipantJoin(){
     console.warn("WsProjectController >> onParticipantJoin >> 진입함");
     this.socket.on(HttpHelper.websocketApi.project.joinProject.event,
-      (data)=>{
-      console.log("WebsocketManagerService >> joinProject >> data : ",data);
-      if(data.result && data.result === "success"){
-        this.websocketManager.isConnected = true;
+      (wsPacket:WebsocketPacketDto)=>{
+      console.log("WebsocketManagerService >> onParticipantJoin >> data : ",wsPacket);
+      if(wsPacket.action === WebsocketPacketActionEnum.SPECIAL){
+        this.websocketManager.currentProjectDto = wsPacket.dataDto as ProjectDto;
       }
     })
   }

@@ -9,7 +9,6 @@ export class ProjectDto {
   public startDate;
   public kanbanData:KanbanDataDto;
   public participantList:Array<ParticipantDto>;
-  public connectedParticipant:Array<ParticipantDto>;
   public whiteboardSessionList:Array<WhiteboardSessionDto>;
 
   constructor(){

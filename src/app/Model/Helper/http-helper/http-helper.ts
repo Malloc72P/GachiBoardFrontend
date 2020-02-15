@@ -77,6 +77,11 @@ export class HttpHelper {
       joinProject : new WebSocketRequest(
         "project_join",WebSocketTypeEnum.READ
       )
+    },
+    kanban : {
+      create : new WebSocketRequest(
+        "kanban_create", WebSocketTypeEnum.CREATE
+      )
     }
   };
 

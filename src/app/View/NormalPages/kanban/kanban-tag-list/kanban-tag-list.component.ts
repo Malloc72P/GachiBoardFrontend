@@ -7,15 +7,15 @@ import {MatAutocomplete, MatAutocompleteSelectedEvent, MatChip, MatChipInputEven
 import {
   KanbanTagListManagerService,
   TagItem
-} from '../../../../../Model/Whiteboard/ProjectSupporter/Kanban/KanbanTagListManager/kanban-tag-list-manager.service';
-import {AnimeManagerService, AnimeName} from '../../../../../Model/AnimeManager/anime-manager.service';
-import {KanbanItem} from '../../../../../Model/Whiteboard/ProjectSupporter/Kanban/KanbanItem/kanban-item';
+} from '../../../../Model/Whiteboard/ProjectSupporter/Kanban/KanbanTagListManager/kanban-tag-list-manager.service';
+import {AnimeManagerService, AnimeName} from '../../../../Model/AnimeManager/anime-manager.service';
+import {KanbanItem} from '../../../../Model/Whiteboard/ProjectSupporter/Kanban/KanbanItem/kanban-item';
 
 
 @Component({
   selector: 'app-kanban-tag-list',
   templateUrl: './kanban-tag-list.component.html',
-  styleUrls: ['./kanban-tag-list.component.css', '../../../../../../gachi-anime.scss']
+  styleUrls: ['./kanban-tag-list.component.css', '../../../../../gachi-anime.scss']
 })
 export class KanbanTagListComponent implements OnInit {
   @ViewChildren('tagViewItem') tagViewList : QueryList<ElementRef>;

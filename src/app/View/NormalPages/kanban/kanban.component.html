@@ -106,9 +106,9 @@
                 <mat-card class="kanban-item-manager-wrapper" cdkDragHandle>
                   <img mat-card-image
                        class="kanban-item-manager-image"
-                       src="/assets/images/supporter/kanban/male.jpg"/>
+                       src="{{item.userInfo.profileImg}}"/>
                   <mat-card-subtitle class="kanban-item-manager-name text-ellipsis">
-                    {{item.userInfo.name}}
+                    {{item.userInfo.userName}}
                   </mat-card-subtitle>
                 </mat-card>
                 <!--마테리얼 칩 영역-->

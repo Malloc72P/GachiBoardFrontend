@@ -8,7 +8,7 @@ import {
 import {PopoverPanel} from '../CommonClass/popover-panel/popover-panel';
 import {PositionCalcService} from '../../../Model/Whiteboard/PositionCalc/position-calc.service';
 import {PopupManagerService} from '../../../Model/PopupManager/popup-manager.service';
-import {KanbanComponent} from './kanban/kanban.component';
+import {KanbanComponent} from '../../NormalPages/kanban/kanban.component';
 import {MatDialog} from '@angular/material';
 import {ImportFileService} from "../../../Model/Whiteboard/ImportFile/import-file.service";
 import {CursorTrackerService} from "../../../Model/Whiteboard/CursorTracker/cursor-tracker-service/cursor-tracker.service";
@@ -16,7 +16,7 @@ import {CursorTrackerService} from "../../../Model/Whiteboard/CursorTracker/curs
 @Component({
   selector: 'app-project-supporter-pannel',
   templateUrl: './project-supporter-pannel.component.html',
-  styleUrls: ['./project-supporter-pannel.component.css',  './popup-pannel-commons.css']
+  styleUrls: ['./project-supporter-pannel.component.css',  '../../NormalPages/popup-pannel-commons.css']
 })
 export class ProjectSupporterPannelComponent extends PopoverPanel  implements OnInit {
   @ViewChild('fileInputMultiple', {static: false}) fileInputMultiple: ElementRef;

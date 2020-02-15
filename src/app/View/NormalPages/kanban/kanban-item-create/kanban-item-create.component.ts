@@ -1,10 +1,10 @@
 import {Component, ElementRef, Inject, OnInit, ViewChild} from '@angular/core';
 import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material';
-import {UserManagerService} from '../../../../../Model/UserManager/user-manager.service';
-import {KanbanItemColorService} from '../../../../../Model/Whiteboard/ProjectSupporter/Kanban/KanbanItemColorEnumManager/kanban-item-color.service';
+import {UserManagerService} from '../../../../Model/UserManager/user-manager.service';
+import {KanbanItemColorService} from '../../../../Model/Whiteboard/ProjectSupporter/Kanban/KanbanItemColorEnumManager/kanban-item-color.service';
 import {FormControl, FormGroup, Validators} from '@angular/forms';
-import {KanbanGroup} from '../../../../../Model/Whiteboard/ProjectSupporter/Kanban/KanbanGroup/kanban-group';
-import {KanbanItem} from '../../../../../Model/Whiteboard/ProjectSupporter/Kanban/KanbanItem/kanban-item';
+import {KanbanGroup} from '../../../../Model/Whiteboard/ProjectSupporter/Kanban/KanbanGroup/kanban-group';
+import {KanbanItem} from '../../../../Model/Whiteboard/ProjectSupporter/Kanban/KanbanItem/kanban-item';
 
 export class CreateKanbanDialogData{
   kanbanGroup:KanbanGroup;

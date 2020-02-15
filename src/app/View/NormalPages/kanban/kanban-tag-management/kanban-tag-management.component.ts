@@ -1,24 +1,24 @@
 import {Component, ElementRef, Inject, Input, OnInit, QueryList, ViewChild, ViewChildren} from '@angular/core';
 import {MAT_DIALOG_DATA, MatAutocomplete, MatAutocompleteSelectedEvent, MatChipInputEvent, MatDialogRef} from '@angular/material';
-import {UserManagerService} from '../../../../../Model/UserManager/user-manager.service';
-import {KanbanItemColorService} from '../../../../../Model/Whiteboard/ProjectSupporter/Kanban/KanbanItemColorEnumManager/kanban-item-color.service';
+import {UserManagerService} from '../../../../Model/UserManager/user-manager.service';
+import {KanbanItemColorService} from '../../../../Model/Whiteboard/ProjectSupporter/Kanban/KanbanItemColorEnumManager/kanban-item-color.service';
 import {EditKanbanDialogData} from '../kanban-item-edit/kanban-item-edit.component';
 import {
   KanbanTagListManagerService,
   TagItem
-} from '../../../../../Model/Whiteboard/ProjectSupporter/Kanban/KanbanTagListManager/kanban-tag-list-manager.service';
+} from '../../../../Model/Whiteboard/ProjectSupporter/Kanban/KanbanTagListManager/kanban-tag-list-manager.service';
 import {FormControl} from '@angular/forms';
 import {Observable} from 'rxjs';
 import {map, startWith} from 'rxjs/operators';
-import {AnimeManagerService, AnimeName} from '../../../../../Model/AnimeManager/anime-manager.service';
-import {KanbanItem} from '../../../../../Model/Whiteboard/ProjectSupporter/Kanban/KanbanItem/kanban-item';
+import {AnimeManagerService, AnimeName} from '../../../../Model/AnimeManager/anime-manager.service';
+import {KanbanItem} from '../../../../Model/Whiteboard/ProjectSupporter/Kanban/KanbanItem/kanban-item';
 import {COMMA, ENTER} from '@angular/cdk/keycodes';
-import {AreYouSurePanelService} from '../../../../../Model/PopupManager/AreYouSurePanelManager/are-you-sure-panel.service';
+import {AreYouSurePanelService} from '../../../../Model/PopupManager/AreYouSurePanelManager/are-you-sure-panel.service';
 
 @Component({
   selector: 'app-kanban-tag-management',
   templateUrl: './kanban-tag-management.component.html',
-  styleUrls: ['./kanban-tag-management.component.css', '../../../../../../gachi-anime.scss']
+  styleUrls: ['./kanban-tag-management.component.css', '../../../../../gachi-anime.scss']
 })
 export class KanbanTagManagementComponent implements OnInit {
   isErrored = false;

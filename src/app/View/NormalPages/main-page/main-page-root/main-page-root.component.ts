@@ -1,5 +1,5 @@
 import {Component, Input, OnInit} from '@angular/core';
-import {KanbanItemEditComponent} from '../../../Whiteboard/project-supporter-pannel/kanban/kanban-item-edit/kanban-item-edit.component';
+import {KanbanItemEditComponent} from '../../kanban/kanban-item-edit/kanban-item-edit.component';
 import {MatDialog} from '@angular/material';
 import {CreateProjectComponent} from './create-project/create-project.component';
 import {ProjectDto} from '../../../../DTO/ProjectDto/project-dto';

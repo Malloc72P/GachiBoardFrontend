@@ -44,17 +44,17 @@ import {MinimapSyncService} from './Model/Whiteboard/InfiniteCanvas/MinimapSync/
 import { ToolHighlighterPanelComponent } from './View/Whiteboard/whiteboard-tool-panel/tool-highlighter-panel/tool-highlighter-panel.component';
 import {HighlighterService} from './Model/Whiteboard/Pointer/highlighter-service/highlighter.service';
 import { ProjectSupporterPannelComponent } from './View/Whiteboard/project-supporter-pannel/project-supporter-pannel.component';
-import { KanbanComponent } from './View/Whiteboard/project-supporter-pannel/kanban/kanban.component';
+import { KanbanComponent } from './View/NormalPages/kanban/kanban.component';
 import {PopupManagerService} from './Model/PopupManager/popup-manager.service';
-import { KanbanTagListComponent } from './View/Whiteboard/project-supporter-pannel/kanban/kanban-tag-list/kanban-tag-list.component';
+import { KanbanTagListComponent } from './View/NormalPages/kanban/kanban-tag-list/kanban-tag-list.component';
 import {KanbanTagListManagerService} from './Model/Whiteboard/ProjectSupporter/Kanban/KanbanTagListManager/kanban-tag-list-manager.service';
 import {AnimeManagerService} from './Model/AnimeManager/anime-manager.service';
-import { KanbanItemEditComponent } from './View/Whiteboard/project-supporter-pannel/kanban/kanban-item-edit/kanban-item-edit.component';
+import { KanbanItemEditComponent } from './View/NormalPages/kanban/kanban-item-edit/kanban-item-edit.component';
 import {UserManagerService} from './Model/UserManager/user-manager.service';
 import {KanbanItemColorService} from './Model/Whiteboard/ProjectSupporter/Kanban/KanbanItemColorEnumManager/kanban-item-color.service';
-import { KanbanItemCreateComponent } from './View/Whiteboard/project-supporter-pannel/kanban/kanban-item-create/kanban-item-create.component';
-import { KanbanGroupSettingComponent } from './View/Whiteboard/project-supporter-pannel/kanban/kanban-group-setting/kanban-group-setting.component';
-import { KanbanTagManagementComponent } from './View/Whiteboard/project-supporter-pannel/kanban/kanban-tag-management/kanban-tag-management.component';
+import { KanbanItemCreateComponent } from './View/NormalPages/kanban/kanban-item-create/kanban-item-create.component';
+import { KanbanGroupSettingComponent } from './View/NormalPages/kanban/kanban-group-setting/kanban-group-setting.component';
+import { KanbanTagManagementComponent } from './View/NormalPages/kanban/kanban-tag-management/kanban-tag-management.component';
 import { AreYouSurePanelComponent } from './View/Commons/are-you-sure-panel/are-you-sure-panel.component';
 import {AreYouSurePanelService} from './Model/PopupManager/AreYouSurePanelManager/are-you-sure-panel.service';
 import { ToolShapePanelComponent } from './View/Whiteboard/whiteboard-tool-panel/tool-shape-panel/tool-shape-panel.component';
@@ -95,6 +95,7 @@ import { SocketIoModule, SocketIoConfig } from 'ngx-socket-io';
 import {HttpHelper} from './Model/Helper/http-helper/http-helper';
 import { CreateInviteCodeComponent } from './View/NormalPages/main-page/main-page-project/create-invite-code/create-invite-code.component';
 import { InvitationComponent } from './View/NormalPages/invitation/invitation.component';
+import {KanbanEventManagerService} from './Model/Whiteboard/ProjectSupporter/Kanban/kanban-event-manager.service';
 const config: SocketIoConfig = { url: HttpHelper.apiUrl, options: {} };
 
 const appRoutes: Routes = [
@@ -292,7 +293,8 @@ const appRoutes: Routes = [
     AuthRequestService,
     GachiSidebarManagerService,
     HtmlHelperService,
-    ProjectRequesterService
+    ProjectRequesterService,
+    KanbanEventManagerService
   ],
   bootstrap: [AppComponent]
 })

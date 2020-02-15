@@ -5,7 +5,7 @@ import {KanbanItem} from '../../../../Model/Whiteboard/ProjectSupporter/Kanban/K
 import {KanbanItemColor} from '../../../../Model/Whiteboard/ProjectSupporter/Kanban/KanbanItemColorEnumManager/kanban-item-color.service';
 import {KanbanTagListManagerService} from '../../../../Model/Whiteboard/ProjectSupporter/Kanban/KanbanTagListManager/kanban-tag-list-manager.service';
 import {UserManagerService} from '../../../../Model/UserManager/user-manager.service';
-import {KanbanComponent} from '../../../Whiteboard/project-supporter-pannel/kanban/kanban.component';
+import {KanbanComponent} from '../../kanban/kanban.component';
 import {MatDialog} from '@angular/material';
 import {PositionCalcService} from '../../../../Model/Whiteboard/PositionCalc/position-calc.service';
 import {HtmlHelperService} from '../../../../Model/NormalPagesManager/HtmlHelperService/html-helper.service';
@@ -25,7 +25,7 @@ import {CreateInviteCodeComponent, CreateInviteCodeComponentData} from './create
     './../main-article-style.css',
     './../../gachi-font.css',
     './../../../Whiteboard/project-supporter-pannel/project-supporter-pannel.component.css',
-    './../../../Whiteboard/project-supporter-pannel/popup-pannel-commons.css']
+    '../../popup-pannel-commons.css']
 })
 export class MainPageProjectComponent implements OnInit, OnDestroy {
   private projectId = "";
@@ -45,40 +45,20 @@ export class MainPageProjectComponent implements OnInit, OnDestroy {
     private htmlHelperService:HtmlHelperService,
     private authRequestService:AuthRequestService,
     public dialog: MatDialog,
-    private websocketManagerService:WebsocketManagerService
+    private websocketManagerService:WebsocketManagerService,
+    private userManagerService1:UserManagerService,
   ) {
     this.projectId = this.route.snapshot.paramMap.get('projectId');
     this.kanbanGroups = new Array<KanbanGroup>();
 
     this.inProgressGroup = new KanbanGroup("In Progress", "accent");
-    let userInfo = this.userManagerService.getUserList()[0];
-
-    let kanbanItem = new KanbanItem("네오스틸 판금장갑 경량화", userInfo, KanbanItemColor.RED);
-    tagListMgrService.insertTagInTaglist(kanbanItem, "Start=01.05", "red");
-    tagListMgrService.insertTagInTaglist(kanbanItem, "예산부족", "red");
-    tagListMgrService.insertTagInTaglist(kanbanItem, "예산 추가신청중", "red");
-    this.inProgressGroup.kanbanItemList.push(kanbanItem);
-
-    kanbanItem = new KanbanItem("숄더 로켓셀보 플랫폼 소형화", userInfo, KanbanItemColor.BLACK);
-    tagListMgrService.insertTagInTaglist(kanbanItem, "Start=01.15", "red");
-    tagListMgrService.insertTagInTaglist(kanbanItem, "로켓 안전장치 완료", "red");
-    tagListMgrService.insertTagInTaglist(kanbanItem, "신형 추진체 개발중", "red");
-    this.inProgressGroup.kanbanItemList.push(kanbanItem);
-
-    kanbanItem = new KanbanItem("테르밋 블레이드용 축전지 개량", userInfo, KanbanItemColor.BLUE);
-    tagListMgrService.insertTagInTaglist(kanbanItem, "Start=02.13", "red");
-    tagListMgrService.insertTagInTaglist(kanbanItem, "축전지 지속시간 개량성공", "red");
-    tagListMgrService.insertTagInTaglist(kanbanItem, "축전지 충격 수용성 개량중", "red");
-    this.inProgressGroup.kanbanItemList.push(kanbanItem);
-    this.kanbanGroups.push(this.inProgressGroup);
-
 
     this.userDto = this.authRequestService.getUserInfo();
     this.authRequestService.authEventEmitter.subscribe((authEvent:AuthEvent)=>{
       let userDto = authEvent.userInfo;
       this.userDto = userDto;
-
       this.getProjectDto();
+      this.userManagerService.initService(this.projectDto);
 
       this.joinProject(userDto);
     });
@@ -121,7 +101,9 @@ export class MainPageProjectComponent implements OnInit, OnDestroy {
       width: this.htmlHelperService.getWidthOfBrowser()+"px",
       height: this.htmlHelperService.getHeightOfBrowser()+"px",
       maxWidth: this.htmlHelperService.getWidthOfBrowser()+"px",
-      data: {}
+      data: {
+        projectDto:this.projectDto
+      }
     });
 
     dialogRef.afterClosed().subscribe(result => {

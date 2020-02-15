@@ -1,11 +1,11 @@
 import {Component, Inject, OnInit} from '@angular/core';
 import {MAT_DIALOG_DATA, MatDialog, MatDialogRef} from '@angular/material';
-import {UserManagerService} from '../../../../../Model/UserManager/user-manager.service';
-import {KanbanItemColorService} from '../../../../../Model/Whiteboard/ProjectSupporter/Kanban/KanbanItemColorEnumManager/kanban-item-color.service';
-import {KanbanGroup} from '../../../../../Model/Whiteboard/ProjectSupporter/Kanban/KanbanGroup/kanban-group';
+import {UserManagerService} from '../../../../Model/UserManager/user-manager.service';
+import {KanbanItemColorService} from '../../../../Model/Whiteboard/ProjectSupporter/Kanban/KanbanItemColorEnumManager/kanban-item-color.service';
+import {KanbanGroup} from '../../../../Model/Whiteboard/ProjectSupporter/Kanban/KanbanGroup/kanban-group';
 import {FormControl, FormGroup, Validators} from '@angular/forms';
-import {AreYouSurePanelService} from '../../../../../Model/PopupManager/AreYouSurePanelManager/are-you-sure-panel.service';
-import {HtmlHelperService} from '../../../../../Model/NormalPagesManager/HtmlHelperService/html-helper.service';
+import {AreYouSurePanelService} from '../../../../Model/PopupManager/AreYouSurePanelManager/are-you-sure-panel.service';
+import {HtmlHelperService} from '../../../../Model/NormalPagesManager/HtmlHelperService/html-helper.service';
 
 class KanbanGroupSettingDialogData {
   groups: Array<KanbanGroup>;
@@ -14,7 +14,7 @@ class KanbanGroupSettingDialogData {
 @Component({
   selector: 'app-kanban-group-setting',
   templateUrl: './kanban-group-setting.component.html',
-  styleUrls: ['./kanban-group-setting.component.css', './../../../../../../scrolling.scss']
+  styleUrls: ['./kanban-group-setting.component.css', '../../../../../scrolling.scss']
 })
 export class KanbanGroupSettingComponent implements OnInit {
   kanbanGroups: Array<KanbanGroup>;
