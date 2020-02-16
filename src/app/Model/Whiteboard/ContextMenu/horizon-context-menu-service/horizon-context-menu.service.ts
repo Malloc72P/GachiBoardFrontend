@@ -14,6 +14,10 @@ import {subPanelStatus} from "./sub-panel-status";
 import {EditableRaster} from "../../Whiteboard-Item/Whiteboard-Shape/editable-raster/editable-raster";
 import {SimpleArrowLink} from "../../Whiteboard-Item/Whiteboard-Shape/LinkPort/EditableLink/SimpleArrowLink/simple-arrow-link";
 import {EditableLink} from "../../Whiteboard-Item/Whiteboard-Shape/LinkPort/EditableLink/editable-link";
+import {
+  ItemLifeCycleEnum,
+  ItemLifeCycleEvent
+} from "../../Whiteboard-Item/WhiteboardItemLifeCycle/WhiteboardItemLifeCycle";
 // @ts-ignore
 import Rectangle = paper.Rectangle;
 
@@ -38,6 +42,49 @@ export class HorizonContextMenuService {
 
   public initializeHorizonContextMenuService(globalSelectedGroup: GlobalSelectedGroup){
     this._globalSelectedGroup = globalSelectedGroup;
+    this.subscribeLifeCycleEvent();
+    this.subscribeZoomEvent();
+  }
+
+  public open() {
+    this.setMenuItem(this.instanceCheckItem(this._globalSelectedGroup.wbItemGroup));
+    this.setMenuPosition(this.coreItem.bounds);
+    this._isHidden = false;
+    this.subPanelHidden.hideAll();
+    setTimeout(() => {
+      this.initMenuSizeValue();
+    }, 0);
+  }
+
+  public close() {
+    this._isHidden = true;
+    this.subPanelHidden.hideAll();
+  }
+
+  public refreshPosition() {
+    if(!!this.coreItem) {
+      this.setMenuPosition(this.coreItem.bounds);
+    }
+  }
+
+  public refreshMenuItem() {
+    this.setMenuItem(this.instanceCheckItem(this._globalSelectedGroup.wbItemGroup));
+  }
+
+  // ################### Private Method #####################
+  private subscribeLifeCycleEvent() {
+    this.globalSelectedGroup.lifeCycleEmitter.subscribe((event: ItemLifeCycleEvent) => {
+      switch (event.action) {
+        case ItemLifeCycleEnum.MOVED:
+        case ItemLifeCycleEnum.RESIZED:
+        case ItemLifeCycleEnum.SELECTED:
+        case ItemLifeCycleEnum.DESELECTED:
+          this.refreshPosition();
+          break;
+      }
+    });
+  }
+  private subscribeZoomEvent() {
     this.infiniteCanvasService.zoomEventEmitter.subscribe((zoomEvent: ZoomEvent) => {
       if(this.isHidden) {
         return;
@@ -49,30 +96,6 @@ export class HorizonContextMenuService {
       }
     });
   }
-
-  public open() {
-    this.setMenuItem(this.instanceCheckItem(this._globalSelectedGroup.wbItemGroup));
-    console.log("HorizonContextMenuService >> open >> this.item : ", this.item);
-    this.setMenuPosition(this.coreItem.bounds);
-    this._isHidden = false;
-    this.subPanelHidden.hideAll();
-    this.initMenuSizeValue();
-  }
-
-  public close() {
-    this._isHidden = true;
-    this.subPanelHidden.hideAll();
-  }
-
-  public refreshPosition() {
-    this.setMenuPosition(this.coreItem.bounds);
-  }
-
-  public refreshMenuItem() {
-    this.setMenuItem(this.instanceCheckItem(this._globalSelectedGroup.wbItemGroup));
-  }
-
-  // ################### Private Method #####################
 
   private setMenuItem(type: HorizonContextMenuTypes) {
     switch (type) {
@@ -235,6 +258,7 @@ export class HorizonContextMenuService {
     if(htmlMenuElement.offsetHeight > 0) {
       this.menuHeight = htmlMenuElement.offsetHeight;
     }
+    console.log("HorizonContextMenuService >> initMenuSizeValue >>  : ", htmlMenuElement.offsetHeight);
   }
 
   private setMenuVerticalPosition(point: {x: number, y: number}, bound: Rectangle) {

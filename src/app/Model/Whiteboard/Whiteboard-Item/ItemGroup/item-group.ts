@@ -1,7 +1,3 @@
-import {WhiteboardItem} from '../whiteboard-item';
-import {PositionCalcService} from '../../PositionCalc/position-calc.service';
-import {EventEmitter} from '@angular/core';
-
 import * as paper from 'paper';
 // @ts-ignore
 import Path = paper.Path;
@@ -17,20 +13,15 @@ import Color = paper.Color;
 import PointText = paper.PointText;
 // @ts-ignore
 import Group = paper.Group;
-// @ts-ignore
-import Rectangle = paper.Path.Rectangle;
 
+import {WhiteboardItem} from '../whiteboard-item';
 import {ItemLifeCycleEnum, ItemLifeCycleEvent} from '../WhiteboardItemLifeCycle/WhiteboardItemLifeCycle';
-import {EditableStroke} from '../editable-stroke/editable-stroke';
-import {TextStyle} from '../../Pointer/shape-service/text-style';
-import {EditableShape} from '../Whiteboard-Shape/EditableShape/editable-shape';
 import {WhiteboardShape} from '../Whiteboard-Shape/whiteboard-shape';
 import {ItemGroupDto} from '../../WhiteboardItemDto/ItemGroupDto/item-group-dto';
 import {EditableLink} from "../Whiteboard-Shape/LinkPort/EditableLink/editable-link";
 
 export class ItemGroup extends WhiteboardItem {
   private _wbItemGroup: Array<WhiteboardItem>;
-  private _backgroundRect: Rectangle;
 
   constructor(id, type, item: Item, layerService) {
     super(id, type, item, layerService);
@@ -38,7 +29,6 @@ export class ItemGroup extends WhiteboardItem {
     this.wbItemGroup = new Array<WhiteboardItem>();
     console.log('ItemGroup >> constructor >> 진입함');
 
-    this.createBackgroundRect();
   }
 
   public amIAlreadyHaveThis(wbItem:WhiteboardItem | EditableLink){
@@ -53,35 +43,6 @@ export class ItemGroup extends WhiteboardItem {
     }
     return false;
   }
-  private removeBackgroundRect() {
-    if (this.backgroundRect) {
-      this.backgroundRect.remove();
-    }
-  }
-
-  private createBackgroundRect() {
-    this.removeBackgroundRect();
-    this.backgroundRect = new Rectangle(
-      new Point(this.group.bounds.topLeft.x, this.group.bounds.topLeft.y),
-      new Point(this.group.bounds.bottomRight.x, this.group.bounds.bottomRight.y),
-    );
-    this.wbItemGroup.forEach((value, index, array)=>{
-      if(value.group){
-        value.group.bringToFront();
-      }
-    });
-    this.group.bringToFront();
-    this.backgroundRect.bringToFront();
-    if(this.myItemAdjustor){
-      this.myItemAdjustor.bringToFront();
-    }
-    this.group.addChild(this.backgroundRect);
-
-    this.backgroundRect.fillColor = new Color("skyblue");
-    this.backgroundRect.opacity = 0.2;
-    this.backgroundRect.name = 'BackgroundRect';
-
-  }
 
   //### Mouse Event 콜백
   protected setCallback() {}
@@ -91,11 +52,9 @@ export class ItemGroup extends WhiteboardItem {
     }
     this.prevPoint = event.point;
     if(event.modifiers.control === true){
-      //this.layerService.globalSelectedGroup.setMultipleSelectMode(this);
       this.setMultipleSelectMode();
     }
     if(event.modifiers.shift === true){
-      //this.layerService.globalSelectedGroup.setMultipleSelectMode(this);
       this.setMultipleSelectMode();
     }
     if(event.modifiers.alt === true){
@@ -121,26 +80,22 @@ export class ItemGroup extends WhiteboardItem {
     if(!this.isMovable) {
       return;
     }
-    if(this.myItemAdjustor) {
-      this.myItemAdjustor.disable();
-    }
     this.calcCurrentDistance(event);
     if(this.checkEditable()) {
       this.group.position.x += event.delta.x;
       this.group.position.y += event.delta.y;
 
+      this.emitMoved();
       this.wbItemGroup.forEach(value => {
         value.emitMoved();
       });
-
-      this.layerService.horizonContextMenuService.close();
     }
   }
 
   private moveTo(position: Point) {
     if(this.isMovable) {
       this.group.position = position;
-
+      this.emitMoved();
       this.wbItemGroup.forEach(value => {
         value.emitMoved();
       });
@@ -149,6 +104,7 @@ export class ItemGroup extends WhiteboardItem {
 
   public resizeTo(bound: paper.Rectangle) {
     this.group.bounds = bound;
+    this.emitResized();
     this.wbItemGroup.forEach(value => {
       value.emitResized();
     });
@@ -158,25 +114,17 @@ export class ItemGroup extends WhiteboardItem {
     if(!this.isMovable){
       return;
     }
-    //this.deactivateSelectedMode();
-    if(this.myItemAdjustor){
-      this.myItemAdjustor.disable();
-    }
+
     this.calcCurrentDistance(event);
     let currentPointerMode = this.layerService.currentPointerMode;
     this.calcCurrentDistance(event);
     if( this.checkEditable()  ) {
-      //this.group.position = event.point;
       this.group.position.x += event.delta.x;
       this.group.position.y += event.delta.y;
     }
   }
 
   public moveEnd() {
-    if(this.myItemAdjustor){
-      this.myItemAdjustor.enable();
-      this.resetMyItemAdjustor();
-    }
     this.layerService.horizonContextMenuService.open();
     this.wbItemsLifeCycleEventEmitter.emit(new ItemLifeCycleEvent(this.id,this,ItemLifeCycleEnum.MODIFY));
   }
@@ -186,10 +134,6 @@ export class ItemGroup extends WhiteboardItem {
     this.calcCurrentDistance(event);
     if(!this.isMovable){
       return;
-    }
-    if(this.myItemAdjustor){
-      this.myItemAdjustor.enable();
-      this.resetMyItemAdjustor();
     }
 
     this.resetDistance();
@@ -204,44 +148,21 @@ export class ItemGroup extends WhiteboardItem {
   public resetMyItemAdjustor(){
     if(this.getNumberOfChild() > 0){
       this.activateSelectedMode();
-      this.createBackgroundRect();
     } else {
       this.deactivateSelectedMode();
-      this.removeBackgroundRect();
     }
 
     if(this.isLocked) {
-      this.removeBackgroundRect();
     }
+  }
 
-    if(this.myItemAdjustor){
-      this.myItemAdjustor.refreshItemAdjustorSize();
-      this.refreshLinkHandler();
-    }
-  }
-  private refreshLinkHandler(){
-    if(this.getNumberOfChild() === 1){
-      if( this.wbItemGroup[0] instanceof EditableStroke ){
-        //this.myItemAdjustor.disableLinkHandlers();
-      }
-      else{
-        //this.myItemAdjustor.enableLinkHandlers();
-      }
-    }
-    else{
-      //this.myItemAdjustor.disableLinkHandlers();
-    }
-  }
   private retractGroup(){
-    this.backgroundRect.remove();
-    // @ts-ignore
-    this.group.bounds = new Rectangle(new Point(0,0), new Point(0,0));
+    this.group.bounds = new paper.Rectangle(new Point(0,0), new Point(0,0));
   }
 
   public relocateItemGroup(newPosition){
     if(this.myItemAdjustor){
       this.moveTo(newPosition);
-      this.myItemAdjustor.refreshItemAdjustorSize();
       this.layerService.horizonContextMenuService.refreshPosition();
     }
   }
@@ -277,7 +198,6 @@ export class ItemGroup extends WhiteboardItem {
         this.wbItemGroup.splice(i, 1);
         this.resetMyItemAdjustor();
         willBeExtract.emitDeselected();
-        // willBeExtract.refreshItem();
 
         if(this.getNumberOfChild() === 1) {
           this.wbItemGroup[0].emitSelected();
@@ -315,7 +235,6 @@ export class ItemGroup extends WhiteboardItem {
       }
       drawingLayer.addChild(willBeExtract.group);
       willBeExtract.emitDeselected();
-      // willBeExtract.refreshItem();
     }
     this.wbItemGroup.splice(0, this.wbItemGroup.length);
     this.resetMyItemAdjustor();
@@ -346,8 +265,7 @@ export class ItemGroup extends WhiteboardItem {
       this.wbItemGroup[i].destroyItem();
     }
     this.deactivateSelectedMode();
-    this.removeBackgroundRect();
-    // this.destroyItem();
+    // this.removeBackgroundRect();
   }
 
   public getNumberOfChild() {
@@ -389,12 +307,12 @@ export class ItemGroup extends WhiteboardItem {
     this._wbItemGroup = value;
   }
 
-
-  get backgroundRect(): paper.Path.Rectangle {
-    return this._backgroundRect;
-  }
-
-  set backgroundRect(value: paper.Path.Rectangle) {
-    this._backgroundRect = value;
-  }
+  //
+  // get backgroundRect(): paper.Path.Rectangle {
+  //   return this._backgroundRect;
+  // }
+  //
+  // set backgroundRect(value: paper.Path.Rectangle) {
+  //   this._backgroundRect = value;
+  // }
 }

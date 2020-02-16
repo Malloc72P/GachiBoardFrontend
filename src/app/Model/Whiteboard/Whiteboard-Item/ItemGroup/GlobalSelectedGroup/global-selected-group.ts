@@ -30,8 +30,6 @@ export class GlobalSelectedGroup extends ItemGroup {
     this.prevNumberOfChild = this.getNumberOfChild();
     this.copiedDtoArray = new Array<WhiteboardItemDto>();
     this.notifyItemCreation();
-    //this.myItemAdjustor.disable();
-    //this.activateSelectedMode();
   }
 
   public static getInstance(id, layerService) {
@@ -156,9 +154,9 @@ export class GlobalSelectedGroup extends ItemGroup {
       }
       this.insertOneIntoGroup(wbItem);
     }
-
     this.resetMyItemAdjustor();
     this.layerService.horizonContextMenuService.open();
+    this.emitSelected();
   }
 
   private checkLocking(wbItem: WhiteboardItem) {
@@ -185,6 +183,7 @@ export class GlobalSelectedGroup extends ItemGroup {
     this.isLinkSelected = false;
     this.extractAllFromGroup();
     this.isLocked = false;
+    this.emitDeselected();
   }
 
   public removeOneFromGroup(wbItem) {
@@ -195,6 +194,7 @@ export class GlobalSelectedGroup extends ItemGroup {
       this.layerService.horizonContextMenuService.close();
     }
     this.notifyItemDeselected(wbItem);
+    this.emitDeselected();
   }
 
   destroyItem() {

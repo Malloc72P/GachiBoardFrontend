@@ -204,9 +204,9 @@ export abstract class WhiteboardItem {
       this.myItemAdjustor = new ItemAdjustor(this);
     }
     if(this.isLocked) {
-      this.myItemAdjustor.disableSizeHandler();
+      this.myItemAdjustor.disable();
     } else {
-      this.myItemAdjustor.enableSizeHandler();
+      this.myItemAdjustor.enable();
     }
   }
 
