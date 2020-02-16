@@ -21,9 +21,11 @@
   /*background: rgba(8, 0, 248, 0.33);*/
   padding: 0 0 0 12px;
   height: 100%;
+  background: white;
 }
 .main-article-card{
   margin-bottom: 50px;
+  background-color: rgb(245, 245, 245);
 }
 .project-item-wrapper{
   display: flex;

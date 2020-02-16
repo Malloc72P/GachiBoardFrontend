@@ -15,5 +15,6 @@ export enum KanbanEventEnum {
   CREATE,
   UPDATE,
   DELETE,
+  RELOCATE,
   LOCK
 }

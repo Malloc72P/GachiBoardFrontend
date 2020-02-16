@@ -22,6 +22,7 @@ export class WsKanbanController {
     this.onKanbanDeleted();
     this.onKanbanGet();
     this.onKanbanLock();
+    this.onKanbanRelocation();
   }
 
 
@@ -182,6 +183,84 @@ export class WsKanbanController {
   /* **************************************************** */
 
   /* *************************************************** */
+  /* Request Relocation START */
+  /* *************************************************** */
+  requestRelocationKanban(fromKanbanItem:KanbanItem, fromKanbanGroupTitle, destGroupTitle, destIdx){
+    let kanbanItemDto = fromKanbanItem.exportDto(fromKanbanGroupTitle);
+    let packetDto = this.websocketManager.createProjectScopePacket(kanbanItemDto, WebsocketPacketActionEnum.RELOCATE);
+    packetDto.wsPacketSeq = this.websocketManager.wsPacketSeq;
+
+    packetDto.additionalData = {
+      destGroupTitle  : destGroupTitle,
+      destIdx         : destIdx
+    };
+
+    this.socket.emit(HttpHelper.websocketApi.kanban.relocate.event, packetDto);
+    this.websocketManager.saveNotVerifiedKanbanItem(packetDto, fromKanbanItem);
+  }
+
+  private onKanbanRelocation(){
+    this.socket.on(HttpHelper.websocketApi.kanban.relocate.event,
+      (wsPacketDto:WebsocketPacketDto)=>{
+        console.log("WsKanbanController >> onKanbanRelocation >> wsPacketDto : ",wsPacketDto);
+        switch (wsPacketDto.action) {
+          case WebsocketPacketActionEnum.RELOCATE:
+            this.websocketManager.kanbanEventManagerService.kanbanEventEmitter.emit(
+              new KanbanEvent(KanbanEventEnum.RELOCATE, wsPacketDto.dataDto as KanbanItemDto, wsPacketDto.additionalData));
+            this.relocateFromWsManager(wsPacketDto);
+            break;
+          case WebsocketPacketActionEnum.ACK:
+            this.websocketManager.verifyKanbanItem(wsPacketDto);
+            break;
+          case WebsocketPacketActionEnum.NAK:
+            break;
+
+        }
+      })
+  }
+
+  relocateFromWsManager(wsPacketDto:WebsocketPacketDto){
+    console.log("WsKanbanController >> relocateFromWsManager >> 진입함");
+    let kanbanItemDto:KanbanItemDto = wsPacketDto.dataDto as KanbanItemDto;
+
+    let destGroupTitle = wsPacketDto.additionalData.destGroupTitle;
+    let destIdx = wsPacketDto.additionalData.destIdx;
+
+    let kanbanDataDto = this.websocketManager.currentProjectDto.kanbanData;
+
+    let fromGroup, toGroup;
+    fromGroup = this.getGroupObject(kanbanDataDto, kanbanItemDto.parentGroup);
+    toGroup = this.getGroupObject(kanbanDataDto, destGroupTitle);
+    let adjustedIdx = -1;
+    if(toGroup.length <= destIdx){//재배치될 위치가 그룹 배열크기를 초과하는 경우 enqueue함
+      adjustedIdx = toGroup.length;
+    }else{
+      adjustedIdx = destIdx;
+    }
+    //1. 재배치할 위치로 칸반아이템을 삽입.
+    kanbanItemDto.parentGroup = destGroupTitle;
+    toGroup.splice(adjustedIdx, 0, kanbanItemDto);
+
+    //2. 이전 위치에 있던 칸반 아이템을 제거
+    let delIdx = -1;
+    for(let i = 0 ; i < fromGroup.length; i++){
+      let currItem = fromGroup[i];
+      if(currItem._id === kanbanItemDto._id){
+        delIdx = i;
+        break;
+      }
+    }
+    if(delIdx > -1){
+      fromGroup.splice(delIdx, 1);
+    }
+    let testResult = this.websocketManager.currentProjectDto.kanbanData;
+    console.log("WsKanbanController >> relocateFromWsManager >> testResult : ",testResult);
+  }
+  /* **************************************************** */
+  /* Request Relocation END */
+  /* **************************************************** */
+
+  /* *************************************************** */
   /* Request LOCK START */
   /* *************************************************** */
   requestLockKanban(kanbanItem:KanbanItem, kanbanGroup){
@@ -265,5 +344,18 @@ export class WsKanbanController {
       return null;
     }
   }
+
+  getGroupObject(kanbanDataDto:KanbanDataDto, groupTitle){
+    let switchEnum:KanbanGroupEnum = groupTitle as KanbanGroupEnum;
+    switch (switchEnum) {
+      case KanbanGroupEnum.TODO:
+        return kanbanDataDto.todoGroup;
+      case KanbanGroupEnum.IN_PROGRESS:
+        return kanbanDataDto.inProgressGroup;
+      case KanbanGroupEnum.DONE:
+        return kanbanDataDto.doneGroup;
+    }
+  }
+
 
 }

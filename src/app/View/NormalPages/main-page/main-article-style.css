@@ -1,6 +1,7 @@
 .main-article-card{
   margin-bottom: 50px;
   padding: 0;
+  background-color: rgb(245, 245, 245);
 }
 .card-content-wrapper{
   border-top: 2px solid rgba(147, 147, 147, 0.41);

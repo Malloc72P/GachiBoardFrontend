@@ -3,6 +3,7 @@ export enum WebsocketPacketActionEnum {
   READ,
   UPDATE,
   DELETE,
+  RELOCATE,
   LOCK,
   ACK,
   NAK,

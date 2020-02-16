@@ -24,4 +24,8 @@ export class WebsocketPacketDto {
     this.action = action;
     this.specialAction = specialAction;
   }
+
+  clone() :WebsocketPacketDto{
+    return Object.assign({}, this);
+  }
 }

@@ -73,7 +73,8 @@ export class WebsocketManagerService {
         case WebsocketPacketActionEnum.DELETE:
           wsKanbanController.delFromWsManager(foundNotVerified.wsPacketDto);
           break;
-          case WebsocketPacketActionEnum.LOCK:
+        case WebsocketPacketActionEnum.RELOCATE:
+        case WebsocketPacketActionEnum.LOCK:
             let kanbanItemDto = wsPacketDto.dataDto as KanbanItemDto;
             foundNotVerified.kanbanItem.lockedBy = kanbanItemDto.lockedBy;
             break;

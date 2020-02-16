@@ -98,6 +98,9 @@ export class KanbanComponent implements OnInit {
           case KanbanEventEnum.LOCK:
             this.lockedByWs(kanbanEvent.kanbanItemDto);
           break;
+          case KanbanEventEnum.RELOCATE:
+            this.relocateByWs(kanbanEvent.kanbanItemDto, kanbanEvent.data);
+          break;
       }
     });
   }
@@ -171,7 +174,14 @@ export class KanbanComponent implements OnInit {
   }
 
   drop(event: CdkDragDrop<string[]>) {
-    console.log("KanbanComponent >> drop >> 진입함");
+
+    let prevContainerName = this.getGroupNameById(event.previousContainer.id);
+    let currContainerName = this.getGroupNameById(event.container.id);
+
+
+    let prevKanbanItem:KanbanItem = event.previousContainer.data[event.previousIndex] as unknown as KanbanItem;
+    let currKanbanItem:KanbanItem = event.container.data[event.currentIndex] as unknown as KanbanItem;
+
     if (event.previousContainer === event.container) {
       console.log("KanbanComponent >> drop >> 이전 컨테이너와 현재 컨네이너가 동일");
       moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
@@ -182,6 +192,11 @@ export class KanbanComponent implements OnInit {
         event.previousIndex,
         event.currentIndex);
     }
+
+    let wsKanbanController = WsKanbanController.getInstance();
+    wsKanbanController.requestRelocationKanban(prevKanbanItem,prevContainerName,currContainerName,event.currentIndex);
+    //prevKanbanItem이 currKanbanItem의 위치를 대신하도록 요청한다.
+    //만약 currKanbanItem이 null이라면, 그건 재배치하는 위치에 칸반아이템이 없는 경우라서 그런 것임.
   }
 
   onNoClick(): void {
@@ -232,12 +247,12 @@ export class KanbanComponent implements OnInit {
   }
 
   requestLock(kanbanItem, kanbanGroup){
-    /*console.log("KanbanComponent >> requestLock >> kanbanItem : ",kanbanItem);
+    console.log("KanbanComponent >> requestLock >> kanbanItem : ",kanbanItem);
     if(kanbanItem.lockedBy){
       return;
     }
     let wsKanbanController = WsKanbanController.getInstance();
-    wsKanbanController.requestLockKanban(kanbanItem, kanbanGroup);*/
+    wsKanbanController.requestLockKanban(kanbanItem, kanbanGroup);
   }
   lockedByWs(kanbanItemDto){
     let groupEnum:KanbanGroupEnum = kanbanItemDto.parentGroup as KanbanGroupEnum;
@@ -264,6 +279,68 @@ export class KanbanComponent implements OnInit {
         currItem.lockedBy = kanbanItemDto.lockedBy;
         break;
       }
+    }
+
+  }
+
+  getGroupNameById(id){
+    switch (id) {
+      case "cdk-drop-list-0":
+        return this.todoGroup.title;
+      case "cdk-drop-list-1":
+        return this.inProgressGroup.title;
+      case "cdk-drop-list-2":
+        return this.doneGroup.title;
+    }
+  }
+  getGroupObjectByTitle(title:KanbanGroupEnum) : KanbanGroup{
+    switch (title) {
+      case KanbanGroupEnum.TODO:
+        return this.todoGroup;
+      case KanbanGroupEnum.IN_PROGRESS:
+        return this.inProgressGroup;
+      case KanbanGroupEnum.DONE:
+        return this.doneGroup;
+    }
+  }
+
+  relocateByWs(kanbanItemDto:KanbanItemDto, additionalData){
+    console.log("KanbanComponent >> relocateByWs >> 진입함");
+    let destGroupTitle = additionalData.destGroupTitle;
+    let destIdx = additionalData.destIdx;
+
+    let fromGroup:KanbanGroup, toGroup:KanbanGroup;
+    fromGroup = this.getGroupObjectByTitle(kanbanItemDto.parentGroup);
+    toGroup = this.getGroupObjectByTitle(destGroupTitle);
+
+    let kanbanItem:KanbanItem;
+    let previousIndex = -1;
+    for (let i = 0; i < fromGroup.kanbanItemList.length; i++) {
+      let currItem = fromGroup.kanbanItemList[i];
+      if(currItem._id === kanbanItemDto._id){
+        kanbanItem = currItem;
+        kanbanItem.lockedBy = kanbanItemDto.lockedBy;
+        previousIndex = i;
+        break;
+      }
+    }
+
+    let currentIndex = -1;
+    if(toGroup.kanbanItemList.length <= destIdx){//재배치될 위치가 그룹 배열크기를 초과하는 경우 enqueue함
+      currentIndex = toGroup.kanbanItemList.length;
+    }else{
+      currentIndex = destIdx;
+    }
+
+    if (kanbanItemDto.parentGroup === destGroupTitle) {
+      console.log("KanbanComponent >> drop >> 이전 컨테이너와 현재 컨네이너가 동일");
+      moveItemInArray(toGroup.kanbanItemList, previousIndex, currentIndex);
+    } else {
+      console.log("KanbanComponent >> drop >> 이전과 현재 컨테이너가 다름.");
+      transferArrayItem(fromGroup.kanbanItemList,
+        toGroup.kanbanItemList,
+        previousIndex,
+        currentIndex);
     }
 
   }
