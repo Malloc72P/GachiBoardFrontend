@@ -29,7 +29,8 @@ import Size = paper.Size;
 import Circle = paper.Path.Circle;
 // @ts-ignore
 import Raster = paper.Raster;
-
+// @ts-ignore
+import Segment = paper.Segment;
 
 import {WhiteboardShapeDto} from '../../WhiteboardItemDto/WhiteboardShapeDto/whiteboard-shape-dto';
 import {GachiColorDto} from '../../WhiteboardItemDto/ColorDto/gachi-color-dto';
@@ -173,10 +174,10 @@ export class WhiteboardItemFactory {
       strokeJoin: 'round',
     });
     for(let i = 0 ; i < edtStrokeDto.segments.length; i++){
-      let newPoint = edtStrokeDto.segments[i];
-      newPath.add( new Point(newPoint.x, newPoint.y) );
+      let newSegment = edtStrokeDto.segments[i];
+      newPath.add( new Segment(new Point(newSegment.point), new Point(newSegment.handleIn), new Point(newSegment. handleOut)) );
     }
-    newPath.smooth({ type: 'catmull-rom', factor: 0.5 });
+    // newPath.smooth({ type: 'catmull-rom', factor: 0.5 });
     //newPath.simplify(1);
 
     return newPath

@@ -18,6 +18,7 @@ import {WhiteboardItemDto} from '../../WhiteboardItemDto/whiteboard-item-dto';
 import {EditableStrokeDto} from '../../WhiteboardItemDto/EditableStrokeDto/editable-stroke-dto';
 import {GachiPointDto} from '../../WhiteboardItemDto/PointDto/gachi-point-dto';
 import {GachiColorDto} from '../../WhiteboardItemDto/ColorDto/gachi-color-dto';
+import {GachiSegmentDto} from "../../WhiteboardItemDto/SegmentDto/gachi-segment-dto";
 
 export abstract class EditableStroke extends WhiteboardItem implements Editable{
   private _segments: Array<Segment>;
@@ -66,10 +67,10 @@ export abstract class EditableStroke extends WhiteboardItem implements Editable{
     editableStrokeDto.strokeColor = GachiColorDto.createColor(strokeObject.strokeColor);
 
     //strokeSegments 추출
-    editableStrokeDto.segments = new Array<GachiPointDto>();
+    editableStrokeDto.segments = new Array<GachiSegmentDto>();
     for(let i = strokeObject.segments.length-1 ; i >= 0; i--){
       editableStrokeDto.segments
-        .push(new GachiPointDto(strokeObject.segments[i].point.x, strokeObject.segments[i].point.y))
+        .push(new GachiSegmentDto(strokeObject.segments[i]));
     }
 
     //strokeWidth 추출

@@ -7,6 +7,10 @@ export class GachiPointDto {
     this._y = y;
   }
 
+  public clone(): GachiPointDto {
+    return new GachiPointDto(this.x, this.y);
+  }
+
   get x() {
     return this._x;
   }
