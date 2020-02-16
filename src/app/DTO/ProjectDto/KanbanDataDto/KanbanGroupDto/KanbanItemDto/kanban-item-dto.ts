@@ -10,6 +10,7 @@ export class KanbanItemDto {
   public color;
   public tagIdList:Array<any>;
   public parentGroup;
+  public lockedBy = null;
 
   constructor(id?: number, title?: string, userInfo?, color?, tagIdList?: Array<any>, parentGroup?) {
     this._id = id;

@@ -1,6 +1,7 @@
 import {Component, Input, OnInit} from '@angular/core';
 import {KanbanItem} from '../../../../../Model/Whiteboard/ProjectSupporter/Kanban/KanbanItem/kanban-item';
 import {KanbanItemDto} from '../../../../../DTO/ProjectDto/KanbanDataDto/KanbanGroupDto/KanbanItemDto/kanban-item-dto';
+import {UserManagerService} from '../../../../../Model/UserManager/user-manager.service';
 
 @Component({
   selector: 'app-kanban-card',
@@ -9,9 +10,18 @@ import {KanbanItemDto} from '../../../../../DTO/ProjectDto/KanbanDataDto/KanbanG
 })
 export class KanbanCardComponent implements OnInit {
   @Input() kanbanItemDto:KanbanItemDto;
-  constructor() { }
+  constructor(
+    private userManagerService:UserManagerService
+  ) { }
 
   ngOnInit() {
+  }
+
+  getProfileImg(){
+    return this.userManagerService.getUserDataByIdToken(this.kanbanItemDto.userInfo).profileImg;
+  }
+  getUserName(){
+    return this.userManagerService.getUserDataByIdToken(this.kanbanItemDto.userInfo).userName;
   }
 
 }

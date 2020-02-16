@@ -46,6 +46,16 @@ export class UserManagerService {
     return null;
 
   }
+  getUserDataByIdToken(idToken){
+    for(let i = 0 ; i < this.userList.length; i++){
+      let currentUser = this.userList[i];
+      if(currentUser.idToken === idToken){
+        return currentUser
+      }
+    }
+    return null;
+
+  }
   deleteUser(userName:string){
     let index = -1;
     for(let i = 0 ; i < this.userList.length; i++){

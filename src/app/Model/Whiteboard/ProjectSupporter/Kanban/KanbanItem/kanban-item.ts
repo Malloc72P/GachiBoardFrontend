@@ -12,6 +12,7 @@ export class KanbanItem {
   userInfo:ParticipantDto;
   private color;
   tagList:Array<TagItem>;
+  public lockedBy = null;
   constructor(title?, userInfo?, color?){
     this.title = title;
     this.userInfo = userInfo;

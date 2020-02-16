@@ -12,12 +12,15 @@ import {AuthRequestService} from '../../../../Controller/SocialLogin/auth-reques
 import {WsProjectController} from '../../../../Controller/Controller-WebSocket/websocket-manager/ProjectWsController/ws-project.controller';
 import {ProjectDto} from '../../../../DTO/ProjectDto/project-dto';
 import {CreateInviteCodeComponent, CreateInviteCodeComponentData} from './create-invite-code/create-invite-code.component';
-import {KanbanItemDto} from '../../../../DTO/ProjectDto/KanbanDataDto/KanbanGroupDto/KanbanItemDto/kanban-item-dto';
+import {KanbanGroupEnum, KanbanItemDto} from '../../../../DTO/ProjectDto/KanbanDataDto/KanbanGroupDto/KanbanItemDto/kanban-item-dto';
 import {
   WebsocketEvent,
   WebsocketEventEnum
 } from '../../../../Controller/Controller-WebSocket/websocket-manager/WebsocketEvent/WebsocketEvent';
 import {KanbanDataDto} from '../../../../DTO/ProjectDto/KanbanDataDto/kanban-data-dto';
+import {KanbanEvent, KanbanEventEnum} from '../../../../Model/Whiteboard/ProjectSupporter/Kanban/KanbanEvent/KanbanEvent';
+import {KanbanEventManagerService} from '../../../../Model/Whiteboard/ProjectSupporter/Kanban/kanban-event-manager.service';
+import {KanbanGroup} from '../../../../Model/Whiteboard/ProjectSupporter/Kanban/KanbanGroup/kanban-group';
 
 @Component({
   selector: 'app-main-page-project',
@@ -45,6 +48,7 @@ export class MainPageProjectComponent implements OnInit, OnDestroy {
     public dialog: MatDialog,
     private websocketManagerService:WebsocketManagerService,
     private userManagerService1:UserManagerService,
+    private kanbanEventManager:KanbanEventManagerService,
   ) {
     this.projectId = this.route.snapshot.paramMap.get('projectId');
 
@@ -68,8 +72,43 @@ export class MainPageProjectComponent implements OnInit, OnDestroy {
           this.inProgressGroup.push(kanbanItem);
         }
       }
-    })
+    });
+    this.subscribeKanbanEventEmitter();
   }
+
+  subscribeKanbanEventEmitter(){
+    this.kanbanEventManager.kanbanEventEmitter.subscribe((kanbanEvent:KanbanEvent)=>{
+      if(kanbanEvent.kanbanItemDto.parentGroup === KanbanGroupEnum.IN_PROGRESS){
+        switch (kanbanEvent.action) {
+          case KanbanEventEnum.CREATE:
+            /*this.enqueueByWs(kanbanEvent.kanbanItemDto);*/
+            this.inProgressGroup.push(kanbanEvent.kanbanItemDto);
+            break;
+          case KanbanEventEnum.UPDATE:
+            break;
+          case KanbanEventEnum.DELETE:
+            let index = -1;
+            for(let i = 0 ; i < this.inProgressGroup.length; i++){
+              let currItem = this.inProgressGroup[i];
+
+              if(currItem._id === kanbanEvent.kanbanItemDto._id){
+                index = i;
+                break;
+              }
+            }
+
+            if(index >= 0){
+              this.inProgressGroup.splice(index, 1);
+            }
+
+            /*this.deleteByWs(kanbanEvent.kanbanItemDto);*/
+            break;
+        }
+      }
+    });
+  }
+
+
 
   ngOnInit() {
 

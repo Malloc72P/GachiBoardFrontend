@@ -50,8 +50,10 @@ export class WebsocketManagerService {
   }
   public verifyKanbanItem(wsPacketDto:WebsocketPacketDto){
     let verifiedIdx = -1;
+    let foundNotVerified:NotVerifiedKanbanItem = null;
     for (let i = 0 ; i < this.notVerifiedKanbanItems.length; i++){
       let notVerifiedItem = this.notVerifiedKanbanItems[i];
+      foundNotVerified = notVerifiedItem;
       if(notVerifiedItem.wsPacketDto.wsPacketSeq === wsPacketDto.wsPacketSeq){
         verifiedIdx = i;
         notVerifiedItem.kanbanItem._id = wsPacketDto.dataDto["_id"];
@@ -60,6 +62,18 @@ export class WebsocketManagerService {
     }//for
 
     if(verifiedIdx > -1){
+      let wsKanbanController = WsKanbanController.getInstance();
+      switch (foundNotVerified.wsPacketDto.action) {
+        case WebsocketPacketActionEnum.CREATE:
+          wsKanbanController.createFromWsManager(foundNotVerified.wsPacketDto);
+          break;
+        case WebsocketPacketActionEnum.UPDATE:
+          break;
+        case WebsocketPacketActionEnum.DELETE:
+          wsKanbanController.delFromWsManager(foundNotVerified.wsPacketDto);
+          break;
+
+      }
       this.notVerifiedKanbanItems.splice(verifiedIdx, 1);
     }
     console.log("WebsocketManagerService >> verifyKanbanItem >> notVerifiedKanbanItems : ",this.notVerifiedKanbanItems);

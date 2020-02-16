@@ -8,6 +8,7 @@ export class WebsocketPacketDto {
   public dataDto:Object;
   public action:WebsocketPacketActionEnum;
   public accessToken;
+  public additionalData;
   public specialAction:string;
 
   constructor(senderIdToken     : string,

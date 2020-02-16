@@ -1,25 +1,41 @@
 <div class="kanban-item-card-wrapper">
   <mat-card class="kanban-item-card">
-    <div class="kanban-item-title-left-color"
-         [ngStyle]="{ 'background-color' : kanbanItemDto.color }"></div>
-    <mat-card-title class="kanban-card-title text-ellipsis">
-      <p>{{kanbanItemDto.title}}</p>
-      <span class="flex-spacer"></span>
-    </mat-card-title>
 
-    <mat-card class="kanban-item-manager-wrapper">
-      <img mat-card-image
-           class="kanban-item-manager-image"
-           src="/assets/images/supporter/kanban/male.jpg"/>
-      <mat-card-subtitle class="kanban-item-manager-name text-ellipsis">
-        {{kanbanItemDto.userInfo.name}}
-      </mat-card-subtitle>
-    </mat-card>
+    <div class="kanban-item-title-left-color" [ngStyle]="{ 'background-color' : kanbanItemDto.color }"></div>
+
+    <div class="kanban-card-title-wrapper">
+      <span class="text-ellipsis kanban-card-title">{{kanbanItemDto.title}}</span>
+      <div class="kanban-header-image" matTooltip="{{getUserName()}}" matTooltipPosition="above" mat-ripple
+           [ngStyle]="{ 'background-image' : 'url('+getProfileImg()+')' }"></div>
+    </div>
+
+    <mat-divider class="kanban-divider"></mat-divider>
+
     <!--마테리얼 칩 영역-->
-    <mat-chip-list>
-      <!--<mat-chip *ngFor="let tagItem of kanbanItem.tagList"
-                title="{{tagItem.title}}">{{tagItem.title}}
-      </mat-chip>-->
-    </mat-chip-list>
+    <div class="kanban-chip-list">
+      <mat-chip-list>
+        <mat-chip title="타노시이">
+          타노시이
+        </mat-chip>
+        <mat-chip title="타노시이">
+          타노시이
+        </mat-chip>
+        <mat-chip title="타노시이">
+          타노시이
+        </mat-chip>
+        <mat-chip title="타노시이">
+          타노시이
+        </mat-chip>
+        <mat-chip title="타노시이">
+          타노시이
+        </mat-chip>
+        <mat-chip title="타노시이">
+          타노시이
+        </mat-chip><mat-chip title="타노시이">
+        타노시이
+      </mat-chip>
+
+      </mat-chip-list>
+    </div>
   </mat-card>
 </div>

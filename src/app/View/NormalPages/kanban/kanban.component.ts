@@ -93,6 +93,7 @@ export class KanbanComponent implements OnInit {
         case KanbanEventEnum.UPDATE:
           break;
         case KanbanEventEnum.DELETE:
+          this.deleteByWs(kanbanEvent.kanbanItemDto);
           break;
       }
     });
@@ -148,15 +149,18 @@ export class KanbanComponent implements OnInit {
         break;
     }
     let index = -1;
-    /*
-    index = kanbanGroup.kanbanItemList.indexOf(kanbanItem);
+    for(let i = 0 ; i < kanbanGroup.kanbanItemList.length; i++){
+      let currItem = kanbanGroup.kanbanItemList[i];
+
+      if(currItem._id === kanbanItemDto._id){
+        index = i;
+        break;
+      }
+    }
 
     if(index >= 0){
       kanbanGroup.kanbanItemList.splice(index, 1);
-      let wsKanbanController = WsKanbanController.getInstance();
-
-      wsKanbanController.requestDeleteKanban(kanbanItem, kanbanGroup);
-    }*/
+    }
   }
 
   ngOnInit() {
