@@ -5,7 +5,7 @@ import { AppComponent } from './app.component';
 import { LoginPageComponent } from './View/NormalPages/SocialLogin/login-page/login-page.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import {
-  MatAutocompleteModule,
+  MatAutocompleteModule, MatBadgeModule,
   MatButtonModule,
   MatButtonToggleModule,
   MatCardModule, MatCheckboxModule, MatChipsModule, MatDialogModule,
@@ -256,6 +256,7 @@ const appRoutes: Routes = [
     MatListModule,
     SocketIoModule.forRoot(config),
     MatStepperModule,
+    MatBadgeModule,
   ],
   providers: [
     RouterHelperService,

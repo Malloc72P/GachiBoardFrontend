@@ -22,6 +22,7 @@ export class WsKanbanController {
     this.onKanbanDeleted();
     this.onKanbanGet();
     this.onKanbanLock();
+    this.onKanbanUnlock();
     this.onKanbanRelocation();
   }
 
@@ -202,7 +203,6 @@ export class WsKanbanController {
   private onKanbanRelocation(){
     this.socket.on(HttpHelper.websocketApi.kanban.relocate.event,
       (wsPacketDto:WebsocketPacketDto)=>{
-        console.log("WsKanbanController >> onKanbanRelocation >> wsPacketDto : ",wsPacketDto);
         switch (wsPacketDto.action) {
           case WebsocketPacketActionEnum.RELOCATE:
             this.websocketManager.kanbanEventManagerService.kanbanEventEmitter.emit(
@@ -327,6 +327,74 @@ export class WsKanbanController {
   /* Request LOCK END */
   /* **************************************************** */
 
+  /* *************************************************** */
+  /* Request Unlock START */
+  /* *************************************************** */
+
+  requestUnlockKanban(kanbanItem:KanbanItem, kanbanGroup){
+    let kanbanItemDto = kanbanItem.exportDto(kanbanGroup.title);
+
+    kanbanItemDto.lockedBy = null;
+
+    let packetDto = this.websocketManager.createProjectScopePacket(kanbanItemDto, WebsocketPacketActionEnum.UNLOCK);
+    packetDto.wsPacketSeq = this.websocketManager.wsPacketSeq;
+    this.socket.emit(HttpHelper.websocketApi.kanban.unlock.event, packetDto);
+    this.websocketManager.saveNotVerifiedKanbanItem(packetDto, kanbanItem);
+  }
+
+  private onKanbanUnlock(){
+    this.socket.on(HttpHelper.websocketApi.kanban.unlock.event,
+      (wsPacketDto:WebsocketPacketDto)=>{
+        console.log("WsKanbanController >> onKanbanUnlock >> wsPacketDto : ",wsPacketDto);
+        switch (wsPacketDto.action) {
+          case WebsocketPacketActionEnum.UNLOCK:
+            this.unlockFromWsManager(wsPacketDto);
+            this.websocketManager.kanbanEventManagerService.kanbanEventEmitter.emit(
+              new KanbanEvent(KanbanEventEnum.UNLOCK, wsPacketDto.dataDto as KanbanItemDto));
+            break;
+          case WebsocketPacketActionEnum.ACK:
+            this.websocketManager.verifyKanbanItem(wsPacketDto);
+            break;
+          case WebsocketPacketActionEnum.NAK:
+            break;
+
+        }
+      })
+  }
+
+  unlockFromWsManager(wsPacketDto){
+    let kanbanItemDto:KanbanItemDto = wsPacketDto.dataDto as KanbanItemDto;
+    let groupEnum:KanbanGroupEnum = kanbanItemDto.parentGroup as KanbanGroupEnum;
+
+    let currKanbanData = this.websocketManager.currentProjectDto.kanbanData;
+    let targetGroup:Array<KanbanItemDto> = null;
+
+    switch (groupEnum) {
+      case KanbanGroupEnum.TODO:
+        targetGroup = currKanbanData.todoGroup;
+        break;
+      case KanbanGroupEnum.IN_PROGRESS:
+        targetGroup = currKanbanData.inProgressGroup;
+        break;
+      case KanbanGroupEnum.DONE:
+        targetGroup = currKanbanData.doneGroup;
+        break;
+      default :
+        return;
+    }
+    for(let i = 0 ; i < targetGroup.length; i++){
+      let currItem = targetGroup[i];
+
+      if(currItem._id === kanbanItemDto._id){
+        currItem.lockedBy = kanbanItemDto.lockedBy;
+        break;
+      }
+    }
+  }
+
+  /* **************************************************** */
+  /* Request Unlock END */
+  /* **************************************************** */
 
 
 

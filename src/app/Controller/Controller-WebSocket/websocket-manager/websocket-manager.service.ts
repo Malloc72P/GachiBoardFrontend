@@ -75,6 +75,7 @@ export class WebsocketManagerService {
           break;
         case WebsocketPacketActionEnum.RELOCATE:
         case WebsocketPacketActionEnum.LOCK:
+        case WebsocketPacketActionEnum.UNLOCK:
             let kanbanItemDto = wsPacketDto.dataDto as KanbanItemDto;
             foundNotVerified.kanbanItem.lockedBy = kanbanItemDto.lockedBy;
             break;

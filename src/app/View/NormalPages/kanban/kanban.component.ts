@@ -98,6 +98,9 @@ export class KanbanComponent implements OnInit {
           case KanbanEventEnum.LOCK:
             this.lockedByWs(kanbanEvent.kanbanItemDto);
           break;
+          case KanbanEventEnum.UNLOCK:
+            this.unlockedByWs(kanbanEvent.kanbanItemDto);
+          break;
           case KanbanEventEnum.RELOCATE:
             this.relocateByWs(kanbanEvent.kanbanItemDto, kanbanEvent.data);
           break;
@@ -254,7 +257,43 @@ export class KanbanComponent implements OnInit {
     let wsKanbanController = WsKanbanController.getInstance();
     wsKanbanController.requestLockKanban(kanbanItem, kanbanGroup);
   }
+  requestRelease(kanbanItem, kanbanGroup){
+    console.log("KanbanComponent >> requestLock >> kanbanItem : ",kanbanItem);
+    if(!kanbanItem.lockedBy){
+      return;
+    }
+    let wsKanbanController = WsKanbanController.getInstance();
+    wsKanbanController.requestUnlockKanban(kanbanItem, kanbanGroup);
+  }
   lockedByWs(kanbanItemDto){
+    let groupEnum:KanbanGroupEnum = kanbanItemDto.parentGroup as KanbanGroupEnum;
+
+    let targetGroup:KanbanGroup = null;
+
+    switch (groupEnum) {
+      case KanbanGroupEnum.TODO:
+        targetGroup = this.todoGroup;
+        break;
+      case KanbanGroupEnum.IN_PROGRESS:
+        targetGroup = this.inProgressGroup;
+        break;
+      case KanbanGroupEnum.DONE:
+        targetGroup = this.doneGroup;
+        break;
+      default :
+        return;
+    }
+    for(let i = 0 ; i < targetGroup.kanbanItemList.length; i++){
+      let currItem = targetGroup.kanbanItemList[i];
+
+      if(currItem._id === kanbanItemDto._id){
+        currItem.lockedBy = kanbanItemDto.lockedBy;
+        break;
+      }
+    }
+
+  }
+  unlockedByWs(kanbanItemDto){
     let groupEnum:KanbanGroupEnum = kanbanItemDto.parentGroup as KanbanGroupEnum;
 
     let targetGroup:KanbanGroup = null;
@@ -345,5 +384,18 @@ export class KanbanComponent implements OnInit {
 
   }
 
+  getProfileImg(idToken){
+    if(idToken){
+      return this.userManagerService.getUserDataByIdToken(idToken).profileImg;
+    }
+  }
+  getUserName(idToken){
+    if(idToken) {
+      return this.userManagerService.getUserDataByIdToken(idToken).userName;
+    }
+  }
+  checkEditorIsAnotherUser(idToken){
+    return this.websocketManagerService.userInfo.idToken !== idToken;
+  }
 
 }

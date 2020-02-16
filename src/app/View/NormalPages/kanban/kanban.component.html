@@ -82,7 +82,7 @@
                         [cdkDragDisabled]="item.lockedBy"
                         [ngClass]="{'kanban-item-disabled' : item.lockedBy}">
                 <mat-card class="example-custom-placeholder" *cdkDragPlaceholder></mat-card>
-
+                <div *ngIf="item.lockedBy && checkEditorIsAnotherUser(item.lockedBy)"><span>{{getUserName(item.lockedBy)}}에 의해 수정중...</span></div>
                 <div class="kanban-item-title-left-color"
                      [ngStyle]="{ 'background-color' : item.getColor() }"></div>
 
@@ -107,6 +107,7 @@
 
                 <mat-card class="kanban-item-manager-wrapper"
                           (pointerdown)="requestLock(item, group)"
+                          (pointerup)="requestRelease(item, group)"
                           cdkDragHandle>
                   <img mat-card-image
                        class="kanban-item-manager-image"
