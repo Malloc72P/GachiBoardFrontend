@@ -62,7 +62,7 @@ export class MainPageProjectComponent implements OnInit, OnDestroy {
     });
     this.websocketManagerService.wsEventEmitter.subscribe((wsEvent:WebsocketEvent)=>{
       if(wsEvent.action === WebsocketEventEnum.GET_PROJECT_FULL_DATA){
-        let fullProjectDto:ProjectDto = wsEvent.data as KanbanDataDto;
+        let fullProjectDto:ProjectDto = wsEvent.data as ProjectDto;
         let kanbanData:KanbanDataDto = fullProjectDto.kanbanData;
         for(let kanbanItem of kanbanData.inProgressGroup){
           this.inProgressGroup.push(kanbanItem);
