@@ -32,4 +32,6 @@ export enum ItemLifeCycleEnum {
   SELECTED,
   DESELECTED,
   LINK_CHANGED,
+  LOCKED,
+  UNLOCKED,
 }

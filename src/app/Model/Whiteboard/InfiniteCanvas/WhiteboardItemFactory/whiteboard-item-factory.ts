@@ -181,6 +181,7 @@ export class WhiteboardItemFactory {
 
     return newPath
   }
+
   private static buildEditableShape(wbId, editableShapeDto:EditableShapeDto) :EditableShape{
     let newEdtShape:EditableShape;
     let typeOfDto:WhiteboardItemType = editableShapeDto.type;

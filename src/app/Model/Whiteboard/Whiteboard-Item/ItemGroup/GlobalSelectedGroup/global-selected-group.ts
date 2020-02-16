@@ -86,6 +86,20 @@ export class GlobalSelectedGroup extends ItemGroup {
     }
   }
 
+  public lockItems() {
+    this.wbItemGroup.forEach(value => {
+      value.isLocked = true;
+    });
+    this.extractAllFromSelection();
+  }
+
+  public unlockItems() {
+    this.wbItemGroup.forEach(value => {
+      value.isLocked = false;
+    });
+    this.isLocked = false;
+  }
+
   notifyItemCreation() {
     super.notifyItemCreation();
   }
@@ -118,27 +132,59 @@ export class GlobalSelectedGroup extends ItemGroup {
   }
 
   public insertOneIntoSelection(wbItem: WhiteboardItem | EditableLink) {
+    // 아이템 그룹일 경우 그룹 안에 있는 모든 아이템을 GSG 에 추가
     if(wbItem instanceof ItemGroup) {
+      if(this.checkLocking(wbItem)) {
+        return;
+      }
       wbItem.wbItemGroup.forEach(value => {
         this.insertOneIntoGroup(value);
       });
+    // 링크일 경우 링크의 owner 를 GSG 에 추가
     } else if(wbItem instanceof EditableLink) {
       let owner = wbItem.fromLinkPort.owner;
+      if(this.checkLocking(owner)) {
+        return;
+      }
       this.insertOneIntoGroup(owner);
       wbItem.select();
       this.isLinkSelected = true;
+    // 나머지는 그냥 추가
     } else {
+      if(this.checkLocking(wbItem)) {
+        return;
+      }
       this.insertOneIntoGroup(wbItem);
     }
-    this.resetMyItemAdjustor();
 
+    this.resetMyItemAdjustor();
     this.layerService.horizonContextMenuService.open();
+  }
+
+  private checkLocking(wbItem: WhiteboardItem) {
+    // GSG 에 하나 이상의 아이템이 있음 --> 선택된 개체가 있음
+    if(this.getNumberOfChild() > 0) {
+      // 첫번째 아이템이 잠겨 있는지 확인 --> 잠긴 아이템을 GSG 가 갖고 있다는 의미
+      if (this.wbItemGroup[0].isLocked) {
+        return true;
+      // 추가될 아이템이 잠겨 있는지 확인
+      } else if (wbItem.isLocked) {
+        return true;
+      }
+      // 결과적으로 잠겨있는 아이템과 함께 다른 아이템들을 잡을 수 없음
+    }
+    if(wbItem.isLocked) {
+      this.isLocked = true;
+    }
+
+    return false;
   }
 
   public extractAllFromSelection() {
     this.layerService.horizonContextMenuService.close();
     this.isLinkSelected = false;
     this.extractAllFromGroup();
+    this.isLocked = false;
   }
 
   public removeOneFromGroup(wbItem) {
@@ -158,6 +204,15 @@ export class GlobalSelectedGroup extends ItemGroup {
   exportToDto() {
     console.warn("GlobalSelectedGroup >> exportToDto >> GSG는 DTO로 추출할 수 없음!!!");
     return null;
+  }
+
+  get isLocked(): boolean {
+    return super.isLocked;
+  }
+
+  set isLocked(value: boolean) {
+    super.isLocked = value;
+    this.resetMyItemAdjustor();
   }
 
   get isLinkSelected(): boolean {

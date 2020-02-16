@@ -86,7 +86,7 @@ export class ItemGroup extends WhiteboardItem {
   //### Mouse Event 콜백
   protected setCallback() {}
   public onMouseDown(event){
-    if(!this.checkMovable()){
+    if(!this.isMovable){
       return;
     }
     this.prevPoint = event.point;
@@ -118,7 +118,7 @@ export class ItemGroup extends WhiteboardItem {
   }
 
   public moveByDelta(event) {
-    if(!this.checkMovable()) {
+    if(!this.isMovable) {
       return;
     }
     if(this.myItemAdjustor) {
@@ -138,11 +138,13 @@ export class ItemGroup extends WhiteboardItem {
   }
 
   private moveTo(position: Point) {
-    this.group.position = position;
+    if(this.isMovable) {
+      this.group.position = position;
 
-    this.wbItemGroup.forEach(value => {
-      value.emitMoved();
-    });
+      this.wbItemGroup.forEach(value => {
+        value.emitMoved();
+      });
+    }
   }
 
   public resizeTo(bound: paper.Rectangle) {
@@ -153,7 +155,7 @@ export class ItemGroup extends WhiteboardItem {
   }
 
   public onMouseDrag(event){
-    if(!this.checkMovable()){
+    if(!this.isMovable){
       return;
     }
     //this.deactivateSelectedMode();
@@ -182,7 +184,7 @@ export class ItemGroup extends WhiteboardItem {
 
   public onMouseUp(event){
     this.calcCurrentDistance(event);
-    if(!this.checkMovable()){
+    if(!this.isMovable){
       return;
     }
     if(this.myItemAdjustor){
@@ -193,9 +195,9 @@ export class ItemGroup extends WhiteboardItem {
     this.resetDistance();
     this.setSingleSelectMode();
     this.wbItemsLifeCycleEventEmitter.emit(new ItemLifeCycleEvent(this.id,this,ItemLifeCycleEnum.MODIFY));
-    this.wbItemGroup.forEach((value, index, array)=>{
-      value.refreshItem();
-    })
+    // this.wbItemGroup.forEach((value, index, array)=>{
+    //   value.refreshItem();
+    // })
   }
 
 
@@ -207,11 +209,13 @@ export class ItemGroup extends WhiteboardItem {
       this.deactivateSelectedMode();
       this.removeBackgroundRect();
     }
-    //this.deactivateSelectedMode();
-    //this.activateSelectedMode();
+
+    if(this.isLocked) {
+      this.removeBackgroundRect();
+    }
+
     if(this.myItemAdjustor){
       this.myItemAdjustor.refreshItemAdjustorSize();
-      this.createBackgroundRect();
       this.refreshLinkHandler();
     }
   }
@@ -273,7 +277,7 @@ export class ItemGroup extends WhiteboardItem {
         this.wbItemGroup.splice(i, 1);
         this.resetMyItemAdjustor();
         willBeExtract.emitDeselected();
-        willBeExtract.refreshItem();
+        // willBeExtract.refreshItem();
 
         if(this.getNumberOfChild() === 1) {
           this.wbItemGroup[0].emitSelected();
@@ -311,7 +315,7 @@ export class ItemGroup extends WhiteboardItem {
       }
       drawingLayer.addChild(willBeExtract.group);
       willBeExtract.emitDeselected();
-      willBeExtract.refreshItem();
+      // willBeExtract.refreshItem();
     }
     this.wbItemGroup.splice(0, this.wbItemGroup.length);
     this.resetMyItemAdjustor();
@@ -370,9 +374,9 @@ export class ItemGroup extends WhiteboardItem {
   }
 
   public refreshItem() {
-    this.wbItemGroup.forEach((value, index, array)=>{
-      value.refreshItem();
-    });
+    // this.wbItemGroup.forEach((value, index, array)=>{
+    //   value.refreshItem();
+    // });
     this.wbItemsLifeCycleEventEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.MODIFY));
   }
 

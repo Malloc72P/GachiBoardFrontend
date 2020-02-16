@@ -69,6 +69,23 @@ export class ItemAdjustor {
       });
     }
   }
+
+  public enableSizeHandler() {
+    if (this.sizeHandlers) {
+      this.sizeHandlers.forEach((value, key, map) => {
+        value.enableItem();
+      });
+    }
+  }
+
+  public disableSizeHandler() {
+    if (this.sizeHandlers) {
+      this.sizeHandlers.forEach((value, key, map) => {
+        value.disableItem();
+      });
+    }
+  }
+
   public refreshItemAdjustorSize(){
     this.itemGuideLine.bounds = this.owner.group.bounds;
     if(this.sizeHandlers){

@@ -47,8 +47,6 @@ export abstract class ItemHandler {
   public abstract onMouseDown(event);
   public abstract onMouseDrag(event);
   public abstract onMouseUp(event);
-  public abstract onMouseEnter();
-  public abstract onMouseLeave();
 
   protected getHandlerPosition(handlerDirection){
     let bounds = this.guideLine.bounds;

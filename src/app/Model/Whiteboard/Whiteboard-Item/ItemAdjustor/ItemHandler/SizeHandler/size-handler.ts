@@ -9,6 +9,7 @@ export class SizeHandler extends ItemHandler{
   private static readonly HANDLER_FILL_COLOR = "white";
   constructor(wbItem, handlerDirection, handlerOption, guideLine){
     super(wbItem, handlerDirection, SizeHandler.HANDLER_FILL_COLOR, handlerOption, guideLine);
+    this.setCursor();
   }
 
   public removeItem() {
@@ -57,7 +58,7 @@ export class SizeHandler extends ItemHandler{
   }
 
   public onMouseUp(event) {
-    this.owner.refreshItem();
+    // this.owner.refreshItem();
     // TODO : HorizonContextMenuService Test Code
     this.owner.layerService.horizonContextMenuService.open();
   }
@@ -71,12 +72,13 @@ export class SizeHandler extends ItemHandler{
     this.adjustSizeFrom = this.getOppositeHandlerPosition(this.handlerDirection);
   }
 
-  public onMouseEnter() {
-    this.owner.layerService.cursorChanger.changeResize(this.handlerDirection);
-  }
+  private setCursor() {
+    this.handlerCircleObject.onMouseEnter = () => {
+      this.owner.layerService.cursorChanger.changeResize(this.handlerDirection);
+    };
 
-  public onMouseLeave() {
-    this.owner.layerService.cursorChanger.syncCurrentPointerMode(this.owner.layerService.currentPointerMode);
+    this.handlerCircleObject.onMouseLeave = () => {
+      this.owner.layerService.cursorChanger.syncCurrentPointerMode(this.owner.layerService.currentPointerMode);
+    };
   }
-
 }

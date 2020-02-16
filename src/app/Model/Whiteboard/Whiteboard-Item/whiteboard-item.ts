@@ -32,6 +32,7 @@ export abstract class WhiteboardItem {
   protected _topLeft: Point;
   protected _coreItem:Item;
   protected _isSelected: boolean;
+  private _isLocked: boolean;
   protected _myItemAdjustor:ItemAdjustor;
 
   private _isGrouped = false;
@@ -196,17 +197,19 @@ export abstract class WhiteboardItem {
     return currentPointerMode === PointerMode.POINTER || currentPointerMode === PointerMode.LASSO_SELECTOR
             || PointerMode.DRAW || PointerMode.ERASER || PointerMode.HIGHLIGHTER || PointerMode.SHAPE;
   }
-  checkMovable(){
-    let currentPointerMode = this.layerService.currentPointerMode;
-    return currentPointerMode === PointerMode.POINTER || currentPointerMode === PointerMode.LASSO_SELECTOR;
-  }
 
   public activateSelectedMode(){
     if(!this.isSelected){
       this.isSelected = true;
       this.myItemAdjustor = new ItemAdjustor(this);
     }
+    if(this.isLocked) {
+      this.myItemAdjustor.disableSizeHandler();
+    } else {
+      this.myItemAdjustor.enableSizeHandler();
+    }
   }
+
   public deactivateSelectedMode(){
     if(this.isSelected){
       this.isSelected = false;
@@ -409,5 +412,32 @@ export abstract class WhiteboardItem {
 
   get lifeCycleEmitter(): EventEmitter<any> {
     return this._lifeCycleEmitter;
+  }
+
+  get isLocked(): boolean {
+    return this._isLocked;
+  }
+
+  set isLocked(value: boolean) {
+    if(value) {
+      this.lifeCycleEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.LOCKED));
+    } else {
+      this.lifeCycleEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.UNLOCKED));
+    }
+
+    if(this.isGrouped) {
+      this.parentEdtGroup.isLocked = value;
+    }
+
+    this._isLocked = value;
+  }
+
+  get isMovable(): boolean {
+    if(!this.isLocked) {
+      if (this.layerService.currentPointerMode === PointerMode.POINTER || this.layerService.currentPointerMode === PointerMode.LASSO_SELECTOR) {
+        return true;
+      }
+    }
+    return false;
   }
 }

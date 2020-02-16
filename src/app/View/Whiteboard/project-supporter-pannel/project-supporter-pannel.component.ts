@@ -12,6 +12,7 @@ import {KanbanComponent} from './kanban/kanban.component';
 import {MatDialog} from '@angular/material';
 import {ImportFileService} from "../../../Model/Whiteboard/ImportFile/import-file.service";
 import {CursorTrackerService} from "../../../Model/Whiteboard/CursorTracker/cursor-tracker-service/cursor-tracker.service";
+import {DrawingLayerManagerService} from "../../../Model/Whiteboard/InfiniteCanvas/DrawingLayerManager/drawing-layer-manager.service";
 
 @Component({
   selector: 'app-project-supporter-pannel',
@@ -33,6 +34,7 @@ export class ProjectSupporterPannelComponent extends PopoverPanel  implements On
     private positionCalcService:PositionCalcService,
     private importFileService: ImportFileService,
     private cursorTrackerService: CursorTrackerService,
+    private layerService: DrawingLayerManagerService,
   ) {
     super(projectSupporterEnumService);
     this.projectSupporterEnumService = projectSupporterEnumService;

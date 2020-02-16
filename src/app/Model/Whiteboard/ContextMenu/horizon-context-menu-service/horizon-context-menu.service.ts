@@ -1,6 +1,6 @@
 import * as paper from 'paper';
 
-import {EventEmitter, Injectable} from '@angular/core';
+import {Injectable} from '@angular/core';
 import {HorizonContextMenuActions, HorizonContextMenuTypes} from "./horizon-context-menu.enum";
 import {WhiteboardItem} from "../../Whiteboard-Item/whiteboard-item";
 import {PositionCalcService} from "../../PositionCalc/position-calc.service";
@@ -13,9 +13,9 @@ import {InfiniteCanvasService} from "../../InfiniteCanvas/infinite-canvas.servic
 import {subPanelStatus} from "./sub-panel-status";
 import {EditableRaster} from "../../Whiteboard-Item/Whiteboard-Shape/editable-raster/editable-raster";
 import {SimpleArrowLink} from "../../Whiteboard-Item/Whiteboard-Shape/LinkPort/EditableLink/SimpleArrowLink/simple-arrow-link";
+import {EditableLink} from "../../Whiteboard-Item/Whiteboard-Shape/LinkPort/EditableLink/editable-link";
 // @ts-ignore
 import Rectangle = paper.Rectangle;
-import {EditableLink} from "../../Whiteboard-Item/Whiteboard-Shape/LinkPort/EditableLink/editable-link";
 
 @Injectable({
   providedIn: 'root'
@@ -52,6 +52,7 @@ export class HorizonContextMenuService {
 
   public open() {
     this.setMenuItem(this.instanceCheckItem(this._globalSelectedGroup.wbItemGroup));
+    console.log("HorizonContextMenuService >> open >> this.item : ", this.item);
     this.setMenuPosition(this.coreItem.bounds);
     this._isHidden = false;
     this.subPanelHidden.hideAll();
@@ -65,6 +66,10 @@ export class HorizonContextMenuService {
 
   public refreshPosition() {
     this.setMenuPosition(this.coreItem.bounds);
+  }
+
+  public refreshMenuItem() {
+    this.setMenuItem(this.instanceCheckItem(this._globalSelectedGroup.wbItemGroup));
   }
 
   // ################### Private Method #####################
@@ -89,6 +94,14 @@ export class HorizonContextMenuService {
       case HorizonContextMenuTypes.RASTER:
         this.setMenuForItem();
         break;
+    }
+
+    if(this.globalSelectedGroup.isLocked) {
+      this.menuItemArray.forEach(((value, index) => {
+        if(value === HorizonContextMenuActions.LOCK) {
+          this.menuItemArray[index] = HorizonContextMenuActions.UNLOCK;
+        }
+      }));
     }
   }
 

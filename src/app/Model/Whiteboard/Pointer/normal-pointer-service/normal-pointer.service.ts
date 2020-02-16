@@ -13,7 +13,7 @@ import {DrawingLayerManagerService} from '../../InfiniteCanvas/DrawingLayerManag
 enum NORMAL_POINTER_ACTIONS{
   NOT_THING,
   DRAGGING_ITEM,
-  HANDLING_iTEM,
+  HANDLING_ITEM,
   MOVING,
   LINK_ADDING,
   LINK_EDITING,
@@ -104,7 +104,7 @@ export class NormalPointerService {
     if(this.isHandlerHit(event.point)) {
       // 선택 성공함 -> 아이템 핸들링 모드로 변경
       this.selectedHandle.onMouseDown(event);
-      this.action = NORMAL_POINTER_ACTIONS.HANDLING_iTEM;
+      this.action = NORMAL_POINTER_ACTIONS.HANDLING_ITEM;
       return true;
     }
 
@@ -147,7 +147,7 @@ export class NormalPointerService {
       this.layerService.globalSelectedGroup.moveByDelta(event);
     }
     if(
-      this.action === NORMAL_POINTER_ACTIONS.HANDLING_iTEM ||
+      this.action === NORMAL_POINTER_ACTIONS.HANDLING_ITEM ||
       this.action === NORMAL_POINTER_ACTIONS.LINK_ADDING ||
       this.action === NORMAL_POINTER_ACTIONS.LINK_EDITING
     ) {
@@ -160,7 +160,7 @@ export class NormalPointerService {
       this.layerService.globalSelectedGroup.moveEnd();
     }
     if(
-      this.action === NORMAL_POINTER_ACTIONS.HANDLING_iTEM ||
+      this.action === NORMAL_POINTER_ACTIONS.HANDLING_ITEM ||
       this.action === NORMAL_POINTER_ACTIONS.LINK_ADDING ||
       this.action === NORMAL_POINTER_ACTIONS.LINK_EDITING
     ) {

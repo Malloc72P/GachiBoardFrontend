@@ -122,7 +122,11 @@ export class WhiteboardMainComponent implements OnInit {
         // TODO : Tracker Test Code
         this.cursorTrackerService.refreshPoint();
       }
-    }
+
+      // let testCircle = new paper.Path.Circle(this.cursorTrackerService.itsMe, 10);
+      // testCircle.fillColor = new paper.Color('black');
+      // this.layerService.drawingLayer.addChild(testCircle);
+    };
   }//ngOnInit()
 
   private initWhiteboardPaper() {
