@@ -12,6 +12,7 @@ import {NotVerifiedKanbanItem} from './NotVerifiedKanbanItem/NotVerifiedKanbanIt
 import {HttpHelper} from '../../../Model/Helper/http-helper/http-helper';
 import {KanbanItem} from '../../../Model/Whiteboard/ProjectSupporter/Kanban/KanbanItem/kanban-item';
 import {KanbanEventManagerService} from '../../../Model/Whiteboard/ProjectSupporter/Kanban/kanban-event-manager.service';
+import {KanbanItemDto} from '../../../DTO/ProjectDto/KanbanDataDto/KanbanGroupDto/KanbanItemDto/kanban-item-dto';
 
 @Injectable({
   providedIn: 'root'
@@ -72,6 +73,10 @@ export class WebsocketManagerService {
         case WebsocketPacketActionEnum.DELETE:
           wsKanbanController.delFromWsManager(foundNotVerified.wsPacketDto);
           break;
+          case WebsocketPacketActionEnum.LOCK:
+            let kanbanItemDto = wsPacketDto.dataDto as KanbanItemDto;
+            foundNotVerified.kanbanItem.lockedBy = kanbanItemDto.lockedBy;
+            break;
 
       }
       this.notVerifiedKanbanItems.splice(verifiedIdx, 1);

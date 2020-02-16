@@ -14,5 +14,6 @@ export class KanbanEvent {
 export enum KanbanEventEnum {
   CREATE,
   UPDATE,
-  DELETE
+  DELETE,
+  LOCK
 }

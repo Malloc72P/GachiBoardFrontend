@@ -95,6 +95,9 @@ export class KanbanComponent implements OnInit {
         case KanbanEventEnum.DELETE:
           this.deleteByWs(kanbanEvent.kanbanItemDto);
           break;
+          case KanbanEventEnum.LOCK:
+            this.lockedByWs(kanbanEvent.kanbanItemDto);
+          break;
       }
     });
   }
@@ -110,6 +113,7 @@ export class KanbanComponent implements OnInit {
     let kanbanItem = new KanbanItem(kanbanItemDto.title,null,kanbanItemDto.color);
     kanbanItem.userInfo = UserManagerService.getParticipantByIdToken(kanbanItemDto.userInfo, this.projectDto);
     kanbanItem._id = kanbanItemDto._id;
+    kanbanItem.lockedBy = kanbanItemDto.lockedBy;
     let groupEnum:KanbanGroupEnum = kanbanItemDto.parentGroup;
     switch (groupEnum) {
       case KanbanGroupEnum.TODO:
@@ -224,6 +228,43 @@ export class KanbanComponent implements OnInit {
     dialogRef.afterClosed().subscribe((result) => {
       console.log("KanbanComponent >>  >> result : ",result);
     });
+
+  }
+
+  requestLock(kanbanItem, kanbanGroup){
+    /*console.log("KanbanComponent >> requestLock >> kanbanItem : ",kanbanItem);
+    if(kanbanItem.lockedBy){
+      return;
+    }
+    let wsKanbanController = WsKanbanController.getInstance();
+    wsKanbanController.requestLockKanban(kanbanItem, kanbanGroup);*/
+  }
+  lockedByWs(kanbanItemDto){
+    let groupEnum:KanbanGroupEnum = kanbanItemDto.parentGroup as KanbanGroupEnum;
+
+    let targetGroup:KanbanGroup = null;
+
+    switch (groupEnum) {
+      case KanbanGroupEnum.TODO:
+        targetGroup = this.todoGroup;
+        break;
+      case KanbanGroupEnum.IN_PROGRESS:
+        targetGroup = this.inProgressGroup;
+        break;
+      case KanbanGroupEnum.DONE:
+        targetGroup = this.doneGroup;
+        break;
+      default :
+        return;
+    }
+    for(let i = 0 ; i < targetGroup.kanbanItemList.length; i++){
+      let currItem = targetGroup.kanbanItemList[i];
+
+      if(currItem._id === kanbanItemDto._id){
+        currItem.lockedBy = kanbanItemDto.lockedBy;
+        break;
+      }
+    }
 
   }
 

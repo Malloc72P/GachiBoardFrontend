@@ -125,6 +125,10 @@
   margin-bottom: 20px;
   padding: 6px 16px 6px 16px;
 }
+.kanban-item-disabled{
+  /*background: #7F7F7F;*/
+  opacity: 0.6;
+}
 .kanban-item-title-left-color{
   display: inline-block;
   width: 8px;
@@ -165,6 +169,7 @@
 }
 .kanban-item-title-edit-btn{
   padding: 0;
+  min-width: 32px;
 }
 .kanban-item-manager-image{
   margin: 0;
@@ -178,8 +183,8 @@
   text-align: center;
   margin: 0;
 }
-.example-icon {
-  padding: 0 14px;
+.kanban-edit-btn {
+  padding: 0;
 }
 .kanban-trash-bin{
   width: 40%;

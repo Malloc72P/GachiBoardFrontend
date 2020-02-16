@@ -77,16 +77,17 @@
               <!--그리드 셀 컨텐츠( 여기서 칸반 아이템 출력 )-->
               <!--칸반 아이템-->
               <mat-card *ngFor="let item of group.kanbanItemList"
-                        matTooltip="{{item._id}}"
                         cdkDrag
-                        class="kanban-item-card">
+                        class="kanban-item-card"
+                        [cdkDragDisabled]="item.lockedBy"
+                        [ngClass]="{'kanban-item-disabled' : item.lockedBy}">
                 <mat-card class="example-custom-placeholder" *cdkDragPlaceholder></mat-card>
 
                 <div class="kanban-item-title-left-color"
                      [ngStyle]="{ 'background-color' : item.getColor() }"></div>
 
-                <mat-card-title class="kanban-item-title text-ellipsis">
-                  <p>{{item.title}}</p>
+                <mat-card-title class="kanban-item-title">
+                  <p class="text-ellipsis" matTooltip="{{item.title}}">{{item.title}}</p>
                   <span class="flex-spacer"></span>
                   <button mat-button
                           [matMenuTriggerFor]="menu"
@@ -104,7 +105,9 @@
                   </mat-menu>
                 </mat-card-title>
 
-                <mat-card class="kanban-item-manager-wrapper" cdkDragHandle>
+                <mat-card class="kanban-item-manager-wrapper"
+                          (pointerdown)="requestLock(item, group)"
+                          cdkDragHandle>
                   <img mat-card-image
                        class="kanban-item-manager-image"
                        src="{{item.userInfo.profileImg}}"/>
