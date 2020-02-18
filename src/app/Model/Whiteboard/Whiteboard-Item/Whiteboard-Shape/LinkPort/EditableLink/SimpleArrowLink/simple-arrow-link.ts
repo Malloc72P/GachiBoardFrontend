@@ -5,13 +5,11 @@ import {LinkEvent} from '../../LinkEvent/link-event';
 import {LinkEventEnum} from '../../LinkEvent/link-event-enum.enum';
 
 import * as paper from 'paper';
-// @ts-ignore
-import Path = paper.Path;
-// @ts-ignore
-import Point = paper.Point;
 import {SimpleArrowLinkDto} from '../../../../../WhiteboardItemDto/WhiteboardShapeDto/LinkPortDto/EditableLinkDto/SimpleArrowLinkDto/simple-arrow-link-dto';
 import {WhiteboardItemType} from '../../../../../../Helper/data-type-enum/data-type.enum';
-import {SimpleLineLinkDto} from '../../../../../WhiteboardItemDto/WhiteboardShapeDto/LinkPortDto/EditableLinkDto/SimpleLineLinkDto/simple-line-link-dto';
+import {EditableLinkTypes} from "../editable-link-types.enum";
+// @ts-ignore
+import Path = paper.Path;
 
 enum  ArrowSegmentEnum{
   ENTRY_POINT,
@@ -26,7 +24,15 @@ export class SimpleArrowLink extends EditableLink{
   private readonly normalizeFactor = 25;
 
   constructor(fromLinkPort: LinkPort, strokeColor?, strokeWidth?, fillColor?, isDashed? ) {
-    super(WhiteboardItemType.SIMPLE_ARROW_LINK, fromLinkPort, strokeColor, strokeWidth, fillColor, isDashed);
+    super(
+      WhiteboardItemType.EDITABLE_LINK,
+      isDashed ? EditableLinkTypes.DASHED_ARROW_LINK : EditableLinkTypes.SIMPLE_ARROW_LINK,
+      fromLinkPort,
+      strokeColor,
+      strokeWidth,
+      fillColor,
+      isDashed
+    );
   }
 
   // #### 링크객체 생성 메서드 오버라이드
@@ -172,6 +178,8 @@ export class SimpleArrowLink extends EditableLink{
       segments[ArrowSegmentEnum.RIGHT_WING].point = arrowRightWing;
       this.toLinkEventEmitter.emit(new LinkEvent(LinkEventEnum.WB_ITEM_MODIFIED, this));
       this.linkObject.bringToFront();
+
+      this.linkObject.selected = true;
 
       this.layerService.horizonContextMenuService.refreshPosition();
     }

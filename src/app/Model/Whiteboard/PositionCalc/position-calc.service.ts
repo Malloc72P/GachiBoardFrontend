@@ -190,6 +190,4 @@ export class PositionCalcService {
   movePointBottom(point, value){
     return new Point( point.x, point.y + value );
   }
-
-
 }

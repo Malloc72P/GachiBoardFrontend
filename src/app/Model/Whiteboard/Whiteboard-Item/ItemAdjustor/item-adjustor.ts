@@ -58,8 +58,8 @@ export class ItemAdjustor {
   }
 
   private reboundToItem(wbItem: WhiteboardItem) {
-    this.itemGuideLine.bounds = wbItem.coreItem.strokeBounds;
-    this.background.bounds = wbItem.coreItem.strokeBounds;
+    this.itemGuideLine.bounds = wbItem.coreItem.bounds;
+    this.background.bounds = wbItem.coreItem.bounds;
   }
 
   public destroyItemAdjustor(){

@@ -16,15 +16,18 @@ import {EditableLinkDto} from '../../../../WhiteboardItemDto/WhiteboardShapeDto/
 import {LinkAdjustorPositionEnum} from "./LinkAdjustorPositionEnum/link-adjustor-position-enum.enum";
 import {LinkHandler} from "./LinkHandler/link-handler";
 import {ItemLifeCycleEnum, ItemLifeCycleEvent} from "../../../WhiteboardItemLifeCycle/WhiteboardItemLifeCycle";
+import {Subscription} from "rxjs";
+import {WhiteboardItemType} from "../../../../../Helper/data-type-enum/data-type.enum";
+import {EditableLinkCapTypes, EditableLinkTypes} from "./editable-link-types.enum";
 // @ts-ignore
 import Path = paper.Path;
 // @ts-ignore
 import Point = paper.Point;
-import {Subscription} from "rxjs";
 
 export abstract class EditableLink implements Editable {
-  private _id;
-  private _type;
+  private _id: number;
+  private _type: WhiteboardItemType;
+  private _linkType: EditableLinkTypes;
   private _linkObject:Path;
   private _tempLinkPath:Path;
   private _fromLinkPort:LinkPort;
@@ -56,13 +59,14 @@ export abstract class EditableLink implements Editable {
 
   private readonly _linkHandles :Map<any, LinkHandler>;
 
-  protected constructor(type, fromLinkPort: LinkPort, strokeColor?, strokeWidth?, fillColor?, isDashed?) {
+  protected constructor(type, linkType: EditableLinkTypes, fromLinkPort: LinkPort, strokeColor?, strokeWidth?, fillColor?, isDashed?) {
     strokeColor   = (strokeColor) ? (strokeColor) : (LinkerColorEnum.BLACK);
     strokeWidth   = (strokeWidth) ? (strokeWidth) : (LinkerStrokeWidthLevelEnum.LEVEL_1);
     fillColor     = (fillColor)   ? (fillColor)   : (LinkerColorEnum.BLACK);
-    isDashed      = (isDashed)    ? (isDashed)     : (false);
+    isDashed      = (isDashed)    ? (isDashed)    : (false);
 
     this._type = type;
+    this._linkType = linkType;
 
     this._linkHandles = new Map<any, LinkHandler>();
 
@@ -82,6 +86,7 @@ export abstract class EditableLink implements Editable {
 
     this.linkObject = this.createLinkObject();
   }
+
 
   protected subscribeOwnerLifeCycleEvent() {
     if(!!this.fromPortOwnerSubscription) {
@@ -182,6 +187,12 @@ export abstract class EditableLink implements Editable {
       this.setLinkEventHandler(data);
     });
   }
+
+  // ########### Convert Method ############
+  public convertTo(linkType: EditableLinkTypes) {
+
+  }
+
   private setLinkEventHandler(data:LinkEvent){
     switch (data.action) {
       case LinkEventEnum.WB_ITEM_DESTROYED:
@@ -305,9 +316,6 @@ export abstract class EditableLink implements Editable {
     this._tempLinkPath = value;
   }
 
-
-
-
   get fromLinkEventEmitter(): EventEmitter<any> {
     return this._fromLinkEventEmitter;
   }
@@ -394,5 +402,9 @@ export abstract class EditableLink implements Editable {
 
   get linkEventEmitter(): EventEmitter<LinkEvent> {
     return this._linkEventEmitter;
+  }
+
+  get linkType(): EditableLinkTypes {
+    return this._linkType;
   }
 }

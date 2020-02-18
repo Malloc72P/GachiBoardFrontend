@@ -72,6 +72,7 @@ import { SubPanelForFillComponent } from './View/Whiteboard/whiteboard-context-m
 import {HorizonContextMenuService} from "./Model/Whiteboard/ContextMenu/horizon-context-menu-service/horizon-context-menu.service";
 import { SubPanelForArrowComponent } from './View/Whiteboard/whiteboard-context-menu/horizon-context-menu/sub-panel-arrow/sub-panel-for-arrow.component';
 import { SubPanelForFontComponent } from './View/Whiteboard/whiteboard-context-menu/horizon-context-menu/sub-panel-font/sub-panel-for-font.component';
+import {LinkService} from "./Model/Whiteboard/Pointer/link-service/link.service";
 
 const appRoutes: Routes = [
   {
@@ -203,6 +204,7 @@ const appRoutes: Routes = [
     CursorTrackerService,
     CursorChangeService,
     HorizonContextMenuService,
+    LinkService,
   ],
   bootstrap: [AppComponent]
 })

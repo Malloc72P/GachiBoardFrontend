@@ -2,8 +2,10 @@ import { Component, OnInit } from '@angular/core';
 import {subPanelStatus} from "../../../../../Model/Whiteboard/ContextMenu/horizon-context-menu-service/sub-panel-status";
 import {HorizonContextMenuActions} from "../../../../../Model/Whiteboard/ContextMenu/horizon-context-menu-service/horizon-context-menu.enum";
 import {HorizonContextMenuService} from "../../../../../Model/Whiteboard/ContextMenu/horizon-context-menu-service/horizon-context-menu.service";
-import {EditableShape} from "../../../../../Model/Whiteboard/Whiteboard-Item/Whiteboard-Shape/EditableShape/editable-shape";
-import {SimpleArrowLink} from "../../../../../Model/Whiteboard/Whiteboard-Item/Whiteboard-Shape/LinkPort/EditableLink/SimpleArrowLink/simple-arrow-link";
+import {LinkerModeEnum} from "../../../../../Model/Whiteboard/InfiniteCanvas/DrawingLayerManager/LinkModeManagerService/LinkMode/linker-mode-enum.enum";
+import {LinkModeManagerService} from "../../../../../Model/Whiteboard/InfiniteCanvas/DrawingLayerManager/LinkModeManagerService/link-mode-manager.service";
+import {EditableLink} from "../../../../../Model/Whiteboard/Whiteboard-Item/Whiteboard-Shape/LinkPort/EditableLink/editable-link";
+import {EditableLinkTypes} from "../../../../../Model/Whiteboard/Whiteboard-Item/Whiteboard-Shape/LinkPort/EditableLink/editable-link-types.enum";
 
 @Component({
   selector: 'app-sub-panel-for-arrow',
@@ -11,15 +13,40 @@ import {SimpleArrowLink} from "../../../../../Model/Whiteboard/Whiteboard-Item/W
   styleUrls: ['../horizon-context-menu.component.css']
 })
 export class SubPanelForArrowComponent implements OnInit {
-  private arrowStyles = new Array<string>(
-    "default",
-  );
+  private arrowStyles: Array<string>;
 
   constructor(
     private menu: HorizonContextMenuService,
+    private linkModeManager: LinkModeManagerService
   ) { }
 
   ngOnInit() {
+    this.initArrowStyles();
+  }
+
+  public isSelect(style: EditableLinkTypes): boolean {
+    if(this.menu.item instanceof EditableLink) {
+      if(style === this.menu.item.linkType) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  private onClickArrowStyle(style: EditableLinkTypes) {
+
+  }
+
+  private initArrowStyles() {
+    this.arrowStyles = new Array<string>();
+    for(let style in EditableLinkTypes) {
+      if(EditableLinkTypes.hasOwnProperty(style)) {
+        if(parseInt(style) >= 0) {
+          this.arrowStyles[style] = EditableLinkTypes[style];
+        }
+      }
+    }
   }
 
   get centerTop(): { x: number; y: number } {
@@ -34,7 +61,7 @@ export class SubPanelForArrowComponent implements OnInit {
     return HorizonContextMenuActions;
   }
 
-  get selectedSVG(): string {
-    return "selected";
+  get editableLinkTypes() {
+    return EditableLinkTypes;
   }
 }

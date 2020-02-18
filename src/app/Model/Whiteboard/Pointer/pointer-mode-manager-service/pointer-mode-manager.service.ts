@@ -23,6 +23,7 @@ import {PointerModeEvent} from '../PointerModeEvent/pointer-mode-event';
 import {DrawingLayerManagerService} from '../../InfiniteCanvas/DrawingLayerManager/drawing-layer-manager.service';
 import {PanelManagerService} from '../../Panel/panel-manager-service/panel-manager.service';
 import {CursorChangeService} from "../cursor-change-service/cursor-change.service";
+import {LinkService} from "../link-service/link.service";
 
 @Injectable({
   providedIn: 'root'
@@ -37,6 +38,7 @@ export class PointerModeManagerService {
       public brushService                 : BrushService,
       public eraser                       : EraserService,
       public shape                        : ShapeService,
+      public link                         : LinkService,
       public lassoSelector                : LassoSelectorService,
       public highlighter                  : HighlighterService,
       private infiniteCanvasService       : InfiniteCanvasService,
@@ -127,6 +129,10 @@ export class PointerModeManagerService {
         this.panelManager.isHideBrushPanel = this.panelManager.isHideHighlighterPanel = true;
         this.panelManager.isHideShapePanel = !this.panelManager.isHideShapePanel;
         break;
+      case PointerMode.LINK:
+        this.modeChange(panelItem);
+        this.panelManager.isHideBrushPanel = this.panelManager.isHideHighlighterPanel = this.panelManager.isHideShapePanel = true;
+        break;
       case PointerMode.ERASER:
         this.modeChange(panelItem);
         this.panelManager.isHideBrushPanel = this.panelManager.isHideHighlighterPanel = this.panelManager.isHideShapePanel = true;
@@ -160,6 +166,9 @@ export class PointerModeManagerService {
         break;
       case PointerMode.SHAPE:
         this.shape.createPath(event);
+        break;
+      case PointerMode.LINK:
+        this.link.createLink(event);
         break;
       case PointerMode.ERASER:
         this.eraser.createPath(event);
@@ -195,6 +204,9 @@ export class PointerModeManagerService {
           break;
         case PointerMode.SHAPE:
           this.shape.drawPath(event);
+          break;
+        case PointerMode.LINK:
+          this.link.drawLink(event);
           break;
         case PointerMode.ERASER:
           this.eraser.drawPath(event);
@@ -234,6 +246,9 @@ export class PointerModeManagerService {
           break;
         case PointerMode.SHAPE:
           this.shape.endPath(event);
+          break;
+        case PointerMode.LINK:
+          this.link.endLink(event);
           break;
         case PointerMode.ERASER:
           this.eraser.endPath();
@@ -278,6 +293,9 @@ export class PointerModeManagerService {
       case PointerMode.SHAPE:
         this.shape.createPath(event);
         break;
+      case PointerMode.LINK:
+        this.link.createLink(event);
+        break;
       case PointerMode.ERASER:
         this.eraser.createPath(event);
         break;
@@ -317,6 +335,9 @@ export class PointerModeManagerService {
           break;
         case PointerMode.SHAPE:
           this.shape.drawPath(event);
+          break;
+        case PointerMode.LINK:
+          this.link.drawLink(event);
           break;
         case PointerMode.ERASER:
           this.eraser.drawPath(event);
@@ -359,6 +380,9 @@ export class PointerModeManagerService {
         break;
       case PointerMode.SHAPE:
         this.shape.endPath(event);
+        break;
+      case PointerMode.LINK:
+        this.link.endLink(event);
         break;
       case PointerMode.ERASER:
         this.eraser.endPath();

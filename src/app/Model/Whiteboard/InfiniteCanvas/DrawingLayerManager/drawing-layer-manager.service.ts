@@ -57,6 +57,7 @@ import {ItemHandler} from "../../Whiteboard-Item/ItemAdjustor/ItemHandler/item-h
 import {WhiteboardShape} from "../../Whiteboard-Item/Whiteboard-Shape/whiteboard-shape";
 import {LinkAdjustorPositionEnum} from "../../Whiteboard-Item/Whiteboard-Shape/LinkPort/EditableLink/LinkAdjustorPositionEnum/link-adjustor-position-enum.enum";
 import {LinkHandler} from "../../Whiteboard-Item/Whiteboard-Shape/LinkPort/EditableLink/LinkHandler/link-handler";
+import {NewEditableLink} from "../../Whiteboard-Item/Whiteboard-Shape/LinkPort/EditableLink/new-editable-link";
 
 
 @Injectable({
@@ -217,12 +218,11 @@ export class DrawingLayerManagerService {
     return type === WhiteboardItemType.EDITABLE_GROUP;
   }
   private static isEditableLink(type){
-    return type === WhiteboardItemType.SIMPLE_ARROW_LINK
-      || type === WhiteboardItemType.SIMPLE_LINE_LINK
+    return type === WhiteboardItemType.EDITABLE_LINK;
   }
 
   public addToDrawingLayer(item, type, ...extras){
-    let newWhiteboardItem:WhiteboardItem = null;
+    let newWhiteboardItem: WhiteboardItem = null;
 
     //Stroke 형태인 경우
     if(DrawingLayerManagerService.isEditableStroke(type)){
@@ -270,8 +270,10 @@ export class DrawingLayerManagerService {
     }
     else if(DrawingLayerManagerService.isEditableGroup(type)){
       newWhiteboardItem = new EditableItemGroup(this.getWbId(),this);
+    } else if(DrawingLayerManagerService.isEditableLink(type)) {
+      newWhiteboardItem = new NewEditableLink(this.getWbId(), item, extras[0], extras[1], this);
     }
-    return newWhiteboardItem
+    return newWhiteboardItem;
   }
 
   get isSelecting(): boolean {

@@ -160,7 +160,7 @@ export class HorizonContextMenuService {
     }
   }
 
-  private findLink(item: EditableShape): SimpleArrowLink {
+  private findLink(item: EditableShape): EditableLink {
     let findItem = undefined;
     item.linkPortMap.forEach(value => {
       value.fromLinkList.forEach( valueOfValue => {

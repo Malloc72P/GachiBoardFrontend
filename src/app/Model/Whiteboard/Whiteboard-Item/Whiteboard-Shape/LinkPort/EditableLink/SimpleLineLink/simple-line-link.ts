@@ -1,16 +1,24 @@
 import {EditableLink} from '../editable-link';
 import {LinkPort} from '../../link-port';
 import {WhiteboardShape} from '../../../whiteboard-shape';
-import {SimpleArrowLinkDto} from '../../../../../WhiteboardItemDto/WhiteboardShapeDto/LinkPortDto/EditableLinkDto/SimpleArrowLinkDto/simple-arrow-link-dto';
 import {SimpleLineLinkDto} from '../../../../../WhiteboardItemDto/WhiteboardShapeDto/LinkPortDto/EditableLinkDto/SimpleLineLinkDto/simple-line-link-dto';
 import {WhiteboardItemType} from '../../../../../../Helper/data-type-enum/data-type.enum';
 import {LinkEvent} from "../../LinkEvent/link-event";
 import {LinkEventEnum} from "../../LinkEvent/link-event-enum.enum";
+import {EditableLinkTypes} from "../editable-link-types.enum";
 
 export class SimpleLineLink extends EditableLink {
 
   constructor(fromLinkPort: LinkPort, strokeColor?, strokeWidth?, fillColor?, isDashed?) {
-    super(WhiteboardItemType.SIMPLE_LINE_LINK, fromLinkPort, strokeColor, strokeWidth, fillColor, isDashed);
+    super(
+      WhiteboardItemType.EDITABLE_LINK,
+      isDashed ? EditableLinkTypes.DASHED_LINE_LINK : EditableLinkTypes.SIMPLE_LINE_LINK,
+      fromLinkPort,
+      strokeColor,
+      strokeWidth,
+      fillColor,
+      isDashed
+    );
   }
 
   // ####  임시링크 메서드

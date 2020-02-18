@@ -174,6 +174,7 @@ export class ItemGroup extends WhiteboardItem {
     this.wbItemGroup.push(wbItem);
     wbItem.isSelected = true;
     this.coreItem.addChild(wbItem.group);
+    this.group.bringToFront();
     if(this.getNumberOfChild() > 1) {
       this.wbItemGroup[0].emitDeselected();
     } else {

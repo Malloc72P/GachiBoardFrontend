@@ -26,14 +26,14 @@ import {ItemLifeCycleEnum, ItemLifeCycleEvent} from "./WhiteboardItemLifeCycle/W
 
 export abstract class WhiteboardItem {
 
-  protected _id;
+  protected _id: number;
   protected _type;
   protected _group:Group;
   protected _topLeft: Point;
-  protected _coreItem:Item;
+  protected _coreItem: Item;
   protected _isSelected: boolean;
-  private _isLocked: boolean;
-  protected _myItemAdjustor:ItemAdjustor;
+  protected _isLocked: boolean;
+  protected _myItemAdjustor: ItemAdjustor;
 
   private _isGrouped = false;
   private _parentEdtGroup:EditableItemGroup = null;

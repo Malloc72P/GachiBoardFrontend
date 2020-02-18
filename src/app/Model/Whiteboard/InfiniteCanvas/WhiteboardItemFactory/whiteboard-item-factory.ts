@@ -373,7 +373,7 @@ export class WhiteboardItemFactory {
     let linkType:WhiteboardItemType = currCopyLink.linkDto.type;
     let newLink:EditableLink;
     switch (linkType) {
-      case WhiteboardItemType.SIMPLE_ARROW_LINK:
+      case WhiteboardItemType.EDITABLE_LINK:
         newLink = WhiteboardItemFactory.createSimpleArrowLink(wbId, currCopyLink);
         break;
       case WhiteboardItemType.SIMPLE_LINE_LINK:

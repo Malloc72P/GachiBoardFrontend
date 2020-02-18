@@ -97,6 +97,12 @@ export class ProjectSupporterPannelComponent extends PopoverPanel  implements On
       case SupportMode.EXPORT:
         break;
       case SupportMode.TEXT_CHAT:
+        this.layerService.drawingLayer.children.forEach(value => {
+          console.log("Children ID : ", value.id, ", Children Object : ", value);
+        });
+        this.layerService.whiteboardItemArray.forEach(value => {
+          console.log("WBItem ID : ", value.group.id, "WBItem Object : ", value);
+        });
         break;
       case SupportMode.CURSOR_TRACKER:
         if(this.cursorTrackerService.isActivate) {
