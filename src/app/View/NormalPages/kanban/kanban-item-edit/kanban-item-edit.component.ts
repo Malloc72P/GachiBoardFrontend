@@ -6,9 +6,12 @@ import {
   KanbanItemColorService
 } from '../../../../Model/Whiteboard/ProjectSupporter/Kanban/KanbanItemColorEnumManager/kanban-item-color.service';
 import {KanbanItem} from '../../../../Model/Whiteboard/ProjectSupporter/Kanban/KanbanItem/kanban-item';
+import {KanbanGroup} from '../../../../Model/Whiteboard/ProjectSupporter/Kanban/KanbanGroup/kanban-group';
+import {WsKanbanController} from '../../../../Controller/Controller-WebSocket/websocket-manager/KanbanWsController/ws-kanban.controller';
 
 export class EditKanbanDialogData {
   kanbanItem:KanbanItem;
+  kanbanGroup:KanbanGroup;
 }
 
 @Component({
@@ -18,6 +21,7 @@ export class EditKanbanDialogData {
 })
 export class KanbanItemEditComponent implements OnInit {
   kanbanItem:KanbanItem;
+  kanbanGroup:KanbanGroup;
   userFormControl:FormControl;
   colorFormControl:FormControl;
   titleFormControl:FormControl;
@@ -29,6 +33,7 @@ export class KanbanItemEditComponent implements OnInit {
     private colorService:KanbanItemColorService,
     @Inject(MAT_DIALOG_DATA) public data: EditKanbanDialogData) {
     this.kanbanItem = data.kanbanItem;
+    this.kanbanGroup = data.kanbanGroup;
 
     this.titleFormControl = new FormControl(this.kanbanItem.title, [
       Validators.required,
@@ -43,6 +48,8 @@ export class KanbanItemEditComponent implements OnInit {
   ngOnInit(): void {
   }
   onNoClick(): void {
+    let wsKanbanController = WsKanbanController.getInstance();
+    wsKanbanController.requestUnlockKanban(this.kanbanItem, this.kanbanGroup);
     this.dialogRef.close();
   }
   onSubmit(){
@@ -51,9 +58,17 @@ export class KanbanItemEditComponent implements OnInit {
     );
     this.kanbanItem.setColor(this.colorFormControl.value);
     this.kanbanItem.title = this.titleFormControl.value;
-    this.dialogRef.close({
-      kanbanItem : this.kanbanItem
-    })
+
+    let wsKanbanController = WsKanbanController.getInstance();
+    wsKanbanController.waitRequestUpdateKanban(this.kanbanItem, this.kanbanGroup)
+      .subscribe((data)=>{
+        wsKanbanController.requestUnlockKanban(this.kanbanItem, this.kanbanGroup);
+        this.dialogRef.close({
+          kanbanItem : this.kanbanItem
+        });
+      },(e)=>{
+        console.warn("KanbanItemEditComponent >> onSubmit >> e : ",e);
+      });
   }
   onResetClick(){
     this.userFormControl.setValue(this.kanbanItem.userInfo.userName);

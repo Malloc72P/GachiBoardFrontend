@@ -64,22 +64,16 @@ export class WebsocketManagerService {
 
     if(verifiedIdx > -1){
       let wsKanbanController = WsKanbanController.getInstance();
+      let kanbanItemDto = wsPacketDto.dataDto as KanbanItemDto;
       switch (foundNotVerified.wsPacketDto.action) {
         case WebsocketPacketActionEnum.CREATE:
-          wsKanbanController.createFromWsManager(foundNotVerified.wsPacketDto);
-          break;
         case WebsocketPacketActionEnum.UPDATE:
-          break;
         case WebsocketPacketActionEnum.DELETE:
-          wsKanbanController.delFromWsManager(foundNotVerified.wsPacketDto);
-          break;
         case WebsocketPacketActionEnum.RELOCATE:
         case WebsocketPacketActionEnum.LOCK:
         case WebsocketPacketActionEnum.UNLOCK:
-            let kanbanItemDto = wsPacketDto.dataDto as KanbanItemDto;
             foundNotVerified.kanbanItem.lockedBy = kanbanItemDto.lockedBy;
             break;
-
       }
       this.notVerifiedKanbanItems.splice(verifiedIdx, 1);
     }

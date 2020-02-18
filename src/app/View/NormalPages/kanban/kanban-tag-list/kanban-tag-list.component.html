@@ -1,22 +1,24 @@
 <mat-form-field class="example-chip-list kanban-item-tagWrapper">
-  <mat-chip-list #chipList aria-label="Fruit selection">
+  <mat-chip-list #chipList >
     <mat-chip
       #tagViewItem
-      title="{{tagItem.title}}"
       *ngFor="let tagItem of kanbanItem.tagList"
-      [selectable]="selectable"
+      title="{{tagItem.title}}"
       [removable]="removable"
       (removed)="remove(tagItem)">
       {{tagItem.title}}
       <mat-icon matChipRemove *ngIf="removable">cancel</mat-icon>
     </mat-chip>
     <input #tagInput
-      [formControl]="tagFormControl"
-      [matAutocomplete]="auto"
-      [matChipInputFor]="chipList"
-      [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
-      [matChipInputAddOnBlur]="addOnBlur"
-      (matChipInputTokenEnd)="add($event)">
+           (focusin)="onTagInputerFocusIn()"
+           (focusout)="onTagInputerFocusOut()"
+           [formControl]="tagFormControl"
+           [disabled]="kanbanItem.lockedBy && checkEditorIsAnotherUser(kanbanItem.lockedBy)"
+           [matAutocomplete]="auto"
+           [matChipInputFor]="chipList"
+           [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
+           [matChipInputAddOnBlur]="addOnBlur"
+           (matChipInputTokenEnd)="add($event)">
   </mat-chip-list>
 
   <mat-autocomplete #auto="matAutocomplete" (optionSelected)="selected($event)">

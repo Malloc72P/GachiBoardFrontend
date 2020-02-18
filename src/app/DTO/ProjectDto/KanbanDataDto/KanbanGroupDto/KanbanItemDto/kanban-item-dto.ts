@@ -19,5 +19,6 @@ export class KanbanItemDto {
     this.color = color;
     this.tagIdList = tagIdList;
     this.parentGroup = parentGroup;
+    this.tagIdList = new Array<any>();
   }
 }

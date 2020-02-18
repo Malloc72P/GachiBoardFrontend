@@ -8,6 +8,11 @@ import {KanbanEvent, KanbanEventEnum} from '../../../../Model/Whiteboard/Project
 import {KanbanGroupEnum, KanbanItemDto} from '../../../../DTO/ProjectDto/KanbanDataDto/KanbanGroupDto/KanbanItemDto/kanban-item-dto';
 import {WebsocketEvent, WebsocketEventEnum} from '../WebsocketEvent/WebsocketEvent';
 import {KanbanDataDto} from '../../../../DTO/ProjectDto/KanbanDataDto/kanban-data-dto';
+import {KanbanGroup} from '../../../../Model/Whiteboard/ProjectSupporter/Kanban/KanbanGroup/kanban-group';
+import {moveItemInArray, transferArrayItem} from '@angular/cdk/drag-drop';
+import {Observable, Subscription} from 'rxjs';
+import {TagItem} from '../../../../Model/Whiteboard/ProjectSupporter/Kanban/KanbanTagListManager/kanban-tag-list-manager.service';
+import {KanbanTagDto} from '../../../../DTO/ProjectDto/KanbanDataDto/KanbanTagDto/kanban-tag-dto';
 
 export class WsKanbanController {
   private socket:Socket;
@@ -20,10 +25,12 @@ export class WsKanbanController {
     this.socket = this.websocketManager.socket;
     this.onKanbanCreated();
     this.onKanbanDeleted();
-    this.onKanbanGet();
+    /*this.onKanbanGet();*/
     this.onKanbanLock();
     this.onKanbanUnlock();
     this.onKanbanRelocation();
+    this.onKanbanUpdate();
+    this.onKanbanTagCreate();
   }
 
 
@@ -44,7 +51,7 @@ export class WsKanbanController {
         console.log("WsKanbanController >> onKanbanCreated >> wsPacketDto : ",wsPacketDto);
         switch (wsPacketDto.action) {
           case WebsocketPacketActionEnum.CREATE:
-            this.createFromWsManager(wsPacketDto);
+            // this.createFromWsManager(wsPacketDto);
             this.websocketManager.kanbanEventManagerService.kanbanEventEmitter.emit(
               new KanbanEvent(KanbanEventEnum.CREATE, wsPacketDto.dataDto as KanbanItemDto));
             break;
@@ -56,29 +63,6 @@ export class WsKanbanController {
 
         }
       })
-  }
-
-  createFromWsManager(wsPacketDto){
-    let kanbanItemDto:KanbanItemDto = wsPacketDto.dataDto as KanbanItemDto;
-    let groupEnum:KanbanGroupEnum = kanbanItemDto.parentGroup as KanbanGroupEnum;
-
-    let currKanbanData = this.websocketManager.currentProjectDto.kanbanData;
-    let targetGroup:Array<any> = null;
-
-    switch (groupEnum) {
-      case KanbanGroupEnum.TODO:
-        targetGroup = currKanbanData.todoGroup;
-        break;
-      case KanbanGroupEnum.IN_PROGRESS:
-        targetGroup = currKanbanData.inProgressGroup;
-        break;
-      case KanbanGroupEnum.DONE:
-        targetGroup = currKanbanData.doneGroup;
-        break;
-      default :
-        return;
-    }
-    targetGroup.push(kanbanItemDto);
   }
   /* **************************************************** */
   /* Request Create kanban END */
@@ -102,7 +86,7 @@ export class WsKanbanController {
         console.log("WsKanbanController >> onKanbanDeleted >> wsPacketDto : ",wsPacketDto);
         switch (wsPacketDto.action) {
           case WebsocketPacketActionEnum.DELETE:
-            this.delFromWsManager(wsPacketDto);
+            // this.delFromWsManager(wsPacketDto);
             this.websocketManager.kanbanEventManagerService.kanbanEventEmitter.emit(
               new KanbanEvent(KanbanEventEnum.DELETE, wsPacketDto.dataDto as KanbanItemDto));
             break;
@@ -116,41 +100,6 @@ export class WsKanbanController {
       })
   }
 
-  delFromWsManager(wsPacketDto){
-    let kanbanItemDto:KanbanItemDto = wsPacketDto.dataDto as KanbanItemDto;
-    let groupEnum:KanbanGroupEnum = kanbanItemDto.parentGroup as KanbanGroupEnum;
-
-    let currKanbanData = this.websocketManager.currentProjectDto.kanbanData;
-    let targetGroup:Array<any> = null;
-
-    switch (groupEnum) {
-      case KanbanGroupEnum.TODO:
-        targetGroup = currKanbanData.todoGroup;
-        break;
-      case KanbanGroupEnum.IN_PROGRESS:
-        targetGroup = currKanbanData.inProgressGroup;
-        break;
-      case KanbanGroupEnum.DONE:
-        targetGroup = currKanbanData.doneGroup;
-        break;
-      default :
-        return;
-    }
-    let index = -1;
-    for(let i = 0 ; i < targetGroup.length; i++){
-      let currItem = targetGroup[i];
-
-      if(currItem._id === kanbanItemDto._id){
-        index = i;
-        break;
-      }
-    }
-
-    if(index >= 0){
-      targetGroup.splice(index, 1);
-    }
-  }
-
   /* **************************************************** */
   /* Request Delete END */
   /* **************************************************** */
@@ -158,26 +107,25 @@ export class WsKanbanController {
   /* *************************************************** */
   /* Request Get START */
   /* *************************************************** */
-  requestGetKanban(){
-    let packetDto = this.websocketManager.createProjectScopePacket({}, WebsocketPacketActionEnum.READ);
-    packetDto.wsPacketSeq = this.websocketManager.wsPacketSeq;
-    this.socket.emit(HttpHelper.websocketApi.kanban.read.event, packetDto);
-  }
+  requestGetKanban() :Observable<any>{
+    return new Observable<any>((subscriber)=>{
+      let packetDto = this.websocketManager.createProjectScopePacket({}, WebsocketPacketActionEnum.READ);
+      packetDto.wsPacketSeq = this.websocketManager.wsPacketSeq;
+      this.socket.emit(HttpHelper.websocketApi.kanban.read.event, packetDto);
 
-  private onKanbanGet(){
-    this.socket.on(HttpHelper.websocketApi.kanban.read.event,
-      (wsPacketDto:WebsocketPacketDto)=>{
-        console.log("WsKanbanController >> onKanbanGet >> wsPacketDto : ",wsPacketDto);
-        switch (wsPacketDto.action) {
-          case WebsocketPacketActionEnum.ACK:
-            this.websocketManager.currentProjectDto.kanbanData = wsPacketDto.dataDto as KanbanDataDto;
-            this.websocketManager.wsEventEmitter.emit(new WebsocketEvent(WebsocketEventEnum.GET_KANBAN_DATA,wsPacketDto.dataDto));
-            break;
-          case WebsocketPacketActionEnum.NAK:
-            break;
+      this.socket.on(HttpHelper.websocketApi.kanban.read.event,
+        (wsPacketDto:WebsocketPacketDto)=>{
+          console.log("WsKanbanController >> onKanbanGet >> wsPacketDto : ",wsPacketDto);
+          switch (wsPacketDto.action) {
+            case WebsocketPacketActionEnum.ACK:
+              subscriber.next(wsPacketDto.dataDto);
+              break;
+            case WebsocketPacketActionEnum.NAK:
+              break;
 
-        }
-      })
+          }
+        })
+    });
   }
   /* **************************************************** */
   /* Request Get END */
@@ -196,6 +144,8 @@ export class WsKanbanController {
       destIdx         : destIdx
     };
 
+    console.log("WsKanbanController >> requestRelocationKanban >> packetDto : ",packetDto);
+
     this.socket.emit(HttpHelper.websocketApi.kanban.relocate.event, packetDto);
     this.websocketManager.saveNotVerifiedKanbanItem(packetDto, fromKanbanItem);
   }
@@ -203,11 +153,12 @@ export class WsKanbanController {
   private onKanbanRelocation(){
     this.socket.on(HttpHelper.websocketApi.kanban.relocate.event,
       (wsPacketDto:WebsocketPacketDto)=>{
+        console.log("WsKanbanController >> onKanbanRelocation >> 진입함");
         switch (wsPacketDto.action) {
           case WebsocketPacketActionEnum.RELOCATE:
             this.websocketManager.kanbanEventManagerService.kanbanEventEmitter.emit(
               new KanbanEvent(KanbanEventEnum.RELOCATE, wsPacketDto.dataDto as KanbanItemDto, wsPacketDto.additionalData));
-            this.relocateFromWsManager(wsPacketDto);
+            // this.relocateFromWsManager(wsPacketDto);
             break;
           case WebsocketPacketActionEnum.ACK:
             this.websocketManager.verifyKanbanItem(wsPacketDto);
@@ -217,44 +168,6 @@ export class WsKanbanController {
 
         }
       })
-  }
-
-  relocateFromWsManager(wsPacketDto:WebsocketPacketDto){
-    console.log("WsKanbanController >> relocateFromWsManager >> 진입함");
-    let kanbanItemDto:KanbanItemDto = wsPacketDto.dataDto as KanbanItemDto;
-
-    let destGroupTitle = wsPacketDto.additionalData.destGroupTitle;
-    let destIdx = wsPacketDto.additionalData.destIdx;
-
-    let kanbanDataDto = this.websocketManager.currentProjectDto.kanbanData;
-
-    let fromGroup, toGroup;
-    fromGroup = this.getGroupObject(kanbanDataDto, kanbanItemDto.parentGroup);
-    toGroup = this.getGroupObject(kanbanDataDto, destGroupTitle);
-    let adjustedIdx = -1;
-    if(toGroup.length <= destIdx){//재배치될 위치가 그룹 배열크기를 초과하는 경우 enqueue함
-      adjustedIdx = toGroup.length;
-    }else{
-      adjustedIdx = destIdx;
-    }
-    //1. 재배치할 위치로 칸반아이템을 삽입.
-    kanbanItemDto.parentGroup = destGroupTitle;
-    toGroup.splice(adjustedIdx, 0, kanbanItemDto);
-
-    //2. 이전 위치에 있던 칸반 아이템을 제거
-    let delIdx = -1;
-    for(let i = 0 ; i < fromGroup.length; i++){
-      let currItem = fromGroup[i];
-      if(currItem._id === kanbanItemDto._id){
-        delIdx = i;
-        break;
-      }
-    }
-    if(delIdx > -1){
-      fromGroup.splice(delIdx, 1);
-    }
-    let testResult = this.websocketManager.currentProjectDto.kanbanData;
-    console.log("WsKanbanController >> relocateFromWsManager >> testResult : ",testResult);
   }
   /* **************************************************** */
   /* Request Relocation END */
@@ -274,13 +187,42 @@ export class WsKanbanController {
     this.websocketManager.saveNotVerifiedKanbanItem(packetDto, kanbanItem);
   }
 
+  waitRequestLockKanban(kanbanItem:KanbanItem, kanbanGroup):Observable<any>{
+    return new Observable<any>((subscriber)=>{
+      console.log("WsKanbanController >> waitRequestLockKanban >> 진입함");
+      let kanbanItemDto = kanbanItem.exportDto(kanbanGroup.title);
+
+      kanbanItemDto.lockedBy = this.websocketManager.userInfo.idToken;
+
+      let packetDto = this.websocketManager.createProjectScopePacket(kanbanItemDto, WebsocketPacketActionEnum.LOCK);
+      packetDto.wsPacketSeq = this.websocketManager.wsPacketSeq;
+      this.socket.emit(HttpHelper.websocketApi.kanban.lock.event, packetDto);
+      this.websocketManager.saveNotVerifiedKanbanItem(packetDto, kanbanItem);
+
+      // #### Request Sequence End Start Subscribe Sequence
+
+      this.socket.once(HttpHelper.websocketApi.kanban.lock.event,
+        (wsPacketDto:WebsocketPacketDto)=>{
+          switch (wsPacketDto.action) {
+            case WebsocketPacketActionEnum.ACK:
+              console.log("WsKanbanController >> onKanbanLock >> wsPacketDto : ",wsPacketDto);
+              this.websocketManager.verifyKanbanItem(wsPacketDto);
+              subscriber.next(wsPacketDto);
+              break;
+            case WebsocketPacketActionEnum.NAK:
+              subscriber.error(wsPacketDto);
+              break;
+          }
+        });
+    });
+  }
+
   private onKanbanLock(){
     this.socket.on(HttpHelper.websocketApi.kanban.lock.event,
       (wsPacketDto:WebsocketPacketDto)=>{
-        console.log("WsKanbanController >> onKanbanLock >> wsPacketDto : ",wsPacketDto);
         switch (wsPacketDto.action) {
           case WebsocketPacketActionEnum.LOCK:
-            this.lockFromWsManager(wsPacketDto);
+            console.log("WsKanbanController >> onKanbanLock >> wsPacketDto : ",wsPacketDto);
             this.websocketManager.kanbanEventManagerService.kanbanEventEmitter.emit(
               new KanbanEvent(KanbanEventEnum.LOCK, wsPacketDto.dataDto as KanbanItemDto));
             break;
@@ -292,36 +234,6 @@ export class WsKanbanController {
 
         }
       })
-  }
-
-  lockFromWsManager(wsPacketDto){
-    let kanbanItemDto:KanbanItemDto = wsPacketDto.dataDto as KanbanItemDto;
-    let groupEnum:KanbanGroupEnum = kanbanItemDto.parentGroup as KanbanGroupEnum;
-
-    let currKanbanData = this.websocketManager.currentProjectDto.kanbanData;
-    let targetGroup:Array<KanbanItemDto> = null;
-
-    switch (groupEnum) {
-      case KanbanGroupEnum.TODO:
-        targetGroup = currKanbanData.todoGroup;
-        break;
-      case KanbanGroupEnum.IN_PROGRESS:
-        targetGroup = currKanbanData.inProgressGroup;
-        break;
-      case KanbanGroupEnum.DONE:
-        targetGroup = currKanbanData.doneGroup;
-        break;
-      default :
-        return;
-    }
-    for(let i = 0 ; i < targetGroup.length; i++){
-      let currItem = targetGroup[i];
-
-      if(currItem._id === kanbanItemDto._id){
-        currItem.lockedBy = kanbanItemDto.lockedBy;
-        break;
-      }
-    }
   }
   /* **************************************************** */
   /* Request LOCK END */
@@ -348,7 +260,7 @@ export class WsKanbanController {
         console.log("WsKanbanController >> onKanbanUnlock >> wsPacketDto : ",wsPacketDto);
         switch (wsPacketDto.action) {
           case WebsocketPacketActionEnum.UNLOCK:
-            this.unlockFromWsManager(wsPacketDto);
+            // this.unlockFromWsManager(wsPacketDto);
             this.websocketManager.kanbanEventManagerService.kanbanEventEmitter.emit(
               new KanbanEvent(KanbanEventEnum.UNLOCK, wsPacketDto.dataDto as KanbanItemDto));
             break;
@@ -362,38 +274,125 @@ export class WsKanbanController {
       })
   }
 
-  unlockFromWsManager(wsPacketDto){
-    let kanbanItemDto:KanbanItemDto = wsPacketDto.dataDto as KanbanItemDto;
-    let groupEnum:KanbanGroupEnum = kanbanItemDto.parentGroup as KanbanGroupEnum;
+  /* **************************************************** */
+  /* Request Unlock END */
+  /* **************************************************** */
 
-    let currKanbanData = this.websocketManager.currentProjectDto.kanbanData;
-    let targetGroup:Array<KanbanItemDto> = null;
+  /* *************************************************** */
+  /* Request Edit START */
+  /* *************************************************** */
 
-    switch (groupEnum) {
-      case KanbanGroupEnum.TODO:
-        targetGroup = currKanbanData.todoGroup;
-        break;
-      case KanbanGroupEnum.IN_PROGRESS:
-        targetGroup = currKanbanData.inProgressGroup;
-        break;
-      case KanbanGroupEnum.DONE:
-        targetGroup = currKanbanData.doneGroup;
-        break;
-      default :
-        return;
-    }
-    for(let i = 0 ; i < targetGroup.length; i++){
-      let currItem = targetGroup[i];
+  requestUpdateKanban(kanbanItem:KanbanItem, kanbanGroup){
+    let kanbanItemDto = kanbanItem.exportDto(kanbanGroup.title);
+    let packetDto = this.websocketManager.createProjectScopePacket(kanbanItemDto, WebsocketPacketActionEnum.UPDATE);
+    packetDto.wsPacketSeq = this.websocketManager.wsPacketSeq;
+    this.socket.emit(HttpHelper.websocketApi.kanban.update.event, packetDto);
+    this.websocketManager.saveNotVerifiedKanbanItem(packetDto, kanbanItem);
+  }
+  waitRequestUpdateKanban(kanbanItem:KanbanItem, kanbanGroup){
+    return new Observable<any>((subscriber)=>{
+      let kanbanItemDto = kanbanItem.exportDto(kanbanGroup.title);
+      let packetDto = this.websocketManager.createProjectScopePacket(kanbanItemDto, WebsocketPacketActionEnum.UPDATE);
+      packetDto.wsPacketSeq = this.websocketManager.wsPacketSeq;
+      this.socket.emit(HttpHelper.websocketApi.kanban.update.event, packetDto);
+      this.websocketManager.saveNotVerifiedKanbanItem(packetDto, kanbanItem);
 
-      if(currItem._id === kanbanItemDto._id){
-        currItem.lockedBy = kanbanItemDto.lockedBy;
-        break;
-      }
-    }
+      //#### 요청 완료
+
+      this.socket.once(HttpHelper.websocketApi.kanban.update.event,
+        (wsPacketDto:WebsocketPacketDto)=>{
+          switch (wsPacketDto.action) {
+            case WebsocketPacketActionEnum.ACK:
+              console.log("WsKanbanController >> onKanbanUpdate >> wsPacketDto : ",wsPacketDto);
+              this.websocketManager.verifyKanbanItem(wsPacketDto);
+              subscriber.next(packetDto);
+              break;
+            case WebsocketPacketActionEnum.NAK:
+              subscriber.error(packetDto);
+              break;
+          }
+        })
+    });
+  }
+
+  private onKanbanUpdate(){
+    this.socket.on(HttpHelper.websocketApi.kanban.update.event,
+      (wsPacketDto:WebsocketPacketDto)=>{
+        switch (wsPacketDto.action) {
+          case WebsocketPacketActionEnum.UPDATE:
+            console.log("WsKanbanController >> onKanbanUpdate >> wsPacketDto : ",wsPacketDto);
+            this.websocketManager.kanbanEventManagerService.kanbanEventEmitter.emit(
+              new KanbanEvent(KanbanEventEnum.UPDATE, wsPacketDto.dataDto as KanbanItemDto));
+            break;
+          case WebsocketPacketActionEnum.ACK:
+            this.websocketManager.verifyKanbanItem(wsPacketDto);
+            break;
+          case WebsocketPacketActionEnum.NAK:
+            break;
+
+        }
+      })
   }
 
   /* **************************************************** */
-  /* Request Unlock END */
+  /* Request Edit END */
+  /* **************************************************** */
+
+  /* *************************************************** */
+  /* Request Edit START */
+  /* *************************************************** */
+
+  waitRequestCreateKanbanTag(kanbanTag:TagItem){
+    return new Observable<any>((subscriber)=>{
+      let tagDto = kanbanTag.exportDto();
+      console.log("WsKanbanController >> waitRequestCreateKanbanTag >> tagDto : ",tagDto);
+
+      let packetDto = this.websocketManager.createProjectScopePacket(tagDto, WebsocketPacketActionEnum.CREATE_TAG);
+      packetDto.wsPacketSeq = this.websocketManager.wsPacketSeq;
+
+      this.socket.emit(HttpHelper.websocketApi.kanban.create_tag.event, packetDto);
+
+      //this.websocketManager.saveNotVerifiedKanbanItem(packetDto, kanbanItem);
+
+      //#### 요청 완료
+
+      this.socket.once(HttpHelper.websocketApi.kanban.create_tag.event,
+        (wsPacketDto:WebsocketPacketDto)=>{
+          switch (wsPacketDto.action) {
+            case WebsocketPacketActionEnum.ACK:
+              console.log("WsKanbanController >> waitRequestCreateTagKanban >> wsPacketDto : ",wsPacketDto);
+              let responseTagDto:KanbanTagDto = wsPacketDto.dataDto as KanbanTagDto;
+              kanbanTag._id = responseTagDto._id;
+              subscriber.next(responseTagDto);
+              break;
+            case WebsocketPacketActionEnum.NAK:
+              subscriber.error(packetDto);
+              break;
+          }
+        })
+    });
+  }
+
+  private onKanbanTagCreate(){
+    this.socket.on(HttpHelper.websocketApi.kanban.create_tag.event,
+      (wsPacketDto:WebsocketPacketDto)=>{
+        switch (wsPacketDto.action) {
+          case WebsocketPacketActionEnum.CREATE_TAG:
+            console.log("WsKanbanController >> onKanbanCreateTag >> wsPacketDto : ",wsPacketDto);
+            let responseTagDto:KanbanTagDto = wsPacketDto.dataDto as KanbanTagDto;
+            this.websocketManager.kanbanEventManagerService.kanbanEventEmitter.emit(
+              new KanbanEvent(KanbanEventEnum.CREATE_TAG, null, responseTagDto));
+            break;
+          case WebsocketPacketActionEnum.ACK:
+            break;
+          case WebsocketPacketActionEnum.NAK:
+            break;
+        }
+      });
+  }
+
+  /* **************************************************** */
+  /* Request Edit END */
   /* **************************************************** */
 
 
@@ -410,18 +409,6 @@ export class WsKanbanController {
     else{
       console.warn("경고! 싱글톤 클래스를 초기화 하지 않은 채로 인스턴스에 접근하려는 시도 식별됨!!!");
       return null;
-    }
-  }
-
-  getGroupObject(kanbanDataDto:KanbanDataDto, groupTitle){
-    let switchEnum:KanbanGroupEnum = groupTitle as KanbanGroupEnum;
-    switch (switchEnum) {
-      case KanbanGroupEnum.TODO:
-        return kanbanDataDto.todoGroup;
-      case KanbanGroupEnum.IN_PROGRESS:
-        return kanbanDataDto.inProgressGroup;
-      case KanbanGroupEnum.DONE:
-        return kanbanDataDto.doneGroup;
     }
   }
 

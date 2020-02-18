@@ -13,6 +13,7 @@ export class KanbanEvent {
 }
 export enum KanbanEventEnum {
   CREATE,
+  CREATE_TAG,
   UPDATE,
   DELETE,
   RELOCATE,

@@ -23,6 +23,7 @@ export enum ApiRequestTypeEnum {
 }
 export enum WebSocketTypeEnum {
   CREATE,
+  CREATE_TAG,
   READ,
   UPDATE,
   DELETE,
@@ -84,6 +85,9 @@ export class HttpHelper {
     kanban : {
       create : new WebSocketRequest(
         "kanban_create", WebSocketTypeEnum.CREATE
+      ),
+      create_tag : new WebSocketRequest(
+        "kanban_create_tag", WebSocketTypeEnum.CREATE_TAG
       ),
       update : new WebSocketRequest(
         "kanban_update", WebSocketTypeEnum.UPDATE

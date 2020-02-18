@@ -21,6 +21,7 @@ import {KanbanDataDto} from '../../../../DTO/ProjectDto/KanbanDataDto/kanban-dat
 import {KanbanEvent, KanbanEventEnum} from '../../../../Model/Whiteboard/ProjectSupporter/Kanban/KanbanEvent/KanbanEvent';
 import {KanbanEventManagerService} from '../../../../Model/Whiteboard/ProjectSupporter/Kanban/kanban-event-manager.service';
 import {KanbanGroup} from '../../../../Model/Whiteboard/ProjectSupporter/Kanban/KanbanGroup/kanban-group';
+import {WsKanbanController} from '../../../../Controller/Controller-WebSocket/websocket-manager/KanbanWsController/ws-kanban.controller';
 
 @Component({
   selector: 'app-main-page-project',
@@ -78,33 +79,23 @@ export class MainPageProjectComponent implements OnInit, OnDestroy {
 
   subscribeKanbanEventEmitter(){
     this.kanbanEventManager.kanbanEventEmitter.subscribe((kanbanEvent:KanbanEvent)=>{
-      if(kanbanEvent.kanbanItemDto.parentGroup === KanbanGroupEnum.IN_PROGRESS){
-        switch (kanbanEvent.action) {
-          case KanbanEventEnum.CREATE:
-            /*this.enqueueByWs(kanbanEvent.kanbanItemDto);*/
-            this.inProgressGroup.push(kanbanEvent.kanbanItemDto);
-            break;
-          case KanbanEventEnum.UPDATE:
-            break;
-          case KanbanEventEnum.DELETE:
-            let index = -1;
-            for(let i = 0 ; i < this.inProgressGroup.length; i++){
-              let currItem = this.inProgressGroup[i];
-
-              if(currItem._id === kanbanEvent.kanbanItemDto._id){
-                index = i;
-                break;
-              }
-            }
-
-            if(index >= 0){
-              this.inProgressGroup.splice(index, 1);
-            }
-
-            /*this.deleteByWs(kanbanEvent.kanbanItemDto);*/
-            break;
-        }
+      console.log("MainPageProjectComponent >> subscribeKanbanEventEmitter >> 진입함");
+      console.log("MainPageProjectComponent >> subscribeKanbanEventEmitter >> kanbanEvent : ",kanbanEvent);
+      switch (kanbanEvent.action) {
+        case KanbanEventEnum.CREATE:
+        case KanbanEventEnum.UPDATE:
+        case KanbanEventEnum.DELETE:
+        case KanbanEventEnum.RELOCATE:
+          this.refreshInProgressGroup();
       }
+
+    });
+  }
+
+  refreshInProgressGroup(){
+    let wsKanbanController = WsKanbanController.getInstance();
+    wsKanbanController.requestGetKanban().subscribe((kanbanData:KanbanDataDto)=>{
+      this.inProgressGroup = kanbanData.inProgressGroup;
     });
   }
 
@@ -155,7 +146,7 @@ export class MainPageProjectComponent implements OnInit, OnDestroy {
     dialogRef.afterClosed().subscribe(result => {
       /*let wsKanbanController = WsKanbanController.getInstance();
       wsKanbanController.requestGetKanban();*/
-
+      this.refreshInProgressGroup();
     });
   }
 

@@ -79,10 +79,10 @@
               <mat-card *ngFor="let item of group.kanbanItemList"
                         cdkDrag
                         class="kanban-item-card"
-                        [cdkDragDisabled]="item.lockedBy"
-                        [ngClass]="{'kanban-item-disabled' : item.lockedBy}">
+                        [cdkDragDisabled]="item.lockedBy && checkEditorIsAnotherUser(item.lockedBy)"
+                        [ngClass]="{'kanban-item-disabled' : item.lockedBy && checkEditorIsAnotherUser(item.lockedBy)}">
                 <mat-card class="example-custom-placeholder" *cdkDragPlaceholder></mat-card>
-                <div *ngIf="item.lockedBy && checkEditorIsAnotherUser(item.lockedBy)"><span>{{getUserName(item.lockedBy)}}에 의해 수정중...</span></div>
+                <div *ngIf="item.lockedBy && checkEditorIsAnotherUser(item.lockedBy)"><span>{{getUserName(item.lockedBy)}}님이 수정중...</span></div>
                 <div class="kanban-item-title-left-color"
                      [ngStyle]="{ 'background-color' : item.getColor() }"></div>
 
@@ -99,9 +99,13 @@
                   </button>
                   <mat-menu #menu="matMenu">
                     <button mat-menu-item
-                            (click)="onEditBtnClick(item)">수정</button>
+                            [disabled]="item.lockedBy && checkEditorIsAnotherUser(item.lockedBy)"
+                            (click)="onContextBtnClick( 'edit', item, group )">수정</button>
+                    <!--onEditBtnClick(item)-->
                     <button mat-menu-item
-                            (click)="deleteFrom( item, group )">삭제</button>
+                            [disabled]="item.lockedBy && checkEditorIsAnotherUser(item.lockedBy)"
+                            (click)="onContextBtnClick( 'delete', item, group )">삭제</button>
+                    <!--deleteFrom( item, group )-->
                   </mat-menu>
                 </mat-card-title>
 
@@ -117,7 +121,7 @@
                   </mat-card-subtitle>
                 </mat-card>
                 <!--마테리얼 칩 영역-->
-                <app-kanban-tag-list [kanbanItem]="item">
+                <app-kanban-tag-list [kanbanItem]="item" [kanbanGroup]="group">
                 </app-kanban-tag-list>
               </mat-card>
               <!--칸반 아이템-->

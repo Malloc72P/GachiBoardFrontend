@@ -18,6 +18,8 @@ import {KanbanEventManagerService} from '../../../Model/Whiteboard/ProjectSuppor
 import {KanbanEvent, KanbanEventEnum} from '../../../Model/Whiteboard/ProjectSupporter/Kanban/KanbanEvent/KanbanEvent';
 import {WebsocketManagerService} from '../../../Controller/Controller-WebSocket/websocket-manager/websocket-manager.service';
 import {WebsocketEvent, WebsocketEventEnum} from '../../../Controller/Controller-WebSocket/websocket-manager/WebsocketEvent/WebsocketEvent';
+import {KanbanDataDto} from '../../../DTO/ProjectDto/KanbanDataDto/kanban-data-dto';
+import {Subscription} from 'rxjs';
 
 export class KanbanComponentData {
   projectDto:ProjectDto;
@@ -56,8 +58,20 @@ export class KanbanComponent implements OnInit {
   ) {
     this.kanbanGroupWrapper = new Array<KanbanGroup>();
     this.projectDto = this.websocketManagerService.currentProjectDto;
-    this.initKanbanInstance();
-    this.subscribeEventEmitter();
+    this.projectDto.kanbanData = new KanbanDataDto();
+    let wsKanbanController = WsKanbanController.getInstance();
+    wsKanbanController.requestGetKanban().subscribe((kanbanData:KanbanDataDto)=>{
+      this.initComponent(kanbanData);
+    });
+  }
+  private initFlag = false;
+  initComponent(kanbanData:KanbanDataDto){
+    if (!this.initFlag) {
+      this.projectDto.kanbanData = kanbanData;
+      this.initKanbanInstance();
+      this.subscribeEventEmitter();
+      this.initFlag = true;
+    }
   }
 
   initKanbanInstance(){
@@ -65,19 +79,26 @@ export class KanbanComponent implements OnInit {
     this.inProgressGroup  = new KanbanGroup(KanbanGroupEnum.IN_PROGRESS, "accent");
     this.doneGroup        = new KanbanGroup(KanbanGroupEnum.DONE, "warn");
     for(let kanbanItemDto of this.projectDto.kanbanData.todoGroup){
-      let newKanbanItem:KanbanItem = KanbanItem.createItemByDto(kanbanItemDto, this.projectDto);
-      //this.todoGroup.kanbanItemList.push(newKanbanItem);
-      console.log("KanbanComponent >> initKanbanInstance >> kanbanItemDto : ",kanbanItemDto);
+      console.log("KanbanComponent >> initKanbanInstance >> todoGroup >> kanbanItemDto : ",kanbanItemDto);
+      if(kanbanItemDto.parentGroup !== KanbanGroupEnum.TODO){
+        console.warn("KanbanComponent >> initKanbanInstance >> kanbanItemDto : ",kanbanItemDto);
+      }
       this.enqueueByWs(kanbanItemDto);
     }
     for(let kanbanItemDto of this.projectDto.kanbanData.inProgressGroup){
-      let newKanbanItem = KanbanItem.createItemByDto(kanbanItemDto, this.projectDto);
-      //this.inProgressGroup.kanbanItemList.push(newKanbanItem);
+      console.log("KanbanComponent >> initKanbanInstance >> inProgressGroup >> kanbanItemDto : ",kanbanItemDto);
+      if(kanbanItemDto.parentGroup !== KanbanGroupEnum.IN_PROGRESS){
+        console.warn("KanbanComponent >> initKanbanInstance >> kanbanItemDto : ",kanbanItemDto);
+      }
+
       this.enqueueByWs(kanbanItemDto);
     }
     for(let kanbanItemDto of this.projectDto.kanbanData.doneGroup){
-      let newKanbanItem = KanbanItem.createItemByDto(kanbanItemDto, this.projectDto);
-      //this.doneGroup.kanbanItemList.push(newKanbanItem);
+      console.log("KanbanComponent >> initKanbanInstance >> doneGroup >> kanbanItemDto : ",kanbanItemDto);
+      if(kanbanItemDto.parentGroup !== KanbanGroupEnum.DONE){
+        console.warn("KanbanComponent >> initKanbanInstance >> kanbanItemDto : ",kanbanItemDto);
+      }
+
       this.enqueueByWs(kanbanItemDto);
     }
     this.kanbanGroupWrapper.push(this.todoGroup);
@@ -91,6 +112,7 @@ export class KanbanComponent implements OnInit {
           this.enqueueByWs(kanbanEvent.kanbanItemDto);
           break;
         case KanbanEventEnum.UPDATE:
+          this.editByWs(kanbanEvent.kanbanItemDto);
           break;
         case KanbanEventEnum.DELETE:
           this.deleteByWs(kanbanEvent.kanbanItemDto);
@@ -115,7 +137,7 @@ export class KanbanComponent implements OnInit {
     wsKanbanController.requestCreateKanban(kanbanItem, kanbanGroup);
   }
   enqueueByWs(kanbanItemDto:KanbanItemDto){//Ws === Websocket
-    console.log("KanbanComponent >> enqueueByWs >> kanbanItemDto : ",kanbanItemDto);
+
     let kanbanItem = new KanbanItem(kanbanItemDto.title,null,kanbanItemDto.color);
     kanbanItem.userInfo = UserManagerService.getParticipantByIdToken(kanbanItemDto.userInfo, this.projectDto);
     kanbanItem._id = kanbanItemDto._id;
@@ -195,7 +217,6 @@ export class KanbanComponent implements OnInit {
         event.previousIndex,
         event.currentIndex);
     }
-
     let wsKanbanController = WsKanbanController.getInstance();
     wsKanbanController.requestRelocationKanban(prevKanbanItem,prevContainerName,currContainerName,event.currentIndex);
     //prevKanbanItem이 currKanbanItem의 위치를 대신하도록 요청한다.
@@ -205,20 +226,74 @@ export class KanbanComponent implements OnInit {
   onNoClick(): void {
     this.dialogRef.close();
   }
-  onEditBtnClick(item){
+  onContextBtnClick( operation, kanbanItem, kanbanGroup){
+    let wsKanbanController = WsKanbanController.getInstance();
+    let subscription:Subscription = wsKanbanController.waitRequestLockKanban(kanbanItem, kanbanGroup)
+      .subscribe(()=>{
+        console.log("KanbanComponent >> onContextBtnClick >> 진입함");
+        switch (operation) {
+          case "edit":
+            this.onEditBtnClick(kanbanItem, kanbanGroup);
+            break;
+          case "delete":
+            this.deleteFrom(kanbanItem, kanbanGroup);
+            break;
+        }
+        subscription.unsubscribe();
+      },(err)=>{
+        console.warn("KanbanComponent >> onContextBtnClick >> err : ",err);
+        subscription.unsubscribe();
+      });
+  }
+  onEditBtnClick(kanbanItem, kanbanGroup){
     const dialogRef = this.dialog.open(KanbanItemEditComponent, {
       width: '480px',
-      data: {kanbanItem: item}
+      data: {
+        kanbanItem: kanbanItem,
+        kanbanGroup:kanbanGroup
+      }
     });
 
     dialogRef.afterClosed().subscribe((result) => {
-      console.log("KanbanComponent >>  >> result : ",result);
     });
   }
-  onCreateItem(group){
+  editByWs(kanbanItemDto:KanbanItemDto){
+    let kanbanGroup:KanbanGroup;
+    let groupEnum:KanbanGroupEnum = kanbanItemDto.parentGroup;
+    switch (groupEnum) {
+      case KanbanGroupEnum.TODO:
+        kanbanGroup = this.todoGroup;
+        break;
+      case KanbanGroupEnum.IN_PROGRESS:
+        kanbanGroup = this.inProgressGroup;
+        break;
+      case KanbanGroupEnum.DONE:
+        kanbanGroup = this.doneGroup;
+        break;
+    }
+    for(let i = 0 ; i < kanbanGroup.kanbanItemList.length; i++){
+      let currItem = kanbanGroup.kanbanItemList[i];
+
+      if(currItem._id === kanbanItemDto._id){
+        if(currItem.title !== kanbanItemDto.title){
+          currItem.title = kanbanItemDto.title;
+        }
+        if (currItem.getColor() !== kanbanItemDto.color) {
+          currItem.setColor(kanbanItemDto.color);
+        }
+        if(currItem.userInfo.idToken !== kanbanItemDto.userInfo){
+          currItem.userInfo = this.userManagerService.getUserDataByIdToken(kanbanItemDto.userInfo);
+        }
+
+        break;
+      }
+    }
+
+  }
+  onCreateItem(paramGroup){
     const dialogRef = this.dialog.open(KanbanItemCreateComponent, {
       width: '480px',
-      data: {kanbanGroup: group}
+      data: {kanbanGroup: paramGroup}
     });
 
     dialogRef.afterClosed().subscribe((result) => {
@@ -323,12 +398,15 @@ export class KanbanComponent implements OnInit {
   }
 
   getGroupNameById(id){
-    switch (id) {
-      case "cdk-drop-list-0":
+    let tokenizedId = id.split("-");
+    let idStr = tokenizedId[3];
+    let idNum = Number.parseInt(idStr) % 3;
+    switch (idNum) {
+      case 0:
         return this.todoGroup.title;
-      case "cdk-drop-list-1":
+      case 1:
         return this.inProgressGroup.title;
-      case "cdk-drop-list-2":
+      case 2:
         return this.doneGroup.title;
     }
   }
@@ -344,7 +422,6 @@ export class KanbanComponent implements OnInit {
   }
 
   relocateByWs(kanbanItemDto:KanbanItemDto, additionalData){
-    console.log("KanbanComponent >> relocateByWs >> 진입함");
     let destGroupTitle = additionalData.destGroupTitle;
     let destIdx = additionalData.destIdx;
 

@@ -32,7 +32,6 @@ export class KanbanItem {
     let newKanbanItem = new KanbanItem(kanbanItemDto.title);
     newKanbanItem.color = kanbanItemDto.color;
     newKanbanItem.userInfo = UserManagerService.getParticipantByIdToken(kanbanItemDto.userInfo, projectDto);
-
     for(let kanbanTag of projectDto.kanbanData.kanbanTagListDto){
       newKanbanItem.tagList.push(new TagItem(kanbanTag.title, kanbanTag.color));
     }
@@ -45,7 +44,14 @@ export class KanbanItem {
     kanbanDto.userInfo = this.userInfo.idToken;
     kanbanDto.color = this.color;
     kanbanDto.title = this.title;
-    kanbanDto.tagIdList = this.tagList;
+
+    if(this.tagList.length > 0){
+      for(let tag of this.tagList){
+        kanbanDto.tagIdList.push(tag._id);
+      }
+    }else{
+      kanbanDto.tagIdList = new Array<any>();
+    }
     kanbanDto.parentGroup = parentGroup;
     return kanbanDto;
   }
