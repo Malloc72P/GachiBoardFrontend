@@ -46,17 +46,17 @@ export class KanbanComponent implements OnInit, OnDestroy {
 
   kanbanGroupWrapper:Array<KanbanGroup>;
 
-  private projectDto:ProjectDto = new ProjectDto();
+  public projectDto:ProjectDto = new ProjectDto();
 
   constructor(
-    private popupManagerService:PopupManagerService,
+    public popupManagerService:PopupManagerService,
     public dialogRef: MatDialogRef<KanbanComponent>,
-    private tagListMgrService:KanbanTagListManagerService,
-    private userManagerService:UserManagerService,
-    private htmlHelperService:HtmlHelperService,
+    public tagListMgrService:KanbanTagListManagerService,
+    public userManagerService:UserManagerService,
+    public htmlHelperService:HtmlHelperService,
     public dialog: MatDialog,
-    private kanbanEventManager:KanbanEventManagerService,
-    private websocketManagerService:WebsocketManagerService,
+    public kanbanEventManager:KanbanEventManagerService,
+    public websocketManagerService:WebsocketManagerService,
     @Inject(MAT_DIALOG_DATA) public data: KanbanComponentData,
   ) {
     this.kanbanGroupWrapper = new Array<KanbanGroup>();
@@ -67,7 +67,7 @@ export class KanbanComponent implements OnInit, OnDestroy {
       this.initComponent(kanbanData);
     });
   }
-  private initFlag = false;
+  public initFlag = false;
   initComponent(kanbanData:KanbanDataDto){
     if (!this.initFlag) {
       this.projectDto.kanbanData = kanbanData;
@@ -104,7 +104,7 @@ export class KanbanComponent implements OnInit, OnDestroy {
     }
   }
 
-  private subscription:Subscription;
+  public subscription:Subscription;
   subscribeEventEmitter(){
     this.subscription = this.kanbanEventManager.kanbanEventEmitter.subscribe((kanbanEvent:KanbanEvent)=>{
       switch (kanbanEvent.action) {

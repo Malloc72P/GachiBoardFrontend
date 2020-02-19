@@ -15,18 +15,18 @@ export class LoginPageComponent implements OnInit {
   myParams: object = {};
   width: number = 100;
   height: number = 100;
-  private readonly particleColor = '#EF2938';
-  private readonly universalOpacity = 0.3;
-  private readonly particleOpacity = this.universalOpacity;
-  private readonly lineOpacity = this.universalOpacity;
-  private readonly repulseDistance = 150;
-  private readonly particleWidth = 8;
-  private readonly lineWidth = 2;
-  private readonly linkDistance = 300;
-  private readonly opacityMin = 1;
+  public readonly particleColor = '#EF2938';
+  public readonly universalOpacity = 0.3;
+  public readonly particleOpacity = this.universalOpacity;
+  public readonly lineOpacity = this.universalOpacity;
+  public readonly repulseDistance = 150;
+  public readonly particleWidth = 8;
+  public readonly lineWidth = 2;
+  public readonly linkDistance = 300;
+  public readonly opacityMin = 1;
 
   constructor(
-    private apiRequester: AuthRequestService
+    public apiRequester: AuthRequestService
   ) {
   }
 

@@ -16,13 +16,13 @@ enum ColorMode {
   styleUrls: ['./tool-shape-panel.component.css']
 })
 export class ToolShapePanelComponent implements OnInit {
-  private strokeWidth: number;
-  private colorPickerPicked: string;
+  public strokeWidth: number;
+  public colorPickerPicked: string;
 
-  private colorSelectMode: number = 0;
-  private strokeColorIndex: number = 0;
-  private fillColorIndex: number = -1;
-  private colors = [
+  public colorSelectMode: number = 0;
+  public strokeColorIndex: number = 0;
+  public fillColorIndex: number = -1;
+  public colors = [
     new paper.Color(0, 0, 0),
     new paper.Color(255, 0, 0),
     new paper.Color(0, 255, 0),
@@ -30,8 +30,8 @@ export class ToolShapePanelComponent implements OnInit {
   ];
 
   constructor(
-    private pointerModeManagerService: PointerModeManagerService,
-    private panelManagerService: PanelManagerService
+    public pointerModeManagerService: PointerModeManagerService,
+    public panelManagerService: PanelManagerService
   ) { }
 
   ngOnInit() {

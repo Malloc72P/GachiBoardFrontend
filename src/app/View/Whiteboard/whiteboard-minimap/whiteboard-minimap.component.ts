@@ -43,24 +43,24 @@ class MinimapElement{
 export class WhiteboardMinimapComponent implements OnInit {
   @Input() currentProject: Project;
 
-  private elem;
-  private htmlCanvasObject: HTMLCanvasElement;
-  private htmlCanvasObjectWrapper: HTMLDivElement;
-  private minimapScope;
+  public elem;
+  public htmlCanvasObject: HTMLCanvasElement;
+  public htmlCanvasObjectWrapper: HTMLDivElement;
+  public minimapScope;
 
-  private mapLayer;
-  private cursorLayer;
+  public mapLayer;
+  public cursorLayer;
 
-  private isFullScreen = false;
-  private minimapElMap:Map<number,MinimapElement>;
+  public isFullScreen = false;
+  public minimapElMap:Map<number,MinimapElement>;
 
   constructor(
-    private infiniteCanvasService:InfiniteCanvasService,
-    private zoomControlService:ZoomControlService,
-    private posCalcService:PositionCalcService,
-    private minimapSyncService: MinimapSyncService,
-    private layerService: DrawingLayerManagerService,
-    @Inject(DOCUMENT) private document: any
+    public infiniteCanvasService:InfiniteCanvasService,
+    public zoomControlService:ZoomControlService,
+    public posCalcService:PositionCalcService,
+    public minimapSyncService: MinimapSyncService,
+    public layerService: DrawingLayerManagerService,
+    @Inject(DOCUMENT) public document: any
   ) {
     this.minimapSyncService.changeMinimap.subscribe(()=>{
 

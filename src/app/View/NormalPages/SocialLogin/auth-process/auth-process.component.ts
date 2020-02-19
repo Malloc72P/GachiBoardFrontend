@@ -11,9 +11,9 @@ import {UserDTO} from '../../../../DTO/user-dto';
 export class AuthProcessComponent implements OnInit {
 
   constructor(
-    private route: ActivatedRoute,
-    private router: Router,
-    private authRequester: AuthRequestService
+    public route: ActivatedRoute,
+    public router: Router,
+    public authRequester: AuthRequestService
   ) { }
 
   ngOnInit() {

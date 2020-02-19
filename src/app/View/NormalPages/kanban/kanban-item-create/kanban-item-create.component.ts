@@ -16,15 +16,15 @@ export class CreateKanbanDialogData{
   styleUrls: ['./kanban-item-create.component.css']
 })
 export class KanbanItemCreateComponent implements OnInit {
-  @ViewChild('kanbanCreateForm', {static: false}) formEl: ElementRef<HTMLFormElement>;
+  @ViewChild('kanbanCreateForm') formEl: ElementRef<HTMLFormElement>;
 
   kanbanGroup:KanbanGroup;
   kanbanCreateFormGroup:FormGroup;
 
   constructor(
     public dialogRef: MatDialogRef<KanbanItemCreateComponent>,
-    private userManagerService:UserManagerService,
-    private colorService:KanbanItemColorService,
+    public userManagerService:UserManagerService,
+    public colorService:KanbanItemColorService,
     @Inject(MAT_DIALOG_DATA) public data: CreateKanbanDialogData
   ) {
     console.log("KanbanItemCreateComponent >> constructor >> data : ",data.kanbanGroup.title);

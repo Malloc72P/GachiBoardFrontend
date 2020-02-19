@@ -19,20 +19,20 @@ import {CursorTrackerService} from "../../../Model/Whiteboard/CursorTracker/curs
   styleUrls: ['./project-supporter-pannel.component.css',  '../../NormalPages/popup-pannel-commons.css']
 })
 export class ProjectSupporterPannelComponent extends PopoverPanel  implements OnInit {
-  @ViewChild('fileInputMultiple', {static: false}) fileInputMultiple: ElementRef;
-  @ViewChild('fileInput', {static: false}) fileInput: ElementRef;
+  @ViewChild('fileInputMultiple') fileInputMultiple: ElementRef;
+  @ViewChild('fileInput') fileInput: ElementRef;
   projectSupporterEnumService: ProjectSupporterEnumService;
   isHovered;
-  private prevPopup = null;
+  public prevPopup = null;
   constructor(
     projectSupporterEnumService: ProjectSupporterEnumService,
     posCalcService :PositionCalcService,
-    private renderer2:Renderer2,
-    private popupManagerService:PopupManagerService,
+    public renderer2:Renderer2,
+    public popupManagerService:PopupManagerService,
     public dialog: MatDialog,
-    private positionCalcService:PositionCalcService,
-    private importFileService: ImportFileService,
-    private cursorTrackerService: CursorTrackerService,
+    public positionCalcService:PositionCalcService,
+    public importFileService: ImportFileService,
+    public cursorTrackerService: CursorTrackerService,
   ) {
     super(projectSupporterEnumService);
     this.projectSupporterEnumService = projectSupporterEnumService;

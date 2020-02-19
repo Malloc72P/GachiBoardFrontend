@@ -14,36 +14,36 @@ import {subPanelStatus} from "../../../../../Model/Whiteboard/ContextMenu/horizo
 })
 export class SubPanelForFillComponent implements OnInit {
   // TODO : 유저 데이터에 있을 컬러를 colors 로 지정해주면 댐 -- 전역에서 사용하는 user-color
-  private colors = [
+  public colors = [
     new Color(0, 0, 0),
     new Color(255, 0, 0),
     new Color(0, 255, 0),
     new Color(0, 0, 255),
   ];
-  private colorPickerPicked;
+  public colorPickerPicked;
 
   constructor(
-    private horizonContextMenuService: HorizonContextMenuService,
+    public horizonContextMenuService: HorizonContextMenuService,
   ) { }
 
   ngOnInit() {
   }
 
-  private colorToHTMLRGB(index: number) {
+  public colorToHTMLRGB(index: number) {
     return this.colors[index].toCSS(false);
   }
 
-  private onColorPickerClicked(index: number) {
+  public onColorPickerClicked(index: number) {
     this.horizonContextMenuService.globalSelectedGroup.wbItemGroup[0].coreItem.fillColor = this.colors[index];
   }
 
-  private onAddColorClicked() {
+  public onAddColorClicked() {
     let color = new Color(this.colorPickerPicked);
     this.colors.push(color);
     this.onColorPickerClicked(this.colors.length - 1);
   }
 
-  private colorSelectedToHTML(index: number) {
+  public colorSelectedToHTML(index: number) {
     if(this.horizonContextMenuService.globalSelectedGroup.wbItemGroup.length > 0) {
       if(this.colors[index].equals(this.horizonContextMenuService.globalSelectedGroup.wbItemGroup[0].coreItem.fillColor)) {
         return "selected";

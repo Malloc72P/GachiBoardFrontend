@@ -34,13 +34,13 @@ import {ItemLifeCycleEnum} from '../../../Model/Whiteboard/Whiteboard-Item/White
   styleUrls: ['./whiteboard-main.component.css']
 })
 export class WhiteboardMainComponent implements OnInit {
-  private whiteboardPaperProject: Project;
-  private whiteboardPaperScope: PaperScope;
+  public whiteboardPaperProject: Project;
+  public whiteboardPaperScope: PaperScope;
 
-  private isMouseDown = false;
-  private currentPointerMode;
-  private htmlCanvasObject: HTMLCanvasElement;
-  private htmlCanvasWrapperObject: HTMLDivElement;
+  public isMouseDown = false;
+  public currentPointerMode;
+  public htmlCanvasObject: HTMLCanvasElement;
+  public htmlCanvasWrapperObject: HTMLDivElement;
 
   cursorX = 0;
   cursorY = 0;
@@ -56,19 +56,19 @@ export class WhiteboardMainComponent implements OnInit {
   }
 
   constructor(
-    private apiRequester: AuthRequestService,
-    private routerHelper: RouterHelperService,
-    private pointerModeManager: PointerModeManagerService,
-    private infiniteCanvasService: InfiniteCanvasService,
-    private posCalcService: PositionCalcService,
-    private panelManager: PanelManagerService,
-    private zoomControlService: ZoomControlService,
-    private debugingService: DebugingService,
-    private minimapSyncService: MinimapSyncService,
-    private contextMenuService: ContextMenuService,
-    private layerService: DrawingLayerManagerService,
-    private linkModeManagerService: LinkModeManagerService,
-    private cursorTrackerService: CursorTrackerService,
+    public apiRequester: AuthRequestService,
+    public routerHelper: RouterHelperService,
+    public pointerModeManager: PointerModeManagerService,
+    public infiniteCanvasService: InfiniteCanvasService,
+    public posCalcService: PositionCalcService,
+    public panelManager: PanelManagerService,
+    public zoomControlService: ZoomControlService,
+    public debugingService: DebugingService,
+    public minimapSyncService: MinimapSyncService,
+    public contextMenuService: ContextMenuService,
+    public layerService: DrawingLayerManagerService,
+    public linkModeManagerService: LinkModeManagerService,
+    public cursorTrackerService: CursorTrackerService,
   ) {
   }
 
@@ -107,7 +107,7 @@ export class WhiteboardMainComponent implements OnInit {
     }
   }//ngOnInit()
 
-  private initWhiteboardPaper() {
+  public initWhiteboardPaper() {
     paper.settings.hitTolerance = 40;
 
     this.htmlCanvasObject = document.getElementById("cv1") as HTMLCanvasElement;

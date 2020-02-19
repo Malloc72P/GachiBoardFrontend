@@ -9,7 +9,7 @@ import {AuthRequestService} from '../../../../Controller/SocialLogin/auth-reques
 export class SignOutComponent implements OnInit {
 
   constructor(
-    private authService:AuthRequestService
+    public authService:AuthRequestService
   ) {
     authService.signOut();
   }

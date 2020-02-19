@@ -10,7 +10,7 @@ import {HttpHelper} from '../../../Model/Helper/http-helper/http-helper';
 export class InvitationComponent implements OnInit {
 
   constructor(
-    private route: ActivatedRoute,
+    public route: ActivatedRoute,
   ) {
     let inviteCode = this.route.snapshot.paramMap.get('inviteCode');
     console.log("InvitationComponent >> constructor >> inviteCode : ",inviteCode);

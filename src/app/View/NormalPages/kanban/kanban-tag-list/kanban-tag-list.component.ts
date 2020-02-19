@@ -35,15 +35,15 @@ import {KanbanEventManagerService} from '../../../../Model/Whiteboard/ProjectSup
 export class KanbanTagListComponent implements OnInit, OnDestroy{
   @ViewChildren('tagViewItem') tagViewList : QueryList<ElementRef>;
 
-  @ViewChild('tagInput', {static: false}) tagInput: ElementRef<HTMLInputElement>;
-  @ViewChild('auto', {static: false}) matAutocomplete: MatAutocomplete;
+  @ViewChild('tagInput') tagInput: ElementRef<HTMLInputElement>;
+  @ViewChild('auto') matAutocomplete: MatAutocomplete;
   @Input("kanbanItem") kanbanItem:KanbanItem;
   @Input("kanbanGroup") kanbanGroup:KanbanGroup;
 
-  private isLocked = false;
-  private static idGenerator = 0;
+  public isLocked = false;
+  public static idGenerator = 0;
 
-  private subscription:Subscription;
+  public subscription:Subscription;
 
   id = 0;
   selectable = false;
@@ -57,11 +57,11 @@ export class KanbanTagListComponent implements OnInit, OnDestroy{
   separatorKeysCodes: number[] = [ENTER, COMMA];
 
   constructor(
-    private tagListMgrService:KanbanTagListManagerService,
-    private animeManagerService:AnimeManagerService,
-    private websocketManagerService:WebsocketManagerService,
-    private htmlHelperService:HtmlHelperService,
-    private kanbanEventManager:KanbanEventManagerService,
+    public tagListMgrService:KanbanTagListManagerService,
+    public animeManagerService:AnimeManagerService,
+    public websocketManagerService:WebsocketManagerService,
+    public htmlHelperService:HtmlHelperService,
+    public kanbanEventManager:KanbanEventManagerService,
   ){
   }
 
@@ -226,7 +226,7 @@ export class KanbanTagListComponent implements OnInit, OnDestroy{
     this.tagFormControl.setValue(null);
   }//selected
 
-  private _filter(value): TagItem[] {
+  public _filter(value): TagItem[] {
     if(!value){
       return null;
     }
