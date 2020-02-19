@@ -1,8 +1,6 @@
 import {Component, ElementRef, Inject, Input, OnInit, QueryList, ViewChild, ViewChildren} from '@angular/core';
-import {MAT_DIALOG_DATA, MatAutocomplete, MatAutocompleteSelectedEvent, MatChipInputEvent, MatDialogRef} from '@angular/material';
 import {UserManagerService} from '../../../../Model/UserManager/user-manager.service';
 import {KanbanItemColorService} from '../../../../Model/Whiteboard/ProjectSupporter/Kanban/KanbanItemColorEnumManager/kanban-item-color.service';
-import {EditKanbanDialogData} from '../kanban-item-edit/kanban-item-edit.component';
 import {
   KanbanTagListManagerService,
   TagItem
@@ -15,6 +13,9 @@ import {KanbanItem} from '../../../../Model/Whiteboard/ProjectSupporter/Kanban/K
 import {COMMA, ENTER} from '@angular/cdk/keycodes';
 import {AreYouSurePanelService} from '../../../../Model/PopupManager/AreYouSurePanelManager/are-you-sure-panel.service';
 import {WsKanbanController} from '../../../../Controller/Controller-WebSocket/websocket-manager/KanbanWsController/ws-kanban.controller';
+import {MatAutocomplete, MatAutocompleteSelectedEvent} from '@angular/material/autocomplete';
+import {MatDialogRef} from '@angular/material/dialog';
+import {MatChipInputEvent} from '@angular/material/chips';
 
 @Component({
   selector: 'app-kanban-tag-management',

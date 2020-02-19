@@ -1,5 +1,4 @@
 import {Component, Inject, OnInit} from '@angular/core';
-import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material';
 import {UserManagerService} from '../../../../Model/UserManager/user-manager.service';
 import {FormControl, Validators} from '@angular/forms';
 import {
@@ -8,6 +7,7 @@ import {
 import {KanbanItem} from '../../../../Model/Whiteboard/ProjectSupporter/Kanban/KanbanItem/kanban-item';
 import {KanbanGroup} from '../../../../Model/Whiteboard/ProjectSupporter/Kanban/KanbanGroup/kanban-group';
 import {WsKanbanController} from '../../../../Controller/Controller-WebSocket/websocket-manager/KanbanWsController/ws-kanban.controller';
+import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
 
 export class EditKanbanDialogData {
   kanbanItem:KanbanItem;

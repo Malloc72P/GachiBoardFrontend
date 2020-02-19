@@ -12,7 +12,6 @@ import {COMMA, ENTER} from '@angular/cdk/keycodes';
 import {FormControl} from '@angular/forms';
 import {Observable, Subscription} from 'rxjs';
 import {map, startWith} from 'rxjs/operators';
-import {MatAutocomplete, MatAutocompleteSelectedEvent, MatAutocompleteTrigger, MatChip, MatChipInputEvent} from '@angular/material';
 import {
   KanbanTagListManagerService,
   TagItem
@@ -23,8 +22,9 @@ import {WsKanbanController} from '../../../../Controller/Controller-WebSocket/we
 import {KanbanGroup} from '../../../../Model/Whiteboard/ProjectSupporter/Kanban/KanbanGroup/kanban-group';
 import {WebsocketManagerService} from '../../../../Controller/Controller-WebSocket/websocket-manager/websocket-manager.service';
 import {HtmlHelperService} from '../../../../Model/NormalPagesManager/HtmlHelperService/html-helper.service';
-import {KanbanEvent, KanbanEventEnum} from '../../../../Model/Whiteboard/ProjectSupporter/Kanban/KanbanEvent/KanbanEvent';
 import {KanbanEventManagerService} from '../../../../Model/Whiteboard/ProjectSupporter/Kanban/kanban-event-manager.service';
+import {MatAutocomplete, MatAutocompleteSelectedEvent} from '@angular/material/autocomplete';
+import {MatChipInputEvent} from '@angular/material/chips';
 
 
 @Component({
@@ -40,13 +40,14 @@ export class KanbanTagListComponent implements OnInit, OnDestroy{
   @Input("kanbanItem") kanbanItem:KanbanItem;
   @Input("kanbanGroup") kanbanGroup:KanbanGroup;
 
+
   public isLocked = false;
   public static idGenerator = 0;
 
   public subscription:Subscription;
 
   id = 0;
-  selectable = false;
+  selectable = true;
   removable = true;
   addOnBlur = true;
 

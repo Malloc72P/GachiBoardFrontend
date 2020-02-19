@@ -3,7 +3,6 @@ import {ActivatedRoute} from '@angular/router';
 import {KanbanTagListManagerService} from '../../../../Model/Whiteboard/ProjectSupporter/Kanban/KanbanTagListManager/kanban-tag-list-manager.service';
 import {UserManagerService} from '../../../../Model/UserManager/user-manager.service';
 import {KanbanComponent} from '../../kanban/kanban.component';
-import {MatDialog} from '@angular/material';
 import {HtmlHelperService} from '../../../../Model/NormalPagesManager/HtmlHelperService/html-helper.service';
 import {WebsocketManagerService} from '../../../../Controller/Controller-WebSocket/websocket-manager/websocket-manager.service';
 import {AuthEvent} from '../../../../Controller/SocialLogin/auth-request/AuthEvent/AuthEvent';
@@ -22,6 +21,7 @@ import {KanbanEvent, KanbanEventEnum} from '../../../../Model/Whiteboard/Project
 import {KanbanEventManagerService} from '../../../../Model/Whiteboard/ProjectSupporter/Kanban/kanban-event-manager.service';
 import {KanbanGroup} from '../../../../Model/Whiteboard/ProjectSupporter/Kanban/KanbanGroup/kanban-group';
 import {WsKanbanController} from '../../../../Controller/Controller-WebSocket/websocket-manager/KanbanWsController/ws-kanban.controller';
+import {MatDialog} from '@angular/material/dialog';
 
 @Component({
   selector: 'app-main-page-project',

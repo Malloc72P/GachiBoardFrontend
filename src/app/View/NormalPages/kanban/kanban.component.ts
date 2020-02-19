@@ -1,7 +1,6 @@
 import {Component, Inject, OnDestroy, OnInit} from '@angular/core';
 import {PopupManagerService} from '../../../Model/PopupManager/popup-manager.service';
 import {CdkDragDrop, moveItemInArray, transferArrayItem} from '@angular/cdk/drag-drop';
-import {MAT_DIALOG_DATA, MatDialog, MatDialogRef} from '@angular/material';
 import {
   KanbanTagListManagerService,
   TagItem
@@ -20,9 +19,9 @@ import {KanbanItemDto, KanbanGroupEnum} from '../../../DTO/ProjectDto/KanbanData
 import {KanbanEventManagerService} from '../../../Model/Whiteboard/ProjectSupporter/Kanban/kanban-event-manager.service';
 import {KanbanEvent, KanbanEventEnum} from '../../../Model/Whiteboard/ProjectSupporter/Kanban/KanbanEvent/KanbanEvent';
 import {WebsocketManagerService} from '../../../Controller/Controller-WebSocket/websocket-manager/websocket-manager.service';
-import {WebsocketEvent, WebsocketEventEnum} from '../../../Controller/Controller-WebSocket/websocket-manager/WebsocketEvent/WebsocketEvent';
 import {KanbanDataDto} from '../../../DTO/ProjectDto/KanbanDataDto/kanban-data-dto';
 import {Subscription} from 'rxjs';
+import {MAT_DIALOG_DATA, MatDialog, MatDialogRef} from '@angular/material/dialog';
 
 export class KanbanComponentData {
   projectDto:ProjectDto;

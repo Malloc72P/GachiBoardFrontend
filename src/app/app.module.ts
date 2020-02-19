@@ -4,16 +4,6 @@ import {NgModule} from '@angular/core';
 import { AppComponent } from './app.component';
 import { LoginPageComponent } from './View/NormalPages/SocialLogin/login-page/login-page.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import {
-  MatAutocompleteModule, MatBadgeModule,
-  MatButtonModule,
-  MatButtonToggleModule,
-  MatCardModule, MatCheckboxModule, MatChipsModule, MatDialogModule,
-  MatDividerModule, MatFormFieldModule, MatGridListModule, MatIconModule, MatInputModule, MatListModule, MatMenuModule,
-  MatRadioModule,
-  MatRippleModule, MatSelectModule, MatSidenavModule,
-  MatSliderModule, MatStepperModule, MatToolbarModule, MatTooltipModule
-} from '@angular/material';
 import { RouterModule, Routes } from '@angular/router';
 import { WhiteboardMainComponent } from './View/Whiteboard/whiteboard-main/whiteboard-main.component';
 import { RouterHelperService } from './Model/Helper/router-helper-service/router-helper.service';
@@ -95,6 +85,28 @@ import {HttpHelper} from './Model/Helper/http-helper/http-helper';
 import { CreateInviteCodeComponent } from './View/NormalPages/main-page/main-page-project/create-invite-code/create-invite-code.component';
 import { InvitationComponent } from './View/NormalPages/invitation/invitation.component';
 import {KanbanEventManagerService} from './Model/Whiteboard/ProjectSupporter/Kanban/kanban-event-manager.service';
+import {MatCardModule} from '@angular/material/card';
+import {MatButtonToggleModule} from '@angular/material/button-toggle';
+import {MatButtonModule} from '@angular/material/button';
+import {MatRadioModule} from '@angular/material/radio';
+import {MatSliderModule} from '@angular/material/slider';
+import {MatDividerModule} from '@angular/material/divider';
+import {MatGridListModule} from '@angular/material/grid-list';
+import {MatChipsModule} from '@angular/material/chips';
+import {MatDialogModule} from '@angular/material/dialog';
+import {MatFormFieldModule} from '@angular/material/form-field';
+import {MatIconModule} from '@angular/material/icon';
+import {MatAutocompleteModule} from '@angular/material/autocomplete';
+import {MatToolbarModule} from '@angular/material/toolbar';
+import {MatInputModule} from '@angular/material/input';
+import {MatSelectModule} from '@angular/material/select';
+import {MatMenuModule} from '@angular/material/menu';
+import {MatCheckboxModule} from '@angular/material/checkbox';
+import {MatTooltipModule} from '@angular/material/tooltip';
+import {MatSidenavModule} from '@angular/material/sidenav';
+import {MatListModule} from '@angular/material/list';
+import {MatStepperModule} from '@angular/material/stepper';
+import {MatBadgeModule} from '@angular/material/badge';
 const config: SocketIoConfig = { url: HttpHelper.apiUrl, options: {} };
 
 const appRoutes: Routes = [
@@ -231,7 +243,6 @@ const appRoutes: Routes = [
     MatButtonToggleModule,
     MatRadioModule,
     FormsModule,
-    MatRippleModule,
     MatSliderModule,
     ColorPickerModule,
     MatExpansionModule,

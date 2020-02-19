@@ -1,16 +1,16 @@
 <mat-form-field class="kanban-item-tagWrapper">
-  <mat-chip-list #chipList >
+  <mat-chip-list #chipList aria-label="Tag selection">
     <mat-chip
       #tagViewItem
       *ngFor="let tagItem of kanbanItem.tagList"
       title="{{tagItem.title}}"
+      [selectable]="selectable"
       [removable]="removable"
       (removed)="remove(tagItem)">
       {{tagItem.title}}
       <mat-icon matChipRemove *ngIf="removable">cancel</mat-icon>
     </mat-chip>
-    <input #tagInput
-           placeholder="태그를 입력하세요"
+    <input #tagInput placeholder="New Tag..."
            (focusin)="onTagInputerFocusIn()"
            (focusout)="onTagInputerFocusOut()"
            [formControl]="tagFormControl"
