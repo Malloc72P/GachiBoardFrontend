@@ -86,6 +86,8 @@ export class MainPageProjectComponent implements OnInit, OnDestroy {
         case KanbanEventEnum.UPDATE:
         case KanbanEventEnum.DELETE:
         case KanbanEventEnum.RELOCATE:
+        case KanbanEventEnum.CREATE_TAG:
+        case KanbanEventEnum.DELETE_TAG:
           this.refreshInProgressGroup();
       }
 

@@ -14,11 +14,14 @@ import {AnimeManagerService, AnimeName} from '../../../../Model/AnimeManager/ani
 import {KanbanItem} from '../../../../Model/Whiteboard/ProjectSupporter/Kanban/KanbanItem/kanban-item';
 import {COMMA, ENTER} from '@angular/cdk/keycodes';
 import {AreYouSurePanelService} from '../../../../Model/PopupManager/AreYouSurePanelManager/are-you-sure-panel.service';
+import {WsKanbanController} from '../../../../Controller/Controller-WebSocket/websocket-manager/KanbanWsController/ws-kanban.controller';
 
 @Component({
   selector: 'app-kanban-tag-management',
   templateUrl: './kanban-tag-management.component.html',
-  styleUrls: ['./kanban-tag-management.component.css', '../../../../../gachi-anime.scss']
+  styleUrls: ['./kanban-tag-management.component.css',
+    '../../../../../gachi-anime.scss',
+    '../../gachi-font.css']
 })
 export class KanbanTagManagementComponent implements OnInit {
   isErrored = false;
@@ -105,7 +108,13 @@ export class KanbanTagManagementComponent implements OnInit {
       "해당 작업은 되돌릴 수 없습니다"
     ).subscribe((result)=>{
       if(result){
-        this.tagMgrService.removeTag(tagItem);
+        let foundTag = new TagItem(tagItem.title, tagItem.color);
+        foundTag._id = tagItem._id;
+        let wsKanbanController = WsKanbanController.getInstance();
+        wsKanbanController.waitRequestDeleteKanbanTag(foundTag).subscribe(()=>{
+          this.tagMgrService.removeTag(tagItem);
+        },(e)=>{console.warn("KanbanTagManagementComponent >> remove >> e : ",e);})
+
       }
     });
   }

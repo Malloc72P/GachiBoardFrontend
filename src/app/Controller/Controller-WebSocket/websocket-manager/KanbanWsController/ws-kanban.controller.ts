@@ -31,6 +31,7 @@ export class WsKanbanController {
     this.onKanbanRelocation();
     this.onKanbanUpdate();
     this.onKanbanTagCreate();
+    this.onKanbanTagDelete();
   }
 
 
@@ -339,7 +340,7 @@ export class WsKanbanController {
   /* **************************************************** */
 
   /* *************************************************** */
-  /* Request Edit START */
+  /* Request Create TAG START */
   /* *************************************************** */
 
   waitRequestCreateKanbanTag(kanbanTag:TagItem){
@@ -392,7 +393,62 @@ export class WsKanbanController {
   }
 
   /* **************************************************** */
-  /* Request Edit END */
+  /* Request Create TAG END */
+  /* **************************************************** */
+
+  /* *************************************************** */
+  /* Request Delete TAG START */
+  /* *************************************************** */
+  waitRequestDeleteKanbanTag(kanbanTag:TagItem){
+    return new Observable<any>((subscriber)=>{
+      let tagDto = kanbanTag.exportDto();
+      console.log("WsKanbanController >> waitRequestDeleteKanbanTag >> tagDto : ",tagDto);
+
+      let packetDto = this.websocketManager.createProjectScopePacket(tagDto, WebsocketPacketActionEnum.DELETE_TAG);
+      packetDto.wsPacketSeq = this.websocketManager.wsPacketSeq;
+
+      this.socket.emit(HttpHelper.websocketApi.kanban.delete_tag.event, packetDto);
+
+      //this.websocketManager.saveNotVerifiedKanbanItem(packetDto, kanbanItem);
+
+      //#### 요청 완료
+
+      this.socket.once(HttpHelper.websocketApi.kanban.delete_tag.event,
+        (wsPacketDto:WebsocketPacketDto)=>{
+          switch (wsPacketDto.action) {
+            case WebsocketPacketActionEnum.ACK:
+              console.log("WsKanbanController >> waitRequestDeleteKanbanTag >> wsPacketDto : ",wsPacketDto);
+              let responseTagDto:KanbanTagDto = wsPacketDto.dataDto as KanbanTagDto;
+              kanbanTag._id = responseTagDto._id;
+              subscriber.next(responseTagDto);
+              break;
+            case WebsocketPacketActionEnum.NAK:
+              subscriber.error(packetDto);
+              break;
+          }
+        })
+    });
+  }
+
+  private onKanbanTagDelete(){
+    this.socket.on(HttpHelper.websocketApi.kanban.delete_tag.event,
+      (wsPacketDto:WebsocketPacketDto)=>{
+        switch (wsPacketDto.action) {
+          case WebsocketPacketActionEnum.DELETE_TAG:
+            console.log("WsKanbanController >> onKanbanTagDelete >> wsPacketDto : ",wsPacketDto);
+            let responseTagDto:KanbanTagDto = wsPacketDto.dataDto as KanbanTagDto;
+            this.websocketManager.kanbanEventManagerService.kanbanEventEmitter.emit(
+              new KanbanEvent(KanbanEventEnum.DELETE_TAG, null, responseTagDto));
+            break;
+          case WebsocketPacketActionEnum.ACK:
+            break;
+          case WebsocketPacketActionEnum.NAK:
+            break;
+        }
+      });
+  }
+  /* **************************************************** */
+  /* Request Delete TAG END */
   /* **************************************************** */
 
 

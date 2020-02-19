@@ -14,26 +14,10 @@
     <!--마테리얼 칩 영역-->
     <div class="kanban-chip-list">
       <mat-chip-list>
-        <mat-chip title="타노시이">
-          타노시이
+        <mat-chip *ngFor="let tagItem of kanbanItemDto.tagIdList"
+                  title="{{tagItem.title}}">
+          {{tagItem.title}}
         </mat-chip>
-        <mat-chip title="타노시이">
-          타노시이
-        </mat-chip>
-        <mat-chip title="타노시이">
-          타노시이
-        </mat-chip>
-        <mat-chip title="타노시이">
-          타노시이
-        </mat-chip>
-        <mat-chip title="타노시이">
-          타노시이
-        </mat-chip>
-        <mat-chip title="타노시이">
-          타노시이
-        </mat-chip><mat-chip title="타노시이">
-        타노시이
-      </mat-chip>
 
       </mat-chip-list>
     </div>

@@ -1,4 +1,4 @@
-<mat-form-field class="example-chip-list kanban-item-tagWrapper">
+<mat-form-field class="kanban-item-tagWrapper">
   <mat-chip-list #chipList >
     <mat-chip
       #tagViewItem
@@ -10,17 +10,18 @@
       <mat-icon matChipRemove *ngIf="removable">cancel</mat-icon>
     </mat-chip>
     <input #tagInput
+           placeholder="태그를 입력하세요"
            (focusin)="onTagInputerFocusIn()"
            (focusout)="onTagInputerFocusOut()"
            [formControl]="tagFormControl"
-           [disabled]="kanbanItem.lockedBy && checkEditorIsAnotherUser(kanbanItem.lockedBy)"
            [matAutocomplete]="auto"
            [matChipInputFor]="chipList"
            [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
            [matChipInputAddOnBlur]="addOnBlur"
+           (keydown)="onTagInputKeyDown($event)"
            (matChipInputTokenEnd)="add($event)">
   </mat-chip-list>
-
+  <!--[disabled]="kanbanItem.lockedBy && checkEditorIsAnotherUser(kanbanItem.lockedBy)"-->
   <mat-autocomplete #auto="matAutocomplete" (optionSelected)="selected($event)">
     <mat-option *ngFor="let tagItem of filteredTags | async" [value]="tagItem">
       {{tagItem.title}}

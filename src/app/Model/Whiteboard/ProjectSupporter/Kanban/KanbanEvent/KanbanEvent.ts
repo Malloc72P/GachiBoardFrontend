@@ -16,6 +16,7 @@ export enum KanbanEventEnum {
   CREATE_TAG,
   UPDATE,
   DELETE,
+  DELETE_TAG,
   RELOCATE,
   LOCK,
   UNLOCK,

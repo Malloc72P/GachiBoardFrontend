@@ -5,10 +5,10 @@ export class WebsocketPacketDto {
   public senderIdToken:string;
   public packetScope:WebsocketPacketScopeEnum;
   public namespaceValue:string;
-  public dataDto:Object;
+  public dataDto:Object;//패킷의 데이터는 여기에 실려서 감
   public action:WebsocketPacketActionEnum;
   public accessToken;
-  public additionalData;
+  public additionalData;//혹시나 추가로 보낼 데이터가 있으면 여기서 채우면 됨
   public specialAction:string;
 
   constructor(senderIdToken     : string,

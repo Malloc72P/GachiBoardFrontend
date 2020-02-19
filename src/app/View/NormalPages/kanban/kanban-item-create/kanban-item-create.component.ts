@@ -40,7 +40,9 @@ export class KanbanItemCreateComponent implements OnInit {
   ngOnInit() {
   }
   onNoClick(): void {
-    this.dialogRef.close();
+    this.dialogRef.close(
+      {createFlag : false}
+    );
   }
   onSubmit(){
     console.log("KanbanItemCreateComponent >> onSubmit >> 진입함");
@@ -51,6 +53,7 @@ export class KanbanItemCreateComponent implements OnInit {
     let kanbanItem = new KanbanItem(title, userInfo, color);
     console.log("KanbanItemCreateComponent >> onSubmit >> kanbanItem : ",kanbanItem);
     this.dialogRef.close({
+      createFlag : true,
       kanbanItem : kanbanItem,
       kanbanGroup : this.kanbanGroup
     });

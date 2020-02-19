@@ -1,8 +1,11 @@
-import {Component, Inject, OnInit} from '@angular/core';
+import {Component, Inject, OnDestroy, OnInit} from '@angular/core';
 import {PopupManagerService} from '../../../Model/PopupManager/popup-manager.service';
 import {CdkDragDrop, moveItemInArray, transferArrayItem} from '@angular/cdk/drag-drop';
 import {MAT_DIALOG_DATA, MatDialog, MatDialogRef} from '@angular/material';
-import {KanbanTagListManagerService} from '../../../Model/Whiteboard/ProjectSupporter/Kanban/KanbanTagListManager/kanban-tag-list-manager.service';
+import {
+  KanbanTagListManagerService,
+  TagItem
+} from '../../../Model/Whiteboard/ProjectSupporter/Kanban/KanbanTagListManager/kanban-tag-list-manager.service';
 import {KanbanItemEditComponent} from './kanban-item-edit/kanban-item-edit.component';
 import {UserManagerService} from '../../../Model/UserManager/user-manager.service';
 import {KanbanItemCreateComponent} from './kanban-item-create/kanban-item-create.component';
@@ -34,7 +37,7 @@ export class KanbanComponentData {
     '../../../../scrolling.scss',
     '../../Whiteboard/project-supporter-pannel/project-supporter-pannel.component.css',]
 })
-export class KanbanComponent implements OnInit {
+export class KanbanComponent implements OnInit, OnDestroy {
 
   todoGroup:KanbanGroup;
   inProgressGroup:KanbanGroup;
@@ -68,6 +71,7 @@ export class KanbanComponent implements OnInit {
   initComponent(kanbanData:KanbanDataDto){
     if (!this.initFlag) {
       this.projectDto.kanbanData = kanbanData;
+      this.tagListMgrService.initService(kanbanData);
       this.initKanbanInstance();
       this.subscribeEventEmitter();
       this.initFlag = true;
@@ -79,34 +83,30 @@ export class KanbanComponent implements OnInit {
     this.inProgressGroup  = new KanbanGroup(KanbanGroupEnum.IN_PROGRESS, "accent");
     this.doneGroup        = new KanbanGroup(KanbanGroupEnum.DONE, "warn");
     for(let kanbanItemDto of this.projectDto.kanbanData.todoGroup){
-      console.log("KanbanComponent >> initKanbanInstance >> todoGroup >> kanbanItemDto : ",kanbanItemDto);
-      if(kanbanItemDto.parentGroup !== KanbanGroupEnum.TODO){
-        console.warn("KanbanComponent >> initKanbanInstance >> kanbanItemDto : ",kanbanItemDto);
-      }
       this.enqueueByWs(kanbanItemDto);
     }
     for(let kanbanItemDto of this.projectDto.kanbanData.inProgressGroup){
-      console.log("KanbanComponent >> initKanbanInstance >> inProgressGroup >> kanbanItemDto : ",kanbanItemDto);
-      if(kanbanItemDto.parentGroup !== KanbanGroupEnum.IN_PROGRESS){
-        console.warn("KanbanComponent >> initKanbanInstance >> kanbanItemDto : ",kanbanItemDto);
-      }
-
       this.enqueueByWs(kanbanItemDto);
     }
     for(let kanbanItemDto of this.projectDto.kanbanData.doneGroup){
-      console.log("KanbanComponent >> initKanbanInstance >> doneGroup >> kanbanItemDto : ",kanbanItemDto);
-      if(kanbanItemDto.parentGroup !== KanbanGroupEnum.DONE){
-        console.warn("KanbanComponent >> initKanbanInstance >> kanbanItemDto : ",kanbanItemDto);
-      }
-
       this.enqueueByWs(kanbanItemDto);
     }
     this.kanbanGroupWrapper.push(this.todoGroup);
     this.kanbanGroupWrapper.push(this.inProgressGroup);
     this.kanbanGroupWrapper.push(this.doneGroup);
   }
+
+  ngOnInit() {
+  }
+  ngOnDestroy(): void {
+    if(this.subscription){
+      this.subscription.unsubscribe();
+    }
+  }
+
+  private subscription:Subscription;
   subscribeEventEmitter(){
-    this.kanbanEventManager.kanbanEventEmitter.subscribe((kanbanEvent:KanbanEvent)=>{
+    this.subscription = this.kanbanEventManager.kanbanEventEmitter.subscribe((kanbanEvent:KanbanEvent)=>{
       switch (kanbanEvent.action) {
         case KanbanEventEnum.CREATE:
           this.enqueueByWs(kanbanEvent.kanbanItemDto);
@@ -142,6 +142,15 @@ export class KanbanComponent implements OnInit {
     kanbanItem.userInfo = UserManagerService.getParticipantByIdToken(kanbanItemDto.userInfo, this.projectDto);
     kanbanItem._id = kanbanItemDto._id;
     kanbanItem.lockedBy = kanbanItemDto.lockedBy;
+    if(kanbanItemDto.tagIdList){
+      let tagListDto:Array<TagItem> = kanbanItemDto.tagIdList;
+      for(let tagItem of tagListDto){
+        let newTagItem = new TagItem(tagItem.title, tagItem.color);
+        newTagItem._id = tagItem._id;
+
+        kanbanItem.tagList.push(newTagItem);
+      }
+    }
     let groupEnum:KanbanGroupEnum = kanbanItemDto.parentGroup;
     switch (groupEnum) {
       case KanbanGroupEnum.TODO:
@@ -194,69 +203,6 @@ export class KanbanComponent implements OnInit {
       kanbanGroup.kanbanItemList.splice(index, 1);
     }
   }
-
-  ngOnInit() {
-  }
-
-  drop(event: CdkDragDrop<string[]>) {
-
-    let prevContainerName = this.getGroupNameById(event.previousContainer.id);
-    let currContainerName = this.getGroupNameById(event.container.id);
-
-
-    let prevKanbanItem:KanbanItem = event.previousContainer.data[event.previousIndex] as unknown as KanbanItem;
-    let currKanbanItem:KanbanItem = event.container.data[event.currentIndex] as unknown as KanbanItem;
-
-    if (event.previousContainer === event.container) {
-      console.log("KanbanComponent >> drop >> 이전 컨테이너와 현재 컨네이너가 동일");
-      moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
-    } else {
-      console.log("KanbanComponent >> drop >> 이전과 현재 컨테이너가 다름.");
-      transferArrayItem(event.previousContainer.data,
-        event.container.data,
-        event.previousIndex,
-        event.currentIndex);
-    }
-    let wsKanbanController = WsKanbanController.getInstance();
-    wsKanbanController.requestRelocationKanban(prevKanbanItem,prevContainerName,currContainerName,event.currentIndex);
-    //prevKanbanItem이 currKanbanItem의 위치를 대신하도록 요청한다.
-    //만약 currKanbanItem이 null이라면, 그건 재배치하는 위치에 칸반아이템이 없는 경우라서 그런 것임.
-  }
-
-  onNoClick(): void {
-    this.dialogRef.close();
-  }
-  onContextBtnClick( operation, kanbanItem, kanbanGroup){
-    let wsKanbanController = WsKanbanController.getInstance();
-    let subscription:Subscription = wsKanbanController.waitRequestLockKanban(kanbanItem, kanbanGroup)
-      .subscribe(()=>{
-        console.log("KanbanComponent >> onContextBtnClick >> 진입함");
-        switch (operation) {
-          case "edit":
-            this.onEditBtnClick(kanbanItem, kanbanGroup);
-            break;
-          case "delete":
-            this.deleteFrom(kanbanItem, kanbanGroup);
-            break;
-        }
-        subscription.unsubscribe();
-      },(err)=>{
-        console.warn("KanbanComponent >> onContextBtnClick >> err : ",err);
-        subscription.unsubscribe();
-      });
-  }
-  onEditBtnClick(kanbanItem, kanbanGroup){
-    const dialogRef = this.dialog.open(KanbanItemEditComponent, {
-      width: '480px',
-      data: {
-        kanbanItem: kanbanItem,
-        kanbanGroup:kanbanGroup
-      }
-    });
-
-    dialogRef.afterClosed().subscribe((result) => {
-    });
-  }
   editByWs(kanbanItemDto:KanbanItemDto){
     let kanbanGroup:KanbanGroup;
     let groupEnum:KanbanGroupEnum = kanbanItemDto.parentGroup;
@@ -285,60 +231,21 @@ export class KanbanComponent implements OnInit {
           currItem.userInfo = this.userManagerService.getUserDataByIdToken(kanbanItemDto.userInfo);
         }
 
+        if(kanbanItemDto.tagIdList){
+          let tagListDto:Array<TagItem> = kanbanItemDto.tagIdList;
+          currItem.tagList.splice(0, currItem.tagList.length);
+          for(let tagItem of tagListDto){
+            let newTagItem = new TagItem(tagItem.title, tagItem.color);
+            newTagItem._id = tagItem._id;
+
+            currItem.tagList.push(newTagItem);
+          }
+        }
+
         break;
       }
     }
 
-  }
-  onCreateItem(paramGroup){
-    const dialogRef = this.dialog.open(KanbanItemCreateComponent, {
-      width: '480px',
-      data: {kanbanGroup: paramGroup}
-    });
-
-    dialogRef.afterClosed().subscribe((result) => {
-      this.enqueueTo(result.kanbanItem, result.kanbanGroup);
-    });
-
-  }
-  onKanbanGroupSetting(){
-    const dialogRef = this.dialog.open(KanbanGroupSettingComponent, {
-      width: '480px',
-      data: {groups: this.kanbanGroupWrapper}
-    });
-
-    dialogRef.afterClosed().subscribe((result) => {
-      console.log("KanbanComponent >>  >> result : ",result);
-    });
-
-  }
-  onTagManagement(){
-    const dialogRef = this.dialog.open(KanbanTagManagementComponent, {
-      width: '540px',
-      data: {}
-    });
-
-    dialogRef.afterClosed().subscribe((result) => {
-      console.log("KanbanComponent >>  >> result : ",result);
-    });
-
-  }
-
-  requestLock(kanbanItem, kanbanGroup){
-    console.log("KanbanComponent >> requestLock >> kanbanItem : ",kanbanItem);
-    if(kanbanItem.lockedBy){
-      return;
-    }
-    let wsKanbanController = WsKanbanController.getInstance();
-    wsKanbanController.requestLockKanban(kanbanItem, kanbanGroup);
-  }
-  requestRelease(kanbanItem, kanbanGroup){
-    console.log("KanbanComponent >> requestLock >> kanbanItem : ",kanbanItem);
-    if(!kanbanItem.lockedBy){
-      return;
-    }
-    let wsKanbanController = WsKanbanController.getInstance();
-    wsKanbanController.requestUnlockKanban(kanbanItem, kanbanGroup);
   }
   lockedByWs(kanbanItemDto){
     let groupEnum:KanbanGroupEnum = kanbanItemDto.parentGroup as KanbanGroupEnum;
@@ -396,31 +303,6 @@ export class KanbanComponent implements OnInit {
     }
 
   }
-
-  getGroupNameById(id){
-    let tokenizedId = id.split("-");
-    let idStr = tokenizedId[3];
-    let idNum = Number.parseInt(idStr) % 3;
-    switch (idNum) {
-      case 0:
-        return this.todoGroup.title;
-      case 1:
-        return this.inProgressGroup.title;
-      case 2:
-        return this.doneGroup.title;
-    }
-  }
-  getGroupObjectByTitle(title:KanbanGroupEnum) : KanbanGroup{
-    switch (title) {
-      case KanbanGroupEnum.TODO:
-        return this.todoGroup;
-      case KanbanGroupEnum.IN_PROGRESS:
-        return this.inProgressGroup;
-      case KanbanGroupEnum.DONE:
-        return this.doneGroup;
-    }
-  }
-
   relocateByWs(kanbanItemDto:KanbanItemDto, additionalData){
     let destGroupTitle = additionalData.destGroupTitle;
     let destIdx = additionalData.destIdx;
@@ -460,6 +342,155 @@ export class KanbanComponent implements OnInit {
     }
 
   }
+
+
+  drop(event: CdkDragDrop<string[]>) {
+
+    let prevContainerName = this.getGroupNameById(event.previousContainer.id);
+    let currContainerName = this.getGroupNameById(event.container.id);
+
+
+    let prevKanbanItem:KanbanItem = event.previousContainer.data[event.previousIndex] as unknown as KanbanItem;
+    let currKanbanItem:KanbanItem = event.container.data[event.currentIndex] as unknown as KanbanItem;
+
+    if (event.previousContainer === event.container) {
+      console.log("KanbanComponent >> drop >> 이전 컨테이너와 현재 컨네이너가 동일");
+      moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
+    } else {
+      console.log("KanbanComponent >> drop >> 이전과 현재 컨테이너가 다름.");
+      transferArrayItem(event.previousContainer.data,
+        event.container.data,
+        event.previousIndex,
+        event.currentIndex);
+    }
+    let wsKanbanController = WsKanbanController.getInstance();
+    wsKanbanController.requestRelocationKanban(prevKanbanItem,prevContainerName,currContainerName,event.currentIndex);
+    //prevKanbanItem이 currKanbanItem의 위치를 대신하도록 요청한다.
+    //만약 currKanbanItem이 null이라면, 그건 재배치하는 위치에 칸반아이템이 없는 경우라서 그런 것임.
+  }
+  onNoClick(): void {
+    this.dialogRef.close();
+  }
+  onCreateItem(paramGroup){
+    const dialogRef = this.dialog.open(KanbanItemCreateComponent, {
+      width: '480px',
+      data: {kanbanGroup: paramGroup}
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if(result){
+        console.log("KanbanComponent >>  >> result : ",result);
+        if(!result.createFlag){
+          return;
+        }
+        if(result.kanbanItem.title && result.kanbanItem.userInfo && result.kanbanItem.color !== 0){
+          this.enqueueTo(result.kanbanItem, result.kanbanGroup);
+        }
+
+      }
+    });
+
+  }
+  onKanbanGroupSetting(){
+    const dialogRef = this.dialog.open(KanbanGroupSettingComponent, {
+      width: '480px',
+      data: {groups: this.kanbanGroupWrapper}
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      console.log("KanbanComponent >>  >> result : ",result);
+    });
+
+  }
+  onTagManagement(){
+    const dialogRef = this.dialog.open(KanbanTagManagementComponent, {
+      width: '540px',
+      data: {}
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      console.log("KanbanComponent >>  >> result : ",result);
+    });
+
+  }
+  onEditBtnClick(kanbanItem, kanbanGroup){
+    const dialogRef = this.dialog.open(KanbanItemEditComponent, {
+      width: '480px',
+      data: {
+        kanbanItem: kanbanItem,
+        kanbanGroup:kanbanGroup
+      }
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      let wsKanbanController = WsKanbanController.getInstance();
+      wsKanbanController.requestUnlockKanban(kanbanItem, kanbanGroup);
+    });
+  }
+
+
+  onContextBtnClick( operation, kanbanItem, kanbanGroup){
+    let wsKanbanController = WsKanbanController.getInstance();
+    let subscription:Subscription = wsKanbanController.waitRequestLockKanban(kanbanItem, kanbanGroup)
+      .subscribe(()=>{
+        console.log("KanbanComponent >> onContextBtnClick >> 진입함");
+        switch (operation) {
+          case "edit":
+            this.onEditBtnClick(kanbanItem, kanbanGroup);
+            break;
+          case "delete":
+            this.deleteFrom(kanbanItem, kanbanGroup);
+            break;
+        }
+        subscription.unsubscribe();
+      },(err)=>{
+        console.warn("KanbanComponent >> onContextBtnClick >> err : ",err);
+        subscription.unsubscribe();
+      });
+  }
+
+
+  requestLock(kanbanItem, kanbanGroup){
+    console.log("KanbanComponent >> requestLock >> kanbanItem : ",kanbanItem);
+    if(kanbanItem.lockedBy){
+      return;
+    }
+    let wsKanbanController = WsKanbanController.getInstance();
+    wsKanbanController.requestLockKanban(kanbanItem, kanbanGroup);
+  }
+  requestRelease(kanbanItem, kanbanGroup){
+    console.log("KanbanComponent >> requestLock >> kanbanItem : ",kanbanItem);
+    if(!kanbanItem.lockedBy){
+      return;
+    }
+    let wsKanbanController = WsKanbanController.getInstance();
+    wsKanbanController.requestUnlockKanban(kanbanItem, kanbanGroup);
+  }
+
+  getGroupNameById(id){
+    let tokenizedId = id.split("-");
+    let idStr = tokenizedId[3];
+    let idNum = Number.parseInt(idStr) % 3;
+    switch (idNum) {
+      case 0:
+        return this.todoGroup.title;
+      case 1:
+        return this.inProgressGroup.title;
+      case 2:
+        return this.doneGroup.title;
+    }
+  }
+  getGroupObjectByTitle(title:KanbanGroupEnum) : KanbanGroup{
+    switch (title) {
+      case KanbanGroupEnum.TODO:
+        return this.todoGroup;
+      case KanbanGroupEnum.IN_PROGRESS:
+        return this.inProgressGroup;
+      case KanbanGroupEnum.DONE:
+        return this.doneGroup;
+    }
+  }
+
 
   getProfileImg(idToken){
     if(idToken){

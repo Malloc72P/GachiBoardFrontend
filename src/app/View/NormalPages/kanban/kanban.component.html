@@ -20,7 +20,7 @@
           </button>
           <mat-menu #appMenuKanbanSetting="matMenu">
             <button mat-menu-item (click)="onTagManagement()">태그 관리</button>
-            <button mat-menu-item (click)="onKanbanGroupSetting()">칸반 그룹 설정</button>
+            <!--<button mat-menu-item (click)="onKanbanGroupSetting()">칸반 그룹 설정</button>-->
           </mat-menu>
 
         </span>
@@ -44,7 +44,11 @@
                     class="kanban-grid-cell card-1"
                     [ngStyle]="{'height' : htmlHelperService.getHeightOfBrowser() - 160 + 'px'}">
             <mat-toolbar color="{{group.groupColor}}" class="kanban-group-header">
-              <mat-toolbar-row>
+              <mat-toolbar-row matRipple
+                               class="kanban-create-item-btn"
+                               matTooltip="칸반을 생성하려면 이 버튼을 클릭하세요"
+                               matTooltipPosition="above"
+                               (click)="onCreateItem(group)">
                 <span class="flex-spacer"></span>
                 <span>
                   <span style="margin-right: 8px">(</span>
@@ -52,14 +56,14 @@
                   <span style="margin-left: 8px">)</span>
                 </span>
                 <span class="flex-spacer"></span>
-                <button mat-button
+                <!--<button mat-button
                         (click)="onCreateItem(group)"
                         class="kanban-create-item-btn">
                   <mat-icon class="example-icon"
                             aria-hidden="false"
                             aria-label="kanban title add button">add_circle
                   </mat-icon>
-                </button>
+                </button>-->
               </mat-toolbar-row>
             </mat-toolbar>
 

@@ -139,9 +139,10 @@
   top: 0;
 }
 .kanban-create-item-btn{
-  position: absolute;
+  /*position: absolute;
   padding: 0;
-  right: 34px;
+  right: 34px;*/
+  cursor: pointer;
 }
 .kanban-item-title{
   position: relative;

@@ -7,6 +7,7 @@ import {KanbanGroup} from '../KanbanGroup/kanban-group';
 import {KanbanEvent, KanbanEventEnum} from '../KanbanEvent/KanbanEvent';
 import {KanbanEventManagerService} from '../kanban-event-manager.service';
 import {Observable} from 'rxjs';
+import {KanbanDataDto} from '../../../../../DTO/ProjectDto/KanbanDataDto/kanban-data-dto';
 
 export class TagItem{
   public _id;
@@ -47,11 +48,33 @@ export class KanbanTagListManagerService {
         case KanbanEventEnum.CREATE_TAG:
           this.addTag(kanbanEvent.data);
           break;
+        case KanbanEventEnum.DELETE_TAG:
+          this.removeTag(kanbanEvent.data);
+          break;
         case KanbanEventEnum.LOCK:
           break;
       }
 
     });
+  }
+
+  initService(kanbanDataDto:KanbanDataDto){
+    if(this.tagList){
+      this.tagList.splice(0, this.tagList.length);
+    }
+    else this.tagList = new Array<TagItem>();
+
+    for(let tagItem of kanbanDataDto.kanbanTagListDto){
+      this.addTag(tagItem);
+    }
+  }
+  getTagByTitle(title) :TagItem{
+    for(let tagItem of this.tagList){
+        if(tagItem.title === title){
+          return tagItem;
+        }
+    }
+    return null;
   }
   getOnTagAddEvent(){
     return this.onTagAddEvent;

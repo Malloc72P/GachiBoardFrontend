@@ -1,12 +1,10 @@
 import {
-  AfterViewInit,
   Component,
   ElementRef,
   Input,
-  OnChanges,
+  OnDestroy,
   OnInit,
-  QueryList, Renderer2,
-  SimpleChanges,
+  QueryList,
   ViewChild,
   ViewChildren
 } from '@angular/core';
@@ -14,7 +12,7 @@ import {COMMA, ENTER} from '@angular/cdk/keycodes';
 import {FormControl} from '@angular/forms';
 import {Observable, Subscription} from 'rxjs';
 import {map, startWith} from 'rxjs/operators';
-import {MatAutocomplete, MatAutocompleteSelectedEvent, MatChip, MatChipInputEvent} from '@angular/material';
+import {MatAutocomplete, MatAutocompleteSelectedEvent, MatAutocompleteTrigger, MatChip, MatChipInputEvent} from '@angular/material';
 import {
   KanbanTagListManagerService,
   TagItem
@@ -34,7 +32,7 @@ import {KanbanEventManagerService} from '../../../../Model/Whiteboard/ProjectSup
   templateUrl: './kanban-tag-list.component.html',
   styleUrls: ['./kanban-tag-list.component.css', '../../../../../gachi-anime.scss','../../gachi-font.css']
 })
-export class KanbanTagListComponent implements OnInit,OnChanges {
+export class KanbanTagListComponent implements OnInit, OnDestroy{
   @ViewChildren('tagViewItem') tagViewList : QueryList<ElementRef>;
 
   @ViewChild('tagInput', {static: false}) tagInput: ElementRef<HTMLInputElement>;
@@ -42,12 +40,28 @@ export class KanbanTagListComponent implements OnInit,OnChanges {
   @Input("kanbanItem") kanbanItem:KanbanItem;
   @Input("kanbanGroup") kanbanGroup:KanbanGroup;
 
+  private isLocked = false;
+  private static idGenerator = 0;
+
+  private subscription:Subscription;
+
+  id = 0;
+  selectable = false;
+  removable = true;
+  addOnBlur = true;
+
+  tagFormControl:FormControl;
+  allTags: Array<TagItem>;
+  filteredTags: Observable<TagItem[]>;
+
   separatorKeysCodes: number[] = [ENTER, COMMA];
+
   constructor(
     private tagListMgrService:KanbanTagListManagerService,
     private animeManagerService:AnimeManagerService,
     private websocketManagerService:WebsocketManagerService,
     private htmlHelperService:HtmlHelperService,
+    private kanbanEventManager:KanbanEventManagerService,
   ){
   }
 
@@ -75,27 +89,15 @@ export class KanbanTagListComponent implements OnInit,OnChanges {
       });
 
   }
-
-  private static idGenerator = 0;
-  id = 0;
-  selectable = false;
-  removable = true;
-  addOnBlur = true;
-
-  tagFormControl:FormControl;
-  allTags: Array<TagItem>;
-  filteredTags: Observable<TagItem[]>;
-
+  ngOnDestroy(): void {
+    if(this.subscription){
+      this.subscription.unsubscribe();
+    }
+  }
 
   checkLocked(){
     return this.kanbanItem.lockedBy && this.checkEditorIsAnotherUser(this.kanbanItem.lockedBy);
   }
-  private isLocked = false;
-  ngOnChanges(changes: SimpleChanges): void {
-
-  }
-
-
   refreshAutoCompleteList(){
     this.filteredTags = this.tagFormControl.valueChanges.pipe(
       startWith(null),
@@ -106,6 +108,7 @@ export class KanbanTagListComponent implements OnInit,OnChanges {
 
   add(event: MatChipInputEvent): void {
     let wsKanbanController = WsKanbanController.getInstance();
+    console.log("KanbanTagListComponent >> add >> event.value : ",event.value);
     if (!this.matAutocomplete.isOpen) {
       const input = event.input;
       const value = event.value;
@@ -127,7 +130,9 @@ export class KanbanTagListComponent implements OnInit,OnChanges {
               wsKanbanController.waitRequestUpdateKanban(this.kanbanItem, this.kanbanGroup)
                 .subscribe(()=>{
                     this.resetInputer(input);
-                    wsKanbanController.requestUnlockKanban(this.kanbanItem, this.kanbanGroup);
+                    //wsKanbanController.requestUnlockKanban(this.kanbanItem, this.kanbanGroup);
+                  console.log("KanbanTagListComponent >> add >> DO focus");
+                    this.tagInput.nativeElement.focus();
                 },
                   (e)=>{
                     this.resetInputer(input);
@@ -144,6 +149,7 @@ export class KanbanTagListComponent implements OnInit,OnChanges {
       else{
         //do Anime
         this.showUnavailable(newTagItem);
+        this.tagInput.nativeElement.blur();
       }
       this.resetInputer(input);
     }
@@ -158,7 +164,26 @@ export class KanbanTagListComponent implements OnInit,OnChanges {
   }
 
   remove(tagItem: TagItem): void {
-    this.tagListMgrService.deleteTagInTaglist(this.kanbanItem, tagItem);
+    console.log("KanbanTagListComponent >> remove >> tagItem : ",tagItem);
+    const index = this.kanbanItem.tagList.indexOf(tagItem);
+    if (index >= 0) {
+      this.kanbanItem.tagList.splice(index, 1);
+    }
+    let wsKanbanController = WsKanbanController.getInstance();
+    let subscription:Subscription = wsKanbanController.waitRequestLockKanban(this.kanbanItem, this.kanbanGroup)
+      .subscribe(()=>{
+        subscription.unsubscribe();
+        subscription = wsKanbanController.waitRequestUpdateKanban(this.kanbanItem, this.kanbanGroup)
+          .subscribe(()=>{
+              subscription.unsubscribe();
+              this.tagInput.nativeElement.focus();
+            },
+            (e)=>{
+              subscription.unsubscribe();
+            });
+      },()=>{
+        subscription.unsubscribe();
+      });
   }
   removeTagLocally(tagItem: TagItem): void {
     //const index = this.kanbanItem.tagList.indexOf(tagItem);
@@ -179,7 +204,20 @@ export class KanbanTagListComponent implements OnInit,OnChanges {
   selected(event: MatAutocompleteSelectedEvent): void {
     let newTagItem = new TagItem(event.option.viewValue.trim(), 'red');
     if(!this.isDuplicated(newTagItem)){
-      this.kanbanItem.tagList.push(newTagItem);
+      let wsKanbanController = WsKanbanController.getInstance();
+      wsKanbanController.requestLockKanban(this.kanbanItem, this.kanbanGroup);
+
+      let foundTag:TagItem = this.tagListMgrService.getTagByTitle(newTagItem.title) as TagItem;
+      this.kanbanItem.tagList.push(foundTag);
+
+      wsKanbanController.waitRequestUpdateKanban(this.kanbanItem, this.kanbanGroup)
+        .subscribe(()=>{
+            this.tagInput.nativeElement.focus();
+          },
+          (e)=>{
+          });
+
+
     }
     else{
       this.showUnavailable(newTagItem);
@@ -189,12 +227,13 @@ export class KanbanTagListComponent implements OnInit,OnChanges {
   }//selected
 
   private _filter(value): TagItem[] {
-    if(value === undefined){
+    if(!value){
       return null;
     }
+    console.log("KanbanTagListComponent >> _filter >> value : ",value);
     let filterValue;
 
-    if(value instanceof TagItem){
+    if(value.title){
       filterValue = value.title.toLowerCase();
     }
     else{
@@ -228,12 +267,20 @@ export class KanbanTagListComponent implements OnInit,OnChanges {
   }
 
   onTagInputerFocusIn(){
+    console.log("KanbanTagListComponent >> onTagInputerFocusIn >> 진입함");
     let wsKanbanController = WsKanbanController.getInstance();
     wsKanbanController.requestLockKanban(this.kanbanItem, this.kanbanGroup);
   }
   onTagInputerFocusOut(){
+    console.log("KanbanTagListComponent >> onTagInputerFocusOut >> 진입함");
     let wsKanbanController = WsKanbanController.getInstance();
-    // wsKanbanController.requestUnlockKanban(this.kanbanItem, this.kanbanGroup);
+    wsKanbanController.requestUnlockKanban(this.kanbanItem, this.kanbanGroup);
+  }
+  onTagInputKeyDown(event){
+    if(!this.kanbanItem.lockedBy){
+      let wsKanbanController = WsKanbanController.getInstance();
+      wsKanbanController.requestLockKanban(this.kanbanItem, this.kanbanGroup);
+    }
   }
   checkEditorIsAnotherUser(idToken){
     return this.websocketManagerService.userInfo.idToken !== idToken;
