@@ -109,50 +109,53 @@ export class KanbanTagListComponent implements OnInit, OnDestroy{
   add(event: MatChipInputEvent): void {
     let wsKanbanController = WsKanbanController.getInstance();
     console.log("KanbanTagListComponent >> add >> event.value : ",event.value);
+/*
     if (!this.matAutocomplete.isOpen) {
-      const input = event.input;
-      const value = event.value;
+    }
+*/
+    const input = event.input;
+    const value = event.value;
 
 
-      let newTagItem:TagItem = new TagItem(value.trim(), 'red');
+    let newTagItem:TagItem = new TagItem(value.trim(), 'red');
 
-      /*태그 추가 전에 이미 있는지 검사*/
-      if(!this.isDuplicated(newTagItem)){
-        /*태그 추가*/
-        if ((value || '').trim()) {
-          let newColor = this.generateRandomTagColor();
-          this.tagListMgrService
-            .insertTagInTaglist(this.kanbanItem, newTagItem.title, newColor, this.kanbanGroup)
-            .subscribe((createdTag)=>{
-              console.log("KanbanTagListComponent >> add >> insertTagInTaglist >> createdTag : ",createdTag);
-              console.log("KanbanTagListComponent >>  >> kanbanItem : ",this.kanbanItem);
+    /*태그 추가 전에 이미 있는지 검사*/
+    if(!this.isDuplicated(newTagItem)){
+      /*태그 추가*/
+      if ((value || '').trim()) {
+        let newColor = this.generateRandomTagColor();
+        this.tagListMgrService
+          .insertTagInTaglist(this.kanbanItem, newTagItem.title, newColor, this.kanbanGroup)
+          .subscribe((createdTag)=>{
+            console.log("KanbanTagListComponent >> add >> insertTagInTaglist >> createdTag : ",createdTag);
+            console.log("KanbanTagListComponent >>  >> kanbanItem : ",this.kanbanItem);
 
-              wsKanbanController.waitRequestUpdateKanban(this.kanbanItem, this.kanbanGroup)
-                .subscribe(()=>{
-                    this.resetInputer(input);
-                    //wsKanbanController.requestUnlockKanban(this.kanbanItem, this.kanbanGroup);
+            wsKanbanController.waitRequestUpdateKanban(this.kanbanItem, this.kanbanGroup)
+              .subscribe(()=>{
+                  this.resetInputer(input);
+                  //wsKanbanController.requestUnlockKanban(this.kanbanItem, this.kanbanGroup);
                   console.log("KanbanTagListComponent >> add >> DO focus");
-                    this.tagInput.nativeElement.focus();
+                  this.tagInput.nativeElement.focus();
                 },
-                  (e)=>{
-                    this.resetInputer(input);
-                    wsKanbanController.requestUnlockKanban(this.kanbanItem, this.kanbanGroup);
+                (e)=>{
+                  this.resetInputer(input);
+                  wsKanbanController.requestUnlockKanban(this.kanbanItem, this.kanbanGroup);
                 });
 
-            },(e)=>{
-              console.log("KanbanTagListComponent >> add >> insertTagInTaglist >> e : ",e);
-              this.resetInputer(input);
-              wsKanbanController.requestUnlockKanban(this.kanbanItem, this.kanbanGroup);
-            });
-        }
+          },(e)=>{
+            console.log("KanbanTagListComponent >> add >> insertTagInTaglist >> e : ",e);
+            this.resetInputer(input);
+            wsKanbanController.requestUnlockKanban(this.kanbanItem, this.kanbanGroup);
+          });
       }
-      else{
-        //do Anime
-        this.showUnavailable(newTagItem);
-        this.tagInput.nativeElement.blur();
-      }
-      this.resetInputer(input);
     }
+    else{
+      //do Anime
+      this.showUnavailable(newTagItem);
+      this.tagInput.nativeElement.blur();
+    }
+    this.resetInputer(input);
+
 
   }//add
 
@@ -299,7 +302,13 @@ export class KanbanTagListComponent implements OnInit, OnDestroy{
     }
   }
 
-
+  checkIsLocked(){
+    if(!this.kanbanItem.lockedBy){
+      return true;
+    }else{
+      return !this.checkEditorIsAnotherUser(this.kanbanItem.lockedBy);
+    }
+  }
 
 
 }

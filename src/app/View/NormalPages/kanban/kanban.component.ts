@@ -20,7 +20,6 @@ import {KanbanItemDto, KanbanGroupEnum} from '../../../DTO/ProjectDto/KanbanData
 import {KanbanEventManagerService} from '../../../Model/Whiteboard/ProjectSupporter/Kanban/kanban-event-manager.service';
 import {KanbanEvent, KanbanEventEnum} from '../../../Model/Whiteboard/ProjectSupporter/Kanban/KanbanEvent/KanbanEvent';
 import {WebsocketManagerService} from '../../../Controller/Controller-WebSocket/websocket-manager/websocket-manager.service';
-import {WebsocketEvent, WebsocketEventEnum} from '../../../Controller/Controller-WebSocket/websocket-manager/WebsocketEvent/WebsocketEvent';
 import {KanbanDataDto} from '../../../DTO/ProjectDto/KanbanDataDto/kanban-data-dto';
 import {Subscription} from 'rxjs';
 
@@ -504,6 +503,13 @@ export class KanbanComponent implements OnInit, OnDestroy {
   }
   checkEditorIsAnotherUser(idToken){
     return this.websocketManagerService.userInfo.idToken !== idToken;
+  }
+  checkIsLocked(kanbanItem){
+    if(!kanbanItem.lockedBy){
+      return true;
+    }else{
+      return !this.checkEditorIsAnotherUser(kanbanItem.lockedBy);
+    }
   }
 
 }

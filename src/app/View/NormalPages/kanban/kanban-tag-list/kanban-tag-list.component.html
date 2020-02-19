@@ -7,12 +7,13 @@
       [removable]="removable"
       (removed)="remove(tagItem)">
       {{tagItem.title}}
-      <mat-icon matChipRemove *ngIf="removable">cancel</mat-icon>
+      <mat-icon matChipRemove
+                *ngIf="checkIsLocked()">cancel</mat-icon>
     </mat-chip>
     <input #tagInput
-           placeholder="태그를 입력하세요"
            (focusin)="onTagInputerFocusIn()"
            (focusout)="onTagInputerFocusOut()"
+           [hidden]="kanbanItem.lockedBy && checkEditorIsAnotherUser(kanbanItem.lockedBy)"
            [formControl]="tagFormControl"
            [matAutocomplete]="auto"
            [matChipInputFor]="chipList"
@@ -21,7 +22,6 @@
            (keydown)="onTagInputKeyDown($event)"
            (matChipInputTokenEnd)="add($event)">
   </mat-chip-list>
-  <!--[disabled]="kanbanItem.lockedBy && checkEditorIsAnotherUser(kanbanItem.lockedBy)"-->
   <mat-autocomplete #auto="matAutocomplete" (optionSelected)="selected($event)">
     <mat-option *ngFor="let tagItem of filteredTags | async" [value]="tagItem">
       {{tagItem.title}}
