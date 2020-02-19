@@ -42,7 +42,6 @@ export class BrushService {
   public endPath() {
     if(!!this.newPath) {
       this.newPath.simplify(5);
-      // this.newPath.smooth({ type: 'catmull-rom', factor: 0.5 });
 
       //addToDrawingLayer를 이용하여 아이템 append
       this.layerService.addToDrawingLayer(this.newPath, WhiteboardItemType.SIMPLE_STROKE);

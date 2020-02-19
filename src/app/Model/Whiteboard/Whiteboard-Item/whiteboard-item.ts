@@ -40,7 +40,7 @@ export abstract class WhiteboardItem {
 
   private _disableLinkHandler;
   private _longTouchTimer;
-  private fromPoint: Point;
+  private downPoint: Point;
 
   private _layerService:DrawingLayerManagerService;
 
@@ -116,11 +116,11 @@ export abstract class WhiteboardItem {
   }
 
   private calcTolerance(point: Point) {
-    return this.fromPoint.getDistance(point) > 10;
+    return this.downPoint.getDistance(point) > 10;
   }
 
-  private initFromPoint(point: Point) {
-    this.fromPoint = point;
+  private initDownPoint(point: Point) {
+    this.downPoint = point;
   }
   private initPoint(event: MouseEvent | TouchEvent): Point {
     let point: Point;
@@ -186,6 +186,7 @@ export abstract class WhiteboardItem {
     if(this.isGrouped && this.parentEdtGroup){
       this.parentEdtGroup.destroyItem();
     }
+    this.lifeCycleEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.DESTROY));
   }
 
   checkEditable(){

@@ -31,6 +31,8 @@ import Circle = paper.Path.Circle;
 import Raster = paper.Raster;
 // @ts-ignore
 import Segment = paper.Segment;
+// @ts-ignore
+import Group = paper.Group;
 
 import {WhiteboardShapeDto} from '../../WhiteboardItemDto/WhiteboardShapeDto/whiteboard-shape-dto';
 import {GachiColorDto} from '../../WhiteboardItemDto/ColorDto/gachi-color-dto';
@@ -52,12 +54,7 @@ import {WbItemFactoryResult} from './WbItemFactoryResult/wb-item-factory-result'
 import {CopiedLinkData} from '../../Whiteboard-Item/ItemGroup/GlobalSelectedGroup/CopiedLinkData/copied-link-data';
 import {WhiteboardShape} from '../../Whiteboard-Item/Whiteboard-Shape/whiteboard-shape';
 import {EditableLink} from '../../Whiteboard-Item/Whiteboard-Shape/LinkPort/EditableLink/editable-link';
-import {SimpleArrowLink} from '../../Whiteboard-Item/Whiteboard-Shape/LinkPort/EditableLink/SimpleArrowLink/simple-arrow-link';
-import {SimpleLineLink} from '../../Whiteboard-Item/Whiteboard-Shape/LinkPort/EditableLink/SimpleLineLink/simple-line-link';
-import {EditableLinkDto} from '../../WhiteboardItemDto/WhiteboardShapeDto/LinkPortDto/EditableLinkDto/editable-link-dto';
-import {SimpleArrowLinkDto} from '../../WhiteboardItemDto/WhiteboardShapeDto/LinkPortDto/EditableLinkDto/SimpleArrowLinkDto/simple-arrow-link-dto';
-import {SimpleLineLinkDto} from '../../WhiteboardItemDto/WhiteboardShapeDto/LinkPortDto/EditableLinkDto/SimpleLineLinkDto/simple-line-link-dto';
-import {LinkPort} from '../../Whiteboard-Item/Whiteboard-Shape/LinkPort/link-port';
+import {EditableLinkDto} from "../../WhiteboardItemDto/EditableLinkDto/editable-link-dto";
 
 
 enum BUILD_MODE {
@@ -78,26 +75,25 @@ export class WhiteboardItemFactory {
     return new Observable((observer)=>{
       let observerCounter = copiedDtoArray.length;
       let tempGsgArray = new Array<WhiteboardItem>();
+      let copyLinkArray: Array<EditableLinkDto>;
 
-      let copyLinkMap:Map<any, CopiedLinkData>;
-
-      copyLinkMap = WhiteboardItemFactory.createCopyLinkMap(copiedDtoArray);
+      copyLinkArray = WhiteboardItemFactory.extractCopyLinkArray(copiedDtoArray);
 
       for (let i = 0; i < copiedDtoArray.length; i++) {
         let currDto = copiedDtoArray[i];
         WhiteboardItemFactory.waitForCreateWbItem(currDto, BUILD_MODE.CLONE).subscribe((factoryResult:WbItemFactoryResult)=>{
 
           tempGsgArray.push(factoryResult.newWbItem);
-          copyLinkMap = WhiteboardItemFactory.fillCopyLinkMap(copyLinkMap, factoryResult);
+          // copyLinkArray = WhiteboardItemFactory.fillCopyLinkMap(copyLinkArray, factoryResult);
           observerCounter--;
 
           if(observerCounter <= 0){
             // #### 복제가 완전히 완료된 경우, 해당 조건문에 진입함 ####
-            WhiteboardItemFactory.doLinkingOperation(copyLinkMap, BUILD_MODE.CLONE);
+            console.log("WhiteboardItemFactory >>  >> doLinking");
+            WhiteboardItemFactory.doLinkingOperation(copyLinkArray, BUILD_MODE.CLONE);
             observer.next(tempGsgArray);
           }
         });
-
       }
     });
 
@@ -336,135 +332,77 @@ export class WhiteboardItemFactory {
       gachiColor.alpha );
   }
 
-  private static createSimpleArrowLink(wbId, copyLinkData:CopiedLinkData) :SimpleArrowLink{
-    let linkDto:SimpleArrowLinkDto = copyLinkData.linkDto as SimpleArrowLinkDto;
+  private static createEditableLink(wbId, linkDto: EditableLinkDto): EditableLink {
+    let linkLine = new Path.Line({
+      from: linkDto.fromPoint.paperPoint,
+      to: linkDto.toPoint.paperPoint,
+      strokeColor: linkDto.linkColor.paperColor,
+      strokeWidth: linkDto.linkWidth,
+      strokeCap: 'round',
+      strokeJoin: 'round',
+      dashArray: linkDto.isDashed ? [linkDto.linkWidth * 2, linkDto.linkWidth * 2] : undefined,
+    });
 
-    let fromLinkPort:LinkPort = copyLinkData.fromWbItem.linkPortMap.get(linkDto.fromLinkPortDirection);
+    let linkHead = new Path();
+    let linkTail = new Path();
 
-    let newLink:SimpleArrowLink;
-    newLink = new SimpleArrowLink(fromLinkPort,
-      WhiteboardItemFactory.convertGachiColorToPaperColor(linkDto.strokeColor),
-      linkDto.strokeWidth,
-      WhiteboardItemFactory.convertGachiColorToPaperColor(linkDto.fillColor),
-      linkDto.isDashed);
-    newLink.manuallyLinkToWbShape(copyLinkData.toWbItem, linkDto.toLinkPortDirection);
-    fromLinkPort.addLink(newLink);
-    return newLink
-  }
-  private static createSimpleLinkLink(wbId, copyLinkData:CopiedLinkData) :SimpleLineLink{
-    let linkDto:SimpleLineLinkDto = copyLinkData.linkDto as SimpleLineLinkDto;
+    let group = new Group();
+    group.addChildren([linkLine, linkHead, linkTail]);
 
-    let fromLinkPort:LinkPort = copyLinkData.fromWbItem.linkPortMap.get(linkDto.fromLinkPortDirection);
-
-    let newLink:SimpleLineLink;
-    newLink = new SimpleLineLink(fromLinkPort,
-      WhiteboardItemFactory.convertGachiColorToPaperColor(linkDto.strokeColor),
-      linkDto.strokeWidth,
-      WhiteboardItemFactory.convertGachiColorToPaperColor(linkDto.fillColor),
-      linkDto.isDashed);
-    newLink.manuallyLinkToWbShape(copyLinkData.toWbItem, linkDto.toLinkPortDirection);
-    fromLinkPort.addLink(newLink);
-    return newLink
+    return new EditableLink(wbId, group, linkDto.linkHeadType, linkDto.linkTailType, WhiteboardItemFactory.layerService);
   }
 
   // ##### Linking Operation #####
-  private static buildEditableLink(buildMode, currCopyLink:CopiedLinkData){
-    let wbId = WhiteboardItemFactory.getWbId(buildMode, currCopyLink.linkDto.id);
-    let linkType:WhiteboardItemType = currCopyLink.linkDto.type;
-    let newLink:EditableLink;
-    switch (linkType) {
-      case WhiteboardItemType.EDITABLE_LINK:
-        newLink = WhiteboardItemFactory.createSimpleArrowLink(wbId, currCopyLink);
-        break;
-      case WhiteboardItemType.SIMPLE_LINE_LINK:
-        newLink = WhiteboardItemFactory.createSimpleLinkLink(wbId, currCopyLink);
-        break;
-    }
-    return newLink;
+  private static buildEditableLink(buildMode, linkDto: EditableLinkDto): EditableLink{
+    let wbId = WhiteboardItemFactory.getWbId(buildMode, linkDto.id);
+    return WhiteboardItemFactory.createEditableLink(wbId, linkDto);
   }
-  private static doLinkingOperation(copyLinkMap:Map<any, CopiedLinkData>, buildMode){
-    console.log("WhiteboardItemFactory >> doLinkingOperation >> copyLinkMap : ",copyLinkMap);
-    console.log("\n\n");
-    copyLinkMap.forEach((currCopyLink, key, map)=>{
-      if( !currCopyLink.fromWbItem && !currCopyLink.toWbItem ){
-        return;
-      }
 
-      WhiteboardItemFactory.buildEditableLink(buildMode, currCopyLink);
+  private static doLinkingOperation(copyLinkArray: Array<EditableLinkDto>, buildMode){
+    console.log("WhiteboardItemFactory >> doLinkingOperation >> copyLinkArray : ",copyLinkArray);
+    copyLinkArray.forEach(linkDto => {
+      WhiteboardItemFactory.buildEditableLink(buildMode, linkDto);
     });
   }
 
-  private static fillCopyLinkMap( copyLinkMap:Map<any, CopiedLinkData>, factoryResult:WbItemFactoryResult ){
-    console.log("WhiteboardItemFactory >> fillCopyLinkMap >> copyLinkMap : ",copyLinkMap);
-    if( WhiteboardItemFactory.isWbShapeDto(factoryResult.originDto.type) ){
-      let originWbShapeDto:WhiteboardShapeDto = factoryResult.originDto as WhiteboardShapeDto;
-      let currLinkPorts = originWbShapeDto.linkPortsDto;
-      for (let i = 0; i < currLinkPorts.length; i++) {
-        let currPort = currLinkPorts[i];
+  // private static fillCopyLinkMap( copyLinkMap:Map<any, CopiedLinkData>, factoryResult:WbItemFactoryResult ){
+  //   console.log("WhiteboardItemFactory >> fillCopyLinkMap >> copyLinkMap : ",copyLinkMap);
+  //   if( WhiteboardItemFactory.isWbShapeDto(factoryResult.originDto.type) ){
+  //     let originWbShapeDto:WhiteboardShapeDto = factoryResult.originDto as WhiteboardShapeDto;
+  //     let currLinkPorts = originWbShapeDto.linkPortsDto;
+  //     for (let i = 0; i < currLinkPorts.length; i++) {
+  //       let currPort = currLinkPorts[i];
+  //
+  //       let fromLinkList = currPort.fromLinkList;
+  //       for (let j = 0; j < fromLinkList.length; j++) {
+  //         let currLink = fromLinkList[j];
+  //         if(copyLinkMap.has(currLink.id)){
+  //           copyLinkMap.get(currLink.id).fromWbItem = factoryResult.newWbItem as WhiteboardShape;
+  //         }
+  //       }
+  //
+  //       let toLinkList = currPort.toLinkList;
+  //       for (let j = 0; j < toLinkList.length; j++) {
+  //         let currLink = toLinkList[j];
+  //         if(copyLinkMap.has(currLink.id)){
+  //           copyLinkMap.get(currLink.id).toWbItem = factoryResult.newWbItem as WhiteboardShape;
+  //         }
+  //       }
+  //
+  //     }
+  //   }
+  //   return copyLinkMap;
+  // }
 
-        let fromLinkList = currPort.fromLinkList;
-        for (let j = 0; j < fromLinkList.length; j++) {
-          let currLink = fromLinkList[j];
-          if(copyLinkMap.has(currLink.id)){
-            copyLinkMap.get(currLink.id).fromWbItem = factoryResult.newWbItem as WhiteboardShape;
-          }
-        }
-
-        let toLinkList = currPort.toLinkList;
-        for (let j = 0; j < toLinkList.length; j++) {
-          let currLink = toLinkList[j];
-          if(copyLinkMap.has(currLink.id)){
-            copyLinkMap.get(currLink.id).toWbItem = factoryResult.newWbItem as WhiteboardShape;
-          }
-        }
-
-      }
-    }
-    return copyLinkMap;
-  }
-
-  private static createCopyLinkMap(copiedWbDto:Array<WhiteboardItemDto>){
-    let copyLinkMap:Map<any, CopiedLinkData> = new Map<any, CopiedLinkData>();
-
-    for (let i = 0; i < copiedWbDto.length; i++) {
-      let currDto = copiedWbDto[i];
-      if(WhiteboardItemFactory.isWbShapeDto(currDto.type)){
-        let currWbShapeDto:WhiteboardShapeDto = currDto as WhiteboardShapeDto;
-        let linkPortDtos = currWbShapeDto.linkPortsDto;
-        for (let j = 0; j < linkPortDtos.length; j++) {
-          let currLinkPort = linkPortDtos[j];
-
-          let fromLinkList = currLinkPort.fromLinkList;
-          for (let k = 0; k < fromLinkList.length; k++) {
-            let currLink = fromLinkList[k];
-            if(copyLinkMap.has(currLink.id)){
-              copyLinkMap.get(currLink.id).canICopyThis = true;
-            }else{
-              copyLinkMap.set(currLink.id, new CopiedLinkData( currLink, null,null));
-              //복제될때마다 검사해서 fromWbItem과 toWbItem을 채워 나간다.
-            }
-          }
-          let toLinkList = currLinkPort.toLinkList;
-          for (let k = 0; k < toLinkList.length; k++) {
-            let currLink = toLinkList[k];
-            if(copyLinkMap.has(currLink.id)){
-              copyLinkMap.get(currLink.id).canICopyThis = true;
-            }else{
-              copyLinkMap.set(currLink.id, new CopiedLinkData( currLink, null,null));
-              //복제될때마다 검사해서 fromWbItem과 toWbItem을 채워 나간다.
-            }
-          }
-
-        }
-      }
-    }//outer for loop
-    console.log("WhiteboardItemFactory >> createCopyLinkMap >> copyLinkMap : ",copyLinkMap);
-    copyLinkMap.forEach((value, key, map)=>{
-      if(!value.canICopyThis){
-        map.delete(key);
+  private static extractCopyLinkArray(copiedWbDto: Array<WhiteboardItemDto>): Array<EditableLinkDto>{
+    let copyLinkMap = new Array<EditableLinkDto>();
+    copiedWbDto.forEach((dto, index) => {
+      if(dto.type === WhiteboardItemType.EDITABLE_LINK) {
+        copyLinkMap.push(dto as EditableLinkDto);
+        copiedWbDto.splice(index, 1);
       }
     });
-    console.log("WhiteboardItemFactory >> createCopyLinkMap >> copyLinkMap : ",copyLinkMap);
+
     return copyLinkMap;
   }//createCopiedLinkMap
 

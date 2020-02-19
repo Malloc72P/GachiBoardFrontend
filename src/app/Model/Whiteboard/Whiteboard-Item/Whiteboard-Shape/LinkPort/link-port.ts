@@ -1,8 +1,11 @@
+import * as paper from 'paper';
+// @ts-ignore
+import Point = paper.Point;
+// @ts-ignore
+import Circle = paper.Path.Circle;
+
 import {WhiteboardShape} from '../whiteboard-shape';
 import {LinkPortDirectionEnum} from './LinkPortDirectionEnum/link-port-direction-enum.enum';
-
-import * as paper from 'paper';
-
 import {PositionCalcService} from '../../../PositionCalc/position-calc.service';
 import {HandlerOption} from '../../ItemAdjustor/item-adjustor';
 import {ZoomEvent} from '../../../InfiniteCanvas/ZoomControl/ZoomEvent/zoom-event';
@@ -13,15 +16,9 @@ import {LinkEvent} from './LinkEvent/link-event';
 import {LinkEventEnum} from './LinkEvent/link-event-enum.enum';
 import {EditableLink} from './EditableLink/editable-link';
 import {LinkPortDto} from '../../../WhiteboardItemDto/WhiteboardShapeDto/LinkPortDto/link-port-dto';
-import {EditableLinkDto} from '../../../WhiteboardItemDto/WhiteboardShapeDto/LinkPortDto/EditableLinkDto/editable-link-dto';
+import {EditableLinkDto} from '../../../WhiteboardItemDto/EditableLinkDto/editable-link-dto';
 import {ItemLifeCycleEnum, ItemLifeCycleEvent} from "../../WhiteboardItemLifeCycle/WhiteboardItemLifeCycle";
-// @ts-ignore
-import Point = paper.Point;
-// @ts-ignore
-import Circle = paper.Path.Circle;
-import {LinkerModeEnum} from "../../../InfiniteCanvas/DrawingLayerManager/LinkModeManagerService/LinkMode/linker-mode-enum.enum";
-import {SimpleLineLink} from "./EditableLink/SimpleLineLink/simple-line-link";
-import {SimpleArrowLink} from "./EditableLink/SimpleArrowLink/simple-arrow-link";
+import {LinkService} from "../../../Pointer/link-service/link.service";
 
 export class LinkPort {
   private _owner:WhiteboardShape;
@@ -32,6 +29,7 @@ export class LinkPort {
 
   private _posCalcService:PositionCalcService;
   private _layerService:DrawingLayerManagerService;
+  private linkService: LinkService;
 
   private _handlerCircleObject:Circle;
 
@@ -78,13 +76,7 @@ export class LinkPort {
       }
     });
   }
-  private refreshAllLink(){
-    if(this.fromLinkList){
-      this.fromLinkList.forEach((value, index, array)=>{
-        value.refreshLink();
-      })
-    }
-  }
+
   private initZoomHandler(){
     this.owner.zoomEventEmitter.subscribe((zoomEvent:ZoomEvent)=>{
       this.onZoomChange(zoomEvent);
@@ -112,48 +104,6 @@ export class LinkPort {
     let prevPosition = this.owner.group.position;
 
     this.setLifeCycleEvent();
-  }
-
-  public onMouseDown(event) {
-    let currentLinkerMode = this.layerService.currentLinkerMode;
-
-    let strokeWidth = currentLinkerMode.strokeWidth;
-    let strokeColor = currentLinkerMode.strokeColor;
-    let fillColor   = currentLinkerMode.fillColor;
-
-    switch (currentLinkerMode.mode) {
-      case LinkerModeEnum.SIMPLE_lINE_lINK :
-        this.tempLink = new SimpleLineLink(this, strokeColor,strokeWidth,fillColor);
-        break;
-      case LinkerModeEnum.SIMPLE_DASHED_lINE_lINK :
-        this.tempLink = new SimpleLineLink(this, strokeColor,strokeWidth,fillColor,true);
-        break;
-      case LinkerModeEnum.SIMPLE_DASHED_ARROW_lINK :
-        this.tempLink = new SimpleArrowLink(this, strokeColor,strokeWidth,fillColor,true);
-        break;
-      case LinkerModeEnum.SIMPLE_ARROW_LINK :
-        this.tempLink = new SimpleArrowLink(this, strokeColor,strokeWidth,fillColor);
-        break;
-    }
-    this.tempLink.initTempLink(event.point);
-  }
-
-  public onMouseDrag(event) {
-    this.tempLink.drawTempLink(event.point);
-  }
-
-  public onMouseUp (event) {
-    // let point = event.point;
-    //
-    // let newLink = this.tempLink.linkToWbShape(point);
-    // if(newLink) {
-    //   this.addLink(newLink);
-    // } else {
-    //   if (this.tempLink) {
-    //     this.tempLink.destroyItem();
-    //     delete this.tempLink;
-    //   }
-    // }
   }
 
   public addLink(newLink){
@@ -368,20 +318,20 @@ export class LinkPort {
   }
 
   exportToDto(): LinkPortDto {
-    let fromLinkDtoList = new Array<EditableLinkDto>();
-    let toLinkDtoList = new Array<EditableLinkDto>();
-
-    this.fromLinkList.forEach((value, index, array)=>{
-      fromLinkDtoList.push(value.exportToDto());
-    });
-    this.toLinkList.forEach((value, index, array)=>{
-      toLinkDtoList.push(value.exportToDto());
-    });
+    // let fromLinkDtoList = new Array<EditableLinkDto>();
+    // let toLinkDtoList = new Array<EditableLinkDto>();
+    //
+    // this.fromLinkList.forEach((value, index, array)=>{
+    //   fromLinkDtoList.push(value.exportToDto());
+    // });
+    // this.toLinkList.forEach((value, index, array)=>{
+    //   toLinkDtoList.push(value.exportToDto());
+    // });
     return new LinkPortDto(
       this.direction,
       this.owner.id,
-      fromLinkDtoList,
-      toLinkDtoList
+      // fromLinkDtoList,
+      // toLinkDtoList
     );
   }
 

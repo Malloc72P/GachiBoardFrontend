@@ -1,3 +1,7 @@
+import * as paper from 'paper';
+// @ts-ignore
+import Point = paper.Point;
+
 export class GachiPointDto {
   private _x;
   private _y;
@@ -25,5 +29,9 @@ export class GachiPointDto {
 
   set y(value) {
     this._y = value;
+  }
+
+  get paperPoint(): Point {
+    return new Point(this._x, this._y);
   }
 }

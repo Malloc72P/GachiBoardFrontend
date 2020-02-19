@@ -7,8 +7,6 @@ import {MatSliderChange} from "@angular/material/slider";
 import {HorizonContextMenuService} from "../../../../../Model/Whiteboard/ContextMenu/horizon-context-menu-service/horizon-context-menu.service";
 import {HorizonContextMenuActions} from "../../../../../Model/Whiteboard/ContextMenu/horizon-context-menu-service/horizon-context-menu.enum";
 import {subPanelStatus} from "../../../../../Model/Whiteboard/ContextMenu/horizon-context-menu-service/sub-panel-status";
-import {WhiteboardItem} from "../../../../../Model/Whiteboard/Whiteboard-Item/whiteboard-item";
-import {SimpleArrowLink} from "../../../../../Model/Whiteboard/Whiteboard-Item/Whiteboard-Shape/LinkPort/EditableLink/SimpleArrowLink/simple-arrow-link";
 
 @Component({
   selector: 'app-sub-panel-for-line',

@@ -2,7 +2,6 @@ import { Component, OnInit } from '@angular/core';
 import {subPanelStatus} from "../../../../../Model/Whiteboard/ContextMenu/horizon-context-menu-service/sub-panel-status";
 import {HorizonContextMenuActions} from "../../../../../Model/Whiteboard/ContextMenu/horizon-context-menu-service/horizon-context-menu.enum";
 import {HorizonContextMenuService} from "../../../../../Model/Whiteboard/ContextMenu/horizon-context-menu-service/horizon-context-menu.service";
-import {LinkerModeEnum} from "../../../../../Model/Whiteboard/InfiniteCanvas/DrawingLayerManager/LinkModeManagerService/LinkMode/linker-mode-enum.enum";
 import {LinkModeManagerService} from "../../../../../Model/Whiteboard/InfiniteCanvas/DrawingLayerManager/LinkModeManagerService/link-mode-manager.service";
 import {EditableLink} from "../../../../../Model/Whiteboard/Whiteboard-Item/Whiteboard-Shape/LinkPort/EditableLink/editable-link";
 import {EditableLinkTypes} from "../../../../../Model/Whiteboard/Whiteboard-Item/Whiteboard-Shape/LinkPort/EditableLink/editable-link-types.enum";
@@ -24,17 +23,17 @@ export class SubPanelForArrowComponent implements OnInit {
     this.initArrowStyles();
   }
 
-  public isSelect(style: EditableLinkTypes): boolean {
-    if(this.menu.item instanceof EditableLink) {
-      if(style === this.menu.item.linkType) {
-        return true;
-      }
-    }
+  // public isSelect(style: EditableLinkTypes): boolean {
+  //   if(this.menu.item instanceof EditableLink) {
+  //     if(style === this.menu.item.linkType) {
+  //       return true;
+  //     }
+  //   }
+  //
+  //   return false;
+  // }
 
-    return false;
-  }
-
-  private onClickArrowStyle(style: EditableLinkTypes) {
+  private onClickArrowStyle(style: string) {
 
   }
 

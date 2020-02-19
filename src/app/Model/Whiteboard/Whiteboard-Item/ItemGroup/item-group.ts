@@ -31,10 +31,7 @@ export class ItemGroup extends WhiteboardItem {
 
   }
 
-  public amIAlreadyHaveThis(wbItem:WhiteboardItem | EditableLink){
-    if(wbItem instanceof EditableLink) {
-      wbItem = wbItem.fromLinkPort.owner;
-    }
+  public amIAlreadyHaveThis(wbItem:WhiteboardItem){
     for(let i = 0 ; i < this.wbItemGroup.length; i++){
       let currentItem = this.wbItemGroup[i];
       if(currentItem.id === wbItem.id){
@@ -146,13 +143,13 @@ export class ItemGroup extends WhiteboardItem {
 
 
   public resetMyItemAdjustor(){
-    if(this.getNumberOfChild() > 0){
+    if(this.getNumberOfChild() === 1 && this.wbItemGroup[0] instanceof EditableLink){
+      console.log("ItemGroup >> resetMyItemAdjustor >> deactive");
+      this.deactivateSelectedMode();
+    } else if(this.getNumberOfChild() > 0) {
       this.activateSelectedMode();
     } else {
       this.deactivateSelectedMode();
-    }
-
-    if(this.isLocked) {
     }
   }
 
@@ -178,6 +175,7 @@ export class ItemGroup extends WhiteboardItem {
     if(this.getNumberOfChild() > 1) {
       this.wbItemGroup[0].emitDeselected();
     } else {
+      console.log("ItemGroup >> insertOneIntoGroup >> wbItem : ", wbItem);
       wbItem.emitSelected();
     }
   }

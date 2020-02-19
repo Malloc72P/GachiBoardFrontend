@@ -8,6 +8,8 @@ import {Injectable} from '@angular/core';
 import {PositionCalcService} from '../../PositionCalc/position-calc.service';
 import {InfiniteCanvasService} from '../../InfiniteCanvas/infinite-canvas.service';
 import {DrawingLayerManagerService} from '../../InfiniteCanvas/DrawingLayerManager/drawing-layer-manager.service';
+import {LinkPort} from "../../Whiteboard-Item/Whiteboard-Shape/LinkPort/link-port";
+import {LinkService} from "../link-service/link.service";
 
 
 enum NORMAL_POINTER_ACTIONS{
@@ -35,8 +37,8 @@ export class NormalPointerService {
   constructor(
     private posCalcService        : PositionCalcService,
     private infiniteCanvasService : InfiniteCanvasService,
-    private layerService    : DrawingLayerManagerService,
-
+    private layerService          : DrawingLayerManagerService,
+    private linkService           : LinkService,
   ) {
   }
 
@@ -111,7 +113,7 @@ export class NormalPointerService {
     // 링크포트 선택 시도
     if(this.isLinkPortHit(event.point)) {
       // 선택 성공함 -> 링크 추가 모드로 변경
-      this.selectedHandle.onMouseDown(event);
+      this.linkService.createLink(event, this.selectedHandle);
       this.action = NORMAL_POINTER_ACTIONS.LINK_ADDING;
       return true;
     }
@@ -151,7 +153,11 @@ export class NormalPointerService {
       this.action === NORMAL_POINTER_ACTIONS.LINK_ADDING ||
       this.action === NORMAL_POINTER_ACTIONS.LINK_EDITING
     ) {
-      this.selectedHandle.onMouseDrag(event);
+      if(this.selectedHandle instanceof LinkPort) {
+        this.linkService.drawLink(event);
+      } else {
+        this.selectedHandle.onMouseDrag(event);
+      }
     }
   }
 
@@ -164,7 +170,11 @@ export class NormalPointerService {
       this.action === NORMAL_POINTER_ACTIONS.LINK_ADDING ||
       this.action === NORMAL_POINTER_ACTIONS.LINK_EDITING
     ) {
-      this.selectedHandle.onMouseUp(event);
+      if(this.selectedHandle instanceof LinkPort) {
+        this.linkService.endLink(event);
+      } else {
+        this.selectedHandle.onMouseUp(event);
+      }
     }
     this.action = NORMAL_POINTER_ACTIONS.NOT_THING;
   }
@@ -193,6 +203,7 @@ export class NormalPointerService {
 
   private isLinkHandlerHit(point): boolean {
     let handle = this.layerService.getHittedLinkHandler(point);
+    console.log("NormalPointerService >> isLinkHandlerHit >> handle : ", handle);
 
     if(!!handle) {
       this.selectedHandle = handle;

@@ -12,7 +12,6 @@ import {GlobalSelectedGroup} from "../../Whiteboard-Item/ItemGroup/GlobalSelecte
 import {InfiniteCanvasService} from "../../InfiniteCanvas/infinite-canvas.service";
 import {subPanelStatus} from "./sub-panel-status";
 import {EditableRaster} from "../../Whiteboard-Item/Whiteboard-Shape/editable-raster/editable-raster";
-import {SimpleArrowLink} from "../../Whiteboard-Item/Whiteboard-Shape/LinkPort/EditableLink/SimpleArrowLink/simple-arrow-link";
 import {EditableLink} from "../../Whiteboard-Item/Whiteboard-Shape/LinkPort/EditableLink/editable-link";
 import {
   ItemLifeCycleEnum,
@@ -258,7 +257,6 @@ export class HorizonContextMenuService {
     if(htmlMenuElement.offsetHeight > 0) {
       this.menuHeight = htmlMenuElement.offsetHeight;
     }
-    console.log("HorizonContextMenuService >> initMenuSizeValue >>  : ", htmlMenuElement.offsetHeight);
   }
 
   private setMenuVerticalPosition(point: {x: number, y: number}, bound: Rectangle) {
@@ -321,8 +319,6 @@ export class HorizonContextMenuService {
   get coreItem() {
     if(this.item instanceof WhiteboardItem) {
       return this.item.coreItem;
-    } else if(this.item instanceof EditableLink) {
-      return this.item.linkObject;
     } else if(Array.isArray(this.item)) {
       return this.globalSelectedGroup.group;
     }

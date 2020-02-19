@@ -66,4 +66,8 @@ export class GachiColorDto {
   set alpha(value) {
     this._alpha = value;
   }
+
+  get paperColor(): Color {
+    return new Color(this._red, this._green, this._blue, this._alpha);
+  }
 }

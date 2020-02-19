@@ -1,22 +1,15 @@
-import { Injectable } from '@angular/core';
 import * as paper from 'paper';
-import {PositionCalcService} from "../../PositionCalc/position-calc.service";
-import {DataName, DataState, DataType, ItemName} from '../../../Helper/data-type-enum/data-type.enum';
-import {DrawingLayerManagerService} from '../../InfiniteCanvas/DrawingLayerManager/drawing-layer-manager.service';
-import {InfiniteCanvasService} from '../../InfiniteCanvas/infinite-canvas.service';
-import {WhiteboardItem} from '../../Whiteboard-Item/whiteboard-item';
-
 // @ts-ignore
 import Group = paper.Group;
 // @ts-ignore
 import Point = paper.Point;
 // @ts-ignore
 import Item = paper.Item;
-import {LinkPort} from '../../Whiteboard-Item/Whiteboard-Shape/LinkPort/link-port';
-import {PointCalculator} from "../point-calculator/point-calculator";
-import {WhiteboardShape} from "../../Whiteboard-Item/Whiteboard-Shape/whiteboard-shape";
-import {EditableItemGroup} from '../../Whiteboard-Item/ItemGroup/EditableItemGroup/editable-item-group';
-import {ItemGroup} from '../../Whiteboard-Item/ItemGroup/item-group';
+
+import { Injectable } from '@angular/core';
+import {PositionCalcService} from "../../PositionCalc/position-calc.service";
+import {DrawingLayerManagerService} from '../../InfiniteCanvas/DrawingLayerManager/drawing-layer-manager.service';
+import {WhiteboardItem} from '../../Whiteboard-Item/whiteboard-item';
 import {GlobalSelectedGroup} from '../../Whiteboard-Item/ItemGroup/GlobalSelectedGroup/global-selected-group';
 import {ZoomEvent} from "../../InfiniteCanvas/ZoomControl/ZoomEvent/zoom-event";
 import {NormalPointerService} from "../normal-pointer-service/normal-pointer.service";
@@ -94,8 +87,7 @@ export class LassoSelectorService {
     let hitItem = this.layerService.getHittedItem(point, null, true);
 
     if(hitItem) {
-      this.layerService.globalSelectedGroup.insertOneIntoSelection(
-        hitItem instanceof WhiteboardItem ? hitItem : hitItem.fromLinkPort.owner);
+      this.layerService.globalSelectedGroup.insertOneIntoSelection(hitItem);
       return true;
     } else {
       return false;

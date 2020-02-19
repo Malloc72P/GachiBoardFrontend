@@ -12,6 +12,10 @@ import Path = paper.Path;
 import Color = paper.Color;
 // @ts-ignore
 import Group = paper.Group;
+import {WhiteboardItem} from "../../Whiteboard-Item/whiteboard-item";
+import {LinkHandlerPositions} from "../../Whiteboard-Item/Whiteboard-Shape/LinkPort/EditableLink/link-handler-positions";
+import {WhiteboardShape} from "../../Whiteboard-Item/Whiteboard-Shape/whiteboard-shape";
+import {LinkPort} from "../../Whiteboard-Item/Whiteboard-Shape/LinkPort/link-port";
 
 @Injectable({
   providedIn: 'root'
@@ -21,6 +25,8 @@ export class LinkService {
   private newLinkLine: Path;
   private newLinkHead: Path;
   private newLinkTail: Path;
+  private toLinkPort: LinkPort;
+  private fromLinkPort: LinkPort;
 
   private newLinkColor: Color;
   private newLinkWidth: number;
@@ -42,8 +48,12 @@ export class LinkService {
     this.newLinkTailType = EditableLinkCapTypes.ARROW;
   }
 
-  public createLink(event) {
+  public createLink(event, fromLinkPort?: LinkPort) {
     this.downPoint = event.point;
+    if(!!fromLinkPort) {
+      this.fromLinkPort = fromLinkPort;
+      this.downPoint = this.fromLinkPort.calcLinkPortPosition();
+    }
     this.newLinkLine = this.createLine(this.newLinkColor, this.newLinkWidth);
 
     this.initLineSegments();
@@ -52,8 +62,36 @@ export class LinkService {
   }
 
   public drawLink(event) {
-    this.newLinkLine.lastSegment.point = event.point;
+    let hitItem: WhiteboardItem = this.layerService.getHittedItem(event.point);
+
+    if(hitItem instanceof WhiteboardShape) {
+      if(!!this.fromLinkPort) {
+        if(hitItem.id !== this.fromLinkPort.owner.id){
+          // 링크의 시작이 링크포트이고 시작과 끝이 같은 아이템이 아님
+          this.drawToHitItem(hitItem, event.point);
+        } else {
+          // 링크의 시작이 링크포트이고 시작과 끝이 같은 아이템임 => 마우스 커서 위치에 그냥 그림
+          this.drawToPoint(event.point);
+        }
+      } else {
+        // 링크의 시작이 링크 포트가 아닌데 도형에 닿았음 => 어떤 도형에 닿든 상관 없음
+        this.drawToHitItem(hitItem, event.point);
+      }
+    } else {
+      // 힛 아이템이 없거나 도형이 아님 => 아무데나 막 그림
+      this.drawToPoint(event.point);
+    }
     this.drawCaps();
+  }
+
+  private drawToHitItem(hitItem: WhiteboardShape, point: Point) {
+    let closestLinkPort = hitItem.linkPortMap.get(hitItem.getClosestLinkPort(point));
+    this.newLinkLine.lastSegment.point = closestLinkPort.calcLinkPortPosition();
+    this.toLinkPort = closestLinkPort;
+  }
+  private drawToPoint(point: Point) {
+    this.newLinkLine.lastSegment.point = point;
+    this.toLinkPort = undefined;
   }
 
   public endLink(event) {
@@ -68,7 +106,12 @@ export class LinkService {
       WhiteboardItemType.EDITABLE_LINK,
       this.newLinkHeadType,
       this.newLinkTailType,
-    )
+      this.toLinkPort,
+      this.fromLinkPort,
+    );
+
+    this.toLinkPort = undefined;
+    this.fromLinkPort = undefined;
   }
 
   private initLineSegments() {

@@ -1,4 +1,14 @@
 import * as paper from 'paper';
+// @ts-ignore
+import Path = paper.Path;
+// @ts-ignore
+import Color = paper.Color;
+// @ts-ignore
+import Rectangle = paper.Rectangle;
+// @ts-ignore
+import Size = paper.Size;
+// @ts-ignore
+import Point = paper.Point;
 
 import {EditableLink} from "../editable-link";
 import {HandlerOption} from "../../../../ItemAdjustor/item-adjustor";
@@ -8,24 +18,20 @@ import {Subscription} from "rxjs";
 import {LinkEvent} from "../../LinkEvent/link-event";
 import {LinkEventEnum} from "../../LinkEvent/link-event-enum.enum";
 import {WhiteboardShape} from "../../../whiteboard-shape";
-// @ts-ignore
-import Path = paper.Path;
-// @ts-ignore
-import Color = paper.Color;
-// @ts-ignore
-import Rectangle = paper.Rectangle;
-// @ts-ignore
-import Size = paper.Size;
+import {LinkHandlerPositions} from "../link-handler-positions";
+import {core} from "@angular/compiler";
 
 export class LinkHandler {
   private readonly _owner: EditableLink;
   private _coreItem: Path.Circle;
+  private position: LinkHandlerPositions;
 
   private zoomEvent: Subscription;
   private linkChangeEvent: Subscription;
 
-  constructor(owner: EditableLink, fillColor: Color | string) {
+  constructor(owner: EditableLink, position: LinkHandlerPositions, fillColor: Color | string) {
     this._owner = owner;
+    this.position = position;
     this.createHandler(fillColor);
 
     this.linkChangeEvent = this.linkChangeEventSubscription;
@@ -53,52 +59,45 @@ export class LinkHandler {
   }
 
   public onMouseDown(event) {
-    this.owner.initTempLink(event.point);
   }
 
   public onMouseDrag(event) {
-    if(this.owner.isHide) {
-      this.owner.hideLinkObject();
-    }
-    this.owner.drawTempLink(event.point);
-    this.disable();
+    this.owner.drawLink(event.point, this.position);
   }
 
   public onMouseUp(event) {
-    this.owner.destroyTempLink();
 
-    let hitWbShape: WhiteboardShape = this.owner.layerService.getHittedItem(event.point) as WhiteboardShape;
-    if(hitWbShape && hitWbShape.id !== this.owner.fromLinkPort.owner.id && hitWbShape.linkPortMap) {
-      let toLinkPort = hitWbShape.linkPortMap.get(hitWbShape.getClosestLinkPort(event.point));
+  }
 
-      if(toLinkPort === this.owner.toLinkPort) {
-        this.owner.refreshLink();
-        this.owner.showLinkObject();
-
-        return;
-      }
-
-      this.owner.toLinkPort = toLinkPort;
-      this.owner.setToLinkEventEmitter();
-      if(!!this.linkChangeEvent) {
-        this.linkChangeEvent.unsubscribe();
-      }
-      this.linkChangeEvent = this.linkChangeEventSubscription;
-    }
-    this.owner.refreshLink();
-    this.owner.showLinkObject();
-    this.enable();
+  public moveTo(point: Point) {
+    this.coreItem.position = point;
+    this.coreItem.bringToFront();
+    this.owner.layerService.globalSelectedGroup.emitMoved();
   }
 
   private createHandler(fillColor: Color | string) {
     let zoomFactor = this._owner.layerService.posCalcService.getZoomState();
+    let coreItem = this._owner.coreItem as Path;
+
+    let handlerLocation: Point;
+
+    switch (this.position) {
+      case LinkHandlerPositions.END_OF_LINK:
+        handlerLocation = coreItem.lastSegment.point;
+        break;
+      case LinkHandlerPositions.ENTRY_OF_LINK:
+        handlerLocation = coreItem.firstSegment.point;
+        break;
+    }
 
     this._coreItem = new Path.Circle(
-      this._owner.linkObject.lastSegment.point,
+      handlerLocation,
       HandlerOption.circleRadius / zoomFactor
     );
+
     this._coreItem.visible = false;
     this._coreItem.strokeWidth = HandlerOption.strokeWidth / zoomFactor;
+
     if(fillColor instanceof Color) {
       this._coreItem.fillColor = fillColor;
     } else {
@@ -109,25 +108,27 @@ export class LinkHandler {
   }
 
   private linkSelectedEventAttach() {
-    this._owner.fromLinkEventEmitter.subscribe((linkEvent: LinkEvent) => {
-      if(linkEvent.action === LinkEventEnum.WB_ITEM_DESELECTED) {
-        this.disable();
-      }
-    });
-    this._owner.linkEventEmitter.subscribe((linkEvent: LinkEvent) => {
-      if(linkEvent.action === LinkEventEnum.WB_ITEM_SELECTED) {
-        this.enable();
-      }
-    });
+    // this._owner.fromLinkEventEmitter.subscribe((linkEvent: LinkEvent) => {
+    //   if(linkEvent.action === LinkEventEnum.WB_ITEM_DESELECTED) {
+    //     this.disable();
+    //   }
+    // });
+    // this._owner.linkEventEmitter.subscribe((linkEvent: LinkEvent) => {
+    //   if(linkEvent.action === LinkEventEnum.WB_ITEM_SELECTED) {
+    //     this.enable();
+    //   }
+    // });
   }
 
   private get linkChangeEventSubscription(): Subscription {
-    return this._owner.toLinkEventEmitter.subscribe((linkEvent: LinkEvent) => {
-      if(linkEvent.action === LinkEventEnum.WB_ITEM_MODIFIED) {
-        this.coreItem.position = linkEvent.invokerItem.linkObject.lastSegment.point;
-        this.coreItem.bringToFront();
-      }
-    });
+    // return this._owner.toLinkEventEmitter.subscribe((linkEvent: LinkEvent) => {
+    //   if(linkEvent.action === LinkEventEnum.WB_ITEM_MODIFIED) {
+    //     this.coreItem.position = linkEvent.invokerItem.linkObject.lastSegment.point;
+    //     this.coreItem.bringToFront();
+    //   }
+    // });
+
+    return null;
   }
 
   private get zoomEventSubscription(): Subscription {

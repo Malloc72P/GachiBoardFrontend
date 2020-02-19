@@ -7,7 +7,7 @@
       <div *ngFor="let style of arrowStyles" class="selector" (click)="onClickArrowStyle(style)">
         <svg width="24" height="24">
           <use [attr.href]="'/assets/images/context-menu/links.svg#' + style"/>
-          <use [attr.href]="'/assets/images/context-menu/links.svg#selected'" *ngIf="isSelect(editableLinkTypes[style])"/>
+          <use [attr.href]="'/assets/images/context-menu/links.svg#selected'" *ngIf="false"/>
         </svg>
       </div>
     </div>

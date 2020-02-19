@@ -41,11 +41,29 @@ export class GlobalSelectedGroup extends ItemGroup {
   }
 
   public copySelectedWbItems(){
+    let linkMap = new Map<number, EditableLink>();
+    this.extractCopiedItems();
+
     for (let i = 0; i < this.wbItemGroup.length; i++) {
       let currItem = this.wbItemGroup[i];
       this.copiedDtoArray.push(currItem.exportToDto());
+
+      // 도형의 링크를 복사하는 과정
+      if(currItem instanceof WhiteboardShape) {
+        currItem.linkPortMap.forEach(linkPort => {
+          linkPort.fromLinkList.forEach(link => {
+            if(linkMap.has(link.id)) {
+              this.copiedDtoArray.push(link.exportToDto());
+            } else {
+              linkMap.set(link.id, link);
+            }
+          });
+        });
+      }
+      console.log("GlobalSelectedGroup >> copySelectedWbItems >> this.copiedDtoArray : ", this.copiedDtoArray);
     }
   }
+
   public extractCopiedItems(){
     this.copiedDtoArray.splice(0, this.copiedDtoArray.length);
   }
@@ -129,7 +147,7 @@ export class GlobalSelectedGroup extends ItemGroup {
     this.extractAllFromSelection();
   }
 
-  public insertOneIntoSelection(wbItem: WhiteboardItem | EditableLink) {
+  public insertOneIntoSelection(wbItem: WhiteboardItem) {
     // 아이템 그룹일 경우 그룹 안에 있는 모든 아이템을 GSG 에 추가
     if(wbItem instanceof ItemGroup) {
       if(this.checkLocking(wbItem)) {
@@ -138,16 +156,6 @@ export class GlobalSelectedGroup extends ItemGroup {
       wbItem.wbItemGroup.forEach(value => {
         this.insertOneIntoGroup(value);
       });
-    // 링크일 경우 링크의 owner 를 GSG 에 추가
-    } else if(wbItem instanceof EditableLink) {
-      let owner = wbItem.fromLinkPort.owner;
-      if(this.checkLocking(owner)) {
-        return;
-      }
-      this.insertOneIntoGroup(owner);
-      wbItem.select();
-      this.isLinkSelected = true;
-    // 나머지는 그냥 추가
     } else {
       if(this.checkLocking(wbItem)) {
         return;

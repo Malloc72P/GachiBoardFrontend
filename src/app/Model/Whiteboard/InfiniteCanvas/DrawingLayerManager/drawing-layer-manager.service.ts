@@ -55,9 +55,8 @@ import value from "*.json";
 import {SizeHandler} from "../../Whiteboard-Item/ItemAdjustor/ItemHandler/SizeHandler/size-handler";
 import {ItemHandler} from "../../Whiteboard-Item/ItemAdjustor/ItemHandler/item-handler";
 import {WhiteboardShape} from "../../Whiteboard-Item/Whiteboard-Shape/whiteboard-shape";
-import {LinkAdjustorPositionEnum} from "../../Whiteboard-Item/Whiteboard-Shape/LinkPort/EditableLink/LinkAdjustorPositionEnum/link-adjustor-position-enum.enum";
+import {LinkHandlerPositions} from "../../Whiteboard-Item/Whiteboard-Shape/LinkPort/EditableLink/link-handler-positions";
 import {LinkHandler} from "../../Whiteboard-Item/Whiteboard-Shape/LinkPort/EditableLink/LinkHandler/link-handler";
-import {NewEditableLink} from "../../Whiteboard-Item/Whiteboard-Shape/LinkPort/EditableLink/new-editable-link";
 
 
 @Injectable({
@@ -151,17 +150,14 @@ export class DrawingLayerManagerService {
       }
       switch (data.action) {
         case ItemLifeCycleEnum.CREATE:
-          console.log("DrawingLayerManagerService >> wbItemLifeCycleEventEmitter >> CREATE");
           this.whiteboardItemArray.push(data.item);
           if( !(data.item instanceof EditableItemGroup) ){
             this.drawingLayer.addChild(data.item.group);
           }
           break;
         case ItemLifeCycleEnum.MODIFY:
-          console.log("DrawingLayerManagerService >> wbItemLifeCycleEventEmitter >> MODIFY : ",data.item);
           break;
         case ItemLifeCycleEnum.DESTROY:
-          console.log("DrawingLayerManagerService >> wbItemLifeCycleEventEmitter >> DESTROY");
           let removeIdx = this.indexOfWhiteboardArray(data.id);
           this.whiteboardItemArray.splice(removeIdx, 1);
           break;
@@ -271,7 +267,9 @@ export class DrawingLayerManagerService {
     else if(DrawingLayerManagerService.isEditableGroup(type)){
       newWhiteboardItem = new EditableItemGroup(this.getWbId(),this);
     } else if(DrawingLayerManagerService.isEditableLink(type)) {
-      newWhiteboardItem = new NewEditableLink(this.getWbId(), item, extras[0], extras[1], this);
+      // extras[0] : linkHeadType, extras[1] : linkTailType
+      // extras[2] : toLinkPort, extras[2] : fromLinkPort
+      newWhiteboardItem = new EditableLink(this.getWbId(), item, extras[0], extras[1], this, extras[2], extras[3]);
     }
     return newWhiteboardItem;
   }
@@ -352,7 +350,7 @@ export class DrawingLayerManagerService {
     return this.findInLinkPorts(point);
   }
 
-  public getHittedItem(point, tolerance?: number, includeEditableLink?: boolean): WhiteboardItem | EditableLink {
+  public getHittedItem(point, tolerance?: number, includeEditableLink?: boolean): WhiteboardItem {
     return this.findInWhiteboardItems(point, tolerance, includeEditableLink);
   }
 
@@ -362,6 +360,9 @@ export class DrawingLayerManagerService {
 
   private findInItemHandlers(point): ItemHandler {
     if(this.isSelecting) {
+      if(!this.globalSelectedGroup.myItemAdjustor) {
+        return null;
+      }
       let handles = this.globalSelectedGroup.myItemAdjustor.sizeHandlers;
       for(let [key, handle] of handles) {
         if(handle.handlerCircleObject.hitTest(point, this.hitOption)) {
@@ -375,21 +376,14 @@ export class DrawingLayerManagerService {
 
   private findInLinkHandlers(point): LinkHandler {
     if(this.isSelecting) {
-      if(this.globalSelectedGroup.isLinkSelected) {
-        let item = this.globalSelectedGroup.wbItemGroup[0] as WhiteboardShape;
-        for(let [key, value] of item.linkPortMap) {
-          for(let fromLink of value.fromLinkList) {
-            if(fromLink.isSelected) {
-              let handle =  fromLink.linkHandles.get(LinkAdjustorPositionEnum.END_OF_LINK);
-              if(handle.coreItem.hitTest(point, this.hitOption)) {
-                console.log("DrawingLayerManagerService >> findInLinkHandlers >> handle hit : ", handle);
-                return handle;
-              }
-            }
+      if(this.globalSelectedGroup.wbItemGroup[0] instanceof EditableLink && this.globalSelectedGroup.getNumberOfChild() === 1) {
+        let linkItem = this.globalSelectedGroup.wbItemGroup[0] as EditableLink;
+        for(let [key, handle] of linkItem.linkHandlers) {
+          if(handle.coreItem.hitTest(point, this.hitOption)) {
+            return handle;
           }
         }
-      }
-      else {
+      } else {
         return null;
       }
     }
@@ -412,7 +406,7 @@ export class DrawingLayerManagerService {
     return null;
   }
 
-  private findInWhiteboardItems(point, tolerance?: number, includeEditableLink?: boolean): WhiteboardItem | EditableLink {
+  private findInWhiteboardItems(point, tolerance?: number, includeEditableLink?: boolean): WhiteboardItem {
     let whiteboardItems = this.whiteboardItemArray;
 
     for(let i = whiteboardItems.length - 1 ; i >= 0; i-- ){
@@ -425,6 +419,12 @@ export class DrawingLayerManagerService {
       // ItemGroup도 건너뜀
       if(value instanceof ItemGroup){
         continue;
+      }
+
+      if(!includeEditableLink) {
+        if(value instanceof EditableLink) {
+          continue;
+        }
       }
 
       let hitOption: { fill: boolean, segments: boolean, stroke: boolean, tolerance: number };
@@ -445,21 +445,6 @@ export class DrawingLayerManagerService {
         }
         return value;
       }
-
-      if(!!!includeEditableLink) {
-        continue;
-      }
-
-      if(value instanceof WhiteboardShape) {
-        for(let [key, linkPort] of value.linkPortMap) {
-          for(let fromLink of linkPort.fromLinkList) {
-            if(fromLink.linkObject.hitTest(point, hitOption)) {
-              return fromLink;
-            }
-          }
-        }
-      }
-
     }
     //못찾은 경우 null값 리턴
 
