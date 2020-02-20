@@ -109,13 +109,16 @@ export class WsKanbanController {
   /* Request Get START */
   /* *************************************************** */
   requestGetKanban() :Observable<any>{
+    this.websocketManager.uiService.spin$.next(true);
     return new Observable<any>((subscriber)=>{
       let packetDto = this.websocketManager.createProjectScopePacket({}, WebsocketPacketActionEnum.READ);
       packetDto.wsPacketSeq = this.websocketManager.wsPacketSeq;
+
       this.socket.emit(HttpHelper.websocketApi.kanban.read.event, packetDto);
 
       this.socket.on(HttpHelper.websocketApi.kanban.read.event,
         (wsPacketDto:WebsocketPacketDto)=>{
+          this.websocketManager.uiService.spin$.next(false);
           console.log("WsKanbanController >> onKanbanGet >> wsPacketDto : ",wsPacketDto);
           switch (wsPacketDto.action) {
             case WebsocketPacketActionEnum.ACK:
@@ -189,6 +192,9 @@ export class WsKanbanController {
   }
 
   waitRequestLockKanban(kanbanItem:KanbanItem, kanbanGroup):Observable<any>{
+
+    this.websocketManager.uiService.spin$.next(true);
+
     return new Observable<any>((subscriber)=>{
       console.log("WsKanbanController >> waitRequestLockKanban >> 진입함");
       let kanbanItemDto = kanbanItem.exportDto(kanbanGroup.title);
@@ -204,6 +210,7 @@ export class WsKanbanController {
 
       this.socket.once(HttpHelper.websocketApi.kanban.lock.event,
         (wsPacketDto:WebsocketPacketDto)=>{
+          this.websocketManager.uiService.spin$.next(false);
           switch (wsPacketDto.action) {
             case WebsocketPacketActionEnum.ACK:
               console.log("WsKanbanController >> onKanbanLock >> wsPacketDto : ",wsPacketDto);
@@ -291,6 +298,9 @@ export class WsKanbanController {
     this.websocketManager.saveNotVerifiedKanbanItem(packetDto, kanbanItem);
   }
   waitRequestUpdateKanban(kanbanItem:KanbanItem, kanbanGroup){
+
+    this.websocketManager.uiService.spin$.next(true);
+
     return new Observable<any>((subscriber)=>{
       let kanbanItemDto = kanbanItem.exportDto(kanbanGroup.title);
       let packetDto = this.websocketManager.createProjectScopePacket(kanbanItemDto, WebsocketPacketActionEnum.UPDATE);
@@ -302,6 +312,7 @@ export class WsKanbanController {
 
       this.socket.once(HttpHelper.websocketApi.kanban.update.event,
         (wsPacketDto:WebsocketPacketDto)=>{
+          this.websocketManager.uiService.spin$.next(false);
           switch (wsPacketDto.action) {
             case WebsocketPacketActionEnum.ACK:
               console.log("WsKanbanController >> onKanbanUpdate >> wsPacketDto : ",wsPacketDto);
@@ -344,6 +355,7 @@ export class WsKanbanController {
   /* *************************************************** */
 
   waitRequestCreateKanbanTag(kanbanTag:TagItem){
+    this.websocketManager.uiService.spin$.next(true);
     return new Observable<any>((subscriber)=>{
       let tagDto = kanbanTag.exportDto();
       console.log("WsKanbanController >> waitRequestCreateKanbanTag >> tagDto : ",tagDto);
@@ -359,6 +371,7 @@ export class WsKanbanController {
 
       this.socket.once(HttpHelper.websocketApi.kanban.create_tag.event,
         (wsPacketDto:WebsocketPacketDto)=>{
+          this.websocketManager.uiService.spin$.next(false);
           switch (wsPacketDto.action) {
             case WebsocketPacketActionEnum.ACK:
               console.log("WsKanbanController >> waitRequestCreateTagKanban >> wsPacketDto : ",wsPacketDto);
@@ -400,6 +413,7 @@ export class WsKanbanController {
   /* Request Delete TAG START */
   /* *************************************************** */
   waitRequestDeleteKanbanTag(kanbanTag:TagItem){
+    this.websocketManager.uiService.spin$.next(true);
     return new Observable<any>((subscriber)=>{
       let tagDto = kanbanTag.exportDto();
       console.log("WsKanbanController >> waitRequestDeleteKanbanTag >> tagDto : ",tagDto);
@@ -415,6 +429,7 @@ export class WsKanbanController {
 
       this.socket.once(HttpHelper.websocketApi.kanban.delete_tag.event,
         (wsPacketDto:WebsocketPacketDto)=>{
+          this.websocketManager.uiService.spin$.next(false);
           switch (wsPacketDto.action) {
             case WebsocketPacketActionEnum.ACK:
               console.log("WsKanbanController >> waitRequestDeleteKanbanTag >> wsPacketDto : ",wsPacketDto);

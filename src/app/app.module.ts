@@ -5,14 +5,31 @@ import { AppComponent } from './app.component';
 import { LoginPageComponent } from './View/NormalPages/SocialLogin/login-page/login-page.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import {
-  MatAutocompleteModule, MatBadgeModule,
+  MatAutocompleteModule,
+  MatBadgeModule,
   MatButtonModule,
   MatButtonToggleModule,
-  MatCardModule, MatCheckboxModule, MatChipsModule, MatDialogModule,
-  MatDividerModule, MatFormFieldModule, MatGridListModule, MatIconModule, MatInputModule, MatListModule, MatMenuModule,
+  MatCardModule,
+  MatCheckboxModule,
+  MatChipsModule,
+  MatDialogModule,
+  MatDividerModule,
+  MatFormFieldModule,
+  MatGridListModule,
+  MatIconModule,
+  MatInputModule,
+  MatListModule,
+  MatMenuModule,
+  MatProgressSpinnerModule,
   MatRadioModule,
-  MatRippleModule, MatSelectModule, MatSidenavModule,
-  MatSliderModule, MatStepperModule, MatToolbarModule, MatTooltipModule
+  MatRippleModule,
+  MatSelectModule,
+  MatSidenavModule,
+  MatSliderModule,
+  MatSpinner,
+  MatStepperModule,
+  MatToolbarModule,
+  MatTooltipModule
 } from '@angular/material';
 import { RouterModule, Routes } from '@angular/router';
 import { WhiteboardMainComponent } from './View/Whiteboard/whiteboard-main/whiteboard-main.component';
@@ -96,6 +113,8 @@ import {HttpHelper} from './Model/Helper/http-helper/http-helper';
 import { CreateInviteCodeComponent } from './View/NormalPages/main-page/main-page-project/create-invite-code/create-invite-code.component';
 import { InvitationComponent } from './View/NormalPages/invitation/invitation.component';
 import {KanbanEventManagerService} from './Model/Whiteboard/ProjectSupporter/Kanban/kanban-event-manager.service';
+import {UiService} from './Model/Helper/ui-service/ui.service';
+import {OverlayModule} from '@angular/cdk/overlay';
 const config: SocketIoConfig = { url: HttpHelper.apiUrl, options: {} };
 
 const appRoutes: Routes = [
@@ -217,7 +236,8 @@ const appRoutes: Routes = [
     KanbanTagManagementComponent,
     AreYouSurePanelComponent,
     CreateProjectComponent,
-    CreateInviteCodeComponent
+    CreateInviteCodeComponent,
+    MatSpinner
   ],
   imports: [
     BrowserModule,
@@ -257,6 +277,8 @@ const appRoutes: Routes = [
     SocketIoModule.forRoot(config),
     MatStepperModule,
     MatBadgeModule,
+    MatProgressSpinnerModule,
+    OverlayModule
   ],
   providers: [
     RouterHelperService,
@@ -295,7 +317,8 @@ const appRoutes: Routes = [
     GachiSidebarManagerService,
     HtmlHelperService,
     ProjectRequesterService,
-    KanbanEventManagerService
+    KanbanEventManagerService,
+    UiService
   ],
   bootstrap: [AppComponent]
 })

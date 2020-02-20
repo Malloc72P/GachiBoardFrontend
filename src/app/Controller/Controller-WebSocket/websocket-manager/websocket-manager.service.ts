@@ -13,6 +13,7 @@ import {HttpHelper} from '../../../Model/Helper/http-helper/http-helper';
 import {KanbanItem} from '../../../Model/Whiteboard/ProjectSupporter/Kanban/KanbanItem/kanban-item';
 import {KanbanEventManagerService} from '../../../Model/Whiteboard/ProjectSupporter/Kanban/kanban-event-manager.service';
 import {KanbanItemDto} from '../../../DTO/ProjectDto/KanbanDataDto/KanbanGroupDto/KanbanItemDto/kanban-item-dto';
+import {UiService} from '../../../Model/Helper/ui-service/ui.service';
 
 @Injectable({
   providedIn: 'root'
@@ -30,7 +31,8 @@ export class WebsocketManagerService {
   constructor(
     private _socket:Socket,
     private authRequestService:AuthRequestService,
-    public kanbanEventManagerService:KanbanEventManagerService
+    public kanbanEventManagerService:KanbanEventManagerService,
+    public uiService:UiService,
   ) {
     this.authRequestService.authEventEmitter.subscribe((authEvent:AuthEvent)=>{
       if(authEvent.action === AuthEventEnum.SIGN_IN){

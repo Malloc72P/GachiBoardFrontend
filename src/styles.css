@@ -12,6 +12,10 @@ html, body{
 html{
 }
 
+.cdk-overlay-backdrop {
+  background-color: rgba(0,0,0,0.5);
+}
+
 /*popover-ctrl-panel*/
 button.ctrl-panel-button-horizontal{
   margin-right: 12px;
