@@ -33,7 +33,6 @@ import {
 } from '@angular/material';
 import { RouterModule, Routes } from '@angular/router';
 import { WhiteboardMainComponent } from './View/Whiteboard/whiteboard-main/whiteboard-main.component';
-import { ParticlesModule } from 'angular-particle';
 import { RouterHelperService } from './Model/Helper/router-helper-service/router-helper.service';
 import { AuthRequestService } from './Controller/SocialLogin/auth-request/auth-request.service';
 import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
@@ -252,7 +251,6 @@ const appRoutes: Routes = [
       appRoutes,
       /*{enableTracing: true} // 디버그 활성화*/
     ),
-    ParticlesModule,
     MatButtonModule,
     HttpClientModule,
     MatButtonToggleModule,
