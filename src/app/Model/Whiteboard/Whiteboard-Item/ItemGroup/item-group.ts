@@ -90,7 +90,11 @@ export class ItemGroup extends WhiteboardItem {
   }
 
   private moveTo(position: Point) {
+      console.log("ItemGroup >> moveTo >> position : ", position);
     if(this.isMovable) {
+      // this.wbItemGroup.forEach(wbItem => {
+      //   wbItem.group.position = position;
+      // });
       this.group.position = position;
       this.emitMoved();
       this.wbItemGroup.forEach(value => {
@@ -144,7 +148,6 @@ export class ItemGroup extends WhiteboardItem {
 
   public resetMyItemAdjustor(){
     if(this.getNumberOfChild() === 1 && this.wbItemGroup[0] instanceof EditableLink){
-      console.log("ItemGroup >> resetMyItemAdjustor >> deactive");
       this.deactivateSelectedMode();
     } else if(this.getNumberOfChild() > 0) {
       this.activateSelectedMode();
@@ -158,10 +161,8 @@ export class ItemGroup extends WhiteboardItem {
   }
 
   public relocateItemGroup(newPosition){
-    if(this.myItemAdjustor){
-      this.moveTo(newPosition);
-      this.layerService.horizonContextMenuService.refreshPosition();
-    }
+    this.moveTo(newPosition);
+    this.layerService.horizonContextMenuService.refreshPosition();
   }
 
   public insertOneIntoGroup(wbItem: WhiteboardItem) {
@@ -175,7 +176,6 @@ export class ItemGroup extends WhiteboardItem {
     if(this.getNumberOfChild() > 1) {
       this.wbItemGroup[0].emitDeselected();
     } else {
-      console.log("ItemGroup >> insertOneIntoGroup >> wbItem : ", wbItem);
       wbItem.emitSelected();
     }
   }

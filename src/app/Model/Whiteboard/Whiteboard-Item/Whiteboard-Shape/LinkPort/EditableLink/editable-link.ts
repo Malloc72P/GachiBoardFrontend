@@ -69,7 +69,7 @@ export class EditableLink extends WhiteboardItem {
   }
 
   public drawLink(point: Point, handle?: LinkHandlerPositions) {
-    let hitItem: WhiteboardItem = this.layerService.getHittedItem(point, null, false);
+    let hitItem: WhiteboardItem = this.layerService.getHittedItem(point, null, true);
 
     switch (handle) {
       case LinkHandlerPositions.END_OF_LINK:
@@ -123,12 +123,15 @@ export class EditableLink extends WhiteboardItem {
 
   public destroyItem() {
     super.destroyItem();
+    this.removeToLinkFromOwner();
+    this.removeFromLinkFromOwner();
     this._linkHandlers.forEach(value => {
       value.destroy();
     });
     this.linkHead.remove();
     this.linkTail.remove();
     this.linkLine.remove();
+    this.wbItemsLifeCycleEventEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.DESTROY));
   }
 
   public notifyItemCreation() {
@@ -193,6 +196,10 @@ export class EditableLink extends WhiteboardItem {
   private setLifeCycleEvent() {
     this.lifeCycleEmitter.subscribe((event: ItemLifeCycleEvent) => {
       switch (event.action) {
+        case ItemLifeCycleEnum.MOVED:
+        case ItemLifeCycleEnum.RESIZED:
+          this.refreshLink();
+          break;
         case ItemLifeCycleEnum.SELECTED:
           this.layerService.globalSelectedGroup.deactivateSelectedMode();
           this.enableHandlers();
@@ -232,17 +239,76 @@ export class EditableLink extends WhiteboardItem {
         cap.add(leftWing);
         cap.add(lastPoint);
         cap.add(rightWing);
+        cap.visible = true;
         break;
       case EditableLinkCapTypes.NONE:
         break;
     }
   }
 
+  private refreshLink() {
+    if(!!this._toLinkPort) {
+      this.endPoint = this._toLinkPort.calcLinkPortPosition();
+    }
+    if(!!this._fromLinkPort) {
+      this.entryPoint = this._fromLinkPort.calcLinkPortPosition();
+    }
+  }
+
+  private removeToLinkFromOwner() {
+    if(!!this.toLinkPort) {
+      for(let index = 0; index < this.toLinkPort.fromLinkList.length; index++) {
+        if(this.toLinkPort.fromLinkList[index].id === this.id) {
+          this.toLinkPort.fromLinkList.splice(index, 1);
+          this.toLinkPort = undefined;
+          break;
+        }
+      }
+    }
+  }
+
+  private removeFromLinkFromOwner() {
+    if(!!this.fromLinkPort) {
+      for(let index = 0; index < this.fromLinkPort.fromLinkList.length; index++) {
+        if(this.fromLinkPort.fromLinkList[index].id === this.id) {
+          this.fromLinkPort.fromLinkList.splice(index, 1);
+          this.fromLinkPort = undefined;
+          break;
+        }
+      }
+    }
+  }
+
+  // ######### Static Method #########
+  public static createLinkLine(fromPoint: Point, toPoint: Point, linkColor: Color, linkWidth: number, isDashed: boolean): Path {
+    return new Path.Line({
+      from: fromPoint, to: toPoint,
+      strokeColor: linkColor, strokeWidth: linkWidth,
+      strokeCap: 'round', strokeJoin: 'round',
+      dashArray: isDashed ? [linkWidth * 2, linkWidth * 2] : undefined
+    });
+  }
+
+  public static createCap(linkColor: Color, linkWidth: number): Path {
+    return new Path({
+      strokeColor: linkColor,
+      strokeWidth: linkWidth,
+      strokeCap: 'round', strokeJoin: 'round',
+    });
+  }
+
+
   get linkColor(): Color {
     return this.linkLine.strokeColor;
   }
 
   set linkColor(value: Color) {
+    if(!!this.linkHead) {
+      this.linkHead.strokeColor = value;
+    }
+    if(!!this.linkTail) {
+      this.linkTail.strokeColor = value;
+    }
     this.linkLine.strokeColor = value;
   }
 
@@ -284,14 +350,8 @@ export class EditableLink extends WhiteboardItem {
   set toLinkPort(value: LinkPort) {
     if(!!value) {
       // 이전 링크포트에서 링크 제거
-      if(!!this.toLinkPort) {
-        for(let index = 0; index < this.toLinkPort.fromLinkList.length; index++) {
-          if(this.toLinkPort.fromLinkList[index].id === this.id) {
-            this.toLinkPort.fromLinkList.splice(index, 1);
-            break;
-          }
-        }
-      }
+      this.removeToLinkFromOwner();
+
       this._toLinkPort = value;
       value.fromLinkList.push(this);
       this.endPoint = value.calcLinkPortPosition();
@@ -316,14 +376,7 @@ export class EditableLink extends WhiteboardItem {
 
   set fromLinkPort(value: LinkPort) {
     if(!!value) {
-      if(!!this.fromLinkPort) {
-        for(let index = 0; index < this.fromLinkPort.fromLinkList.length; index++) {
-          if(this.fromLinkPort.fromLinkList[index].id === this.id) {
-            this.fromLinkPort.fromLinkList.splice(index, 1);
-            break;
-          }
-        }
-      }
+      this.removeFromLinkFromOwner();
 
       this._fromLinkPort = value;
       value.fromLinkList.push(this);
@@ -349,6 +402,7 @@ export class EditableLink extends WhiteboardItem {
 
   set linkHeadType(value: EditableLinkCapTypes) {
     this._linkHeadType = value;
+    this.drawCap(true);
   }
 
   get linkTailType(): EditableLinkCapTypes {
@@ -357,6 +411,7 @@ export class EditableLink extends WhiteboardItem {
 
   set linkTailType(value: EditableLinkCapTypes) {
     this._linkTailType = value;
+    this.drawCap(false);
   }
 
   get linkHandlers(): Map<LinkHandlerPositions, LinkHandler> {

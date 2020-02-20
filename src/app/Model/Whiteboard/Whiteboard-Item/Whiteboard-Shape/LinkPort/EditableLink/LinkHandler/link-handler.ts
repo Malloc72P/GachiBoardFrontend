@@ -1,4 +1,12 @@
 import * as paper from 'paper';
+
+import {EditableLink} from "../editable-link";
+import {HandlerOption} from "../../../../ItemAdjustor/item-adjustor";
+import {ZoomEvent} from "../../../../../InfiniteCanvas/ZoomControl/ZoomEvent/zoom-event";
+import {ZoomEventEnum} from "../../../../../InfiniteCanvas/ZoomControl/ZoomEvent/zoom-event-enum.enum";
+import {Subscription} from "rxjs";
+import {LinkHandlerPositions} from "../link-handler-positions";
+import {ItemLifeCycleEvent} from "../../../../WhiteboardItemLifeCycle/WhiteboardItemLifeCycle";
 // @ts-ignore
 import Path = paper.Path;
 // @ts-ignore
@@ -9,17 +17,6 @@ import Rectangle = paper.Rectangle;
 import Size = paper.Size;
 // @ts-ignore
 import Point = paper.Point;
-
-import {EditableLink} from "../editable-link";
-import {HandlerOption} from "../../../../ItemAdjustor/item-adjustor";
-import {ZoomEvent} from "../../../../../InfiniteCanvas/ZoomControl/ZoomEvent/zoom-event";
-import {ZoomEventEnum} from "../../../../../InfiniteCanvas/ZoomControl/ZoomEvent/zoom-event-enum.enum";
-import {Subscription} from "rxjs";
-import {LinkEvent} from "../../LinkEvent/link-event";
-import {LinkEventEnum} from "../../LinkEvent/link-event-enum.enum";
-import {WhiteboardShape} from "../../../whiteboard-shape";
-import {LinkHandlerPositions} from "../link-handler-positions";
-import {core} from "@angular/compiler";
 
 export class LinkHandler {
   private readonly _owner: EditableLink;
@@ -36,6 +33,7 @@ export class LinkHandler {
 
     this.linkChangeEvent = this.linkChangeEventSubscription;
     this.linkSelectedEventAttach();
+    this.setOwnerLifeCycleEvent();
   }
 
   public enable() {
@@ -73,6 +71,20 @@ export class LinkHandler {
     this.coreItem.position = point;
     this.coreItem.bringToFront();
     this.owner.layerService.globalSelectedGroup.emitMoved();
+  }
+
+  private setOwnerLifeCycleEvent() {
+    this.owner.lifeCycleEmitter.subscribe((event: ItemLifeCycleEvent) => {
+      let item = event.item as EditableLink;
+      switch (this.position) {
+        case LinkHandlerPositions.END_OF_LINK:
+          this.moveTo(item.toPoint);
+          break;
+        case LinkHandlerPositions.ENTRY_OF_LINK:
+          this.moveTo(item.fromPoint);
+          break;
+      }
+    });
   }
 
   private createHandler(fillColor: Color | string) {

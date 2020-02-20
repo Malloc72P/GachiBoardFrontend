@@ -141,10 +141,7 @@ export class HorizonContextMenuService {
     // GSG 에 선택된 아이템이 한개 (단일선택)
     } else {
       let item = wbItemGroup[0];
-      if(this._globalSelectedGroup.isLinkSelected) {
-        this._item = this.findLink(item as EditableShape);
-        return HorizonContextMenuTypes.ARROW;
-      } else if(item instanceof EditableRaster) {
+      if(item instanceof EditableRaster) {
         this._item = item;
         return HorizonContextMenuTypes.RASTER;
       } else if(item instanceof EditableShape) {
@@ -153,6 +150,9 @@ export class HorizonContextMenuService {
       } else if(item instanceof EditableStroke) {
         this._item = item;
         return HorizonContextMenuTypes.STROKE;
+      } else if(item instanceof EditableLink) {
+        this._item = item;
+        return HorizonContextMenuTypes.ARROW;
       } else {
         this._item = item;
       }

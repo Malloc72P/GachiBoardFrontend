@@ -84,7 +84,7 @@ export class LassoSelectorService {
   }
 
   private isItemHit(point): boolean {
-    let hitItem = this.layerService.getHittedItem(point, null, true);
+    let hitItem = this.layerService.getHittedItem(point);
 
     if(hitItem) {
       this.layerService.globalSelectedGroup.insertOneIntoSelection(hitItem);

@@ -1,5 +1,3 @@
-import {EditableLinkDto} from '../../EditableLinkDto/editable-link-dto';
-
 export class LinkPortDto {
   private _direction;
   private _ownerWbItemId;

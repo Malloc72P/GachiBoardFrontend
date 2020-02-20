@@ -47,6 +47,7 @@ export class EditableLinkDto extends WhiteboardItemDto {
     this._linkColor = new GachiColorDto(linkColor.red, linkColor.green, linkColor.blue, linkColor.alpha);
     this._linkWidth = linkWidth;
     this._isDashed = isDashed;
+
   }
 
   get toLinkPort(): LinkPortDto {

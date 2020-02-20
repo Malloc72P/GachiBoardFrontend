@@ -350,8 +350,8 @@ export class DrawingLayerManagerService {
     return this.findInLinkPorts(point);
   }
 
-  public getHittedItem(point, tolerance?: number, includeEditableLink?: boolean): WhiteboardItem {
-    return this.findInWhiteboardItems(point, tolerance, includeEditableLink);
+  public getHittedItem(point, tolerance?: number, excludeEditableLink?: boolean): WhiteboardItem {
+    return this.findInWhiteboardItems(point, tolerance, excludeEditableLink);
   }
 
   public getHittedLinkHandler(point): LinkHandler {
@@ -406,7 +406,7 @@ export class DrawingLayerManagerService {
     return null;
   }
 
-  private findInWhiteboardItems(point, tolerance?: number, includeEditableLink?: boolean): WhiteboardItem {
+  private findInWhiteboardItems(point, tolerance?: number, excludeEditableLink?: boolean): WhiteboardItem {
     let whiteboardItems = this.whiteboardItemArray;
 
     for(let i = whiteboardItems.length - 1 ; i >= 0; i-- ){
@@ -421,7 +421,7 @@ export class DrawingLayerManagerService {
         continue;
       }
 
-      if(!includeEditableLink) {
+      if(excludeEditableLink) {
         if(value instanceof EditableLink) {
           continue;
         }
@@ -453,8 +453,13 @@ export class DrawingLayerManagerService {
 
   public isHitGSG(point): boolean {
     let hitOption = { segments: true, stroke: true, fill: true, tolerance: 15 };
-    return !!this.globalSelectedGroup.group.hitTest(point, hitOption);
-
+    if(!!this.globalSelectedGroup.bound) {
+      return !!this.globalSelectedGroup.bound.hitTest(point, hitOption);
+    } else if (this.globalSelectedGroup.wbItemGroup[0] instanceof EditableLink) {
+      return !!this.globalSelectedGroup.wbItemGroup[0].coreItem.hitTest(point, hitOption);
+    } else {
+      return false;
+    }
   }
   private checkHittedItemIsHandler(point){
     //아직 링크 핸들러만 체크함

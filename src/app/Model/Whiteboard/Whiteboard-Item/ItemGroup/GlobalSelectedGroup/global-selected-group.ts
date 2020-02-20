@@ -1,6 +1,8 @@
 import * as paper from 'paper';
 // @ts-ignore
 import Item = paper.Item;
+// @ts-ignore
+import Path = paper.Path;
 
 import {ItemGroup} from '../item-group';
 import {WhiteboardItemType} from '../../../../Helper/data-type-enum/data-type.enum';
@@ -93,6 +95,8 @@ export class GlobalSelectedGroup extends ItemGroup {
         for (let i = 0; i < data.length; i++) {
           this.insertOneIntoSelection(data[i]);
         }
+        this.wbItemGroup.forEach(value => {
+        });
         this.relocateItemGroup(newPosition);
         for (let i = 0; i < data.length; i++) {
           data[i].group.opacity = 1;
@@ -229,5 +233,12 @@ export class GlobalSelectedGroup extends ItemGroup {
 
   set isLinkSelected(value: boolean) {
     this._isLinkSelected = value;
+  }
+
+  get bound(): Path.Rectangle {
+    if(!!this._myItemAdjustor) {
+      return this._myItemAdjustor.bound;
+    }
+    return undefined;
   }
 }

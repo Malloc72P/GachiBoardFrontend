@@ -1,6 +1,8 @@
 import * as paper from 'paper';
 // @ts-ignore
 import Path = paper.Path;
+// @ts-ignore
+import Rectangle = paper.Rectangle;
 
 import {SizeHandler} from './ItemHandler/SizeHandler/size-handler';
 import {WhiteboardItem} from '../whiteboard-item';
@@ -68,6 +70,7 @@ export class ItemAdjustor {
     }
     if(!!this.background) {
       this.background.remove();
+      console.log("ItemAdjustor >> destroyItemAdjustor >>  : ", );
     }
     if (this.sizeHandlers) {
       this.sizeHandlers.forEach((value, key, map) => {
@@ -210,5 +213,9 @@ export class ItemAdjustor {
 
   set owner(value: WhiteboardItem) {
     this._owner = value;
+  }
+
+  get bound(): Path.Rectangle {
+    return this.background;
   }
 }

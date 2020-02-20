@@ -55,6 +55,8 @@ import {CopiedLinkData} from '../../Whiteboard-Item/ItemGroup/GlobalSelectedGrou
 import {WhiteboardShape} from '../../Whiteboard-Item/Whiteboard-Shape/whiteboard-shape';
 import {EditableLink} from '../../Whiteboard-Item/Whiteboard-Shape/LinkPort/EditableLink/editable-link';
 import {EditableLinkDto} from "../../WhiteboardItemDto/EditableLinkDto/editable-link-dto";
+import {LinkPortDto} from "../../WhiteboardItemDto/WhiteboardShapeDto/LinkPortDto/link-port-dto";
+import {LinkPort} from "../../Whiteboard-Item/Whiteboard-Shape/LinkPort/link-port";
 
 
 enum BUILD_MODE {
@@ -73,28 +75,29 @@ export class WhiteboardItemFactory {
 
   public static cloneWbItems(copiedDtoArray):Observable<any>{
     return new Observable((observer)=>{
-      let observerCounter = copiedDtoArray.length;
-      let tempGsgArray = new Array<WhiteboardItem>();
       let copyLinkArray: Array<EditableLinkDto>;
-
       copyLinkArray = WhiteboardItemFactory.extractCopyLinkArray(copiedDtoArray);
+
+      let wbItemIdMap = new Map<number, number>();
+      let tempGsgArray = new Array<WhiteboardItem>();
 
       for (let i = 0; i < copiedDtoArray.length; i++) {
         let currDto = copiedDtoArray[i];
         WhiteboardItemFactory.waitForCreateWbItem(currDto, BUILD_MODE.CLONE).subscribe((factoryResult:WbItemFactoryResult)=>{
-
+          wbItemIdMap.set(currDto.id, factoryResult.newWbItem.id);
           tempGsgArray.push(factoryResult.newWbItem);
-          // copyLinkArray = WhiteboardItemFactory.fillCopyLinkMap(copyLinkArray, factoryResult);
-          observerCounter--;
-
-          if(observerCounter <= 0){
-            // #### 복제가 완전히 완료된 경우, 해당 조건문에 진입함 ####
-            console.log("WhiteboardItemFactory >>  >> doLinking");
-            WhiteboardItemFactory.doLinkingOperation(copyLinkArray, BUILD_MODE.CLONE);
-            observer.next(tempGsgArray);
-          }
         });
       }
+      for(let linkDto of copyLinkArray) {
+        if(!!linkDto.toLinkPort) {
+          linkDto.toLinkPort.ownerWbItemId = wbItemIdMap.get(linkDto.toLinkPort.ownerWbItemId);
+        }
+        if(!!linkDto.fromLinkPort) {
+          linkDto.fromLinkPort.ownerWbItemId = wbItemIdMap.get(linkDto.fromLinkPort.ownerWbItemId);
+        }
+        tempGsgArray.push(WhiteboardItemFactory.buildEditableLink(BUILD_MODE.CLONE, linkDto, tempGsgArray));
+      }
+      observer.next(tempGsgArray);
     });
 
   }
@@ -332,67 +335,36 @@ export class WhiteboardItemFactory {
       gachiColor.alpha );
   }
 
-  private static createEditableLink(wbId, linkDto: EditableLinkDto): EditableLink {
-    let linkLine = new Path.Line({
-      from: linkDto.fromPoint.paperPoint,
-      to: linkDto.toPoint.paperPoint,
-      strokeColor: linkDto.linkColor.paperColor,
-      strokeWidth: linkDto.linkWidth,
-      strokeCap: 'round',
-      strokeJoin: 'round',
-      dashArray: linkDto.isDashed ? [linkDto.linkWidth * 2, linkDto.linkWidth * 2] : undefined,
-    });
+  private static createEditableLink(wbId, linkDto: EditableLinkDto, copiedGSG?: Array<WhiteboardItem>): EditableLink {
+    let linkLine = EditableLink.createLinkLine(
+      linkDto.fromPoint.paperPoint,
+      linkDto.toPoint.paperPoint,
+      linkDto.linkColor.paperColor,
+      linkDto.linkWidth,
+      linkDto.isDashed);
 
-    let linkHead = new Path();
-    let linkTail = new Path();
+    let linkHead = EditableLink.createCap(linkDto.linkColor.paperColor, linkDto.linkWidth);
+    let linkTail = EditableLink.createCap(linkDto.linkColor.paperColor, linkDto.linkWidth);
 
-    let group = new Group();
+    let group: Group = new Group();
     group.addChildren([linkLine, linkHead, linkTail]);
 
-    return new EditableLink(wbId, group, linkDto.linkHeadType, linkDto.linkTailType, WhiteboardItemFactory.layerService);
+    return new EditableLink(
+      wbId,
+      group,
+      linkDto.linkHeadType,
+      linkDto.linkTailType,
+      WhiteboardItemFactory.layerService,
+      this.getLinkPort(linkDto.toLinkPort, copiedGSG),
+      this.getLinkPort(linkDto.fromLinkPort, copiedGSG)
+    );
   }
 
   // ##### Linking Operation #####
-  private static buildEditableLink(buildMode, linkDto: EditableLinkDto): EditableLink{
+  private static buildEditableLink(buildMode, linkDto: EditableLinkDto, copiedGSG?: Array<WhiteboardItem>): EditableLink{
     let wbId = WhiteboardItemFactory.getWbId(buildMode, linkDto.id);
-    return WhiteboardItemFactory.createEditableLink(wbId, linkDto);
+    return WhiteboardItemFactory.createEditableLink(wbId, linkDto, copiedGSG);
   }
-
-  private static doLinkingOperation(copyLinkArray: Array<EditableLinkDto>, buildMode){
-    console.log("WhiteboardItemFactory >> doLinkingOperation >> copyLinkArray : ",copyLinkArray);
-    copyLinkArray.forEach(linkDto => {
-      WhiteboardItemFactory.buildEditableLink(buildMode, linkDto);
-    });
-  }
-
-  // private static fillCopyLinkMap( copyLinkMap:Map<any, CopiedLinkData>, factoryResult:WbItemFactoryResult ){
-  //   console.log("WhiteboardItemFactory >> fillCopyLinkMap >> copyLinkMap : ",copyLinkMap);
-  //   if( WhiteboardItemFactory.isWbShapeDto(factoryResult.originDto.type) ){
-  //     let originWbShapeDto:WhiteboardShapeDto = factoryResult.originDto as WhiteboardShapeDto;
-  //     let currLinkPorts = originWbShapeDto.linkPortsDto;
-  //     for (let i = 0; i < currLinkPorts.length; i++) {
-  //       let currPort = currLinkPorts[i];
-  //
-  //       let fromLinkList = currPort.fromLinkList;
-  //       for (let j = 0; j < fromLinkList.length; j++) {
-  //         let currLink = fromLinkList[j];
-  //         if(copyLinkMap.has(currLink.id)){
-  //           copyLinkMap.get(currLink.id).fromWbItem = factoryResult.newWbItem as WhiteboardShape;
-  //         }
-  //       }
-  //
-  //       let toLinkList = currPort.toLinkList;
-  //       for (let j = 0; j < toLinkList.length; j++) {
-  //         let currLink = toLinkList[j];
-  //         if(copyLinkMap.has(currLink.id)){
-  //           copyLinkMap.get(currLink.id).toWbItem = factoryResult.newWbItem as WhiteboardShape;
-  //         }
-  //       }
-  //
-  //     }
-  //   }
-  //   return copyLinkMap;
-  // }
 
   private static extractCopyLinkArray(copiedWbDto: Array<WhiteboardItemDto>): Array<EditableLinkDto>{
     let copyLinkMap = new Array<EditableLinkDto>();
@@ -411,6 +383,27 @@ export class WhiteboardItemFactory {
       type === WhiteboardItemType.EDITABLE_TRIANGLE ||
       type === WhiteboardItemType.EDITABLE_CIRCLE ||
       type === WhiteboardItemType.EDITABLE_CARD;
+  }
+
+  private static getLinkPort(linkPortDto: LinkPortDto, copiedGSG?: Array<WhiteboardItem>): LinkPort{
+    if(!linkPortDto) {
+      return undefined;
+    }
+
+    let wbItemGroup: Array<WhiteboardItem>;
+
+    if(!!copiedGSG) {
+      wbItemGroup = copiedGSG;
+    } else {
+      wbItemGroup = WhiteboardItemFactory.layerService.globalSelectedGroup.wbItemGroup;
+    }
+
+    for(let wbItem of wbItemGroup) {
+      if(wbItem.id === linkPortDto.ownerWbItemId && wbItem instanceof EditableShape) {
+        return wbItem.linkPortMap.get(linkPortDto.direction);
+      }
+    }
+    return undefined;
   }
   // ##### Linking Operation #####
 }

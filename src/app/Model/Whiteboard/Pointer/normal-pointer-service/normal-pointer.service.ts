@@ -203,7 +203,6 @@ export class NormalPointerService {
 
   private isLinkHandlerHit(point): boolean {
     let handle = this.layerService.getHittedLinkHandler(point);
-    console.log("NormalPointerService >> isLinkHandlerHit >> handle : ", handle);
 
     if(!!handle) {
       this.selectedHandle = handle;
@@ -213,7 +212,7 @@ export class NormalPointerService {
   }
 
   private isItemHit(point): boolean {
-    let hitItem = this.layerService.getHittedItem(point, null, true);
+    let hitItem = this.layerService.getHittedItem(point);
 
     if(!!hitItem) {
       this.layerService.globalSelectedGroup.insertOneIntoSelection(hitItem);
@@ -241,7 +240,7 @@ export class NormalPointerService {
   }
 
   private selectSingleItem(event) {
-    let hitItem = this.layerService.getHittedItem(event.point, null, true);
+    let hitItem = this.layerService.getHittedItem(event.point);
 
     if(!!hitItem) {
       // GSG 에 있는 객체 잡음 (드래그 및 선택 해제 로직으로 넘어감)
@@ -258,7 +257,7 @@ export class NormalPointerService {
   }
 
   private selectMultipleItem(event) {
-    let hitItem = this.layerService.getHittedItem(event.point, null, false);
+    let hitItem = this.layerService.getHittedItem(event.point);
 
     // hitItem 이 없거나 링크가 선택되어있으면 선택 안함
     if(!!hitItem && !this.layerService.globalSelectedGroup.isLinkSelected) {
