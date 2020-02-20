@@ -47,8 +47,13 @@
       <span>Collaborative Whiteboard</span>
     </mat-card-title>
     <span class="flex-spacer"></span>
-    <span><button mat-button><mat-icon>more_vert</mat-icon></button></span>
-
+    <span><button mat-button [matMenuTriggerFor]="wbSessionMenu">
+      <mat-icon>more_vert</mat-icon></button>
+    </span>
+    <mat-menu #wbSessionMenu="matMenu">
+      <button mat-menu-item (click)="onCreateWbSessionBtnClick()"><span>화이트보드 생성하기</span></button>
+      <!--<button mat-menu-item (click)="onKanbanGroupSetting()">칸반 그룹 설정</button>-->
+    </mat-menu>
   </mat-card-header>
 
   <mat-card-content class="card-content-wrapper">

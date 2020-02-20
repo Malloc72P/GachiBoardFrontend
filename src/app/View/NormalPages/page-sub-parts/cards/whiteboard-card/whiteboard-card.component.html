@@ -8,6 +8,37 @@
                       [ngStyle]="isHovering === true && { 'background' : '#7F7F7F' }">
       <img class="wb-card-profile-image"
            src="assets/images/normal-pages/project/whiteboard.png">
+
+      <div class="wb-card-participant-wrapper wb-card-hidden"
+           [ngClass]="{'wb-card-show' : isHovering}">
+        <app-user-overlay-card [isHovering]="isHovering"
+                               [userName]="'chen'"
+                               [marginValue]="'6px 0 6px 0'"
+                               [imgSize]="'42px'"
+                               [fontColor]="'white'"
+                               [fontSize]="'16px'"
+                               [enableSpashAnime]="true"
+                               [imgSrc]="'assets/images/normal-pages/project/chen.png'">
+        </app-user-overlay-card>
+        <app-user-overlay-card [isHovering]="isHovering"
+                               [userName]="'texas'"
+                               [marginValue]="'6px 0 6px 0'"
+                               [imgSize]="'42px'"
+                               [fontColor]="'white'"
+                               [fontSize]="'16px'"
+                               [enableSpashAnime]="true"
+                               [imgSrc]="'assets/images/normal-pages/project/texas.png'">
+        </app-user-overlay-card>
+        <app-user-overlay-card [isHovering]="isHovering"
+                               [userName]="'amiya'"
+                               [marginValue]="'6px 0 6px 0'"
+                               [imgSize]="'42px'"
+                               [fontColor]="'white'"
+                               [fontSize]="'16px'"
+                               [enableSpashAnime]="true"
+                               [imgSrc]="'assets/images/normal-pages/project/amiya.png'">
+        </app-user-overlay-card>
+      </div>
     </mat-card-content>
 
     <div class="wb-card-header-wrapper">
@@ -24,46 +55,6 @@
       <div class="wb-card-subtitle wb-card-bottom-row">
         <span class="text-ellipsis">19.08.24 생성됨</span>
       </div>
-    </div>
-
-    <div class="wb-card-participant-wrapper wb-card-hidden"
-         [ngClass]="{'wb-card-show' : isHovering}">
-      <app-user-overlay-card [isHovering]="isHovering"
-                             [userName]="'chen'"
-                             [marginValue]="'6px 0 6px 0'"
-                             [imgSize]="'42px'"
-                             [fontColor]="'white'"
-                             [fontSize]="'16px'"
-                             [enableSpashAnime]="true"
-                             [imgSrc]="'assets/images/normal-pages/project/chen.png'">
-      </app-user-overlay-card>
-      <app-user-overlay-card [isHovering]="isHovering"
-                             [userName]="'texas'"
-                             [marginValue]="'6px 0 6px 0'"
-                             [imgSize]="'42px'"
-                             [fontColor]="'white'"
-                             [fontSize]="'16px'"
-                             [enableSpashAnime]="true"
-                             [imgSrc]="'assets/images/normal-pages/project/texas.png'">
-      </app-user-overlay-card>
-      <app-user-overlay-card [isHovering]="isHovering"
-                             [userName]="'amiya'"
-                             [marginValue]="'6px 0 6px 0'"
-                             [imgSize]="'42px'"
-                             [fontColor]="'white'"
-                             [fontSize]="'16px'"
-                             [enableSpashAnime]="true"
-                             [imgSrc]="'assets/images/normal-pages/project/amiya.png'">
-      </app-user-overlay-card>
-      <app-user-overlay-card [isHovering]="isHovering"
-                             [userName]="'skadi'"
-                             [marginValue]="'6px 0 6px 0'"
-                             [imgSize]="'42px'"
-                             [fontColor]="'white'"
-                             [fontSize]="'16px'"
-                             [enableSpashAnime]="true"
-                             [imgSrc]="'assets/images/normal-pages/project/skadi.png'">
-      </app-user-overlay-card>
     </div>
   </mat-card>
 </div>

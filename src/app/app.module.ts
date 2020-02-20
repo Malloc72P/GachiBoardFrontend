@@ -113,6 +113,7 @@ import {MatSidenavModule} from '@angular/material/sidenav';
 import {MatListModule} from '@angular/material/list';
 import {MatStepperModule} from '@angular/material/stepper';
 import {MatBadgeModule} from '@angular/material/badge';
+import { CreateWbSessionComponent } from './View/NormalPages/main-page/main-page-project/create-wb-session/create-wb-session.component';
 
 const config: SocketIoConfig = { url: HttpHelper.apiUrl, options: {} };
 
@@ -228,6 +229,7 @@ const appRoutes: Routes = [
     CreateProjectComponent,
     CreateInviteCodeComponent,
     InvitationComponent,
+    CreateWbSessionComponent,
   ],
   entryComponents: [
     KanbanComponent,

@@ -21,6 +21,7 @@ import {KanbanEvent, KanbanEventEnum} from '../../../../Model/Whiteboard/Project
 import {KanbanEventManagerService} from '../../../../Model/Whiteboard/ProjectSupporter/Kanban/kanban-event-manager.service';
 import {WsKanbanController} from '../../../../Controller/Controller-WebSocket/websocket-manager/KanbanWsController/ws-kanban.controller';
 import {MatDialog} from '@angular/material/dialog';
+import {CreateWbSessionComponent, CreateWbSessionComponentData} from './create-wb-session/create-wb-session.component';
 
 @Component({
   selector: 'app-main-page-project',
@@ -165,6 +166,15 @@ export class MainPageProjectComponent implements OnInit, OnDestroy {
 
     });
   }
+  onCreateWbSessionBtnClick(){
+    const dialogRef = this.dialog.open(CreateWbSessionComponent, {
+      width: '480px',
+      data: new CreateWbSessionComponentData()
+    });
 
+    dialogRef.afterClosed().subscribe((result) => {
+
+    });
+  }
 
 }

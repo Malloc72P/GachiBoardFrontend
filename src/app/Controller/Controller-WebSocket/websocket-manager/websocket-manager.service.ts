@@ -14,14 +14,17 @@ import {KanbanItem} from '../../../Model/Whiteboard/ProjectSupporter/Kanban/Kanb
 import {KanbanEventManagerService} from '../../../Model/Whiteboard/ProjectSupporter/Kanban/kanban-event-manager.service';
 import {KanbanItemDto} from '../../../DTO/ProjectDto/KanbanDataDto/KanbanGroupDto/KanbanItemDto/kanban-item-dto';
 import {UiService} from '../../../Model/Helper/ui-service/ui.service';
+import {WbSessionEventManagerService} from './WhiteboardSessionWsController/wb-session-event-manager.service';
+import {WsWhiteboardSessionController} from './WhiteboardSessionWsController/ws-project-session.controller';
 
 @Injectable({
   providedIn: 'root'
 })
 export class WebsocketManagerService {
   @Output() wsEventEmitter:EventEmitter<any> = new EventEmitter<any>();
-  //SocketIO를 통해 데이터를 불러오고 싶을때 사용
-  //미리 해당 이벤트이미터를 subscribe하고, 데이터를 요청하는 메세지를 전송하면 됨
+  //SocketIO를 통해 데이터를 불러오고 싶을때 사용 >>> 하지 말것!
+  //미리 해당 이벤트이미터를 subscribe하고, 데이터를 요청하는 메세지를 전송하면 됨 >>> 이럴 필요 없음!!!
+  //DEPRECATED!!! waitRequest시리즈의 메서드를 쓰면 됨!!!
 
   public isConnected = false;
   private _userInfo:UserDTO;
@@ -32,6 +35,7 @@ export class WebsocketManagerService {
     private _socket:Socket,
     private authRequestService:AuthRequestService,
     public kanbanEventManagerService:KanbanEventManagerService,
+    public wbSessionEventManagerService:WbSessionEventManagerService,
     public uiService:UiService,
   ) {
     this.authRequestService.authEventEmitter.subscribe((authEvent:AuthEvent)=>{
@@ -43,6 +47,7 @@ export class WebsocketManagerService {
     //#### WS Controller 초기화
     WsProjectController.initInstance(this);
     WsKanbanController.initInstance(this);
+    WsWhiteboardSessionController.initInstance(this);
 
     this.notVerifiedKanbanItems = new Array<NotVerifiedKanbanItem>();
   }

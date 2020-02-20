@@ -111,6 +111,26 @@ export class HttpHelper {
       read : new WebSocketRequest(
         "kanban_read", WebSocketTypeEnum.READ
       ),
+    },
+    whiteboardSession : {
+      read : new WebSocketRequest(
+        "wbSession_read", WebSocketTypeEnum.READ
+      ),
+      create : new WebSocketRequest(
+        "wbSession_create", WebSocketTypeEnum.CREATE
+      ),
+      update : new WebSocketRequest(
+        "wbSession_update", WebSocketTypeEnum.UPDATE
+      ),
+      delete : new WebSocketRequest(
+        "wbSession_delete", WebSocketTypeEnum.DELETE
+      ),
+      lock : new WebSocketRequest(
+        "wbSession_lock", WebSocketTypeEnum.LOCK
+      ),
+      unlock : new WebSocketRequest(
+        "wbSession_unlock", WebSocketTypeEnum.UNLOCK
+      ),
     }
   };
 
