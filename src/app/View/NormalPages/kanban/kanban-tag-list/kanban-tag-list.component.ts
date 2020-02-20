@@ -12,7 +12,6 @@ import {COMMA, ENTER} from '@angular/cdk/keycodes';
 import {FormControl} from '@angular/forms';
 import {Observable, Subscription} from 'rxjs';
 import {map, startWith} from 'rxjs/operators';
-import {MatAutocomplete, MatAutocompleteSelectedEvent, MatAutocompleteTrigger, MatChip, MatChipInputEvent} from '@angular/material';
 import {
   KanbanTagListManagerService,
   TagItem
@@ -25,6 +24,8 @@ import {WebsocketManagerService} from '../../../../Controller/Controller-WebSock
 import {HtmlHelperService} from '../../../../Model/NormalPagesManager/HtmlHelperService/html-helper.service';
 import {KanbanEvent, KanbanEventEnum} from '../../../../Model/Whiteboard/ProjectSupporter/Kanban/KanbanEvent/KanbanEvent';
 import {KanbanEventManagerService} from '../../../../Model/Whiteboard/ProjectSupporter/Kanban/kanban-event-manager.service';
+import {MatAutocomplete, MatAutocompleteSelectedEvent} from '@angular/material/autocomplete';
+import {MatChipInputEvent} from '@angular/material/chips';
 
 
 @Component({

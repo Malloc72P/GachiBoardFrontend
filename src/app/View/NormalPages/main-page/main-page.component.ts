@@ -8,7 +8,7 @@ import {
   GachiSidebarEventEnum
 } from '../../../Model/NormalPagesManager/gachi-sidebar-manager/GachiSidebarEvent/GachiSidebarEvent';
 import {UserDTO} from '../../../DTO/user-dto';
-import {MatSidenav} from '@angular/material';
+import {MatSidenav} from '@angular/material/sidenav';
 
 @Component({
   selector: 'app-main-page',

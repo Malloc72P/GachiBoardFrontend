@@ -1,10 +1,5 @@
 import {Component, Inject, OnInit} from '@angular/core';
-import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material';
-import {PositionCalcService} from '../../../Model/Whiteboard/PositionCalc/position-calc.service';
-import {UserManagerService} from '../../../Model/UserManager/user-manager.service';
-import {KanbanItemColorService} from '../../../Model/Whiteboard/ProjectSupporter/Kanban/KanbanItemColorEnumManager/kanban-item-color.service';
-import {KanbanGroup} from '../../../Model/Whiteboard/ProjectSupporter/Kanban/KanbanGroup/kanban-group';
-import {FormControl, FormGroup, Validators} from '@angular/forms';
+import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
 
 class AreYouSureDialogData{
   msg1 : string;

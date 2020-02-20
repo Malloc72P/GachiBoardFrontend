@@ -1,10 +1,11 @@
 import {Component, Inject, OnInit, ViewChild} from '@angular/core';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {ProjectDto} from '../../../../../DTO/ProjectDto/project-dto';
-import {MAT_DIALOG_DATA, MatDialogRef, MatSlider, MatStepper} from '@angular/material';
 import {AuthRequestService} from '../../../../../Controller/SocialLogin/auth-request/auth-request.service';
 import {ProjectRequesterService} from '../../../../../Controller/Project/project-requester.service';
 import {HttpHelper} from '../../../../../Model/Helper/http-helper/http-helper';
+import {MatStepper} from '@angular/material/stepper';
+import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
 
 export class CreateInviteCodeComponentData{
   projectDto:ProjectDto;

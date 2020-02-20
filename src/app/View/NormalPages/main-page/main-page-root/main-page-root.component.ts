@@ -1,6 +1,4 @@
 import {Component, Input, OnInit} from '@angular/core';
-import {KanbanItemEditComponent} from '../../kanban/kanban-item-edit/kanban-item-edit.component';
-import {MatDialog} from '@angular/material';
 import {CreateProjectComponent} from './create-project/create-project.component';
 import {ProjectDto} from '../../../../DTO/ProjectDto/project-dto';
 import {ProjectRequesterService} from '../../../../Controller/Project/project-requester.service';
@@ -9,6 +7,7 @@ import {AuthRequestService} from '../../../../Controller/SocialLogin/auth-reques
 import {AuthEvent} from '../../../../Controller/SocialLogin/auth-request/AuthEvent/AuthEvent';
 import {WebsocketManagerService} from '../../../../Controller/Controller-WebSocket/websocket-manager/websocket-manager.service';
 import {RouterHelperService} from '../../../../Model/Helper/router-helper-service/router-helper.service';
+import {MatDialog} from '@angular/material/dialog';
 
 @Component({
   selector: 'app-main-page-root',
@@ -22,7 +21,6 @@ export class MainPageRootComponent implements OnInit {
     public dialog: MatDialog,
     public projectRequesterService:ProjectRequesterService,
     public authRequestService:AuthRequestService,
-    public websocketManagerService:WebsocketManagerService,
     public routerHelperService:RouterHelperService,
   ) {
     let inviteCode = null;
