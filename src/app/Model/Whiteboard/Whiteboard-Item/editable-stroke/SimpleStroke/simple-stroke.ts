@@ -13,13 +13,18 @@ import Segment = paper.Segment;
 import Color = paper.Color;
 import {EventEmitter} from '@angular/core';
 import {WhiteboardItemType} from '../../../../Helper/data-type-enum/data-type.enum';
+import {EditableStrokeDto} from '../../../../../DTO/WhiteboardItemDto/EditableStrokeDto/editable-stroke-dto';
+import {SimpleStrokeDto} from '../../../../../DTO/WhiteboardItemDto/EditableStrokeDto/SimpleStrokeDto/simple-stroke-dto';
 
 export class SimpleStroke extends EditableStroke {
-  constructor(path:Path, posCalcService) {
-    super(WhiteboardItemType.SIMPLE_STROKE,
+  constructor(id, path:Path, layerService) {
+    super(id, WhiteboardItemType.SIMPLE_STROKE,
       path,
-      posCalcService);
+      layerService);
+  }
 
+  public exportToDto(): SimpleStrokeDto {
+    return super.exportToDto() as SimpleStrokeDto;
   }
 
 }

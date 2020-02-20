@@ -1,0 +1,31 @@
+<span class="header-right-wrapper">
+  <span *ngIf="headerMode === 'homepage'"
+        class="header-desktop">
+    <button mat-button
+            class="header-sub">Product</button>
+    <button mat-button
+            class="header-sub">DevTeam</button>
+  </span>
+
+    <span class="header-spacer"></span>
+
+    <span *ngIf="isLoggedIn==false"
+          class="header-desktop">
+      <a routerLink="/login" mat-button class="header-sub">Sign In</a>
+      <a routerLink="/login" mat-button class="header-sub">Sign Up </a>
+    </span>
+
+    <span class="header-mobile">
+      <button mat-button (click)="toggleRightSidebar()">
+        <mat-icon class="example-icon">menu</mat-icon>
+      </button>
+    </span>
+
+    <span *ngIf="isLoggedIn==true"
+          class="header-desktop">
+    <a routerLink="/mainpage" mat-button class="header-sub">My Project</a>
+    <a routerLink="/signout" mat-button class="header-sub">Sign Out</a>
+  </span>
+
+</span>
+

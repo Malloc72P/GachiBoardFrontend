@@ -25,13 +25,14 @@ import {EditableStroke} from '../editable-stroke/editable-stroke';
 import {TextStyle} from '../../Pointer/shape-service/text-style';
 import {EditableShape} from '../Whiteboard-Shape/EditableShape/editable-shape';
 import {WhiteboardShape} from '../Whiteboard-Shape/whiteboard-shape';
+import {ItemGroupDto} from '../../../../DTO/WhiteboardItemDto/ItemGroupDto/item-group-dto';
 
 export class ItemGroup extends WhiteboardItem {
   private _wbItemGroup: Array<WhiteboardItem>;
   private _backgroundRect: Rectangle;
 
-  constructor(type, item: Item, layerService) {
-    super(type, item, layerService);
+  constructor(id, type, item: Item, layerService) {
+    super(id, type, item, layerService);
     this.coreItem = this.group;
     this.wbItemGroup = new Array<WhiteboardItem>();
     console.log('ItemGroup >> constructor >> 진입함');
@@ -94,9 +95,13 @@ export class ItemGroup extends WhiteboardItem {
     };
     this.backgroundRect.onMouseDrag = (event) => {
       this.onMouseDrag(event);
+      // TODO : HorizonContextMenuService Test Code
+      this.layerService.horizonContextMenuService.close();
     };
     this.backgroundRect.onMouseUp = (event) => {
       this.onMouseUp(event);
+      // TODO : HorizonContextMenuService Test Code
+      this.layerService.horizonContextMenuService.open();
     };
     this.backgroundRect.onDoubleClick = ()=>{
       console.log("ItemGroup >> onDoubleClick >> 진입함");
@@ -141,7 +146,9 @@ export class ItemGroup extends WhiteboardItem {
       return;
     }
     //this.deactivateSelectedMode();
-    this.myItemAdjustor.disable();
+    if(this.myItemAdjustor){
+      this.myItemAdjustor.disable();
+    }
     this.calcCurrentDistance(event);
     let currentPointerMode = this.layerService.currentPointerMode;
     this.calcCurrentDistance(event);
@@ -202,7 +209,15 @@ export class ItemGroup extends WhiteboardItem {
   }
   private retractGroup(){
     this.backgroundRect.remove();
+    // @ts-ignore
     this.group.bounds = new Rectangle(new Point(0,0), new Point(0,0));
+  }
+
+  public relocateItemGroup(newPosition){
+    if(this.myItemAdjustor){
+      this.group.position = newPosition;
+      this.myItemAdjustor.refreshItemAdjustorSize();
+    }
   }
 
   public insertOneIntoGroup(wbItem: WhiteboardItem) {
@@ -224,6 +239,11 @@ export class ItemGroup extends WhiteboardItem {
         //자식을 drawingLayer로 옮겨줌.
         let willBeExtract = this.wbItemGroup[i];
         willBeExtract.isSelected = false;
+        if(willBeExtract instanceof WhiteboardShape){
+          willBeExtract.linkPortMap.forEach((value, key, map)=>{
+            value.emitWbItemDeselected();
+          });
+        }
         drawingLayer.addChild(willBeExtract.group);
         this.wbItemGroup.splice(i, 1);
         this.resetMyItemAdjustor();
@@ -253,6 +273,11 @@ export class ItemGroup extends WhiteboardItem {
       //자식을 drawingLayer로 옮겨줌.
       let willBeExtract = this.wbItemGroup[i];
       willBeExtract.isSelected = false;
+      if(willBeExtract instanceof WhiteboardShape){
+        willBeExtract.linkPortMap.forEach((value, key, map)=>{
+          value.emitWbItemDeselected();
+        });
+      }
       drawingLayer.addChild(willBeExtract.group);
       willBeExtract.refreshItem();
     }
@@ -266,11 +291,14 @@ export class ItemGroup extends WhiteboardItem {
       willBeDestroy.destroyItem();
     }
     this.wbItemGroup.splice(0, this.wbItemGroup.length);
+
+    this.layerService.horizonContextMenuService.close();
     this.resetMyItemAdjustor();
   }
 
 
   destroyItem() {
+    super.destroyItem();
     //unGroup하는 작업 실시
     this.coreItem.remove();
     this.lifeCycleEventEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.DESTROY));
@@ -296,6 +324,17 @@ export class ItemGroup extends WhiteboardItem {
 
   public notifyItemModified() {
     this.lifeCycleEventEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.MODIFY));
+  }
+
+  exportToDto(): ItemGroupDto {
+    let itemGroupDto:ItemGroupDto = super.exportToDto() as ItemGroupDto;
+    itemGroupDto.wbItemIdGroup = new Array<number>();
+
+    for (let i = 0; i < this.wbItemGroup.length; i++) {
+      itemGroupDto.wbItemIdGroup.push(this.wbItemGroup[i].id);
+    }
+
+    return itemGroupDto
   }
 
   public refreshItem() {

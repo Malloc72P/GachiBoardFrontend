@@ -19,6 +19,7 @@
 
 .tool-icon {
   display: inline-block;
+  /* TODO : Highlighter 의 svg 가 표시되지 않는 이유는 viewBox 가 512 인데 width=24 로 리사이징이 되지 않아 안보임 */
   width: 24px;
   height: 24px;
 }

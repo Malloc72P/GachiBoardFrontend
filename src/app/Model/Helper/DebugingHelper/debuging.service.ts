@@ -56,9 +56,15 @@ export class DebugingService {
     this.paperProject = currentProject;
   }
   public logDrawingLayer(){
-    console.log("\n\n=============\n");
+    console.log("\n\nWbItem Array=============\n");
     this.drawingLayerManagerService.whiteboardItemArray.forEach((value, index, array)=>{
-      console.log("DebugingService >> logDrawingLayer >> forEach : ",value);
+      console.log("DebugingService >> logDrawingLayer >> WbItem < "+value.id+" > : ",value);
+    });
+    console.log("\n\n");
+
+    console.log("\n\nWbLink Array=============\n");
+    this.drawingLayerManagerService.editableLinkArray.forEach((value, index, array)=>{
+      console.log("DebugingService >> logDrawingLayer >> WbLink : ",value);
     });
     console.log("\n\n");
   }

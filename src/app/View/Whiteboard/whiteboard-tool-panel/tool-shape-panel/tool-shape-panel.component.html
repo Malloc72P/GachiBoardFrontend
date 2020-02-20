@@ -22,7 +22,7 @@
   <hr>
   <div>
     <svg class="color-selector-svg">
-      <use [attr.xlink:href]="transparencySelectedToHTML()" (click)="onColorPickerClicked(-1)"/>
+      <use [attr.href]="transparencySelectedToHTML()" (click)="onColorPickerClicked(-1)"/>
     </svg>
     <div *ngFor="let color of colors; index as i" class="color-selector {{colorSelectedToHTML(i)}}"
          [style.background-color]="colorToHTMLRGB(color)"
@@ -44,7 +44,7 @@
   <div>
     <div class="shape-selector" *ngFor="let key of shapes" (click)="onShapePickerClicked(key)">
       <svg class="tool-icon">
-        <use [attr.xlink:href]="'/assets/images/tools/shape/' + key.toLowerCase() + '.svg#' + key.toLowerCase()"/>
+        <use [attr.href]="'/assets/images/tools/shape/' + key.toLowerCase() + '.svg#' + key.toLowerCase()"/>
       </svg>
     </div>
   </div>

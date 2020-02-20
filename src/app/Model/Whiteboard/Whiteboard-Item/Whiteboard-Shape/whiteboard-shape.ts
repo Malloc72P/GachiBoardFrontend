@@ -1,28 +1,16 @@
 import {WhiteboardItem} from '../whiteboard-item';
-import {PositionCalcService} from '../../PositionCalc/position-calc.service';
-import {EventEmitter} from '@angular/core';
 
 import * as paper from 'paper';
-// @ts-ignore
-import Path = paper.Path;
-// @ts-ignore
-import Point = paper.Point;
-// @ts-ignore
-import Item = paper.Item;
-// @ts-ignore
-import Segment = paper.Segment;
-// @ts-ignore
-import Color = paper.Color;
-// @ts-ignore
-import PointText = paper.PointText;
-// @ts-ignore
-import Group = paper.Group;
-// @ts-ignore
-import Rectangle = paper.Rectangle;
 import {LinkPort} from './LinkPort/link-port';
 import {LinkPortDirectionEnum} from './LinkPort/LinkPortDirectionEnum/link-port-direction-enum.enum';
+import {Editable} from '../InterfaceEditable/editable';
+import {WhiteboardShapeDto} from '../../../../DTO/WhiteboardItemDto/WhiteboardShapeDto/whiteboard-shape-dto';
+// @ts-ignore
+import Item = paper.Item;
+import {GachiColorDto} from '../../../../DTO/WhiteboardItemDto/ColorDto/gachi-color-dto';
+import {LinkPortDto} from '../../../../DTO/WhiteboardItemDto/WhiteboardShapeDto/LinkPortDto/link-port-dto';
 
-export class WhiteboardShape extends WhiteboardItem {
+export class WhiteboardShape extends WhiteboardItem implements Editable{
   private _width: number;
   private _height: number;
   private _borderColor;
@@ -30,13 +18,14 @@ export class WhiteboardShape extends WhiteboardItem {
   private _fillColor: paper.Color;
   private _opacity: number;
   private _linkPortMap:Map<any,LinkPort>;
-  protected constructor(type, item:Item,layerService) {
-    super(type, item, layerService);
+  protected constructor(id, type, item:Item,layerService) {
+    super(id, type, item, layerService);
     this.topLeft  = item.bounds.topLeft;
     this.width    = item.bounds.width;
     this.height    = item.bounds.height;
     this.borderColor = item.style.strokeColor;
     this.borderWidth = item.style.strokeWidth;
+
     if(item.style.fillColor){
       this.fillColor = item.style.fillColor;
     }else{
@@ -44,11 +33,18 @@ export class WhiteboardShape extends WhiteboardItem {
       this.fillColor = "transparent";
     }
     this.opacity = item.opacity;
-    this.linkPortMap = new Map<any, LinkPort>();
-    for(let i = 0 ; i < 4; i++){
-      this.linkPortMap.set( i, new LinkPort(this,i, this.layerService.posCalcService) );
-    }
+
+    this.initLinkPortMap();
     this.activateShadowEffect();
+  }
+
+  protected initLinkPortMap(){
+    //링크포트 생성
+    this.linkPortMap = new Map<any, LinkPort>();
+    this.linkPortMap.set( LinkPortDirectionEnum.TOP, new LinkPort(this, LinkPortDirectionEnum.TOP) );
+    this.linkPortMap.set( LinkPortDirectionEnum.BOTTOM, new LinkPort(this, LinkPortDirectionEnum.BOTTOM) );
+    this.linkPortMap.set( LinkPortDirectionEnum.LEFT, new LinkPort(this, LinkPortDirectionEnum.LEFT) );
+    this.linkPortMap.set( LinkPortDirectionEnum.RIGHT, new LinkPort(this, LinkPortDirectionEnum.RIGHT) );
   }
 
 
@@ -58,11 +54,6 @@ export class WhiteboardShape extends WhiteboardItem {
 
   set linkPortMap(value: Map<any, LinkPort>) {
     this._linkPortMap = value;
-  }
-  public notifyOwnerChangeEventToLinkPort(){
-    this.linkPortMap.forEach((value, key, map)=>{
-      value.onOwnerChanged();
-    })
   }
   public getDirectionPoint(direction){
     switch (direction) {
@@ -74,22 +65,38 @@ export class WhiteboardShape extends WhiteboardItem {
         return this.group.bounds.leftCenter;
       case LinkPortDirectionEnum.RIGHT :
         return this.group.bounds.rightCenter;
+      case LinkPortDirectionEnum.CENTER_TOP :
+        return this.group.bounds.topCenter;
+      case LinkPortDirectionEnum.BOTTOM_LEFT :
+        return this.group.bounds.bottomLeft;
+      case LinkPortDirectionEnum.BOTTOM_RIGHT :
+        return this.group.bounds.bottomRight;
     }
   }
   public getClosestLinkPort(point){
     let centerOfToWbShape = point;
 
-    let closestDirection = 0;
-    let closestDistance = this.layerService.posCalcService
-      .calcPointDistanceOn2D(centerOfToWbShape, this.group.bounds.topCenter);
-    for(let i = 1 ; i < 4; i++){
+    let closestDirection = -1;
+    let closestDistance;
+
+    this.linkPortMap.forEach((value, key, map)=>{
+      if(closestDirection === -1){
+        closestDistance = this.layerService.posCalcService
+          .calcPointDistanceOn2D(centerOfToWbShape, this.group.bounds.topCenter);
+        closestDirection = value.direction;
+        return;
+      }
+
       let newDistance = this.layerService.posCalcService
-        .calcPointDistanceOn2D(centerOfToWbShape, this.getDirectionPoint(i));
+        .calcPointDistanceOn2D(centerOfToWbShape, this.getDirectionPoint(value.direction));
+
       if(newDistance < closestDistance){
-        closestDirection = i;
+        closestDirection = value.direction;
         closestDistance = newDistance;
       }
-    }
+
+    });
+
     return closestDirection;
   }
 
@@ -103,12 +110,32 @@ export class WhiteboardShape extends WhiteboardItem {
   }
 
   destroyItem() {
+    super.destroyItem();
     if(this.linkPortMap){
       this.linkPortMap.forEach((value, key, map)=>{
         value.destroyPortAndLink();
       })
     }
 
+  }
+  exportToDto(): WhiteboardShapeDto {
+    let wbShapeDto:WhiteboardShapeDto = super.exportToDto() as WhiteboardShapeDto;
+
+    let bounds = this.coreItem.bounds;
+    let linkPortsDto = new Array<LinkPortDto>();
+    this.linkPortMap.forEach((value, key, map)=>{
+      linkPortsDto.push(value.exportToDto());
+    });
+
+    wbShapeDto.width = bounds.width;
+    wbShapeDto.height = bounds.height;
+    wbShapeDto.borderColor = GachiColorDto.createColor(this.coreItem.strokeColor);
+    wbShapeDto.borderWidth = this.coreItem.strokeWidth;
+    wbShapeDto.fillColor = GachiColorDto.createColor(this.coreItem.fillColor);
+    wbShapeDto.opacity = this.coreItem.opacity;
+    wbShapeDto.linkPortsDto = linkPortsDto;
+
+    return wbShapeDto;
   }
 
   get width(): number {
@@ -158,4 +185,5 @@ export class WhiteboardShape extends WhiteboardItem {
   set opacity(value: number) {
     this._opacity = value;
   }
+
 }

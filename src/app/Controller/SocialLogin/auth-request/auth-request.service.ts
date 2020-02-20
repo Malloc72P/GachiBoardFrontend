@@ -1,28 +1,30 @@
-import { Injectable } from '@angular/core';
-import { HttpHelper } from '../../../Model/Helper/http-helper/http-helper';
-import { RouterHelperService } from '../../../Model/Helper/router-helper-service/router-helper.service';
-import { UserDTO } from '../../../DTO/user-dto';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import {EventEmitter, Injectable, Output} from '@angular/core';
+import {HttpHelper} from '../../../Model/Helper/http-helper/http-helper';
+import {RouterHelperService} from '../../../Model/Helper/router-helper-service/router-helper.service';
+import {UserDTO} from '../../../DTO/user-dto';
+
+
+import {ApiRequesterService} from '../api-requester/api-requester.service';
+import {Observable} from 'rxjs';
+import {AuthEvent, AuthEventEnum} from './AuthEvent/AuthEvent';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthRequestService {
-  private baseUrl: string = HttpHelper.apiUrl;
-  public semUserInfo: boolean = false;
+  @Output() authEventEmitter:EventEmitter<any> = new EventEmitter<any>();
 
-  private userInfo: UserDTO = {
-    idToken     : '',
-    email       : '',
-    userName    : '',
-    authToken   : ''
-  };
+  private userInfo:UserDTO;
 
   constructor(
-    private http: HttpClient,
-    private routerHelper: RouterHelperService
+    private routerHelper: RouterHelperService,
+    private apiRequester: ApiRequesterService
   ) { }
+
+  public checkLoggedInUser(){
+    let accessToken = localStorage.getItem('accessToken');
+    return !!accessToken;
+  }
 
   public getAccessToken(){
     let accessToken = localStorage.getItem('accessToken');
@@ -32,7 +34,7 @@ export class AuthRequestService {
       return accessToken;
     }
   }
-  public setAccessToken(token){
+  public setAuthToken(token){
     localStorage.setItem('accessToken', token);
   }
   public setUserInfo(userInfo: UserDTO){
@@ -42,32 +44,10 @@ export class AuthRequestService {
     return this.userInfo;
   }
 
-  // TODO : get, post 분리시켜서 재사용성 올릴 수 있음 (선택)
-  //###### Pure Method
-  public get(url, params = null): Observable<any> {
-    return this.http.get(this.baseUrl + url, {
-      params: params,
-      headers: new HttpHeaders({
-        'Content-Type': HttpHelper.getContentType()
-      }),
-      responseType: 'json'
-    });
-  }
-
-  public post(url, params = null): Observable<any> {
-    return this.http.post(this.baseUrl + url, params, {
-      headers: new HttpHeaders({
-        'Content-Type': HttpHelper.getContentType()
-      }),
-      responseType: 'json'
-    });
-  }
-
   //###### Custom Method
   signOut(){
-    this.post(HttpHelper.api.signOut.uri,{})
+    this.apiRequester.post(HttpHelper.api.signOut.uri,{})
       .subscribe(()=>{
-        console.log("PaperMainComponent >> signOut >> 진입함");
         this.signOutProcess();
       },(error)=>{
         console.error(error);
@@ -75,15 +55,49 @@ export class AuthRequestService {
       });
 
   }
-  signOutProcess(){
-    this.setAccessToken("");
-    this.routerHelper.goToLoginPage();
+
+  private removeAccessToken(){
+    localStorage.removeItem("accessToken");
+  }
+
+  public signOutProcess(){
+    this.removeAccessToken();
+    this.authEventEmitter.emit(
+      new AuthEvent(AuthEventEnum.SIGN_OUT, this.userInfo)
+    );
+    this.routerHelper.goToHomePage();
   }
 
   //  현재 가지고 있는 토큰이 validate한지 검사함.
   //  보안상 의미있는 작업이 아님. 내 토큰이 쓸 수 있는지 확인하고,
   //  못쓰면 로그인창으로 보내줄 뿐임.
-  protectedApi(){
-    return this.post( HttpHelper.api.protected.uri );
+  protectedApi() :Observable<UserDTO>{
+    return new Observable<UserDTO>((observer)=>{
+
+      let accessToken = localStorage.getItem('accessToken');
+      this.setAuthToken(accessToken);
+      this.apiRequester.post( HttpHelper.api.protected.uri )
+        .subscribe((data)=>{
+          console.log("AuthRequestService >>  >> data : ",data);
+          let userDto:UserDTO = new UserDTO(
+            data.userDto._id,
+            data.userDto.email,
+            data.userDto.regDate,
+            data.userDto.idToken,
+            data.userDto.accessToken,
+            data.userDto.userName,
+            data.userDto.profileImg
+          );
+          userDto.participatingProjects = data.userDto.participatingProjects;
+
+          console.log("AuthRequestService >>  >> userDto : ",userDto);
+          this.setUserInfo(userDto);
+          this.authEventEmitter.emit(new AuthEvent(AuthEventEnum.SIGN_IN, userDto));
+          observer.next(userDto);
+        }, (error)=>{
+          console.warn("AuthRequestService >>  >> error : ", error);
+          this.signOutProcess();
+        });
+    });
   }
 }

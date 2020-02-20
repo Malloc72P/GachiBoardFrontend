@@ -1,0 +1,85 @@
+.wb-card-wrapper{
+  display: inline-block;
+  width: 98%;
+  min-width: 340px;
+  height: 280px;
+  padding: 0;
+  transition: 0.2s;
+}
+.wb-card-wrapper:hover{
+  box-shadow: 0px 3px 18px -3px rgba(0,0,0,0.75);
+}
+.wb-card-outer-wrapper{
+  display: inline-block;
+  user-select: none;
+}
+
+.wb-card-content-wrapper{
+  width: 100%;
+  height: 170px;
+  margin: 0;
+  border-top-left-radius: 5px;
+  border-top-right-radius: 5px;
+  transition: 0.2s;
+  cursor: pointer;
+}
+
+.wb-card-header-wrapper{
+  display: flex;
+  flex-flow: column;
+  height: 100px;
+  padding: 0;
+  opacity: 0.8;
+}
+.wb-card-bottom-row{
+  flex: 1;
+}
+.wb-card-title{
+  display: flex;
+  flex-flow: row;
+  font-size: 18px;
+  line-height: 52px;
+  padding-left: 7px;
+}
+.wb-card-subtitle{
+  display: flex;
+  flex-flow: row;
+  font-size: 18px;
+  line-height: 52px;
+  padding-left: 16px;
+}
+.wb-bottom-spacer{
+  flex: 1 1 auto;
+}
+.wb-card-profile-image{
+  width: 80px;
+  display: inline-block;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%) ;
+  filter: opacity(80%) grayscale(80%);
+}
+
+.wb-card-participant-wrapper{
+  position: absolute;
+  top: 0;
+  right: 0;
+}
+
+
+.wb-card-hidden{
+  opacity: 0;
+  /*visibility: hidden;*/
+}
+.wb-card-show{
+  opacity: 1;
+  /*visibility: visible;*/
+}
+.wb-card-title-button{
+  padding: 8px 12px;
+  min-width: 42px;
+}
+.wb-card-enter-button{
+  margin-right: 12px;
+}

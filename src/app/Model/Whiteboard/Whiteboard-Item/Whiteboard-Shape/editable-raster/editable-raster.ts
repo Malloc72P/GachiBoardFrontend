@@ -16,13 +16,32 @@ import {EventEmitter} from '@angular/core';
 import {WhiteboardShape} from '../whiteboard-shape';
 import {ItemLifeCycleEnum, ItemLifeCycleEvent} from '../../WhiteboardItemLifeCycle/WhiteboardItemLifeCycle';
 import {PositionCalcService} from '../../../PositionCalc/position-calc.service';
+import {EditableRasterDto} from '../../../../../DTO/WhiteboardItemDto/WhiteboardShapeDto/EditableRasterDto/editable-raster-dto';
+import {EditableShapeDto} from '../../../../../DTO/WhiteboardItemDto/WhiteboardShapeDto/EditableShapeDto/editable-shape-dto';
+import {WhiteboardItemType} from '../../../../Helper/data-type-enum/data-type.enum';
 
 export abstract class EditableRaster extends WhiteboardShape {
   private _imageBlob: string;
-  protected constructor(type, item:Raster,layerService) {
-    super(type, item, layerService);
+  protected constructor(id, type, item,layerService) {
+    super(id, type, item, layerService);
     // @ts-ignore
-    this.imageBlob = item.image.src;
+    if(item instanceof Raster){
+      // @ts-ignore
+      this.imageBlob = item.image.src;
+    }else this.imageBlob = null;
+    this.notifyItemCreation();
+  }
+
+  public doLazyImageLoad(rasterObject){
+    let willBeDeleted = this.coreItem;
+    if (willBeDeleted) {
+      willBeDeleted.remove();
+    }
+
+    this.coreItem = rasterObject;
+
+    this.group.addChild(this.coreItem);
+    this.imageBlob = rasterObject.image.src
   }
 
   notifyItemCreation() {
@@ -33,13 +52,13 @@ export abstract class EditableRaster extends WhiteboardShape {
   notifyItemModified() {
     console.log("EditableRaster >> notifyItemModified >> 진입함");
     this.lifeCycleEventEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.MODIFY));
-    this.notifyOwnerChangeEventToLinkPort();
+    /*this.notifyOwnerChangeEventToLinkPort();*/
   }
 
   refreshItem() {
     console.log("EditableRaster >> refreshItem >> 진입함");
     this.lifeCycleEventEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.MODIFY));
-    this.notifyOwnerChangeEventToLinkPort();
+    /*this.notifyOwnerChangeEventToLinkPort();*/
   }
 
   destroyItem() {
@@ -48,6 +67,13 @@ export abstract class EditableRaster extends WhiteboardShape {
     this.coreItem.remove();
     this.group.remove();
     this.lifeCycleEventEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.DESTROY));
+  }
+
+  exportToDto(): EditableRasterDto {
+    let editableRasterDto:EditableRasterDto =  super.exportToDto() as EditableRasterDto;
+    editableRasterDto.imageBlob = this.imageBlob;
+    return editableRasterDto;
+
   }
 
 

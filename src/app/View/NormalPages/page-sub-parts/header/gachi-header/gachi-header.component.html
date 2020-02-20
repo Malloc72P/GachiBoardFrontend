@@ -1,0 +1,11 @@
+<header class="header-wrapper">
+  <mat-toolbar class="header-toolbar"
+               [ngStyle]="isHomeMode() === true && {'border-radius' : '15px'}">
+    <span (click)="onLogoClick()" class="header-logo">GachiBoard</span>
+
+    <app-right-button-group [headerMode]="headerMode"
+                            style="width: 100%">
+    </app-right-button-group>
+
+  </mat-toolbar>
+</header>

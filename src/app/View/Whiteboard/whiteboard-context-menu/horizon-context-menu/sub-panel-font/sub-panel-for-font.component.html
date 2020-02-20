@@ -1,0 +1,54 @@
+<div id="horizonContextMenu-Line" class="context-menu-wrapper"
+     [hidden]="isHiddenSubPanel.isHidden(horizonContextMenuActions.FONT_STYLE)"
+     [style.left]="centerTop.x + 'px'"
+     [style.top]="centerTop.y + 47 + 'px'">
+  <mat-card class="sub-panel-wrapper">
+    <form [formGroup]="fontStyle">
+      <div class="font-family-wrapper">
+        <mat-form-field class="fit">
+          <mat-label>Style</mat-label>
+          <mat-select formControlName="family">
+            <mat-option value="hi">Hi</mat-option>
+            <mat-option value="hello">Hello</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+      <div class="font-weight-wrapper">
+        <mat-form-field class="size-wrapper divide-two">
+          <mat-label>Size</mat-label>
+          <input matInput type="number" [value]="fontSize" (change)="onChangeFontSize()"
+                 min="10" max="100" formControlName="size">
+        </mat-form-field>
+        <mat-button-toggle-group multiple class="divide-two" (change)="onChangeFontWeight($event)">
+          <mat-button-toggle value="bold" [checked]="isBold">
+            <svg xmlns="http://www.w3.org/2000/svg" class="button-icon" viewBox="0 0 24 24">
+              <use href="/assets/images/context-menu/font-weight.svg#bold"/>
+            </svg>
+          </mat-button-toggle>
+          <mat-button-toggle value="italic" [checked]="isItalic">
+            <svg xmlns="http://www.w3.org/2000/svg" class="button-icon" viewBox="0 0 24 24">
+            <use href="/assets/images/context-menu/font-weight.svg#italic"/>
+            </svg>
+          </mat-button-toggle>
+        </mat-button-toggle-group>
+      </div>
+    </form>
+    <div class="font-color-wrapper">
+      <div *ngFor="let color of colors; index as i" class="selector {{colorSelectedToHTML(i)}}"
+           [style.background-color]="colorToHTMLRGB(i)"
+           (click)="onColorPickerClicked(i)">
+      </div>
+      <div class="selector-add"
+           [cpOKButton]="true"
+           [(colorPicker)]="colorPickerPicked"
+           cpOutputFormat="rgba"
+           cpAlphaChannel="disabled"
+           (colorPickerSelect)="onAddColorClicked()">
+        <svg viewBox="0 0 24 24"
+             xmlns="http://www.w3.org/2000/svg" fill-rule="evenodd" clip-rule="evenodd">
+          <path d="M12 2c5.514 0 10 4.486 10 10s-4.486 10-10 10-10-4.486-10-10 4.486-10 10-10zm0-2c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm6 13h-5v5h-2v-5h-5v-2h5v-5h2v5h5v2z"/>
+        </svg>
+      </div>
+    </div>
+  </mat-card>
+</div>

@@ -65,7 +65,8 @@ export class HighlighterService {
   }
   public endPath() {
     if(this.newPath != null) {
-      this.newPath.simplify(3);
+      //this.newPath.simplify(1);
+      this.newPath.smooth({ type: 'catmull-rom', factor: 0.5 });
       this.layerService.addToDrawingLayer(this.newPath, WhiteboardItemType.HIGHLIGHT_STROKE);
       this.newPath = null;
     }

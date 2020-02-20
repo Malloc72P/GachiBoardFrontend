@@ -1,26 +1,22 @@
 import {EditableStroke} from '../editable-stroke';
 
 import * as paper from 'paper';
+import {WhiteboardItemType} from '../../../../Helper/data-type-enum/data-type.enum';
+import {HighlightStrokeDto} from '../../../../../DTO/WhiteboardItemDto/EditableStrokeDto/HighlightStrokeDto/highlight-stroke-dto';
 // @ts-ignore
 import Path = paper.Path;
-// @ts-ignore
-import Point = paper.Point;
-// @ts-ignore
-import Item = paper.Item;
-// @ts-ignore
-import Segment = paper.Segment;
-// @ts-ignore
-import Color = paper.Color;
-import {EventEmitter} from '@angular/core';
-import {WhiteboardItemType} from '../../../../Helper/data-type-enum/data-type.enum';
 
 export class HighlightStroke extends EditableStroke {
   private _opacity: number;
-  constructor(path:Path, layerService) {
-    super(WhiteboardItemType.HIGHLIGHT_STROKE,
+  constructor(id, path:Path, layerService) {
+    super(id, WhiteboardItemType.HIGHLIGHT_STROKE,
             path,
             layerService);
 
+  }
+
+  public exportToDto(): HighlightStrokeDto {
+    return super.exportToDto() as HighlightStrokeDto;
   }
 
   get opacity(): number {

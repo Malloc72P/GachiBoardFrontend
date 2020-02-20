@@ -85,8 +85,7 @@ export class NormalPointerService {
     let delta = this.posCalcService.reflectZoomWithPoint(
       new Point( -event.movementX, -event.movementY )
     );
-    // @ts-ignore
-    paper.view.scrollBy(delta);
+    this.infiniteCanvasService.moveWithDelta(delta);
     this.infiniteCanvasService.solveDangerState();
   }
 
@@ -100,7 +99,7 @@ export class NormalPointerService {
     let delta = new Point( -calcX, -calcY );
 
     // @ts-ignore
-    paper.view.scrollBy(delta);
+    this.infiniteCanvasService.moveWithDelta(delta);
     this.infiniteCanvasService.solveDangerState();
 
     this.prevTouchPoint.x = endPoint.x;

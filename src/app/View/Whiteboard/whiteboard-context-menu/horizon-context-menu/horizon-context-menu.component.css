@@ -1,0 +1,55 @@
+.context-menu-wrapper {
+  position: absolute;
+  transform: translate(-50%, 0);
+}
+
+.context-panel-wrapper {
+  padding: 0;
+  white-space: nowrap;
+}
+
+.context-menu-button {
+  min-width: 36px;
+  min-height: 36px;
+  padding: 0;
+}
+
+.button-icon {
+  display: inline;
+  width: 24px;
+  height: 24px;
+}
+
+.context-menu-wrapper {
+  position: absolute;
+  z-index: 500;
+  transform: translate(-50%, 0);
+}
+
+.sub-panel-wrapper {
+  padding: 8px;
+  width: 128px;
+}
+
+.selector {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border-radius: 15px;
+  cursor: pointer;
+  margin: 5px;
+}
+
+.selector-add {
+  transform: translate(0, -5px);
+  display: inline-block;
+  fill: lightgray;
+  cursor: pointer;
+  width: 20px;
+  height: 20px;
+  margin: 5px;
+}
+
+.selected {
+  box-shadow: 0 0 0 2px white, 0 0 0 4px #4262ff;
+}

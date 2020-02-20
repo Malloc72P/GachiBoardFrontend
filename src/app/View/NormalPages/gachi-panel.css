@@ -1,0 +1,26 @@
+.gachi-form {
+  min-width: 150px;
+  max-width: 500px;
+  width: 100%;
+}
+.gachi-full-width {
+  width: 100%;
+}
+.gachi-form-wrapper{
+  padding: 25px 12px;
+}
+
+.gachi-button-wrapper{
+  display: flex;
+  flex-flow: row-reverse;
+}
+.gachi-divider{
+  margin-top: 16px;
+  margin-bottom: 16px;
+}
+.gachi-form-field{
+  margin-bottom: 15px;
+}
+.gachi-icon {
+  padding: 0 14px;
+}

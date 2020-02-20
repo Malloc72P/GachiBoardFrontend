@@ -23,6 +23,7 @@ import {PositionCalcService} from '../../../PositionCalc/position-calc.service';
 import {EventEmitter} from '@angular/core';
 import {ItemLifeCycleEnum, ItemLifeCycleEvent} from '../../WhiteboardItemLifeCycle/WhiteboardItemLifeCycle';
 import {WhiteboardShape} from '../whiteboard-shape';
+import {EditableShapeDto} from '../../../../../DTO/WhiteboardItemDto/WhiteboardShapeDto/EditableShapeDto/editable-shape-dto';
 
 export abstract class EditableShape extends WhiteboardShape {
   private _textContent: string;
@@ -33,8 +34,8 @@ export abstract class EditableShape extends WhiteboardShape {
   private static readonly EDIT_TEXT_PADDING = 5;
   private _isEditing: boolean;
 
-  protected constructor(type, item: Item, textStyle, editText, layerService) {
-    super(type, item, layerService);
+  protected constructor(id, type, item: Item, textStyle, editText, layerService) {
+    super(id, type, item, layerService);
     this.topLeft = new Point(item.bounds.topLeft.x, item.bounds.topLeft.y);
     this.width = item.bounds.width;
     this.height = item.bounds.height;
@@ -65,6 +66,11 @@ export abstract class EditableShape extends WhiteboardShape {
         }
       }
     };//onFrame
+    this.textStyle.changed.subscribe(() => {
+      console.log("EditableShape >> textStyle >> Changed");
+      this.refreshItem();
+    });
+    this.notifyItemCreation();
   }
 
   public notifyItemModified() {
@@ -86,7 +92,7 @@ export abstract class EditableShape extends WhiteboardShape {
     this.textBound = new Rectangle(this.editText.bounds);
 
     this.lifeCycleEventEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.MODIFY));
-    this.notifyOwnerChangeEventToLinkPort();
+    //this.notifyOwnerChangeEventToLinkPort();
   }
 
   public notifyItemCreation() {
@@ -105,17 +111,17 @@ export abstract class EditableShape extends WhiteboardShape {
 
   public refreshItem() {
     console.log('EditableShape >> refreshItem >> 진입함');
-    let newtopLeft = new Point(this.group.bounds.topLeft.x, this.group.bounds.topLeft.y);
+    let newTopLeft = new Point(this.group.bounds.topLeft.x, this.group.bounds.topLeft.y);
 
-    let newWidth = this.group.bounds.width + 0;
-    let newHeight = this.group.bounds.height + 0;
+    let newWidth = this.group.bounds.width;
+    let newHeight = this.group.bounds.height;
 
     this.group.matrix.reset();
     this.editText.matrix.reset();
 
     this.coreItem.bounds.width = newWidth;
     this.coreItem.bounds.height = newHeight;
-    this.coreItem.bounds.topLeft = newtopLeft;
+    this.coreItem.bounds.topLeft = newTopLeft;
 
     this.group.addChild(this.editText);
     this.group.addChild(this.coreItem);
@@ -130,17 +136,16 @@ export abstract class EditableShape extends WhiteboardShape {
     let adjustedTextContent = this.getAdjustedTextContent(
       convertedText,
       this.layerService.posCalcService.advConvertLengthNgToPaper(this.coreItem.bounds.width),
-      this.layerService.posCalcService.advConvertLengthNgToPaper(this.coreItem.bounds.height));
+      this.layerService.posCalcService.advConvertLengthNgToPaper(this.coreItem.bounds.height),
+      this.textStyle
+    );
 
     this.modifyEditText(adjustedTextContent, this.rawTextContent);
-
-    //this.topLeft.x = this.coreItem.bounds.topLeft.x;
-    //this.topLeft.y = this.coreItem.bounds.topLeft.y;
 
     this.editText.bringToFront();
 
     this.lifeCycleEventEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.MODIFY));
-    this.notifyOwnerChangeEventToLinkPort();
+    //this.notifyOwnerChangeEventToLinkPort();
   }
 
   public modifyEditText(content, rawContent) {
@@ -154,23 +159,22 @@ export abstract class EditableShape extends WhiteboardShape {
     this.editText.fontFamily = this.textStyle.fontFamily;
     this.editText.fontSize = this.textStyle.fontSize;
     this.editText.fontWeight = this.textStyle.fontWeight;
+    this.editText.fillColor = new Color(this.textStyle.fontColor);
 
     this.textBound = new Rectangle(this.editText.bounds);
 
     this.editText.bringToFront();
   }
 
-  private getAdjustedTextContent(text: string, width: number, height: number) {
+  private getAdjustedTextContent(text: string, width: number, height: number, textStyle: TextStyle) {
     let calcText = '';
     let charWidth;
     let calcWidth = 0;
     let charHeight;
     let calcHeight = 0;
 
-    width -= EditableShape.EDIT_TEXT_PADDING * 2;
-    height -= EditableShape.EDIT_TEXT_PADDING * 2;
-
-    let textStyle = new TextStyle();
+    width -= EditableShape.EDIT_TEXT_PADDING * 2 + 2;
+    height -= EditableShape.EDIT_TEXT_PADDING * 2 + 2;
 
     if (text === '') {
       calcText = '';
@@ -231,6 +235,15 @@ export abstract class EditableShape extends WhiteboardShape {
     tempPointText.remove();
 
     return this.layerService.posCalcService.advConvertLengthNgToPaper(width);
+  }
+
+  exportToDto(): EditableShapeDto {
+    let editableShapeDto:EditableShapeDto =  super.exportToDto() as EditableShapeDto;
+    editableShapeDto.textContent = this.textContent;
+    editableShapeDto.rawTextContent = this.rawTextContent;
+    editableShapeDto.textStyle = this.textStyle.clone();
+    // editableShapeDto.textStyle = this.textStyle;
+    return editableShapeDto;
   }
 
   get textContent(): string {

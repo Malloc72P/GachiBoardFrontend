@@ -4,7 +4,15 @@ class ApiRequest {
     this.requestType = requestType;
   }
   public uri: string;
-  public requestType: number;
+  public requestType: ApiRequestTypeEnum;
+}
+class WebSocketRequest {
+  constructor(event, requestType){
+    this.event = event;
+    this.requestType = requestType;
+  }
+  public event: string;
+  public requestType: WebSocketTypeEnum;
 }
 export enum ApiRequestTypeEnum {
   GET,
@@ -13,6 +21,17 @@ export enum ApiRequestTypeEnum {
   DELETE,
   REDIRECT
 }
+export enum WebSocketTypeEnum {
+  CREATE,
+  CREATE_TAG,
+  READ,
+  UPDATE,
+  DELETE,
+  DELETE_TAG,
+  RELOCATE,
+  LOCK,
+  UNLOCK,
+}
 
 export class HttpHelper {
   //TODO 이런거 json으로 뽑을 수 있으면 뽑아야 함.
@@ -20,6 +39,7 @@ export class HttpHelper {
   private static readonly ngPort              =   ":44172";
   private static readonly apiServerDomainName =   "http://skynet765.iptime.org";
   private static readonly apiServerPort       =   ":44174";
+
   // private static readonly apiServerPort       =   ":5858";
   private static readonly contentType         =   'application/json; charset=utf-8';
   private static readonly tokenType           =   'bearer ';
@@ -39,7 +59,62 @@ export class HttpHelper {
     signOut: new ApiRequest(
       "/auth/signOut", ApiRequestTypeEnum.POST
     ),
+    project : {
+      create : new ApiRequest(
+        "/project", ApiRequestTypeEnum.POST
+      ),
+      getList : new ApiRequest(
+        "/project", ApiRequestTypeEnum.GET
+      ),
+      generateInviteCode : new ApiRequest(
+        "/inviteCode", ApiRequestTypeEnum.POST
+      ),
+      submitInviteCode : new ApiRequest(
+        "/inviteCode", ApiRequestTypeEnum.GET
+      ),
+      invitation : new ApiRequest(
+        "/invitation", ApiRequestTypeEnum.REDIRECT
+      )
+    }
   };
+
+  public static readonly websocketApi = {
+    project : {
+      joinProject : new WebSocketRequest(
+        "project_join",WebSocketTypeEnum.READ
+      )
+    },
+    kanban : {
+      create : new WebSocketRequest(
+        "kanban_create", WebSocketTypeEnum.CREATE
+      ),
+      create_tag : new WebSocketRequest(
+        "kanban_create_tag", WebSocketTypeEnum.CREATE_TAG
+      ),
+      update : new WebSocketRequest(
+        "kanban_update", WebSocketTypeEnum.UPDATE
+      ),
+      delete : new WebSocketRequest(
+        "kanban_delete", WebSocketTypeEnum.DELETE
+      ),
+      delete_tag : new WebSocketRequest(
+        "kanban_delete_tag", WebSocketTypeEnum.DELETE_TAG
+      ),
+      relocate : new WebSocketRequest(
+        "kanban_relocate", WebSocketTypeEnum.RELOCATE
+      ),
+      lock : new WebSocketRequest(
+        "kanban_lock", WebSocketTypeEnum.LOCK
+      ),
+      unlock : new WebSocketRequest(
+        "kanban_unlock", WebSocketTypeEnum.UNLOCK
+      ),
+      read : new WebSocketRequest(
+        "kanban_read", WebSocketTypeEnum.READ
+      ),
+    }
+  };
+
 
   public static getContentType(){
     return HttpHelper.contentType;

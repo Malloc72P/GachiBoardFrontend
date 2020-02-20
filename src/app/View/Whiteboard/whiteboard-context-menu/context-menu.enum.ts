@@ -12,6 +12,8 @@ export enum RasterContextMenu {
 export enum GroupContextMenu {
   EDIT = "Edit",
   DELETE = "Delete",
+  COPY = "copy",
+  PASTE = "paste",
 }
 
 export enum StrokeContextMenu {
@@ -20,4 +22,5 @@ export enum StrokeContextMenu {
 
 export enum ContextMenu {
   ADD_IMAGE = "Add image",
+  PASTE = "paste",
 }

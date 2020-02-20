@@ -1,0 +1,65 @@
+<div>
+  <mat-toolbar color="{{kanbanGroup.groupColor}}">
+    <mat-toolbar-row>
+        <span>
+          <mat-icon class="example-icon"
+                    aria-hidden="false"
+                    aria-label="kanban title edit button">add_circle
+          </mat-icon>
+          칸반 작성하기
+        </span>
+      <span class="flex-spacer"></span>
+      <button mat-button color="Basic"
+              (click)="onNoClick()">
+        <mat-icon class="example-icon"
+                  aria-hidden="false"
+                  aria-label="kanban close button">close</mat-icon>
+      </button>
+    </mat-toolbar-row>
+  </mat-toolbar>
+  <div class="kanban-item-edit-content">
+    <form #kanbanCreateForm
+          (ngSubmit)="onSubmit()"
+          [formGroup]="kanbanCreateFormGroup"
+          class="example-form">
+      <!--#1 타이틀 변경-->
+      <mat-form-field class="example-full-width">
+        <input matInput placeholder="Kanban title"
+               formControlName="title">
+        <mat-error *ngIf="kanbanCreateFormGroup.get('title').hasError('required')">
+          title is <strong>required</strong>
+        </mat-error>
+      </mat-form-field>
+
+      <!--#2 색상 변경-->
+      <mat-form-field>
+        <mat-label>Kanban Color</mat-label>
+        <mat-select formControlName="color" value="0">
+          <mat-option *ngFor="let color of colorService.getEnumEntryArray()"
+                      value="{{color}}">{{colorService.getEnumData()[color]}}</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <br/>
+
+      <!--#3 사용자 변경-->
+      <mat-form-field class="kanban-create-form-field">
+        <mat-label>Task Manager</mat-label>
+        <mat-select formControlName="user">
+          <mat-option *ngFor="let userData of userManagerService.getUserList()"
+                      value="{{userData.userName}}">{{userData.userName}}</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+
+
+
+
+      <mat-divider class="kanban-item-edit-divider"></mat-divider>
+      <div class="kanban-item-edit-button-wrapper">
+        <button mat-button type="button" (click)="onNoClick()">Cancel</button>
+        <button mat-button type="submit" [disabled]="!kanbanCreateFormGroup.valid">Create</button>
+      </div>
+    </form>
+  </div>
+</div>

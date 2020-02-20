@@ -1,0 +1,21 @@
+<mat-nav-list class="sidebar-wrapper">
+
+  <mat-list-item>
+    <button  class="sidebar-close"
+             (click)="sidebarManagerService.toggleRightSidebar()"
+             mat-button><mat-icon>close</mat-icon></button>
+  </mat-list-item>
+
+
+
+  <a mat-list-item *ngIf="isLoggedIn==false"
+     routerLink="/login" class="sidebar-sub">Sign In</a>
+  <a mat-list-item *ngIf="isLoggedIn==false"
+     routerLink="/login" class="sidebar-sub">Sign Up </a>
+
+  <a mat-list-item *ngIf="isLoggedIn==true"
+     routerLink="/mainpage" class="sidebar-sub">My Project</a>
+  <a mat-list-item *ngIf="isLoggedIn==true"
+     routerLink="/signout" class="sidebar-sub">Sign Out</a>
+
+</mat-nav-list>

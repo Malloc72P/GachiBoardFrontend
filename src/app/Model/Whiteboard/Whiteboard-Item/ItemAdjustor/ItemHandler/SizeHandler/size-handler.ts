@@ -18,11 +18,16 @@ export class SizeHandler extends ItemHandler{
   private ratio = { width: 0, height: 0 };
   private adjustSizeFrom:Point;
   private adjustSizeTo:Point;
-  protected onMouseDown(event) {
+
+
+
+  public onMouseDown(event) {
     this.initSizingDataBeforeResizing();
+    // TODO : HorizonContextMenuService Test Code
+    this.owner.layerService.horizonContextMenuService.close();
   }
 
-  protected onMouseDrag(event) {
+  public onMouseDrag(event) {
     let resizePoint = event.point;
     let minSize = 5;
     let selectedGroup = this.owner.layerService.globalSelectedGroup.group;
@@ -50,8 +55,10 @@ export class SizeHandler extends ItemHandler{
     this.owner.myItemAdjustor.refreshItemAdjustorSize();
   }
 
-  protected onMouseUp(event) {
+  public onMouseUp(event) {
     this.owner.refreshItem();
+    // TODO : HorizonContextMenuService Test Code
+    this.owner.layerService.horizonContextMenuService.open();
   }
 
   private initSizingDataBeforeResizing() {
@@ -61,6 +68,14 @@ export class SizeHandler extends ItemHandler{
 
     this.adjustSizeTo = this.getHandlerPosition(this.handlerDirection);
     this.adjustSizeFrom = this.getOppositeHandlerPosition(this.handlerDirection);
+  }
+
+  public onMouseEnter() {
+    this.owner.layerService.cursorChanger.changeResize(this.handlerDirection);
+  }
+
+  public onMouseLeave() {
+    this.owner.layerService.cursorChanger.syncCurrentPointerMode(this.owner.layerService.currentPointerMode);
   }
 
 }

@@ -1,4 +1,4 @@
-import {Component, Inject, OnInit} from '@angular/core';
+import {Component, Inject, Input, OnInit} from '@angular/core';
 import {ZoomControlService} from '../../../Model/Whiteboard/InfiniteCanvas/ZoomControl/zoom-control.service';
 import {InfiniteCanvasService} from '../../../Model/Whiteboard/InfiniteCanvas/infinite-canvas.service';
 import {PositionCalcService} from '../../../Model/Whiteboard/PositionCalc/position-calc.service';
@@ -41,13 +41,14 @@ class MinimapElement{
   styleUrls: ['./whiteboard-minimap.component.css']
 })
 export class WhiteboardMinimapComponent implements OnInit {
+  @Input() currentProject: Project;
+
   private elem;
   private htmlCanvasObject: HTMLCanvasElement;
   private htmlCanvasObjectWrapper: HTMLDivElement;
-  private currentProject;
-  private minimapProject;
+  private minimapScope;
 
-  private maplayer;
+  private mapLayer;
   private cursorLayer;
 
   private isFullScreen = false;
@@ -63,10 +64,10 @@ export class WhiteboardMinimapComponent implements OnInit {
   ) {
     this.minimapSyncService.changeMinimap.subscribe(()=>{
 
-      if(this.minimapProject){
-        this.minimapProject.activate();
+      if(this.minimapScope){
+        //this.minimapScope.activate();
 
-        this.maplayer.removeChildren();
+        this.mapLayer.removeChildren();
 
 
         let originChildren = this.layerService.whiteboardItemArray;
@@ -78,13 +79,13 @@ export class WhiteboardMinimapComponent implements OnInit {
           newRect.fillColor = "blue";
           newRect.opacity = 0.1;
 
-          this.maplayer.addChild(newRect);
+          this.mapLayer.addChild(newRect);
         }
 
-        this.maplayer.addChild(this.createUserViewRect());
-        this.maplayer.fitBounds(this.minimapProject.view.bounds);
+        this.mapLayer.addChild(this.createUserViewRect());
+        this.mapLayer.fitBounds(this.minimapScope.view.bounds);
 
-        this.currentProject.activate();
+        //this.currentProject.activate();
       }
     });
     this.minimapElMap = new Map<number, MinimapElement>();
@@ -102,13 +103,12 @@ export class WhiteboardMinimapComponent implements OnInit {
   }
 
   ngOnInit() {
-
     this.elem = document.documentElement;
-    this.currentProject = paper;
-    this.minimapProject = new PaperScope();
+    this.minimapScope = new PaperScope();
     this.htmlCanvasObject = document.getElementById("gachi-minimap") as HTMLCanvasElement;
     this.htmlCanvasObjectWrapper = document.getElementById("gachi-minimap-wrapper") as HTMLDivElement;
-    this.minimapProject.setup(this.htmlCanvasObject);
+    this.minimapScope.setup(this.htmlCanvasObject);
+    //this.minimapScope.activate();
 
     let mapLayer = new Layer();
     mapLayer.data.type = DataType.MINIMAP_MAP_LAYER;
@@ -116,13 +116,13 @@ export class WhiteboardMinimapComponent implements OnInit {
     let cursorLayer = new Layer();
     cursorLayer.data.type = DataType.MINIMAP_CURSOR_LAYER;
 
-    this.minimapProject.project.addLayer(mapLayer);
-    this.minimapProject.project.addLayer(cursorLayer);
+    this.minimapScope.project.addLayer(mapLayer);
+    this.minimapScope.project.addLayer(cursorLayer);
 
     this.cursorLayer = cursorLayer;
-    this.maplayer = mapLayer;
+    this.mapLayer = mapLayer;
 
-    this.currentProject.activate();
+    //this.currentProject.activate();
   }
 
   toggleFullScreen(){

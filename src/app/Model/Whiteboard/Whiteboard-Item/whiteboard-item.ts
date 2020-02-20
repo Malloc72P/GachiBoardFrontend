@@ -16,19 +16,26 @@ import {SelectEvent} from '../InfiniteCanvas/DrawingLayerManager/SelectEvent/sel
 import {SelectEventEnum} from '../InfiniteCanvas/DrawingLayerManager/SelectEventEnum/select-event.enum';
 import {SelectModeEnum} from '../InfiniteCanvas/DrawingLayerManager/SelectModeEnum/select-mode-enum.enum';
 import {MouseButtonEventEnum} from '../Pointer/MouseButtonEventEnum/mouse-button-event-enum.enum';
+import {EditableItemGroup} from './ItemGroup/EditableItemGroup/editable-item-group';
+import {WhiteboardItemDto} from '../../../DTO/WhiteboardItemDto/whiteboard-item-dto';
+import {GachiPointDto} from '../../../DTO/WhiteboardItemDto/PointDto/gachi-point-dto';
 
 export abstract class WhiteboardItem {
 
   protected _id;
   protected _type;
-  protected _group;
+  protected _group:Group;
   protected _topLeft: Point;
   protected _coreItem:Item;
   protected _isSelected;
   protected _myItemAdjustor:ItemAdjustor;
 
+  private _isGrouped = false;
+  private _parentEdtGroup:EditableItemGroup = null;
+
   private _disableLinkHandler;
   private _longTouchTimer;
+  private fromPoint: Point;
 
   private _layerService:DrawingLayerManagerService;
 
@@ -38,12 +45,8 @@ export abstract class WhiteboardItem {
 
   protected _lifeCycleEventEmitter:EventEmitter<any>;
   protected _zoomEventEmitter:EventEmitter<any>;
-
-  private static idGenerator:number = 0;
-
-
-  protected constructor(type, item, layerService){
-    this.id = WhiteboardItem.idGenerator++;
+  protected constructor(id, type, item, layerService){
+    this.id = id;
     this.isSelected = false;
     this.selectMode = SelectModeEnum.SINGLE_SELECT;
     this.group = new Group();
@@ -60,9 +63,8 @@ export abstract class WhiteboardItem {
 
     this.layerService = layerService;
 
-    this.lifeCycleEventEmitter = this.layerService.itemLifeCycleEventEmitter;
+    this.lifeCycleEventEmitter = this.layerService.wbItemLifeCycleEventEmitter;
     this.zoomEventEmitter = this.layerService.infiniteCanvasService.zoomEventEmitter;
-    this.notifyItemCreation();
 
     this.layerService.selectModeEventEmitter.subscribe((data:SelectEvent)=>{
       this.onSelectEvent(data);
@@ -94,7 +96,9 @@ export abstract class WhiteboardItem {
       }//if
       else{//#### 터치 이벤트 인 경우
         //TODO 여기서 롱터치 여부를 구분해야 함
-        this.longTouchTimer = setTimeout(this.onLongTouch, 1000, event, this.layerService);
+        let point = this.initPoint(event.event);
+        this.initFromPoint(point);
+        this.longTouchTimer = setTimeout(this.onLongTouch, 500, event.event, this.layerService);
         if(this.checkEditable()){
           this.onPointerDownForEdit(event);
         }
@@ -102,7 +106,9 @@ export abstract class WhiteboardItem {
     };
     this.group.onMouseDrag = (event) => {
       if(this.isTouchEvent(event)) {
-        clearTimeout(this.longTouchTimer); // 움직이면 롱터치 아님
+        if(this.calcTolerance(this.initPoint(event.event))){
+          clearTimeout(this.longTouchTimer); // 움직이면 롱터치 아님, 톨러런스 5
+        }
       }
     };
     this.group.onMouseUp = (event) =>{
@@ -150,7 +156,24 @@ export abstract class WhiteboardItem {
   }
 
   private onLongTouch(event, layerService: DrawingLayerManagerService) {
-    layerService.contextMenu.openMenu(event.event);
+    layerService.contextMenu.openMenu(event);
+  }
+
+  private calcTolerance(point: Point) {
+    return this.fromPoint.getDistance(point) > 10;
+  }
+
+  private initFromPoint(point: Point) {
+    this.fromPoint = point;
+  }
+  private initPoint(event: MouseEvent | TouchEvent): Point {
+    let point: Point;
+    if(event instanceof MouseEvent) {
+      point = new Point(event.clientX, event.clientY);
+    } else {
+      point = new Point(event.touches[0].clientX, event.touches[0].clientY);
+    }
+    return point;
   }
 
   protected calcCurrentDistance(event){
@@ -176,7 +199,12 @@ export abstract class WhiteboardItem {
       if(this.isSingleSelectMode()){
         this.layerService.globalSelectedGroup.extractAllFromSelection();
       }
-      this.layerService.globalSelectedGroup.insertOneIntoSelection(this);
+      if(this.isGrouped && this.parentEdtGroup){//해당 WbItem이 그룹화되어 있는 경우
+        this.parentEdtGroup.pushAllChildIntoGSG();
+      }
+      else{//해당 WbItem이 그룹화되어 있지 않은 경우(통상)
+        this.layerService.globalSelectedGroup.insertOneIntoSelection(this);
+      }
       this.isSelected = true;
     }
   }
@@ -198,7 +226,11 @@ export abstract class WhiteboardItem {
   public abstract notifyItemCreation();
   public abstract notifyItemModified();
   public abstract refreshItem();
-  public abstract destroyItem();
+  public destroyItem(){
+    if(this.isGrouped && this.parentEdtGroup){
+      this.parentEdtGroup.destroyItem();
+    }
+  }
 
   checkEditable(){
     let currentPointerMode = this.layerService.currentPointerMode;
@@ -229,6 +261,27 @@ export abstract class WhiteboardItem {
         purgedAdjustor.destroyItemAdjustor();
       }
     }
+  }
+
+  public exportToDto(){
+    let wbItemDto: WhiteboardItemDto;
+    let gachiCenterPoint = new GachiPointDto(this.group.position.x, this.group.position.y);
+
+    let parentEdtGroupId;
+    if(this.parentEdtGroup){
+      parentEdtGroupId = this.parentEdtGroup.id
+    }else{
+      parentEdtGroupId = -1;
+    }
+
+    wbItemDto = new WhiteboardItemDto(
+      this.id,
+      this.type,
+      gachiCenterPoint,
+      this.isGrouped,
+      parentEdtGroupId
+    );
+    return wbItemDto;
   }
 
   get coreItem(): paper.Item {
@@ -286,8 +339,6 @@ export abstract class WhiteboardItem {
   set myItemAdjustor(value: ItemAdjustor) {
     this._myItemAdjustor = value;
   }
-
-
 
   get disableLinkHandler(): boolean {
     return this._disableLinkHandler;
@@ -351,5 +402,21 @@ export abstract class WhiteboardItem {
 
   set longTouchTimer(value) {
     this._longTouchTimer = value;
+  }
+
+  get isGrouped(): boolean {
+    return this._isGrouped;
+  }
+
+  set isGrouped(value: boolean) {
+    this._isGrouped = value;
+  }
+
+  get parentEdtGroup(): EditableItemGroup {
+    return this._parentEdtGroup;
+  }
+
+  set parentEdtGroup(value: EditableItemGroup) {
+    this._parentEdtGroup = value;
   }
 }

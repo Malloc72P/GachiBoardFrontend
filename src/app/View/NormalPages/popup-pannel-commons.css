@@ -1,0 +1,147 @@
+/*=====popup pannel commons=====*/
+.popup-main-panel{
+  /*position: absolute;
+  left: 0;
+  top: 0;
+  visibility: visible;
+  transform: scale(1) rotate(0deg);
+  margin: 0;
+  padding: 0;*/
+}
+.popup-close-btn{
+  display: inline-block;
+  position: absolute;
+  right: 0;
+  top: 0;
+  font-size: 72px;
+  transform: translate(-72%, 24%);
+  padding: 16px 8px;
+}
+.popup-panel-content{
+  /*border: 1px solid black;*/
+  height: 100%;
+}
+.popup-commons-panel{
+  /*width: 100%;
+  height: 100%;*/
+}
+.panel-main{
+  z-index: 100;
+  background: white;
+}
+.popup-card-wrapper{
+  /*width: 90%;
+  height: 90%;
+  overflow-y: auto;*/
+}
+.popup-main-background{
+  position: absolute;
+  margin: 0;
+  padding: 0;
+  z-index: 50;
+  opacity: 0.5;
+  border-radius: 15%;
+}
+.popup-visible{
+  visibility: visible;
+}
+.project-supporter-card-title{
+  font-size: 20px;
+  line-height: initial;
+  display: flex;
+  flex-flow: row;
+}
+.project-supporter-card-title-icon{
+  display: inline-block;
+  width: 32px;
+  height: 32px;
+  filter: invert(100%);
+  margin-right: 12px;
+}
+
+.popup-panel-box {
+  /*display: flex;
+  flex-flow: column;*/
+}
+
+.popup-panel-box .popup-panel-row {
+  /*border: 1px dotted grey;*/
+}
+
+.popup-panel-box .popup-panel-row.header {
+  flex: 0 1 auto;
+}
+
+.popup-panel-box .popup-panel-row.content {
+  flex: 1 1 auto;
+}
+
+.popup-panel-box .popup-panel-row.footer {
+  flex: 0 1 40px;
+}
+.popup-panel-row{
+  background: white;
+  z-index: 100;
+}
+.content{
+  /*border: 1px solid black;*/
+}
+.header{
+  width: 100%;
+}
+.do-anime-popup-appear{
+  animation-name:anime-popup-appear-keyframe;
+  animation-iteration-count:1;
+  animation-duration: 0.3s;
+  animation-timing-function: ease-in;
+  animation-fill-mode:forwards;
+}
+@keyframes anime-popup-appear-keyframe {
+  0%{
+    opacity: 0;
+    visibility: visible;
+    transform: scale(0.1) rotate(45deg);
+    /*translate(200%, 200%)*/
+  }
+  100%{
+    opacity: 1;
+    visibility: visible;
+    transform: scale(1) rotate(0deg);
+    /*translate(0, 0)*/
+  }
+}
+.do-anime-popup-disappear{
+  animation-name:anime-popup-disappear-keyframe;
+  animation-iteration-count:1;
+  animation-duration: 0.2s;
+  animation-timing-function: ease;
+  animation-fill-mode:forwards;
+}
+@keyframes anime-popup-disappear-keyframe {
+  0%{
+    opacity: 1;
+    visibility: visible;
+    transform: scale(1) rotate(0deg);
+    /*transform: scale(1) translate(0, 0) rotate(0deg);*/
+  }
+  100%{
+    opacity: 0;
+    visibility: hidden;
+    transform: scale(0.1) rotate(45deg);
+    /*transform: scale(0.1) translate(200%, 200%) rotate(45deg);*/
+  }
+}
+.title-left-color{
+  display: inline-block;
+  width: 5px;
+  height: 70%;
+  background-color: red;
+  margin-right: 16px;
+}
+.popup-title-wrapper{
+  display: inline-block;
+}
+.popup-title{
+  display: inline-block;
+}
+/*=====popup pannel commons=====*/

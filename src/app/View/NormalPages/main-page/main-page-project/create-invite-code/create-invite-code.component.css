@@ -1,0 +1,12 @@
+
+::ng-deep .mat-vertical-stepper-header{
+  pointer-events: none !important;
+}
+.invite-url{
+  width: 70%;
+  display: inline-block;
+  margin: 0 10px 0 0;
+}
+.invite-url-wrapper{
+  line-height: 10px;
+}

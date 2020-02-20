@@ -11,14 +11,14 @@ import {ZoomEventEnum} from '../../InfiniteCanvas/ZoomControl/ZoomEvent/zoom-eve
 
 export class HandlerOption {
   public static strokeWidth = 1;
-  public static circleRadius = 6;
+  public static circleRadius = 10;
   public static strokeColor = "black";
+  public static fillColor = "skyblue";
   public static dashLength = 25;
 }
 
 export class ItemAdjustor {
   private _sizeHandlers:Map<any, SizeHandler>;
-  //private _linkHandlers:Map<any, LinkHandler>;
   private _itemGuideLine:Rectangle;
   private _guidelineDashLength;
   private _owner:WhiteboardItem;
@@ -29,7 +29,7 @@ export class ItemAdjustor {
     this.initGuideLine();
     this.initHandlers();
 
-    this.owner.zoomEventEmitter.subscribe((zoomEvent:ZoomEvent)=>{
+    this.owner.zoomEventEmitter.subscribe((zoomEvent: ZoomEvent)=>{
       this.onZoomChange(zoomEvent);
     });
   }
@@ -43,14 +43,6 @@ export class ItemAdjustor {
       });
       this.sizeHandlers = null;
     }
-/*
-    if (this.linkHandlers) {
-      this.linkHandlers.forEach((value, key, map) => {
-        value.removeItem();
-      });
-      this.linkHandlers = null;
-    }
-*/
 
   }
   public bringToFront(){
@@ -68,13 +60,6 @@ export class ItemAdjustor {
         value.disableItem();
       });
     }
-/*
-    if (this.linkHandlers) {
-      this.linkHandlers.forEach((value, key, map) => {
-        value.disableItem();
-      });
-    }
-*/
   }
   public enable(){
     this.itemGuideLine.visible = true;
@@ -83,13 +68,6 @@ export class ItemAdjustor {
         value.enableItem();
       });
     }
-/*
-    if (this.linkHandlers) {
-      this.linkHandlers.forEach((value, key, map) => {
-        value.enableItem();
-      });
-    }
-*/
   }
   public refreshItemAdjustorSize(){
     this.itemGuideLine.bounds = this.owner.group.bounds;
@@ -98,13 +76,6 @@ export class ItemAdjustor {
         value.refreshPosition();
       });
     }
-/*
-    if(this.linkHandlers){
-      this.linkHandlers.forEach((value, key, map)=>{
-        value.refreshPosition();
-      })
-    }
-*/
   }
 
   // #### init 메서드
@@ -128,20 +99,6 @@ export class ItemAdjustor {
       new SizeHandler(this.owner, HandlerDirection.BOTTOM_LEFT, HandlerOption, this.itemGuideLine));
     this.sizeHandlers.set(HandlerDirection.BOTTOM_RIGHT,
       new SizeHandler(this.owner, HandlerDirection.BOTTOM_RIGHT, HandlerOption, this.itemGuideLine));
-
-/*
-    if(!this.owner.disableLinkHandler){
-      this.linkHandlers = new Map<any, LinkHandler>();
-      this.linkHandlers.set(HandlerDirection.TOP_CENTER,
-        new LinkHandler(this.owner, HandlerDirection.TOP_CENTER, HandlerOption, this.itemGuideLine));
-      this.linkHandlers.set(HandlerDirection.BOTTOM_CENTER,
-        new LinkHandler(this.owner, HandlerDirection.BOTTOM_CENTER, HandlerOption, this.itemGuideLine));
-      this.linkHandlers.set(HandlerDirection.CENTER_LEFT,
-        new LinkHandler(this.owner, HandlerDirection.CENTER_LEFT, HandlerOption, this.itemGuideLine));
-      this.linkHandlers.set(HandlerDirection.CENTER_RIGHT,
-        new LinkHandler(this.owner, HandlerDirection.CENTER_RIGHT, HandlerOption, this.itemGuideLine));
-    }
-*/
   }
   private onZoomChange(zoomEvent:ZoomEvent){
     switch (zoomEvent.action) {
@@ -167,13 +124,6 @@ export class ItemAdjustor {
         ItemAdjustor.reflectZoomFactorToHandler(value, zoomFactor);
       });
     }
-/*
-    if(this.linkHandlers){
-      this.linkHandlers.forEach((value, key, map)=>{
-        ItemAdjustor.reflectZoomFactorToHandler(value, zoomFactor);
-      })
-    }
-*/
   }
   private static reflectZoomFactorToHandler(value, zoomFactor){
     const diameter = HandlerOption.circleRadius / zoomFactor * 2;
@@ -187,27 +137,6 @@ export class ItemAdjustor {
   }
   //#####################
 
-  // #### handler관리 메서드
-/*
-  public disableLinkHandlers(){
-    if(this.linkHandlers){
-      this.linkHandlers.forEach((value, key, map)=>{
-        value.disableItem();
-      });
-    }
-  }
-*/
-/*
-  public enableLinkHandlers(){
-    if(this.linkHandlers){
-      this.linkHandlers.forEach((value, key, map)=>{
-        value.enableItem();
-      });
-    }
-
-  }
-*/
-
   //########################## GETTER & SETTER ##################################
 
   get sizeHandlers(): Map<any, SizeHandler> {
@@ -217,14 +146,6 @@ export class ItemAdjustor {
   set sizeHandlers(value: Map<any, SizeHandler>) {
     this._sizeHandlers = value;
   }
-
-  /*get linkHandlers(): Map<any, LinkHandler> {
-    return this._linkHandlers;
-  }
-
-  set linkHandlers(value: Map<any, LinkHandler>) {
-    this._linkHandlers = value;
-  }*/
 
 
   get itemGuideLine(): paper.Path.Rectangle {

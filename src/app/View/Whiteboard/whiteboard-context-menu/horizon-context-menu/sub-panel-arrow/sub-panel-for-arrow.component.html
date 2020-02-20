@@ -1,0 +1,15 @@
+<div id="horizonContextMenu-Line" class="context-menu-wrapper"
+     [hidden]="isHiddenSubPanel.isHidden(horizonContextMenuActions.ARROW_WING)"
+     [style.left]="centerTop.x + 'px'"
+     [style.top]="centerTop.y + 47 + 'px'">
+  <mat-card class="sub-panel-wrapper">
+    <div>
+      <div *ngFor="let style of arrowStyles; index as i" class="selector">
+        <svg width="24" height="24">
+          <use [attr.href]="'/assets/images/context-menu/arrows.svg#' + style"/>
+          <use [attr.href]="'/assets/images/context-menu/arrows.svg#' + selectedSVG" *ngIf="true"/>
+        </svg>
+      </div>
+    </div>
+  </mat-card>
+</div>

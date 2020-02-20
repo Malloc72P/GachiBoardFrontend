@@ -20,23 +20,28 @@ export abstract class ItemHandler {
   protected constructor(wbItem, handlerDirection, handlerFillColor, handlerOption, guideLine){
     this.owner = wbItem;
     this.guideLine = guideLine;
-
-    let zoomFactor = this.owner.layerService.posCalcService.getZoomState();
-
     this.handlerDirection = handlerDirection;
+    this.initHandlerObject(handlerOption, handlerFillColor);
+    this.bindHandlerCallback();
+  }
 
-    let handlerPosition = this.getHandlerPosition(handlerDirection);
+  protected initHandlerObject(handlerOption, handlerFillColor){
+    let zoomFactor = this.owner.layerService.posCalcService.getZoomState();
+    let handlerPosition = this.getHandlerPosition(this.handlerDirection);
 
     this.handlerCircleObject = new Circle(
       new Point(handlerPosition.x, handlerPosition.y),
       handlerOption.circleRadius / zoomFactor
     );
+    this.handlerCircleObject.strokeWidth = handlerOption.strokeWidth / zoomFactor;
+
     this.handlerCircleObject.style.fillColor = handlerFillColor;
-    // @ts-ignore
+
     this.handlerCircleObject.strokeColor = handlerOption.strokeColor;
-
     this.handlerCircleObject.data.struct = this;
+  }
 
+  protected bindHandlerCallback(){
     this.handlerCircleObject.onMouseDown = (event)=>{
       if(!this.owner.checkEditable()){
         return;
@@ -55,15 +60,29 @@ export abstract class ItemHandler {
       }
       this.onMouseUp(event);
     };
+    this.handlerCircleObject.onMouseEnter = () => {
+      if(!this.owner.checkEditable()){
+        return;
+      }
+      this.onMouseEnter();
+    };
+    this.handlerCircleObject.onMouseLeave = () => {
+      if(!this.owner.checkEditable()){
+        return;
+      }
+      this.onMouseLeave();
+    };
   }
 
   public refreshPosition(){
     this.handlerCircleObject.position = this.getHandlerPosition(this.handlerDirection);
   }
 
-  protected abstract onMouseDown(event);
-  protected abstract onMouseDrag(event);
-  protected abstract onMouseUp(event);
+  public abstract onMouseDown(event);
+  public abstract onMouseDrag(event);
+  public abstract onMouseUp(event);
+  public abstract onMouseEnter();
+  public abstract onMouseLeave();
 
   protected getHandlerPosition(handlerDirection){
     let bounds = this.guideLine.bounds;
