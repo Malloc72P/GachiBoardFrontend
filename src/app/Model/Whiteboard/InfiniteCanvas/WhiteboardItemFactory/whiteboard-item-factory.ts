@@ -54,6 +54,7 @@ import {EditableLink} from '../../Whiteboard-Item/Whiteboard-Shape/LinkPort/Edit
 import {LinkPortDto} from "../../../../DTO/WhiteboardItemDto/WhiteboardShapeDto/LinkPortDto/link-port-dto";
 import {LinkPort} from "../../Whiteboard-Item/Whiteboard-Shape/LinkPort/link-port";
 import {EditableLinkDto} from "../../../../DTO/WhiteboardItemDto/WhiteboardShapeDto/LinkPortDto/EditableLinkDto/editable-link-dto";
+import {WhiteboardShape} from "../../Whiteboard-Item/Whiteboard-Shape/whiteboard-shape";
 
 
 enum BUILD_MODE {
@@ -75,28 +76,38 @@ export class WhiteboardItemFactory {
       let copyLinkArray: Array<EditableLinkDto>;
       copyLinkArray = WhiteboardItemFactory.extractCopyLinkArray(copiedDtoArray);
 
+      let copyWbItemArray: Array<WhiteboardItemDto>;
+      copyWbItemArray = WhiteboardItemFactory.extractCopyWbItemArray(copiedDtoArray);
+
       let wbItemIdMap = new Map<number, number>();
       let tempGsgArray = new Array<WhiteboardItem>();
 
-      for (let i = 0; i < copiedDtoArray.length; i++) {
-        let currDto = copiedDtoArray[i];
+      for (let i = 0; i < copyWbItemArray.length; i++) {
+        let currDto = copyWbItemArray[i];
         WhiteboardItemFactory.waitForCreateWbItem(currDto, BUILD_MODE.CLONE).subscribe((factoryResult:WbItemFactoryResult)=>{
           wbItemIdMap.set(currDto.id, factoryResult.newWbItem.id);
           tempGsgArray.push(factoryResult.newWbItem);
         });
       }
       for(let linkDto of copyLinkArray) {
-        if(!!linkDto.toLinkPort) {
-          linkDto.toLinkPort.ownerWbItemId = wbItemIdMap.get(linkDto.toLinkPort.ownerWbItemId);
-        }
-        if(!!linkDto.fromLinkPort) {
-          linkDto.fromLinkPort.ownerWbItemId = wbItemIdMap.get(linkDto.fromLinkPort.ownerWbItemId);
-        }
-        tempGsgArray.push(WhiteboardItemFactory.buildEditableLink(BUILD_MODE.CLONE, linkDto, tempGsgArray));
+        let replacedLinkDto = this.replaceLinkPort(linkDto, wbItemIdMap);
+        tempGsgArray.push(WhiteboardItemFactory.buildEditableLink(BUILD_MODE.CLONE, replacedLinkDto, tempGsgArray));
       }
       observer.next(tempGsgArray);
     });
+  }
 
+  private static replaceLinkPort(linkDto: EditableLinkDto, wbItemIdMap: Map<number, number>): EditableLinkDto {
+    let newLinkDto = linkDto.clone();
+
+    if(!!linkDto.toLinkPort) {
+      newLinkDto.toLinkPort.ownerWbItemId = wbItemIdMap.get(linkDto.toLinkPort.ownerWbItemId);
+    }
+    if(!!linkDto.fromLinkPort) {
+      newLinkDto.fromLinkPort.ownerWbItemId = wbItemIdMap.get(linkDto.fromLinkPort.ownerWbItemId);
+    }
+
+    return newLinkDto;
   }
 
   public static waitForCreateWbItem(wbItemDto:WhiteboardItemDto, buildMode:BUILD_MODE) :Observable<any>{
@@ -363,17 +374,29 @@ export class WhiteboardItemFactory {
     return WhiteboardItemFactory.createEditableLink(wbId, linkDto, copiedGSG);
   }
 
-  private static extractCopyLinkArray(copiedWbDto: Array<WhiteboardItemDto>): Array<EditableLinkDto>{
-    let copyLinkMap = new Array<EditableLinkDto>();
-    copiedWbDto.forEach((dto, index) => {
+  private static extractCopyLinkArray(copiedWbDto: Array<WhiteboardItemDto>): Array<EditableLinkDto> {
+    let copyLinkArray = new Array<EditableLinkDto>();
+
+    copiedWbDto.forEach(dto => {
       if(dto.type === WhiteboardItemType.EDITABLE_LINK) {
-        copyLinkMap.push(dto as EditableLinkDto);
-        copiedWbDto.splice(index, 1);
+        copyLinkArray.push(dto as EditableLinkDto);
       }
     });
 
-    return copyLinkMap;
-  }//createCopiedLinkMap
+    return copyLinkArray;
+  }
+
+  private static extractCopyWbItemArray(copiedWbDto: Array<WhiteboardItemDto>): Array<WhiteboardItemDto> {
+    let copyWbItemArray = new Array<WhiteboardItemDto>();
+
+    copiedWbDto.forEach(dto => {
+      if(dto.type !== WhiteboardItemType.EDITABLE_LINK) {
+        copyWbItemArray.push(dto);
+      }
+    });
+
+    return copyWbItemArray;
+  }
 
   private static isWbShapeDto(type){
     return type === WhiteboardItemType.EDITABLE_RECTANGLE ||
@@ -395,8 +418,11 @@ export class WhiteboardItemFactory {
       wbItemGroup = WhiteboardItemFactory.layerService.globalSelectedGroup.wbItemGroup;
     }
 
+    wbItemGroup.forEach(value => {
+    });
+
     for(let wbItem of wbItemGroup) {
-      if(wbItem.id === linkPortDto.ownerWbItemId && wbItem instanceof EditableShape) {
+      if(wbItem.id === linkPortDto.ownerWbItemId && wbItem instanceof WhiteboardShape) {
         return wbItem.linkPortMap.get(linkPortDto.direction);
       }
     }

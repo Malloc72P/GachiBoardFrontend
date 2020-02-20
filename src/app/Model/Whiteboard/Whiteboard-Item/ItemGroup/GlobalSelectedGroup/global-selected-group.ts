@@ -62,8 +62,8 @@ export class GlobalSelectedGroup extends ItemGroup {
           });
         });
       }
-      console.log("GlobalSelectedGroup >> copySelectedWbItems >> this.copiedDtoArray : ", this.copiedDtoArray);
     }
+    console.log("GlobalSelectedGroup >> copySelectedWbItems >> this.copiedDtoArray : ", this.copiedDtoArray);
   }
 
   public extractCopiedItems(){
@@ -75,7 +75,7 @@ export class GlobalSelectedGroup extends ItemGroup {
     return new Observable<any>((observer)=>{
       WhiteboardItemFactory.cloneWbItems(this.copiedDtoArray).subscribe((copiedItems:Array<WhiteboardItem>)=>{
         this.extractAllFromSelection();
-        this.extractCopiedItems();
+        // this.extractCopiedItems();
         observer.next(copiedItems);
       });
     });

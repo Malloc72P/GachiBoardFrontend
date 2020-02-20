@@ -25,29 +25,71 @@ export class EditableLinkDto extends WhiteboardItemDto {
 
   constructor(
     wbItemDto: WhiteboardItemDto,
-    toLinkPort: LinkPort,
-    toPoint: Point,
-    fromLinkPort: LinkPort,
-    fromPoint: Point,
+    toLinkPort: LinkPort | LinkPortDto,
+    toPoint: Point | GachiPointDto,
+    fromLinkPort: LinkPort | LinkPortDto,
+    fromPoint: Point | GachiPointDto,
     linkHeadType: EditableLinkCapTypes,
     linkTailType: EditableLinkCapTypes,
     capSize: number,
-    linkColor: Color,
+    linkColor: Color | GachiColorDto,
     linkWidth: number,
     isDashed: boolean,
   ) {
     super(wbItemDto.id, wbItemDto.type, wbItemDto.center, wbItemDto.isGrouped, wbItemDto.parentEdtGroupId);
-    this._toLinkPort = toLinkPort ? new LinkPortDto(toLinkPort.direction, toLinkPort.owner.id) : undefined;
-    this._toPoint = new GachiPointDto(toPoint.x, toPoint.y);
-    this._fromLinkPort = fromLinkPort ? new LinkPortDto(fromLinkPort.direction, fromLinkPort.owner.id) : undefined;
-    this._fromPoint = new GachiPointDto(fromPoint.x, fromPoint.y);
+    if(!toLinkPort) {
+      this._toLinkPort = undefined;
+    } else if(toLinkPort instanceof LinkPort) {
+      this._toLinkPort = new LinkPortDto(toLinkPort.direction, toLinkPort.owner.id);
+    } else if (toLinkPort instanceof LinkPortDto) {
+      this._toLinkPort = toLinkPort.clone();
+    }
+    if(!toPoint) {
+      this._toPoint = undefined;
+    } else if(toPoint instanceof Point) {
+      this._toPoint = new GachiPointDto(toPoint.x, toPoint.y);
+    } else if (toPoint instanceof GachiPointDto) {
+      this._toPoint = toPoint.clone();
+    }
+
+    if(!fromLinkPort) {
+      this._fromLinkPort = undefined;
+    } else if(fromLinkPort instanceof LinkPort) {
+      this._fromLinkPort = new LinkPortDto(fromLinkPort.direction, fromLinkPort.owner.id);
+    } else if (fromLinkPort instanceof LinkPortDto) {
+      this._fromLinkPort = fromLinkPort.clone();
+    }
+    if(!fromPoint) {
+      this._fromPoint = undefined;
+    } else if(fromPoint instanceof Point) {
+      this._fromPoint = new GachiPointDto(fromPoint.x, fromPoint.y);
+    } else if (fromPoint instanceof GachiPointDto) {
+      this._fromPoint = fromPoint.clone();
+    }
+
+    if(!linkColor) {
+      this._linkColor = undefined;
+    } else if(linkColor instanceof Color) {
+      this._linkColor = new GachiColorDto(linkColor.red, linkColor.green, linkColor.blue, linkColor.alpha);
+    } else if (linkColor instanceof GachiColorDto) {
+      this._linkColor = linkColor.clone();
+    }
+
     this._linkHeadType = linkHeadType;
     this._linkTailType = linkTailType;
     this._capSize = capSize;
-    this._linkColor = new GachiColorDto(linkColor.red, linkColor.green, linkColor.blue, linkColor.alpha);
     this._linkWidth = linkWidth;
     this._isDashed = isDashed;
 
+  }
+
+  public clone() {
+    return new EditableLinkDto(
+      new WhiteboardItemDto(this.id, this.type, this.center, this.isGrouped, this.parentEdtGroupId),
+      this.toLinkPort, this.toPoint, this.fromLinkPort, this.fromPoint,
+      this.linkHeadType, this.linkTailType,
+      this.capSize, this.linkColor, this.linkWidth, this.isDashed
+    );
   }
 
   get toLinkPort(): LinkPortDto {

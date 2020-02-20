@@ -351,7 +351,6 @@ export class EditableLink extends WhiteboardItem {
     if(!!value) {
       // 이전 링크포트에서 링크 제거
       this.removeToLinkFromOwner();
-
       this._toLinkPort = value;
       value.fromLinkList.push(this);
       this.endPoint = value.calcLinkPortPosition();
