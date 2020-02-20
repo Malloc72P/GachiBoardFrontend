@@ -109,7 +109,6 @@ import { WhiteboardCardComponent } from './View/NormalPages/page-sub-parts/cards
 import { UserOverlayCardComponent } from './View/NormalPages/page-sub-parts/cards/user-overlay-card/user-overlay-card.component';
 import { CreateProjectComponent } from './View/NormalPages/main-page/main-page-root/create-project/create-project.component';
 import {ProjectRequesterService} from './Controller/Project/project-requester.service';
-
 import { SocketIoModule, SocketIoConfig } from 'ngx-socket-io';
 import {HttpHelper} from './Model/Helper/http-helper/http-helper';
 import { CreateInviteCodeComponent } from './View/NormalPages/main-page/main-page-project/create-invite-code/create-invite-code.component';
@@ -117,6 +116,8 @@ import { InvitationComponent } from './View/NormalPages/invitation/invitation.co
 import {KanbanEventManagerService} from './Model/Whiteboard/ProjectSupporter/Kanban/kanban-event-manager.service';
 import {UiService} from './Model/Helper/ui-service/ui.service';
 import {OverlayModule} from '@angular/cdk/overlay';
+import {LinkService} from "./Model/Whiteboard/Pointer/link-service/link.service";
+
 const config: SocketIoConfig = { url: HttpHelper.apiUrl, options: {} };
 
 const appRoutes: Routes = [
@@ -322,7 +323,8 @@ const appRoutes: Routes = [
     HtmlHelperService,
     ProjectRequesterService,
     KanbanEventManagerService,
-    UiService
+    UiService,
+    LinkService,
   ],
   bootstrap: [AppComponent]
 })

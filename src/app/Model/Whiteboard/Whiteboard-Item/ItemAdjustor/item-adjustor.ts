@@ -1,13 +1,15 @@
-import {SizeHandler} from './ItemHandler/SizeHandler/size-handler';
-
 import * as paper from 'paper';
 // @ts-ignore
-import Rectangle = paper.Path.Rectangle;
+import Path = paper.Path;
+// @ts-ignore
+import Rectangle = paper.Rectangle;
 
+import {SizeHandler} from './ItemHandler/SizeHandler/size-handler';
 import {WhiteboardItem} from '../whiteboard-item';
 import {HandlerDirection} from './ItemHandler/handler-direction.enum';
 import {ZoomEvent} from '../../InfiniteCanvas/ZoomControl/ZoomEvent/zoom-event';
 import {ZoomEventEnum} from '../../InfiniteCanvas/ZoomControl/ZoomEvent/zoom-event-enum.enum';
+import {ItemLifeCycleEnum, ItemLifeCycleEvent} from "../WhiteboardItemLifeCycle/WhiteboardItemLifeCycle";
 
 export class HandlerOption {
   public static strokeWidth = 1;
@@ -19,23 +21,56 @@ export class HandlerOption {
 
 export class ItemAdjustor {
   private _sizeHandlers:Map<any, SizeHandler>;
-  private _itemGuideLine:Rectangle;
-  private _guidelineDashLength;
+  private _itemGuideLine: Path.Rectangle;
+  private background: Path.Rectangle;
+  private _guidelineDashLength: number;
   private _owner:WhiteboardItem;
 
   constructor(wbItem){
     this.owner = wbItem;
 
+    this.initBackground();
     this.initGuideLine();
     this.initHandlers();
 
     this.owner.zoomEventEmitter.subscribe((zoomEvent: ZoomEvent)=>{
       this.onZoomChange(zoomEvent);
     });
+    this.subscribeLifeCycleEvent();
   }
+
+  private subscribeLifeCycleEvent() {
+    this.owner.layerService.globalSelectedGroup.lifeCycleEmitter.subscribe((event: ItemLifeCycleEvent) => {
+      switch (event.action) {
+        case ItemLifeCycleEnum.MOVED:
+        case ItemLifeCycleEnum.RESIZED:
+        case ItemLifeCycleEnum.SELECTED:
+        case ItemLifeCycleEnum.DESELECTED:
+          this.reboundToItem(event.item);
+          if(!!this.sizeHandlers) {
+            this.sizeHandlers.forEach(value => {
+              value.refreshPosition();
+            });
+          }
+          this.bringToFront();
+          break;
+
+      }
+    });
+  }
+
+  private reboundToItem(wbItem: WhiteboardItem) {
+    this.itemGuideLine.bounds = wbItem.coreItem.bounds;
+    this.background.bounds = wbItem.coreItem.bounds;
+  }
+
   public destroyItemAdjustor(){
     if(this.itemGuideLine){
       this.itemGuideLine.remove();
+    }
+    if(!!this.background) {
+      this.background.remove();
+      console.log("ItemAdjustor >> destroyItemAdjustor >>  : ", );
     }
     if (this.sizeHandlers) {
       this.sizeHandlers.forEach((value, key, map) => {
@@ -46,6 +81,7 @@ export class ItemAdjustor {
 
   }
   public bringToFront(){
+    this.background.bringToFront();
     this.itemGuideLine.bringToFront();
     if(this.sizeHandlers){
       this.sizeHandlers.forEach((value, key, map)=>{
@@ -53,28 +89,26 @@ export class ItemAdjustor {
       });
     }
   }
-  public disable(){
-    this.itemGuideLine.visible = false;
-    if (this.sizeHandlers) {
-      this.sizeHandlers.forEach((value, key, map) => {
-        value.disableItem();
-      });
-    }
-  }
-  public enable(){
-    this.itemGuideLine.visible = true;
-    if (this.sizeHandlers) {
+
+  public enable() {
+    if (!!this.sizeHandlers) {
       this.sizeHandlers.forEach((value, key, map) => {
         value.enableItem();
       });
     }
+    if(!!this.background) {
+      this.background.visible = true;
+    }
   }
-  public refreshItemAdjustorSize(){
-    this.itemGuideLine.bounds = this.owner.group.bounds;
-    if(this.sizeHandlers){
-      this.sizeHandlers.forEach((value, key, map)=>{
-        value.refreshPosition();
+
+  public disable() {
+    if (!!this.sizeHandlers) {
+      this.sizeHandlers.forEach((value, key, map) => {
+        value.disableItem();
       });
+    }
+    if(!!this.background) {
+      this.background.visible = false;
     }
   }
 
@@ -82,12 +116,19 @@ export class ItemAdjustor {
   private initGuideLine(){
     let zoomFactor = this.owner.layerService.posCalcService.getZoomState();
 
-    this.itemGuideLine = new Rectangle(this.owner.group.strokeBounds);
+    this.itemGuideLine = new Path.Rectangle(this.owner.group.strokeBounds);
     this.itemGuideLine.strokeWidth = HandlerOption.strokeWidth / zoomFactor;
     this.itemGuideLine.strokeColor = new paper.Color('blue');
     this.itemGuideLine.dashArray = [HandlerOption.dashLength / zoomFactor,
       HandlerOption.dashLength / zoomFactor];
   }
+
+  private initBackground() {
+    this.background = new Path.Rectangle(this.owner.group.strokeBounds);
+    this.background.fillColor = new paper.Color('skyblue');
+    this.background.opacity = 0.2;
+  }
+
   private initHandlers(){
     this.sizeHandlers = new Map<any, SizeHandler>();
 
@@ -113,6 +154,7 @@ export class ItemAdjustor {
         break;
     }
   }
+
   private refreshForZoomChange(){
     let zoomFactor = this.owner.layerService.posCalcService.getZoomState();
     this.itemGuideLine.strokeWidth = HandlerOption.strokeWidth / zoomFactor;
@@ -125,6 +167,7 @@ export class ItemAdjustor {
       });
     }
   }
+
   private static reflectZoomFactorToHandler(value, zoomFactor){
     const diameter = HandlerOption.circleRadius / zoomFactor * 2;
     const center = value.handlerCircleObject.position;
@@ -170,5 +213,9 @@ export class ItemAdjustor {
 
   set owner(value: WhiteboardItem) {
     this._owner = value;
+  }
+
+  get bound(): Path.Rectangle {
+    return this.background;
   }
 }

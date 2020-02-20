@@ -7,8 +7,7 @@ import {MatSliderChange} from "@angular/material/slider";
 import {HorizonContextMenuService} from "../../../../../Model/Whiteboard/ContextMenu/horizon-context-menu-service/horizon-context-menu.service";
 import {HorizonContextMenuActions} from "../../../../../Model/Whiteboard/ContextMenu/horizon-context-menu-service/horizon-context-menu.enum";
 import {subPanelStatus} from "../../../../../Model/Whiteboard/ContextMenu/horizon-context-menu-service/sub-panel-status";
-import {WhiteboardItem} from "../../../../../Model/Whiteboard/Whiteboard-Item/whiteboard-item";
-import {SimpleArrowLink} from "../../../../../Model/Whiteboard/Whiteboard-Item/Whiteboard-Shape/LinkPort/EditableLink/SimpleArrowLink/simple-arrow-link";
+import {EditableLink} from "../../../../../Model/Whiteboard/Whiteboard-Item/Whiteboard-Shape/LinkPort/EditableLink/editable-link";
 
 @Component({
   selector: 'app-sub-panel-for-line',
@@ -37,11 +36,23 @@ export class SubPanelForLineComponent implements OnInit {
   }
 
   private onStrokeWidthChanged(event: MatSliderChange) {
-    this.menu.coreItem.strokeWidth = event.value;
+    if(this.menu.item instanceof EditableLink) {
+      // 리메이크한 구조의 EditableLink 코드
+      this.menu.item.linkWidth = event.value;
+    } else {
+      // 기존 코드
+      this.menu.coreItem.strokeWidth = event.value;
+    }
   }
 
   private onColorPickerClicked(index: number) {
-    this.menu.coreItem.strokeColor = this.colors[index];
+    if(this.menu.item instanceof EditableLink) {
+      // 리메이크한 구조의 EditableLink 코드
+      this.menu.item.linkColor = this.colors[index];
+    } else {
+      // 기존 코드
+      this.menu.coreItem.strokeColor = this.colors[index];
+    }
   }
 
   private onAddColorClicked() {

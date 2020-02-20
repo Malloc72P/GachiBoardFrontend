@@ -1,14 +1,14 @@
 import * as paper from 'paper';
-// @ts-ignore
-import Color = paper.Color;
 
-import {Component, Input, OnInit} from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import {subPanelStatus} from "../../../../../Model/Whiteboard/ContextMenu/horizon-context-menu-service/sub-panel-status";
 import {HorizonContextMenuActions} from "../../../../../Model/Whiteboard/ContextMenu/horizon-context-menu-service/horizon-context-menu.enum";
 import {HorizonContextMenuService} from "../../../../../Model/Whiteboard/ContextMenu/horizon-context-menu-service/horizon-context-menu.service";
 import {FormBuilder, FormGroup, Validators} from "@angular/forms";
 import {MatButtonToggleChange} from "@angular/material/button-toggle";
 import {EditableShape} from "../../../../../Model/Whiteboard/Whiteboard-Item/Whiteboard-Shape/EditableShape/editable-shape";
+// @ts-ignore
+import Color = paper.Color;
 
 @Component({
   selector: 'app-sub-panel-for-font',
@@ -26,6 +26,12 @@ export class SubPanelForFontComponent implements OnInit {
     new Color(0, 255, 0),
     new Color(0, 0, 255),
   ];
+
+  // TODO : WebFont 넣어주면 댐
+  private fontFamilyList = [
+    "sans-serif",
+    "monospace",
+  ];
   private colorPickerPicked;
   private fontStyle: FormGroup;
 
@@ -37,12 +43,27 @@ export class SubPanelForFontComponent implements OnInit {
     private formBuilder: FormBuilder,
   ) {
     this.fontStyle = formBuilder.group({
-      family: "Hi",
+      family: this.fontFamilyList[0],
       size: [10, [Validators.min(10), Validators.max(100)]]
     });
   }
 
   ngOnInit() {
+
+  }
+
+  // ############# Font Family ##############
+
+  private onChangeFontFamily() {
+    this.menu.item.textStyle.fontFamily = this.fontStyle.value.family;
+  }
+
+  get fontFamily(): string {
+    if(this.menu.item instanceof EditableShape) {
+      return this.menu.item.textStyle.fontFamily;
+    } else {
+      return "sans-serif";
+    }
   }
 
   // ############## Font Size ###############

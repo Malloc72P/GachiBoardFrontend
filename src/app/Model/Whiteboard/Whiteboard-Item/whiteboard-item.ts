@@ -7,6 +7,8 @@ import Group = paper.Group;
 import Color = paper.Color;
 // @ts-ignore
 import Point = paper.Point;
+// @ts-ignore
+import Rectangle = paper.Rectangle;
 
 import {EventEmitter} from '@angular/core';
 import {ItemAdjustor} from './ItemAdjustor/item-adjustor';
@@ -15,27 +17,28 @@ import {PointerMode} from '../Pointer/pointer-mode-enum-service/pointer-mode-enu
 import {SelectEvent} from '../InfiniteCanvas/DrawingLayerManager/SelectEvent/select-event';
 import {SelectEventEnum} from '../InfiniteCanvas/DrawingLayerManager/SelectEventEnum/select-event.enum';
 import {SelectModeEnum} from '../InfiniteCanvas/DrawingLayerManager/SelectModeEnum/select-mode-enum.enum';
-import {MouseButtonEventEnum} from '../Pointer/MouseButtonEventEnum/mouse-button-event-enum.enum';
 import {EditableItemGroup} from './ItemGroup/EditableItemGroup/editable-item-group';
 import {WhiteboardItemDto} from '../../../DTO/WhiteboardItemDto/whiteboard-item-dto';
 import {GachiPointDto} from '../../../DTO/WhiteboardItemDto/PointDto/gachi-point-dto';
+import {ItemLifeCycleEnum, ItemLifeCycleEvent} from "./WhiteboardItemLifeCycle/WhiteboardItemLifeCycle";
 
 export abstract class WhiteboardItem {
 
-  protected _id;
+  protected _id: number;
   protected _type;
   protected _group:Group;
   protected _topLeft: Point;
-  protected _coreItem:Item;
-  protected _isSelected;
-  protected _myItemAdjustor:ItemAdjustor;
+  protected _coreItem: Item;
+  protected _isSelected: boolean;
+  protected _isLocked: boolean;
+  protected _myItemAdjustor: ItemAdjustor;
 
   private _isGrouped = false;
   private _parentEdtGroup:EditableItemGroup = null;
 
   private _disableLinkHandler;
   private _longTouchTimer;
-  private fromPoint: Point;
+  private downPoint: Point;
 
   private _layerService:DrawingLayerManagerService;
 
@@ -43,8 +46,9 @@ export abstract class WhiteboardItem {
   protected _prevPoint = new Point(0,0);
   protected _selectMode;
 
-  protected _lifeCycleEventEmitter:EventEmitter<any>;
-  protected _zoomEventEmitter:EventEmitter<any>;
+  protected _wbItemsLifeCycleEventEmitter: EventEmitter<any>;
+  protected _lifeCycleEmitter = new EventEmitter<any>();
+  protected _zoomEventEmitter: EventEmitter<any>;
   protected constructor(id, type, item, layerService){
     this.id = id;
     this.isSelected = false;
@@ -63,63 +67,17 @@ export abstract class WhiteboardItem {
 
     this.layerService = layerService;
 
-    this.lifeCycleEventEmitter = this.layerService.wbItemLifeCycleEventEmitter;
+    this.wbItemsLifeCycleEventEmitter = this.layerService.wbItemLifeCycleEventEmitter;
     this.zoomEventEmitter = this.layerService.infiniteCanvasService.zoomEventEmitter;
 
-    this.layerService.selectModeEventEmitter.subscribe((data:SelectEvent)=>{
+    this.layerService.selectModeEventEmitter.subscribe((data: SelectEvent)=>{
       this.onSelectEvent(data);
     });
-    this.setCallback();
-
   }
   protected activateShadowEffect(){
     this.coreItem.shadowColor = new Color(0,0,0);
     this.coreItem.shadowBlur = 8;
     this.coreItem.shadowOffset = new Point(1,1);
-  }
-  protected setCallback() {
-    this.group.onMouseDown = (event) => {
-      if(this.isMouseEvent(event)){
-        if(!this.checkEditable()){
-          return;
-        }
-        //#### 마우스 이벤트 인 경우
-        switch (event.event.button) {
-          case MouseButtonEventEnum.LEFT_CLICK:
-            this.onPointerDownForEdit(event);
-            break;
-          case MouseButtonEventEnum.RIGHT_CLICK:
-            this.onPointerDownForContextMenu(event);
-            break;
-        }//switch
-
-      }//if
-      else{//#### 터치 이벤트 인 경우
-        //TODO 여기서 롱터치 여부를 구분해야 함
-        let point = this.initPoint(event.event);
-        this.initFromPoint(point);
-        this.longTouchTimer = setTimeout(this.onLongTouch, 500, event.event, this.layerService);
-        if(this.checkEditable()){
-          this.onPointerDownForEdit(event);
-        }
-      }
-    };
-    this.group.onMouseDrag = (event) => {
-      if(this.isTouchEvent(event)) {
-        if(this.calcTolerance(this.initPoint(event.event))){
-          clearTimeout(this.longTouchTimer); // 움직이면 롱터치 아님, 톨러런스 5
-        }
-      }
-    };
-    this.group.onMouseUp = (event) =>{
-      if(this.isTouchEvent(event)) {
-        clearTimeout(this.longTouchTimer); // 터치가 롱터치 반응 시간 안에 떼지면 롱터치 아님
-      }
-      if(!this.checkEditable()){
-        return;
-      }
-      this.setSingleSelectMode();
-    }
   }
   protected isMouseEvent(event){
     return event.event instanceof MouseEvent;
@@ -155,16 +113,12 @@ export abstract class WhiteboardItem {
     }
   }
 
-  private onLongTouch(event, layerService: DrawingLayerManagerService) {
-    layerService.contextMenu.openMenu(event);
-  }
-
   private calcTolerance(point: Point) {
-    return this.fromPoint.getDistance(point) > 10;
+    return this.downPoint.getDistance(point) > 10;
   }
 
-  private initFromPoint(point: Point) {
-    this.fromPoint = point;
+  private initDownPoint(point: Point) {
+    this.downPoint = point;
   }
   private initPoint(event: MouseEvent | TouchEvent): Point {
     let point: Point;
@@ -230,6 +184,7 @@ export abstract class WhiteboardItem {
     if(this.isGrouped && this.parentEdtGroup){
       this.parentEdtGroup.destroyItem();
     }
+    this.lifeCycleEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.DESTROY));
   }
 
   checkEditable(){
@@ -241,17 +196,19 @@ export abstract class WhiteboardItem {
     return currentPointerMode === PointerMode.POINTER || currentPointerMode === PointerMode.LASSO_SELECTOR
             || PointerMode.DRAW || PointerMode.ERASER || PointerMode.HIGHLIGHTER || PointerMode.SHAPE;
   }
-  checkMovable(){
-    let currentPointerMode = this.layerService.currentPointerMode;
-    return currentPointerMode === PointerMode.POINTER || currentPointerMode === PointerMode.LASSO_SELECTOR;
-  }
 
   public activateSelectedMode(){
     if(!this.isSelected){
       this.isSelected = true;
       this.myItemAdjustor = new ItemAdjustor(this);
     }
+    if(this.isLocked) {
+      this.myItemAdjustor.disable();
+    } else {
+      this.myItemAdjustor.enable();
+    }
   }
+
   public deactivateSelectedMode(){
     if(this.isSelected){
       this.isSelected = false;
@@ -284,6 +241,38 @@ export abstract class WhiteboardItem {
     return wbItemDto;
   }
 
+  // ################ LifeCycle Emit Method #################
+
+  public emitCreate() {
+    this.lifeCycleEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.CREATE));
+  }
+
+  public emitModify() {
+    this.lifeCycleEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.MODIFY));
+  }
+
+  public emitDestroy() {
+    this.lifeCycleEmitter.emit(new ItemLifeCycleEvent(this.id, null, ItemLifeCycleEnum.DESTROY));
+  }
+
+  public emitMoved() {
+    this.lifeCycleEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.MOVED));
+  }
+
+  public emitResized() {
+    this.lifeCycleEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.RESIZED));
+  }
+
+  public emitSelected() {
+    this.lifeCycleEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.SELECTED));
+  }
+
+  public emitDeselected() {
+    this.lifeCycleEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.DESELECTED));
+  }
+
+  // ################ Getter & Setter #################
+
   get coreItem(): paper.Item {
     return this._coreItem;
   }
@@ -292,12 +281,12 @@ export abstract class WhiteboardItem {
     this._coreItem = value;
   }
 
-  get lifeCycleEventEmitter(): EventEmitter<any> {
-    return this._lifeCycleEventEmitter;
+  get wbItemsLifeCycleEventEmitter(): EventEmitter<any> {
+    return this._wbItemsLifeCycleEventEmitter;
   }
 
-  set lifeCycleEventEmitter(value: EventEmitter<any>) {
-    this._lifeCycleEventEmitter = value;
+  set wbItemsLifeCycleEventEmitter(value: EventEmitter<any>) {
+    this._wbItemsLifeCycleEventEmitter = value;
   }
 
   get id() {
@@ -356,11 +345,11 @@ export abstract class WhiteboardItem {
     this._zoomEventEmitter = value;
   }
 
-  get isSelected() {
+  get isSelected(): boolean {
     return this._isSelected;
   }
 
-  set isSelected(value) {
+  set isSelected(value: boolean) {
     this._isSelected = value;
   }
   get layerService(): DrawingLayerManagerService {
@@ -418,5 +407,36 @@ export abstract class WhiteboardItem {
 
   set parentEdtGroup(value: EditableItemGroup) {
     this._parentEdtGroup = value;
+  }
+
+  get lifeCycleEmitter(): EventEmitter<any> {
+    return this._lifeCycleEmitter;
+  }
+
+  get isLocked(): boolean {
+    return this._isLocked;
+  }
+
+  set isLocked(value: boolean) {
+    if(value) {
+      this.lifeCycleEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.LOCKED));
+    } else {
+      this.lifeCycleEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.UNLOCKED));
+    }
+
+    if(this.isGrouped) {
+      this.parentEdtGroup.isLocked = value;
+    }
+
+    this._isLocked = value;
+  }
+
+  get isMovable(): boolean {
+    if(!this.isLocked) {
+      if (this.layerService.currentPointerMode === PointerMode.POINTER || this.layerService.currentPointerMode === PointerMode.LASSO_SELECTOR) {
+        return true;
+      }
+    }
+    return false;
   }
 }

@@ -1,3 +1,7 @@
+import * as paper from 'paper';
+// @ts-ignore
+import Point = paper.Point;
+
 export class GachiPointDto {
   private _x;
   private _y;
@@ -5,6 +9,10 @@ export class GachiPointDto {
   constructor(x, y) {
     this._x = x;
     this._y = y;
+  }
+
+  public clone(): GachiPointDto {
+    return new GachiPointDto(this.x, this.y);
   }
 
   get x() {
@@ -21,5 +29,9 @@ export class GachiPointDto {
 
   set y(value) {
     this._y = value;
+  }
+
+  get paperPoint(): Point {
+    return new Point(this._x, this._y);
   }
 }

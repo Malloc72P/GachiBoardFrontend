@@ -31,6 +31,10 @@
   width: 128px;
 }
 
+.circle-selector-wrapper {
+  margin: 0 4px;
+}
+
 .selector {
   display: inline-block;
   width: 20px;

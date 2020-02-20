@@ -8,6 +8,7 @@ import {WhiteboardItem} from '../../Whiteboard-Item/whiteboard-item';
 import * as paper from 'paper';
 // @ts-ignore
 import Item = paper.Item;
+import {EditableLink} from "../../Whiteboard-Item/Whiteboard-Shape/LinkPort/EditableLink/editable-link";
 
 @Injectable({
   providedIn: 'root'
@@ -16,13 +17,6 @@ export class EraserService {
   private strokeWidth = 10;
   private newPath: paper.Path;
   private currentProject: paper.Project;
-
-  private hitOptions = {
-    segments: true,
-    stroke: true,
-    fill: true,
-    tolerance: 5
-  };
 
   constructor(
     private posCalcService: PositionCalcService,
@@ -33,57 +27,29 @@ export class EraserService {
     this.currentProject = project;
   }
 
-  public setWidth(value: number) {
-    this.strokeWidth = value;
-  }
-
   public createPath(event) {
-    let point: paper.Point;
-
-    if(this.newPath){
+    if(!!this.newPath){
       this.endPath();
     }
 
-    if(event instanceof MouseEvent) {
-      point = new paper.Point(event.x, event.y);
-    } else if (event instanceof TouchEvent) {
-      point = new paper.Point(event.touches[0].clientX, event.touches[0].clientY);
-    } else {
-      return;
-    }
-    point = this.posCalcService.advConvertNgToPaper(point);
-    this.newPath = new paper.Path({
-      segments: [new paper.Point(point.x, point.y)],
-      strokeWidth: this.strokeWidth,
-      strokeColor: 'lightgray',
-      strokeCap: 'round',
-      strokeJoin: 'round',
-    });
-    this.newPath.data.type = DataType.EREASER;
-    this.removeProcess(point);
+    this.createEraseStroke(event.point);
+    // this.newPath.data.type = DataType.EREASER;
+    this.removeProcess(event.point);
   }
-  public drawPath(event) {
-    let point: paper.Point;
 
-    if(event instanceof MouseEvent) {
-      point = new paper.Point(event.x, event.y);
-    } else if (event instanceof TouchEvent) {
-      point = new paper.Point(event.touches[0].clientX, event.touches[0].clientY);
-    } else {
-      return;
-    }
-    point = this.posCalcService.advConvertNgToPaper(point);
-    this.newPath.add(new paper.Point(point.x, point.y));
-    this.removeProcess(point);
+  public drawPath(event) {
+    this.newPath.add(event.point);
+    this.removeProcess(event.point);
   }
+
   public endPath() {
     this.newPath.remove();
   }
 
   private removeProcess(point:paper.Point) {
 
-    let foundItem:WhiteboardItem = this.layerService.getHittedItem(point);
-    if(foundItem){
+    let foundItem: WhiteboardItem | EditableLink = this.layerService.getHittedItem(point, this.strokeWidth / 2);
+    if(foundItem) {
       if(this.itemChecker(foundItem)) {
         foundItem.destroyItem();
       }
@@ -94,17 +60,34 @@ export class EraserService {
   }
 
   // 사용자 경험상 지우개로 지워지면 안될 화이트보드 아이템을 등록
-  private itemChecker(wbItem: WhiteboardItem) {
-    switch (wbItem.type) {
-      case WhiteboardItemType.SIMPLE_RASTER:
-      case WhiteboardItemType.EDITABLE_CARD:
-      case WhiteboardItemType.EDITABLE_CIRCLE:
-      case WhiteboardItemType.EDITABLE_RECTANGLE:
-      case WhiteboardItemType.EDITABLE_TRIANGLE:
-        return false;
-      default:
-        return true;
+  private itemChecker(wbItem: WhiteboardItem | EditableLink) {
+    if(wbItem instanceof WhiteboardItem) {
+      switch (wbItem.type) {
+        case WhiteboardItemType.SIMPLE_RASTER:
+        case WhiteboardItemType.EDITABLE_CARD:
+        case WhiteboardItemType.EDITABLE_CIRCLE:
+        case WhiteboardItemType.EDITABLE_RECTANGLE:
+        case WhiteboardItemType.EDITABLE_TRIANGLE:
+          return false;
+        default:
+          return true;
+      }
     }
+    return false;
+  }
+
+  private createEraseStroke(point) {
+    this.newPath = new paper.Path({
+      segments: [new paper.Point(point.x, point.y)],
+      strokeWidth: this.strokeWidth,
+      strokeColor: 'lightgray',
+      strokeCap: 'round',
+      strokeJoin: 'round',
+    });
+  }
+
+  set setWidth(value: number) {
+    this.strokeWidth = value;
   }
 }
 

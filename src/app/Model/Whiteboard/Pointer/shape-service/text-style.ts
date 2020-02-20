@@ -14,7 +14,7 @@ export class TextStyle {
   private _isBold: boolean;
   private _horizontalAlign: Align;
   private _verticalAlign: Align;
-  private _changeEmitter: EventEmitter<any>;
+  private readonly _changeEmitter: EventEmitter<any>;
 
   constructor(fontFamily?: string, fontSize?: number, fontColor?: string, isBold?: boolean, isItalic?: boolean, horizontalAlign?: Align, verticalAlign?: Align) {
     this._changeEmitter = new EventEmitter<any>();

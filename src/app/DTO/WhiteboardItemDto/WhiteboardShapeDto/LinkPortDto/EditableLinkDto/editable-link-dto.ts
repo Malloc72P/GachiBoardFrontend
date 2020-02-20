@@ -1,129 +1,92 @@
-import {GachiColorDto} from '../../../ColorDto/gachi-color-dto';
-import {GachiPointDto} from '../../../PointDto/gachi-point-dto';
-
-export class EditableLinkDto {
-  private _id;
-  private _type;
-  private _fromLinkPortId;
-  private _fromLinkPortDirection;
-  private _toLinkPortId;
-  private _toLinkPortDirection;
-  private _isDashed;
-  private _dashLength;
-  private _strokeColor:GachiColorDto;
-  private _strokeWidth;
-  private _fillColor:GachiColorDto;
-  private _midPoints:Array<GachiPointDto>;
+import * as paper from 'paper';
+// @ts-ignore
+import Point = paper.Point;
+// @ts-ignore
+import Color = paper.Color;
+import {WhiteboardItemDto} from "../../../whiteboard-item-dto";
+import {LinkPortDto} from "../link-port-dto";
+import {GachiPointDto} from "../../../PointDto/gachi-point-dto";
+import {EditableLinkCapTypes} from "../../../../../Model/Whiteboard/Whiteboard-Item/Whiteboard-Shape/LinkPort/EditableLink/editable-link-types.enum";
+import {GachiColorDto} from "../../../ColorDto/gachi-color-dto";
+import {LinkPort} from "../../../../../Model/Whiteboard/Whiteboard-Item/Whiteboard-Shape/LinkPort/link-port";
 
 
-  constructor(id, type, fromLinkPortId, fromLinkPortDirection, toLinkPortId, toLinkPortDirection, isDashed, dashLength, strokeColor: GachiColorDto, strokeWidth, fillColor: GachiColorDto, midPoints: Array<GachiPointDto>) {
-    this._id = id;
-    this._type = type;
-    this._fromLinkPortId = fromLinkPortId;
-    this._fromLinkPortDirection = fromLinkPortDirection;
-    this._toLinkPortId = toLinkPortId;
-    this._toLinkPortDirection = toLinkPortDirection;
+export class EditableLinkDto extends WhiteboardItemDto {
+  private readonly _toLinkPort: LinkPortDto;
+  private readonly _toPoint: GachiPointDto;
+  private readonly _fromLinkPort: LinkPortDto;
+  private readonly _fromPoint: GachiPointDto;
+  private readonly _linkHeadType: EditableLinkCapTypes;
+  private readonly _linkTailType: EditableLinkCapTypes;
+  private readonly _capSize: number;
+  private readonly _linkColor: GachiColorDto;
+  private readonly _linkWidth: number;
+  private readonly _isDashed: boolean;
+
+  constructor(
+    wbItemDto: WhiteboardItemDto,
+    toLinkPort: LinkPort,
+    toPoint: Point,
+    fromLinkPort: LinkPort,
+    fromPoint: Point,
+    linkHeadType: EditableLinkCapTypes,
+    linkTailType: EditableLinkCapTypes,
+    capSize: number,
+    linkColor: Color,
+    linkWidth: number,
+    isDashed: boolean,
+  ) {
+    super(wbItemDto.id, wbItemDto.type, wbItemDto.center, wbItemDto.isGrouped, wbItemDto.parentEdtGroupId);
+    this._toLinkPort = toLinkPort ? new LinkPortDto(toLinkPort.direction, toLinkPort.owner.id) : undefined;
+    this._toPoint = new GachiPointDto(toPoint.x, toPoint.y);
+    this._fromLinkPort = fromLinkPort ? new LinkPortDto(fromLinkPort.direction, fromLinkPort.owner.id) : undefined;
+    this._fromPoint = new GachiPointDto(fromPoint.x, fromPoint.y);
+    this._linkHeadType = linkHeadType;
+    this._linkTailType = linkTailType;
+    this._capSize = capSize;
+    this._linkColor = new GachiColorDto(linkColor.red, linkColor.green, linkColor.blue, linkColor.alpha);
+    this._linkWidth = linkWidth;
     this._isDashed = isDashed;
-    this._dashLength = dashLength;
-    this._strokeColor = strokeColor;
-    this._strokeWidth = strokeWidth;
-    this._fillColor = fillColor;
-    this._midPoints = midPoints;
+
   }
 
-  get id() {
-    return this._id;
+  get toLinkPort(): LinkPortDto {
+    return this._toLinkPort;
   }
 
-  set id(value) {
-    this._id = value;
+  get toPoint(): GachiPointDto {
+    return this._toPoint;
   }
 
-  get type() {
-    return this._type;
+  get fromLinkPort(): LinkPortDto {
+    return this._fromLinkPort;
   }
 
-  set type(value) {
-    this._type = value;
+  get fromPoint(): GachiPointDto {
+    return this._fromPoint;
   }
 
-  get fromLinkPortId() {
-    return this._fromLinkPortId;
+  get linkHeadType(): EditableLinkCapTypes {
+    return this._linkHeadType;
   }
 
-  set fromLinkPortId(value) {
-    this._fromLinkPortId = value;
+  get linkTailType(): EditableLinkCapTypes {
+    return this._linkTailType;
   }
 
-  get fromLinkPortDirection() {
-    return this._fromLinkPortDirection;
+  get capSize(): number {
+    return this._capSize;
   }
 
-  set fromLinkPortDirection(value) {
-    this._fromLinkPortDirection = value;
+  get linkColor(): GachiColorDto {
+    return this._linkColor;
   }
 
-  get toLinkPortId() {
-    return this._toLinkPortId;
+  get linkWidth(): number {
+    return this._linkWidth;
   }
 
-  set toLinkPortId(value) {
-    this._toLinkPortId = value;
-  }
-
-  get toLinkPortDirection() {
-    return this._toLinkPortDirection;
-  }
-
-  set toLinkPortDirection(value) {
-    this._toLinkPortDirection = value;
-  }
-
-  get isDashed() {
+  get isDashed(): boolean {
     return this._isDashed;
-  }
-
-  set isDashed(value) {
-    this._isDashed = value;
-  }
-
-  get dashLength() {
-    return this._dashLength;
-  }
-
-  set dashLength(value) {
-    this._dashLength = value;
-  }
-
-  get strokeColor(): GachiColorDto {
-    return this._strokeColor;
-  }
-
-  set strokeColor(value: GachiColorDto) {
-    this._strokeColor = value;
-  }
-
-  get strokeWidth() {
-    return this._strokeWidth;
-  }
-
-  set strokeWidth(value) {
-    this._strokeWidth = value;
-  }
-
-  get fillColor(): GachiColorDto {
-    return this._fillColor;
-  }
-
-  set fillColor(value: GachiColorDto) {
-    this._fillColor = value;
-  }
-
-  get midPoints(): Array<GachiPointDto> {
-    return this._midPoints;
-  }
-
-  set midPoints(value: Array<GachiPointDto>) {
-    this._midPoints = value;
   }
 }

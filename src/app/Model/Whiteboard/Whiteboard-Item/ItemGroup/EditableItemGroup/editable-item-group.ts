@@ -1,7 +1,3 @@
-import {ItemGroup} from '../item-group';
-import {PositionCalcService} from '../../../PositionCalc/position-calc.service';
-import {EventEmitter} from '@angular/core';
-
 import * as paper from 'paper';
 // @ts-ignore
 import Path = paper.Path;
@@ -19,6 +15,8 @@ import PointText = paper.PointText;
 import Group = paper.Group;
 // @ts-ignore
 import Rectangle = paper.Rectangle;
+
+import {ItemGroup} from '../item-group';
 import {Editable} from '../../InterfaceEditable/editable';
 import {WhiteboardItemType} from '../../../../Helper/data-type-enum/data-type.enum';
 import {WhiteboardItem} from '../../whiteboard-item';
@@ -47,7 +45,7 @@ export class EditableItemGroup extends ItemGroup implements Editable{
       value.parentEdtGroup = null;
     });
 
-    this.lifeCycleEventEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.DESTROY));
+    this.wbItemsLifeCycleEventEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.DESTROY));
   }
 
   public pushAllChildIntoGSG(){

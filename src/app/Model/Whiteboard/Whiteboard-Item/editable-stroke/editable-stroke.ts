@@ -1,4 +1,3 @@
-
 import * as paper from 'paper';
 // @ts-ignore
 import Path = paper.Path;
@@ -10,14 +9,13 @@ import Item = paper.Item;
 import Segment = paper.Segment;
 // @ts-ignore
 import Color = paper.Color;
+
 import {WhiteboardItem} from '../whiteboard-item';
-import {EventEmitter} from '@angular/core';
 import {ItemLifeCycleEnum, ItemLifeCycleEvent} from '../WhiteboardItemLifeCycle/WhiteboardItemLifeCycle';
 import {Editable} from '../InterfaceEditable/editable';
-import {WhiteboardItemDto} from '../../../../DTO/WhiteboardItemDto/whiteboard-item-dto';
 import {EditableStrokeDto} from '../../../../DTO/WhiteboardItemDto/EditableStrokeDto/editable-stroke-dto';
-import {GachiPointDto} from '../../../../DTO/WhiteboardItemDto/PointDto/gachi-point-dto';
 import {GachiColorDto} from '../../../../DTO/WhiteboardItemDto/ColorDto/gachi-color-dto';
+import {GachiSegmentDto} from "../../../../DTO/WhiteboardItemDto/SegmentDto/gachi-segment-dto";
 
 export abstract class EditableStroke extends WhiteboardItem implements Editable{
   private _segments: Array<Segment>;
@@ -38,24 +36,24 @@ export abstract class EditableStroke extends WhiteboardItem implements Editable{
 
   public notifyItemModified() {
     console.log("EditableStroke >> notifyItemModified >> 진입함");
-    this.lifeCycleEventEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.MODIFY));
+    this.wbItemsLifeCycleEventEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.MODIFY));
   }
 
   public notifyItemCreation() {
     console.log("EditableStroke >> createItem >> 진입함");
-    this.lifeCycleEventEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.CREATE));
+    this.wbItemsLifeCycleEventEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.CREATE));
   }
 
   public refreshItem() {
     console.log("EditableStroke >> refreshItem >> 진입함");
-    this.lifeCycleEventEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.MODIFY));
+    this.wbItemsLifeCycleEventEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.MODIFY));
   }
   public destroyItem() {
     super.destroyItem();
     console.log("EditableStroke >> destroyItem >> 진입함");
     this.coreItem.remove();
     this.group.remove();
-    this.lifeCycleEventEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.DESTROY));
+    this.wbItemsLifeCycleEventEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.DESTROY));
   }
 
   public exportToDto(): EditableStrokeDto {
@@ -66,10 +64,10 @@ export abstract class EditableStroke extends WhiteboardItem implements Editable{
     editableStrokeDto.strokeColor = GachiColorDto.createColor(strokeObject.strokeColor);
 
     //strokeSegments 추출
-    editableStrokeDto.segments = new Array<GachiPointDto>();
+    editableStrokeDto.segments = new Array<GachiSegmentDto>();
     for(let i = strokeObject.segments.length-1 ; i >= 0; i--){
       editableStrokeDto.segments
-        .push(new GachiPointDto(strokeObject.segments[i].point.x, strokeObject.segments[i].point.y))
+        .push(new GachiSegmentDto(strokeObject.segments[i]));
     }
 
     //strokeWidth 추출

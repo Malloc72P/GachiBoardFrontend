@@ -1,7 +1,6 @@
 import {Injectable} from '@angular/core';
 import {PointerMode} from '../pointer-mode-enum-service/pointer-mode-enum.service';
 
-import * as paper from 'paper';
 
 import {InfiniteCanvasService} from "../../InfiniteCanvas/infinite-canvas.service";
 import {BrushService} from '../brush-service/brush.service';
@@ -16,13 +15,15 @@ import {ShapeService} from '../shape-service/shape.service';
 import {NormalPointerService} from '../normal-pointer-service/normal-pointer.service';
 
 
+import * as paper from 'paper';
 // @ts-ignore
-import Point = paper.Point;
+import Project = paper.Project;
 import {MouseButtonEventEnum} from '../MouseButtonEventEnum/mouse-button-event-enum.enum';
 import {PointerModeEvent} from '../PointerModeEvent/pointer-mode-event';
 import {DrawingLayerManagerService} from '../../InfiniteCanvas/DrawingLayerManager/drawing-layer-manager.service';
 import {PanelManagerService} from '../../Panel/panel-manager-service/panel-manager.service';
 import {CursorChangeService} from "../cursor-change-service/cursor-change.service";
+import {LinkService} from "../link-service/link.service";
 
 @Injectable({
   providedIn: 'root'
@@ -31,12 +32,13 @@ import {CursorChangeService} from "../cursor-change-service/cursor-change.servic
 export class PointerModeManagerService {
   public currentPointerMode: number;
   public mouseDown = false;
-  public currentProject;
+  public currentProject: Project;
 
   constructor(
       public brushService                 : BrushService,
       public eraser                       : EraserService,
       public shape                        : ShapeService,
+      public link                         : LinkService,
       public lassoSelector                : LassoSelectorService,
       public highlighter                  : HighlighterService,
       private infiniteCanvasService       : InfiniteCanvasService,
@@ -51,10 +53,9 @@ export class PointerModeManagerService {
     ) {
   }
 
-  public initializePointerModeManagerService(currentProject) {
+  public initializePointerModeManagerService(currentProject: Project) {
 
     this.currentPointerMode = PointerMode.POINTER;
-    const htmlCanvasObject = document.getElementById("cv1") as HTMLCanvasElement;
     this.currentProject = currentProject;
 
     this.canvasMoverService.initializeCanvasMoverService(this.currentProject);
@@ -65,24 +66,29 @@ export class PointerModeManagerService {
     this.normalPointerService.initializeNormalPointerService(this.currentProject);
     this.cursorChangeService.initializeCursorChangeService();
 
-    htmlCanvasObject.addEventListener("mousedown", (event) => {
-      this.onMouseDown(event);
-    });
-    htmlCanvasObject.addEventListener("mousemove", (event) => {
-      this.onMouseMove(event);
-    });
-    htmlCanvasObject.addEventListener("mouseup", (event) => {
-      this.onMouseUp(event);
-    });
-    htmlCanvasObject.addEventListener("touchstart", (event) => {
-      this.onTouchStart(event);
-    });
-    htmlCanvasObject.addEventListener("touchmove", (event) => {
-      this.onTouchMove(event);
-    });
-    htmlCanvasObject.addEventListener("touchend", (event) => {
-      this.onTouchEnd(event);
-    });
+    this.currentProject.view.onMouseDown = (event) => {
+      if(event.event instanceof MouseEvent) {
+        this.onMouseDown(event);
+      } else {
+        this.onTouchStart(event);
+      }
+    };
+
+    this.currentProject.view.onMouseDrag = (event) => {
+      if(event.event instanceof MouseEvent) {
+        this.onMouseMove(event);
+      } else {
+        this.onTouchMove(event);
+      }
+    };
+
+    this.currentProject.view.onMouseUp = (event) => {
+      if(event.event instanceof MouseEvent) {
+        this.onMouseUp(event);
+      } else {
+        this.onTouchEnd(event);
+      }
+    };
     this.modeChange(PointerMode.POINTER);
 
     this.layerService.pointerModeEventEmitter.subscribe((data:PointerModeEvent)=>{
@@ -123,6 +129,10 @@ export class PointerModeManagerService {
         this.panelManager.isHideBrushPanel = this.panelManager.isHideHighlighterPanel = true;
         this.panelManager.isHideShapePanel = !this.panelManager.isHideShapePanel;
         break;
+      case PointerMode.LINK:
+        this.modeChange(panelItem);
+        this.panelManager.isHideBrushPanel = this.panelManager.isHideHighlighterPanel = this.panelManager.isHideShapePanel = true;
+        break;
       case PointerMode.ERASER:
         this.modeChange(panelItem);
         this.panelManager.isHideBrushPanel = this.panelManager.isHideHighlighterPanel = this.panelManager.isHideShapePanel = true;
@@ -143,10 +153,10 @@ export class PointerModeManagerService {
 
     switch (this.currentPointerMode) {
       case PointerMode.POINTER:
-        this.normalPointerService.onTouchStart(event);
+        this.normalPointerService.onMouseDown(event);
         break;
       case PointerMode.MOVE:
-        this.canvasMoverService.onTouchStart(event);
+        this.canvasMoverService.onMouseDown(event);
         break;
       case PointerMode.DRAW:
         this.brushService.createPath(event);
@@ -156,6 +166,9 @@ export class PointerModeManagerService {
         break;
       case PointerMode.SHAPE:
         this.shape.createPath(event);
+        break;
+      case PointerMode.LINK:
+        this.link.createLink(event);
         break;
       case PointerMode.ERASER:
         this.eraser.createPath(event);
@@ -172,16 +185,16 @@ export class PointerModeManagerService {
   private onTouchMove(event) {
     event.preventDefault();
 
-    if(event.touches.length == 1){
+    if(event.event.touches.length == 1){
       if(this.zoomCtrlService.isZooming > 0){
         return;
       }
       switch (this.currentPointerMode) {
         case PointerMode.POINTER:
-          this.normalPointerService.onTouchMove(event);
+          this.normalPointerService.onMouseMove(event);
           break;
         case PointerMode.MOVE:
-          this.canvasMoverService.onTouchMove(event);
+          this.canvasMoverService.onMouseMove(event);
           break;
         case PointerMode.DRAW:
           this.brushService.drawPath(event);
@@ -191,6 +204,9 @@ export class PointerModeManagerService {
           break;
         case PointerMode.SHAPE:
           this.shape.drawPath(event);
+          break;
+        case PointerMode.LINK:
+          this.link.drawLink(event);
           break;
         case PointerMode.ERASER:
           this.eraser.drawPath(event);
@@ -202,9 +218,9 @@ export class PointerModeManagerService {
           break;
       }
     }
-    else if (event.touches.length == 2) {
+    else if (event.event.touches.length == 2) {
       //핀치줌
-      this.zoomCtrlService.onPinchZoomMove(event);
+      this.zoomCtrlService.onPinchZoomMove(event.event);
     }
 
   }
@@ -217,10 +233,10 @@ export class PointerModeManagerService {
     }else if ( this.zoomCtrlService.isZooming == 0){
       switch (this.currentPointerMode) {
         case PointerMode.POINTER:
-          this.normalPointerService.onTouchEnd(event);
+          this.normalPointerService.onMouseUp(event);
           break;
         case PointerMode.MOVE:
-          this.canvasMoverService.onTouchEnd(event);
+          this.canvasMoverService.onMouseUp(event);
           break;
         case PointerMode.DRAW:
           this.brushService.endPath();
@@ -230,6 +246,9 @@ export class PointerModeManagerService {
           break;
         case PointerMode.SHAPE:
           this.shape.endPath(event);
+          break;
+        case PointerMode.LINK:
+          this.link.endLink(event);
           break;
         case PointerMode.ERASER:
           this.eraser.endPath();
@@ -274,6 +293,9 @@ export class PointerModeManagerService {
       case PointerMode.SHAPE:
         this.shape.createPath(event);
         break;
+      case PointerMode.LINK:
+        this.link.createLink(event);
+        break;
       case PointerMode.ERASER:
         this.eraser.createPath(event);
         break;
@@ -313,6 +335,9 @@ export class PointerModeManagerService {
           break;
         case PointerMode.SHAPE:
           this.shape.drawPath(event);
+          break;
+        case PointerMode.LINK:
+          this.link.drawLink(event);
           break;
         case PointerMode.ERASER:
           this.eraser.drawPath(event);
@@ -355,6 +380,9 @@ export class PointerModeManagerService {
         break;
       case PointerMode.SHAPE:
         this.shape.endPath(event);
+        break;
+      case PointerMode.LINK:
+        this.link.endLink(event);
         break;
       case PointerMode.ERASER:
         this.eraser.endPath();

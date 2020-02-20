@@ -1,6 +1,10 @@
-import {ItemGroup} from '../item-group';
-
 import * as paper from 'paper';
+// @ts-ignore
+import Item = paper.Item;
+// @ts-ignore
+import Path = paper.Path;
+
+import {ItemGroup} from '../item-group';
 import {WhiteboardItemType} from '../../../../Helper/data-type-enum/data-type.enum';
 import {SelectModeEnum} from '../../../InfiniteCanvas/DrawingLayerManager/SelectModeEnum/select-mode-enum.enum';
 import {WhiteboardItem} from '../../whiteboard-item';
@@ -9,13 +13,8 @@ import {SelectEventEnum} from '../../../InfiniteCanvas/DrawingLayerManager/Selec
 import {WhiteboardShape} from '../../Whiteboard-Shape/whiteboard-shape';
 import {WhiteboardItemDto} from '../../../../../DTO/WhiteboardItemDto/whiteboard-item-dto';
 import {WhiteboardItemFactory} from '../../../InfiniteCanvas/WhiteboardItemFactory/whiteboard-item-factory';
-// @ts-ignore
-import Item = paper.Item;
-import {merge, Observable} from 'rxjs';
-import {EditableRaster} from '../../Whiteboard-Shape/editable-raster/editable-raster';
-import {WbItemFactoryResult} from '../../../InfiniteCanvas/WhiteboardItemFactory/WbItemFactoryResult/wb-item-factory-result';
-import {CopiedLinkData} from './CopiedLinkData/copied-link-data';
-import {WhiteboardShapeDto} from '../../../../../DTO/WhiteboardItemDto/WhiteboardShapeDto/whiteboard-shape-dto';
+import {Observable} from 'rxjs';
+import {EditableLink} from "../../Whiteboard-Shape/LinkPort/EditableLink/editable-link";
 
 export class GlobalSelectedGroup extends ItemGroup {
   private static globalSelectedGroup: GlobalSelectedGroup;
@@ -33,8 +32,6 @@ export class GlobalSelectedGroup extends ItemGroup {
     this.prevNumberOfChild = this.getNumberOfChild();
     this.copiedDtoArray = new Array<WhiteboardItemDto>();
     this.notifyItemCreation();
-    //this.myItemAdjustor.disable();
-    //this.activateSelectedMode();
   }
 
   public static getInstance(id, layerService) {
@@ -46,11 +43,29 @@ export class GlobalSelectedGroup extends ItemGroup {
   }
 
   public copySelectedWbItems(){
+    let linkMap = new Map<number, EditableLink>();
+    this.extractCopiedItems();
+
     for (let i = 0; i < this.wbItemGroup.length; i++) {
       let currItem = this.wbItemGroup[i];
       this.copiedDtoArray.push(currItem.exportToDto());
+
+      // 도형의 링크를 복사하는 과정
+      if(currItem instanceof WhiteboardShape) {
+        currItem.linkPortMap.forEach(linkPort => {
+          linkPort.fromLinkList.forEach(link => {
+            if(linkMap.has(link.id)) {
+              this.copiedDtoArray.push(link.exportToDto());
+            } else {
+              linkMap.set(link.id, link);
+            }
+          });
+        });
+      }
+      console.log("GlobalSelectedGroup >> copySelectedWbItems >> this.copiedDtoArray : ", this.copiedDtoArray);
     }
   }
+
   public extractCopiedItems(){
     this.copiedDtoArray.splice(0, this.copiedDtoArray.length);
   }
@@ -71,6 +86,7 @@ export class GlobalSelectedGroup extends ItemGroup {
       this.copySelectedWbItems();
     }
   }
+
   public doPaste(newPosition){
     if(this.copiedDtoArray.length > 0){
       this.waitForCloneOperation().subscribe((data:Array<WhiteboardItem>)=>{
@@ -79,6 +95,8 @@ export class GlobalSelectedGroup extends ItemGroup {
         for (let i = 0; i < data.length; i++) {
           this.insertOneIntoSelection(data[i]);
         }
+        this.wbItemGroup.forEach(value => {
+        });
         this.relocateItemGroup(newPosition);
         for (let i = 0; i < data.length; i++) {
           data[i].group.opacity = 1;
@@ -86,6 +104,20 @@ export class GlobalSelectedGroup extends ItemGroup {
         }
       });
     }
+  }
+
+  public lockItems() {
+    this.wbItemGroup.forEach(value => {
+      value.isLocked = true;
+    });
+    this.extractAllFromSelection();
+  }
+
+  public unlockItems() {
+    this.wbItemGroup.forEach(value => {
+      value.isLocked = false;
+    });
+    this.isLocked = false;
   }
 
   notifyItemCreation() {
@@ -120,18 +152,61 @@ export class GlobalSelectedGroup extends ItemGroup {
   }
 
   public insertOneIntoSelection(wbItem: WhiteboardItem) {
-    this.insertOneIntoGroup(wbItem);
+    // 아이템 그룹일 경우 그룹 안에 있는 모든 아이템을 GSG 에 추가
+    if(wbItem instanceof ItemGroup) {
+      if(this.checkLocking(wbItem)) {
+        return;
+      }
+      wbItem.wbItemGroup.forEach(value => {
+        this.insertOneIntoGroup(value);
+      });
+    } else {
+      if(this.checkLocking(wbItem)) {
+        return;
+      }
+      this.insertOneIntoGroup(wbItem);
+    }
+    this.resetMyItemAdjustor();
     this.layerService.horizonContextMenuService.open();
+    this.emitSelected();
+  }
+
+  private checkLocking(wbItem: WhiteboardItem) {
+    // GSG 에 하나 이상의 아이템이 있음 --> 선택된 개체가 있음
+    if(this.getNumberOfChild() > 0) {
+      // 첫번째 아이템이 잠겨 있는지 확인 --> 잠긴 아이템을 GSG 가 갖고 있다는 의미
+      if (this.wbItemGroup[0].isLocked) {
+        return true;
+      // 추가될 아이템이 잠겨 있는지 확인
+      } else if (wbItem.isLocked) {
+        return true;
+      }
+      // 결과적으로 잠겨있는 아이템과 함께 다른 아이템들을 잡을 수 없음
+    }
+    if(wbItem.isLocked) {
+      this.isLocked = true;
+    }
+
+    return false;
   }
 
   public extractAllFromSelection() {
     this.layerService.horizonContextMenuService.close();
     this.isLinkSelected = false;
     this.extractAllFromGroup();
+    this.isLocked = false;
+    this.emitDeselected();
   }
 
   public removeOneFromGroup(wbItem) {
     this.extractOneFromGroup(wbItem);
+    if(this.wbItemGroup.length > 0) {
+      this.layerService.horizonContextMenuService.open();
+    } else {
+      this.layerService.horizonContextMenuService.close();
+    }
+    this.notifyItemDeselected(wbItem);
+    this.emitDeselected();
   }
 
   destroyItem() {
@@ -143,11 +218,27 @@ export class GlobalSelectedGroup extends ItemGroup {
     return null;
   }
 
+  get isLocked(): boolean {
+    return super.isLocked;
+  }
+
+  set isLocked(value: boolean) {
+    super.isLocked = value;
+    this.resetMyItemAdjustor();
+  }
+
   get isLinkSelected(): boolean {
     return this._isLinkSelected;
   }
 
   set isLinkSelected(value: boolean) {
     this._isLinkSelected = value;
+  }
+
+  get bound(): Path.Rectangle {
+    if(!!this._myItemAdjustor) {
+      return this._myItemAdjustor.bound;
+    }
+    return undefined;
   }
 }

@@ -58,17 +58,10 @@ export abstract class EditableShape extends WhiteboardShape {
     this.layerService = layerService;
     this.isEditing = false;
 
-    item.onFrame = (event) => {
-      if (event.count % 15 === 0) {
-        this.editText.position = new Point(this.coreItem.bounds.center);
-        if (!this.isEditing) {
-          editText.bringToFront();
-        }
-      }
-    };//onFrame
     this.textStyle.changed.subscribe(() => {
       console.log("EditableShape >> textStyle >> Changed");
       this.refreshItem();
+      this.layerService.setEditorTextStyle(this.textStyle);
     });
     this.notifyItemCreation();
   }
@@ -91,13 +84,13 @@ export abstract class EditableShape extends WhiteboardShape {
     this.opacity = this.coreItem.opacity;
     this.textBound = new Rectangle(this.editText.bounds);
 
-    this.lifeCycleEventEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.MODIFY));
+    this.wbItemsLifeCycleEventEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.MODIFY));
     //this.notifyOwnerChangeEventToLinkPort();
   }
 
   public notifyItemCreation() {
     console.log('EditableShape >> createItem >> 진입함');
-    this.lifeCycleEventEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.CREATE));
+    this.wbItemsLifeCycleEventEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.CREATE));
   }
 
   public destroyItem() {
@@ -106,7 +99,7 @@ export abstract class EditableShape extends WhiteboardShape {
     this.editText.remove();
     this.coreItem.remove();
     this.group.remove();
-    this.lifeCycleEventEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.DESTROY));
+    this.wbItemsLifeCycleEventEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.DESTROY));
   }
 
   public refreshItem() {
@@ -142,9 +135,11 @@ export abstract class EditableShape extends WhiteboardShape {
 
     this.modifyEditText(adjustedTextContent, this.rawTextContent);
 
-    this.editText.bringToFront();
+    if(!this.layerService.isEditingText) {
+      this.editText.bringToFront();
+    }
 
-    this.lifeCycleEventEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.MODIFY));
+    this.wbItemsLifeCycleEventEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.MODIFY));
     //this.notifyOwnerChangeEventToLinkPort();
   }
 
@@ -173,8 +168,8 @@ export abstract class EditableShape extends WhiteboardShape {
     let charHeight;
     let calcHeight = 0;
 
-    width -= EditableShape.EDIT_TEXT_PADDING * 2 + 2;
-    height -= EditableShape.EDIT_TEXT_PADDING * 2 + 2;
+    width -= EditableShape.EDIT_TEXT_PADDING * 2;
+    height -= EditableShape.EDIT_TEXT_PADDING * 2;
 
     if (text === '') {
       calcText = '';
@@ -183,11 +178,11 @@ export abstract class EditableShape extends WhiteboardShape {
       calcHeight += charHeight;
       for (let i = 0; i < text.length; i++) {
         if (text[i] === '\n') {
-          calcText += text[i];
           calcHeight += charHeight;
           if(calcHeight > height) {
             break;
           }
+          calcText += text[i];
           calcWidth = 0;
           i++;
         }
@@ -202,8 +197,9 @@ export abstract class EditableShape extends WhiteboardShape {
           calcText += '\n';
           calcWidth = charWidth;
         }
-
-        calcText += text[i];
+        if(!!text[i]) {
+          calcText += text[i];
+        }
       }
     }
     return calcText;

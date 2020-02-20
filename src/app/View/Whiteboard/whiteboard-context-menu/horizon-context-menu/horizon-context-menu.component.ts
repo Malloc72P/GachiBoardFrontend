@@ -26,7 +26,7 @@ export class HorizonContextMenuComponent implements OnInit {
   private colorPickerPicked;
 
   constructor(
-    private horizonContextMenuService: HorizonContextMenuService,
+    private menu: HorizonContextMenuService,
     private layerService: DrawingLayerManagerService,
   ) { }
 
@@ -36,25 +36,29 @@ export class HorizonContextMenuComponent implements OnInit {
   // ################### Private Method #####################
 
   private onClickMenuItem(action: HorizonContextMenuActions) {
-    this.horizonContextMenuService.subPanelHidden.hideOther(action);
+    this.menu.subPanelHidden.hideOther(action);
     switch (action) {
       case HorizonContextMenuActions.LINE:
-        this.horizonContextMenuService.subPanelHidden.toggleThis(action);
+        this.menu.subPanelHidden.toggleThis(action);
         break;
       case HorizonContextMenuActions.FILL:
-        this.horizonContextMenuService.subPanelHidden.toggleThis(action);
+        this.menu.subPanelHidden.toggleThis(action);
         break;
       case HorizonContextMenuActions.LOCK:
+        this.layerService.globalSelectedGroup.lockItems();
+        this.menu.refreshMenuItem();
         break;
       case HorizonContextMenuActions.UNLOCK:
+        this.layerService.globalSelectedGroup.unlockItems();
+        this.menu.refreshMenuItem();
         break;
       case HorizonContextMenuActions.FONT_STYLE:
-        this.horizonContextMenuService.subPanelHidden.toggleThis(action);
+        this.menu.subPanelHidden.toggleThis(action);
         break;
       case HorizonContextMenuActions.MORE:
         break;
       case HorizonContextMenuActions.ARROW_WING:
-        this.horizonContextMenuService.subPanelHidden.toggleThis(action);
+        this.menu.subPanelHidden.toggleThis(action);
         break;
       case HorizonContextMenuActions.GROUP:
         this.layerService.groupSelectedItems();
@@ -95,14 +99,14 @@ export class HorizonContextMenuComponent implements OnInit {
   }
 
   get isHidden(): boolean {
-    return this.horizonContextMenuService.isHidden;
+    return this.menu.isHidden;
   }
 
   get centerTop(): { x: number; y: number } {
-    return this.horizonContextMenuService.centerTop;
+    return this.menu.centerTop;
   }
 
   get menuItemArray(): HorizonContextMenuActions[] {
-    return this.horizonContextMenuService.menuItemArray;
+    return this.menu.menuItemArray;
   }
 }

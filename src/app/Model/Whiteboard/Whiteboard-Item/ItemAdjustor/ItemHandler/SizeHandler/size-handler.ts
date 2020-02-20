@@ -9,6 +9,7 @@ export class SizeHandler extends ItemHandler{
   private static readonly HANDLER_FILL_COLOR = "white";
   constructor(wbItem, handlerDirection, handlerOption, guideLine){
     super(wbItem, handlerDirection, SizeHandler.HANDLER_FILL_COLOR, handlerOption, guideLine);
+    this.setCursor();
   }
 
   public removeItem() {
@@ -23,14 +24,12 @@ export class SizeHandler extends ItemHandler{
 
   public onMouseDown(event) {
     this.initSizingDataBeforeResizing();
-    // TODO : HorizonContextMenuService Test Code
-    this.owner.layerService.horizonContextMenuService.close();
   }
 
   public onMouseDrag(event) {
     let resizePoint = event.point;
     let minSize = 5;
-    let selectedGroup = this.owner.layerService.globalSelectedGroup.group;
+    let selectedGroup = this.owner.layerService.globalSelectedGroup;
 
     let width = this.adjustSizeFrom.x - resizePoint.x;
     if(width < minSize && width >= 0) {
@@ -51,14 +50,15 @@ export class SizeHandler extends ItemHandler{
     } else if(event.modifiers.shift) {
       PointCalculator.forFixRatio(this.adjustSizeFrom, resizePoint, this.ratio);
     }
-    selectedGroup.bounds = new paper.Rectangle(this.adjustSizeFrom, event.point);
-    this.owner.myItemAdjustor.refreshItemAdjustorSize();
+
+    selectedGroup.resizeTo(new paper.Rectangle(this.adjustSizeFrom, event.point));
+
+    // this.owner.myItemAdjustor.refreshItemAdjustorSize();
   }
 
   public onMouseUp(event) {
-    this.owner.refreshItem();
+    // this.owner.refreshItem();
     // TODO : HorizonContextMenuService Test Code
-    this.owner.layerService.horizonContextMenuService.open();
   }
 
   private initSizingDataBeforeResizing() {
@@ -70,12 +70,13 @@ export class SizeHandler extends ItemHandler{
     this.adjustSizeFrom = this.getOppositeHandlerPosition(this.handlerDirection);
   }
 
-  public onMouseEnter() {
-    this.owner.layerService.cursorChanger.changeResize(this.handlerDirection);
-  }
+  private setCursor() {
+    this.handlerCircleObject.onMouseEnter = () => {
+      this.owner.layerService.cursorChanger.changeResize(this.handlerDirection);
+    };
 
-  public onMouseLeave() {
-    this.owner.layerService.cursorChanger.syncCurrentPointerMode(this.owner.layerService.currentPointerMode);
+    this.handlerCircleObject.onMouseLeave = () => {
+      this.owner.layerService.cursorChanger.syncCurrentPointerMode(this.owner.layerService.currentPointerMode);
+    };
   }
-
 }

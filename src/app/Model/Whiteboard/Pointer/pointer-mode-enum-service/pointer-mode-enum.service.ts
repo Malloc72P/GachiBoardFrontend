@@ -8,18 +8,18 @@ export enum PointerMode {
   DRAW,
   HIGHLIGHTER,
   SHAPE,
+  LINK,
   ERASER,
   LASSO_SELECTOR,
 }
 
-// /View\Whiteboard\whiteboard-tool-panel\whiteboard-tool-panel.component.css 에
-// 등록한 클래스 'icon-tools-***' ***을 넣을것
 export enum PointerIcon {
   pointer,
   move,
   brush,
   highlighter,
   shape,
+  link,
   eraser,
   selector,
 }

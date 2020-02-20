@@ -77,6 +77,7 @@ export class WhiteboardMainComponent implements OnInit {
 
     //Whiteboard Main Paper 생성
     this.initWhiteboardPaper();
+    this.initTextEditEvent();
     //this.pointerModeManager.activateTool(PointerMode.DRAW);
 
     //서비스 이니셜라이징
@@ -104,7 +105,7 @@ export class WhiteboardMainComponent implements OnInit {
         // TODO : Tracker Test Code
         this.cursorTrackerService.refreshPoint();
       }
-    }
+    };
   }//ngOnInit()
 
   private initWhiteboardPaper() {
@@ -119,11 +120,23 @@ export class WhiteboardMainComponent implements OnInit {
     this.whiteboardPaperProject = this.whiteboardPaperScope.project;
   }
 
+  private initTextEditEvent() {
+    let target = document.getElementById('textEditor');
+    let hMenu = document.getElementById('horizonContextMenu');
+
+    target.addEventListener('blur', () => {
+      this.layerService.endEditText();
+    });
+
+    document.addEventListener('mousedown', (event) => {
+      if(!(event.target === target || event.target === hMenu)) {
+        target.blur();
+      }
+    });
+  }
 
   @HostListener('document:keydown', ['$event'])
   keydownHandler(event) {
-    event.preventDefault();
-
     // textEditor 에선 스킵
     if (event.target === document.getElementById("textEditor")) {
       return;
@@ -132,6 +145,8 @@ export class WhiteboardMainComponent implements OnInit {
     if (this.pointerModeManager.mouseDown) {
       return;
     }
+
+    event.preventDefault();
     // 전역
     switch (event.code) {
       case "KeyQ":
@@ -184,8 +199,7 @@ export class WhiteboardMainComponent implements OnInit {
           gsg.doCopy();
           break;
         case "KeyV":
-          gsg.doPaste(new Point(this.debugingService.cursorX, this.debugingService.cursorY));
-          //TODO 좌표 얻는 출처를 상현이의 커밋쪽을 기준으로 수정해야 함.
+          gsg.doPaste(this.cursorTrackerService.itsMe);
           break;
         case "KeyG":
           this.layerService.groupSelectedItems();

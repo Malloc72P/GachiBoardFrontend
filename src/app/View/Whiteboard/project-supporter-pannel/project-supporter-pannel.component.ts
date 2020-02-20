@@ -12,6 +12,7 @@ import {KanbanComponent} from '../../NormalPages/kanban/kanban.component';
 import {MatDialog} from '@angular/material';
 import {ImportFileService} from "../../../Model/Whiteboard/ImportFile/import-file.service";
 import {CursorTrackerService} from "../../../Model/Whiteboard/CursorTracker/cursor-tracker-service/cursor-tracker.service";
+import {DrawingLayerManagerService} from "../../../Model/Whiteboard/InfiniteCanvas/DrawingLayerManager/drawing-layer-manager.service";
 
 @Component({
   selector: 'app-project-supporter-pannel',
@@ -33,6 +34,7 @@ export class ProjectSupporterPannelComponent extends PopoverPanel  implements On
     private positionCalcService:PositionCalcService,
     private importFileService: ImportFileService,
     private cursorTrackerService: CursorTrackerService,
+    private layerService: DrawingLayerManagerService,
   ) {
     super(projectSupporterEnumService);
     this.projectSupporterEnumService = projectSupporterEnumService;
@@ -95,6 +97,12 @@ export class ProjectSupporterPannelComponent extends PopoverPanel  implements On
       case SupportMode.EXPORT:
         break;
       case SupportMode.TEXT_CHAT:
+        this.layerService.drawingLayer.children.forEach(value => {
+          console.log("Children ID : ", value.id, ", Children Object : ", value);
+        });
+        this.layerService.whiteboardItemArray.forEach(value => {
+          console.log("WBItem ID : ", value.group.id, "WBItem Object : ", value);
+        });
         break;
       case SupportMode.CURSOR_TRACKER:
         if(this.cursorTrackerService.isActivate) {
