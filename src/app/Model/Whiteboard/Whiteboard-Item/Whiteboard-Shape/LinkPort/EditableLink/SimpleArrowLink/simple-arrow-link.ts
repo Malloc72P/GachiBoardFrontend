@@ -9,9 +9,9 @@ import * as paper from 'paper';
 import Path = paper.Path;
 // @ts-ignore
 import Point = paper.Point;
-import {SimpleArrowLinkDto} from '../../../../../WhiteboardItemDto/WhiteboardShapeDto/LinkPortDto/EditableLinkDto/SimpleArrowLinkDto/simple-arrow-link-dto';
+import {SimpleArrowLinkDto} from '../../../../../../../DTO/WhiteboardItemDto/WhiteboardShapeDto/LinkPortDto/EditableLinkDto/SimpleArrowLinkDto/simple-arrow-link-dto';
 import {WhiteboardItemType} from '../../../../../../Helper/data-type-enum/data-type.enum';
-import {SimpleLineLinkDto} from '../../../../../WhiteboardItemDto/WhiteboardShapeDto/LinkPortDto/EditableLinkDto/SimpleLineLinkDto/simple-line-link-dto';
+import {SimpleLineLinkDto} from '../../../../../../../DTO/WhiteboardItemDto/WhiteboardShapeDto/LinkPortDto/EditableLinkDto/SimpleLineLinkDto/simple-line-link-dto';
 
 enum  ArrowSegmentEnum{
   ENTRY_POINT,

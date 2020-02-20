@@ -19,8 +19,8 @@ import {EditableLink} from './EditableLink/editable-link';
 import {LinkerModeEnum} from '../../../InfiniteCanvas/DrawingLayerManager/LinkModeManagerService/LinkMode/linker-mode-enum.enum';
 import {SimpleLineLink} from './EditableLink/SimpleLineLink/simple-line-link';
 import {SimpleArrowLink} from './EditableLink/SimpleArrowLink/simple-arrow-link';
-import {LinkPortDto} from '../../../WhiteboardItemDto/WhiteboardShapeDto/LinkPortDto/link-port-dto';
-import {EditableLinkDto} from '../../../WhiteboardItemDto/WhiteboardShapeDto/LinkPortDto/EditableLinkDto/editable-link-dto';
+import {LinkPortDto} from '../../../../../DTO/WhiteboardItemDto/WhiteboardShapeDto/LinkPortDto/link-port-dto';
+import {EditableLinkDto} from '../../../../../DTO/WhiteboardItemDto/WhiteboardShapeDto/LinkPortDto/EditableLinkDto/editable-link-dto';
 
 export class LinkPort {
   private _owner:WhiteboardShape;

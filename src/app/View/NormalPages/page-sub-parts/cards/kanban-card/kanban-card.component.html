@@ -1,0 +1,25 @@
+<div class="kanban-item-card-wrapper">
+  <mat-card class="kanban-item-card">
+
+    <div class="kanban-item-title-left-color" [ngStyle]="{ 'background-color' : kanbanItemDto.color }"></div>
+
+    <div class="kanban-card-title-wrapper">
+      <span class="text-ellipsis kanban-card-title">{{kanbanItemDto.title}}</span>
+      <div class="kanban-header-image" matTooltip="{{getUserName()}}" matTooltipPosition="above" mat-ripple
+           [ngStyle]="{ 'background-image' : 'url('+getProfileImg()+')' }"></div>
+    </div>
+
+    <mat-divider class="kanban-divider"></mat-divider>
+
+    <!--마테리얼 칩 영역-->
+    <div class="kanban-chip-list">
+      <mat-chip-list>
+        <mat-chip *ngFor="let tagItem of kanbanItemDto.tagIdList"
+                  title="{{tagItem.title}}">
+          {{tagItem.title}}
+        </mat-chip>
+
+      </mat-chip-list>
+    </div>
+  </mat-card>
+</div>

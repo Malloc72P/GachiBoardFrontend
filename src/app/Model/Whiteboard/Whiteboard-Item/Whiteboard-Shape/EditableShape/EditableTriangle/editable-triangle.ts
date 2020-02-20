@@ -13,7 +13,7 @@ import Color = paper.Color;
 import {WhiteboardItemType} from '../../../../../Helper/data-type-enum/data-type.enum';
 import {LinkPort} from '../../LinkPort/link-port';
 import {LinkPortDirectionEnum} from '../../LinkPort/LinkPortDirectionEnum/link-port-direction-enum.enum';
-import {EditableTriangleDto} from '../../../../WhiteboardItemDto/WhiteboardShapeDto/EditableShapeDto/EditableTriangleDto/editable-triangle-dto';
+import {EditableTriangleDto} from '../../../../../../DTO/WhiteboardItemDto/WhiteboardShapeDto/EditableShapeDto/EditableTriangleDto/editable-triangle-dto';
 export class EditableTriangle extends EditableShape {
   constructor(id, item:Item, textStyle, editText, layerService) {
     super(

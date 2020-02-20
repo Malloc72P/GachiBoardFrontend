@@ -11,10 +11,10 @@ export class AuthInterceptorService implements HttpInterceptor {
     public apiRequester: AuthRequestService
   ) { }
   intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-    console.log("AuthInterceptorService > intercept > 호출됨");
+    let token = `Bearer ${this.apiRequester.getAccessToken()}`;
     request = request.clone({
       setHeaders: {
-        Authorization: `Bearer ${this.apiRequester.getAccessToken()}`
+        Authorization: token
       }
     });
     return next.handle(request);

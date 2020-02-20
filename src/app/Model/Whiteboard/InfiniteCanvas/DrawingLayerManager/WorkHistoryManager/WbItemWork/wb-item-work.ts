@@ -1,5 +1,5 @@
 import {ItemLifeCycleEnum} from '../../../../Whiteboard-Item/WhiteboardItemLifeCycle/WhiteboardItemLifeCycle';
-import {WhiteboardItemDto} from '../../../../WhiteboardItemDto/whiteboard-item-dto';
+import {WhiteboardItemDto} from '../../../../../../DTO/WhiteboardItemDto/whiteboard-item-dto';
 
 export class WbItemWork {
   private _action:ItemLifeCycleEnum;

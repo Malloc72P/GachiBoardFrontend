@@ -14,10 +14,10 @@ import {WhiteboardItem} from '../whiteboard-item';
 import {EventEmitter} from '@angular/core';
 import {ItemLifeCycleEnum, ItemLifeCycleEvent} from '../WhiteboardItemLifeCycle/WhiteboardItemLifeCycle';
 import {Editable} from '../InterfaceEditable/editable';
-import {WhiteboardItemDto} from '../../WhiteboardItemDto/whiteboard-item-dto';
-import {EditableStrokeDto} from '../../WhiteboardItemDto/EditableStrokeDto/editable-stroke-dto';
-import {GachiPointDto} from '../../WhiteboardItemDto/PointDto/gachi-point-dto';
-import {GachiColorDto} from '../../WhiteboardItemDto/ColorDto/gachi-color-dto';
+import {WhiteboardItemDto} from '../../../../DTO/WhiteboardItemDto/whiteboard-item-dto';
+import {EditableStrokeDto} from '../../../../DTO/WhiteboardItemDto/EditableStrokeDto/editable-stroke-dto';
+import {GachiPointDto} from '../../../../DTO/WhiteboardItemDto/PointDto/gachi-point-dto';
+import {GachiColorDto} from '../../../../DTO/WhiteboardItemDto/ColorDto/gachi-color-dto';
 
 export abstract class EditableStroke extends WhiteboardItem implements Editable{
   private _segments: Array<Segment>;

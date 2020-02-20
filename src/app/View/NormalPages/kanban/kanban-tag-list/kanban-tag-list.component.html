@@ -1,0 +1,30 @@
+<mat-form-field class="kanban-item-tagWrapper">
+  <mat-chip-list #chipList >
+    <mat-chip
+      #tagViewItem
+      *ngFor="let tagItem of kanbanItem.tagList"
+      title="{{tagItem.title}}"
+      [removable]="removable"
+      (removed)="remove(tagItem)">
+      {{tagItem.title}}
+      <mat-icon matChipRemove
+                *ngIf="checkIsLocked()">cancel</mat-icon>
+    </mat-chip>
+    <input #tagInput
+           (focusin)="onTagInputerFocusIn()"
+           (focusout)="onTagInputerFocusOut()"
+           [hidden]="kanbanItem.lockedBy && checkEditorIsAnotherUser(kanbanItem.lockedBy)"
+           [formControl]="tagFormControl"
+           [matAutocomplete]="auto"
+           [matChipInputFor]="chipList"
+           [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
+           [matChipInputAddOnBlur]="addOnBlur"
+           (keydown)="onTagInputKeyDown($event)"
+           (matChipInputTokenEnd)="add($event)">
+  </mat-chip-list>
+  <mat-autocomplete #auto="matAutocomplete" (optionSelected)="selected($event)">
+    <mat-option *ngFor="let tagItem of filteredTags | async" [value]="tagItem">
+      {{tagItem.title}}
+    </mat-option>
+  </mat-autocomplete>
+</mat-form-field>

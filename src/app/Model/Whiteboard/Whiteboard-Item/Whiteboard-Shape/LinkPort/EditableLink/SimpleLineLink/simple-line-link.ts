@@ -1,8 +1,8 @@
 import {EditableLink} from '../editable-link';
 import {LinkPort} from '../../link-port';
 import {WhiteboardShape} from '../../../whiteboard-shape';
-import {SimpleArrowLinkDto} from '../../../../../WhiteboardItemDto/WhiteboardShapeDto/LinkPortDto/EditableLinkDto/SimpleArrowLinkDto/simple-arrow-link-dto';
-import {SimpleLineLinkDto} from '../../../../../WhiteboardItemDto/WhiteboardShapeDto/LinkPortDto/EditableLinkDto/SimpleLineLinkDto/simple-line-link-dto';
+import {SimpleArrowLinkDto} from '../../../../../../../DTO/WhiteboardItemDto/WhiteboardShapeDto/LinkPortDto/EditableLinkDto/SimpleArrowLinkDto/simple-arrow-link-dto';
+import {SimpleLineLinkDto} from '../../../../../../../DTO/WhiteboardItemDto/WhiteboardShapeDto/LinkPortDto/EditableLinkDto/SimpleLineLinkDto/simple-line-link-dto';
 import {WhiteboardItemType} from '../../../../../../Helper/data-type-enum/data-type.enum';
 
 export class SimpleLineLink extends EditableLink {

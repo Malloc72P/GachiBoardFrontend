@@ -16,6 +16,15 @@ export class RouterHelperService {
   goToLoginPage(){
     this.goToTarget("login");
   }
+  goToMainPage(){
+    this.goToTarget("mainpage");
+  }
+  goToHomePage(){
+    this.goToTarget("homepage");
+  }
+  goToProjectPage(projectId){
+    this.router.navigate(["project", {projectId:projectId}]);
+  }
   private goToTarget(target){
     this.router.navigate([target]);
   }

@@ -1,0 +1,40 @@
+<div class="main-outer-wrapper">
+
+  <div class="main-main-wrapper">
+    <app-gachi-header [headerMode]="'mainpage'"></app-gachi-header>
+
+    <mat-divider></mat-divider>
+
+    <app-gachi-main-header [userName]="userName"></app-gachi-main-header>
+
+    <mat-drawer-container class="example-sidenav-container" hasBackdrop="true">
+      <mat-drawer #mainLeftDrawer
+                  mode="push"
+                  class="main-sidebar">
+        <app-gachi-left-sidebar></app-gachi-left-sidebar>
+
+      </mat-drawer>
+
+      <mat-drawer-content class="main-article-wrapper">
+        <mat-card class="main-article-card">
+
+          <!--메인페이지 라우터 루트-->
+          <router-outlet name="mainpage">
+
+          </router-outlet>
+          <!--메인페이지 라우터 루트-->
+
+        </mat-card>
+
+      </mat-drawer-content>
+      <mat-drawer #drawer class="sidebar-wrapper"
+                  mode="push"
+                  position="end">
+        <app-gachi-right-sidebar></app-gachi-right-sidebar>
+      </mat-drawer>
+    </mat-drawer-container>
+
+  </div>
+  <div style="margin-top: 64px;"></div>
+  <app-gachi-footer></app-gachi-footer>
+</div>

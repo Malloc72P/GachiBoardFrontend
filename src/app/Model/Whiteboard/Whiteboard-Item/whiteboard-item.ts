@@ -17,8 +17,8 @@ import {SelectEventEnum} from '../InfiniteCanvas/DrawingLayerManager/SelectEvent
 import {SelectModeEnum} from '../InfiniteCanvas/DrawingLayerManager/SelectModeEnum/select-mode-enum.enum';
 import {MouseButtonEventEnum} from '../Pointer/MouseButtonEventEnum/mouse-button-event-enum.enum';
 import {EditableItemGroup} from './ItemGroup/EditableItemGroup/editable-item-group';
-import {WhiteboardItemDto} from '../WhiteboardItemDto/whiteboard-item-dto';
-import {GachiPointDto} from '../WhiteboardItemDto/PointDto/gachi-point-dto';
+import {WhiteboardItemDto} from '../../../DTO/WhiteboardItemDto/whiteboard-item-dto';
+import {GachiPointDto} from '../../../DTO/WhiteboardItemDto/PointDto/gachi-point-dto';
 
 export abstract class WhiteboardItem {
 

@@ -1,0 +1,13 @@
+.sidebar-sub{
+  margin-left: 10px;
+  margin-right: 10px;
+  font-size: 13pt;
+  color: rgba(0, 0, 0, 0.6);
+}
+.sidebar-wrapper{
+  text-align: center;
+}
+.sidebar-close{
+  margin-top: 20px;
+  margin-bottom: 15px;
+}

@@ -11,7 +11,7 @@ import Segment = paper.Segment;
 // @ts-ignore
 import Color = paper.Color;
 import {WhiteboardItemType} from '../../../../../Helper/data-type-enum/data-type.enum';
-import {EditableCircleDto} from '../../../../WhiteboardItemDto/WhiteboardShapeDto/EditableShapeDto/EditableCircleDto/editable-circle-dto';
+import {EditableCircleDto} from '../../../../../../DTO/WhiteboardItemDto/WhiteboardShapeDto/EditableShapeDto/EditableCircleDto/editable-circle-dto';
 export class EditableCircle extends EditableShape {
   private _radius: number;
   constructor(id, item:Item, textStyle, editText, layerService) {

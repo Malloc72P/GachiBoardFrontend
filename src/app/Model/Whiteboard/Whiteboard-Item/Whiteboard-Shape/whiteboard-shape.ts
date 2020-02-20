@@ -4,11 +4,11 @@ import * as paper from 'paper';
 import {LinkPort} from './LinkPort/link-port';
 import {LinkPortDirectionEnum} from './LinkPort/LinkPortDirectionEnum/link-port-direction-enum.enum';
 import {Editable} from '../InterfaceEditable/editable';
-import {WhiteboardShapeDto} from '../../WhiteboardItemDto/WhiteboardShapeDto/whiteboard-shape-dto';
+import {WhiteboardShapeDto} from '../../../../DTO/WhiteboardItemDto/WhiteboardShapeDto/whiteboard-shape-dto';
 // @ts-ignore
 import Item = paper.Item;
-import {GachiColorDto} from '../../WhiteboardItemDto/ColorDto/gachi-color-dto';
-import {LinkPortDto} from '../../WhiteboardItemDto/WhiteboardShapeDto/LinkPortDto/link-port-dto';
+import {GachiColorDto} from '../../../../DTO/WhiteboardItemDto/ColorDto/gachi-color-dto';
+import {LinkPortDto} from '../../../../DTO/WhiteboardItemDto/WhiteboardShapeDto/LinkPortDto/link-port-dto';
 
 export class WhiteboardShape extends WhiteboardItem implements Editable{
   private _width: number;

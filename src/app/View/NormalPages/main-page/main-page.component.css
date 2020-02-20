@@ -1,0 +1,40 @@
+.main-outer-wrapper{
+  width: 100%;
+  height: 100%;
+  overflow-y: auto;
+  /*background: rgba(69, 96, 255, 0.15);*/
+}
+.main-main-wrapper{
+  z-index: 2;
+  position: relative;
+  display: inline-block;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  /*background: rgba(0, 200, 81, 0.22);*/
+}
+
+/* ******************************** */
+/* ********* main Article ********* */
+/* ******************************** */
+.main-article-wrapper{
+  /*background: rgba(8, 0, 248, 0.33);*/
+  padding: 0 0 0 12px;
+  height: 100%;
+  background: white;
+}
+.main-article-card{
+  margin-bottom: 50px;
+  background-color: rgb(245, 245, 245);
+}
+.project-item-wrapper{
+  display: flex;
+  flex-flow: column;
+  margin-bottom: 24px;
+}
+/* ******************************** */
+/* ********* main Article ********* */
+/* ******************************** */
+
+
+

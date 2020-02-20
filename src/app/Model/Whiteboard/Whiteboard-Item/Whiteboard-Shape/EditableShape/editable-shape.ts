@@ -23,7 +23,7 @@ import {PositionCalcService} from '../../../PositionCalc/position-calc.service';
 import {EventEmitter} from '@angular/core';
 import {ItemLifeCycleEnum, ItemLifeCycleEvent} from '../../WhiteboardItemLifeCycle/WhiteboardItemLifeCycle';
 import {WhiteboardShape} from '../whiteboard-shape';
-import {EditableShapeDto} from '../../../WhiteboardItemDto/WhiteboardShapeDto/EditableShapeDto/editable-shape-dto';
+import {EditableShapeDto} from '../../../../../DTO/WhiteboardItemDto/WhiteboardShapeDto/EditableShapeDto/editable-shape-dto';
 
 export abstract class EditableShape extends WhiteboardShape {
   private _textContent: string;

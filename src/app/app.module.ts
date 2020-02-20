@@ -2,17 +2,34 @@ import { BrowserModule } from '@angular/platform-browser';
 import {NgModule} from '@angular/core';
 
 import { AppComponent } from './app.component';
-import { LoginPageComponent } from './View/SocialLogin/login-page/login-page.component';
+import { LoginPageComponent } from './View/NormalPages/SocialLogin/login-page/login-page.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import {
   MatAutocompleteModule,
+  MatBadgeModule,
   MatButtonModule,
   MatButtonToggleModule,
-  MatCardModule, MatCheckboxModule, MatChipsModule, MatDialogModule,
-  MatDividerModule, MatFormFieldModule, MatGridListModule, MatIconModule, MatInputModule, MatMenuModule,
+  MatCardModule,
+  MatCheckboxModule,
+  MatChipsModule,
+  MatDialogModule,
+  MatDividerModule,
+  MatFormFieldModule,
+  MatGridListModule,
+  MatIconModule,
+  MatInputModule,
+  MatListModule,
+  MatMenuModule,
+  MatProgressSpinnerModule,
   MatRadioModule,
-  MatRippleModule, MatSelectModule,
-  MatSliderModule, MatToolbarModule, MatTooltipModule
+  MatRippleModule,
+  MatSelectModule,
+  MatSidenavModule,
+  MatSliderModule,
+  MatSpinner,
+  MatStepperModule,
+  MatToolbarModule,
+  MatTooltipModule
 } from '@angular/material';
 import { RouterModule, Routes } from '@angular/router';
 import { WhiteboardMainComponent } from './View/Whiteboard/whiteboard-main/whiteboard-main.component';
@@ -21,7 +38,7 @@ import { RouterHelperService } from './Model/Helper/router-helper-service/router
 import { AuthRequestService } from './Controller/SocialLogin/auth-request/auth-request.service';
 import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import { AuthInterceptorService } from './Controller/SocialLogin/auth-interceptor/auth-interceptor.service';
-import { AuthProcessComponent } from './View/SocialLogin/auth-process/auth-process.component';
+import { AuthProcessComponent } from './View/NormalPages/SocialLogin/auth-process/auth-process.component';
 import {PointerModeManagerService} from './Model/Whiteboard/Pointer/pointer-mode-manager-service/pointer-mode-manager.service';
 
 import {PositionCalcService} from "./Model/Whiteboard/PositionCalc/position-calc.service";
@@ -44,17 +61,17 @@ import {MinimapSyncService} from './Model/Whiteboard/InfiniteCanvas/MinimapSync/
 import { ToolHighlighterPanelComponent } from './View/Whiteboard/whiteboard-tool-panel/tool-highlighter-panel/tool-highlighter-panel.component';
 import {HighlighterService} from './Model/Whiteboard/Pointer/highlighter-service/highlighter.service';
 import { ProjectSupporterPannelComponent } from './View/Whiteboard/project-supporter-pannel/project-supporter-pannel.component';
-import { KanbanComponent } from './View/Whiteboard/project-supporter-pannel/kanban/kanban.component';
+import { KanbanComponent } from './View/NormalPages/kanban/kanban.component';
 import {PopupManagerService} from './Model/PopupManager/popup-manager.service';
-import { KanbanTagListComponent } from './View/Whiteboard/project-supporter-pannel/kanban/kanban-tag-list/kanban-tag-list.component';
+import { KanbanTagListComponent } from './View/NormalPages/kanban/kanban-tag-list/kanban-tag-list.component';
 import {KanbanTagListManagerService} from './Model/Whiteboard/ProjectSupporter/Kanban/KanbanTagListManager/kanban-tag-list-manager.service';
 import {AnimeManagerService} from './Model/AnimeManager/anime-manager.service';
-import { KanbanItemEditComponent } from './View/Whiteboard/project-supporter-pannel/kanban/kanban-item-edit/kanban-item-edit.component';
+import { KanbanItemEditComponent } from './View/NormalPages/kanban/kanban-item-edit/kanban-item-edit.component';
 import {UserManagerService} from './Model/UserManager/user-manager.service';
 import {KanbanItemColorService} from './Model/Whiteboard/ProjectSupporter/Kanban/KanbanItemColorEnumManager/kanban-item-color.service';
-import { KanbanItemCreateComponent } from './View/Whiteboard/project-supporter-pannel/kanban/kanban-item-create/kanban-item-create.component';
-import { KanbanGroupSettingComponent } from './View/Whiteboard/project-supporter-pannel/kanban/kanban-group-setting/kanban-group-setting.component';
-import { KanbanTagManagementComponent } from './View/Whiteboard/project-supporter-pannel/kanban/kanban-tag-management/kanban-tag-management.component';
+import { KanbanItemCreateComponent } from './View/NormalPages/kanban/kanban-item-create/kanban-item-create.component';
+import { KanbanGroupSettingComponent } from './View/NormalPages/kanban/kanban-group-setting/kanban-group-setting.component';
+import { KanbanTagManagementComponent } from './View/NormalPages/kanban/kanban-tag-management/kanban-tag-management.component';
 import { AreYouSurePanelComponent } from './View/Commons/are-you-sure-panel/are-you-sure-panel.component';
 import {AreYouSurePanelService} from './Model/PopupManager/AreYouSurePanelManager/are-you-sure-panel.service';
 import { ToolShapePanelComponent } from './View/Whiteboard/whiteboard-tool-panel/tool-shape-panel/tool-shape-panel.component';
@@ -72,17 +89,85 @@ import { SubPanelForFillComponent } from './View/Whiteboard/whiteboard-context-m
 import {HorizonContextMenuService} from "./Model/Whiteboard/ContextMenu/horizon-context-menu-service/horizon-context-menu.service";
 import { SubPanelForArrowComponent } from './View/Whiteboard/whiteboard-context-menu/horizon-context-menu/sub-panel-arrow/sub-panel-for-arrow.component';
 import { SubPanelForFontComponent } from './View/Whiteboard/whiteboard-context-menu/horizon-context-menu/sub-panel-font/sub-panel-for-font.component';
+import { HomePageComponent } from './View/NormalPages/home-page/home-page.component';
+import { MainPageComponent } from './View/NormalPages/main-page/main-page.component';
+import { GachiFooterComponent } from './View/NormalPages/page-sub-parts/footer/gachi-footer/gachi-footer.component';
+import { RightButtonGroupComponent } from './View/NormalPages/page-sub-parts/header/right-button-group/right-button-group.component';
+import { GachiHeaderComponent } from './View/NormalPages/page-sub-parts/header/gachi-header/gachi-header.component';
+import { GachiRightSidebarComponent } from './View/NormalPages/page-sub-parts/sidebars/gachi-right-sidebar/gachi-right-sidebar.component';
+import {GachiSidebarManagerService} from './Model/NormalPagesManager/gachi-sidebar-manager/gachi-sidebar-manager.service';
+import { SignOutComponent } from './View/NormalPages/SocialLogin/sign-out/sign-out.component';
+import { GachiMainHeaderComponent } from './View/NormalPages/page-sub-parts/header/gachi-main-header/gachi-main-header.component';
+import { GachiLeftSidebarComponent } from './View/NormalPages/page-sub-parts/sidebars/gachi-left-sidebar/gachi-left-sidebar.component';
+import { ProjectCardComponent } from './View/NormalPages/page-sub-parts/cards/project-card/project-card.component';
+import {UserCardComponent} from './View/NormalPages/page-sub-parts/cards/user-card/user-card.component';
+import {HtmlHelperService} from './Model/NormalPagesManager/HtmlHelperService/html-helper.service';
+import { MainPageRootComponent } from './View/NormalPages/main-page/main-page-root/main-page-root.component';
+import { MainPageProjectComponent } from './View/NormalPages/main-page/main-page-project/main-page-project.component';
+import { KanbanCardComponent } from './View/NormalPages/page-sub-parts/cards/kanban-card/kanban-card.component';
+import { WhiteboardCardComponent } from './View/NormalPages/page-sub-parts/cards/whiteboard-card/whiteboard-card.component';
+import { UserOverlayCardComponent } from './View/NormalPages/page-sub-parts/cards/user-overlay-card/user-overlay-card.component';
+import { CreateProjectComponent } from './View/NormalPages/main-page/main-page-root/create-project/create-project.component';
+import {ProjectRequesterService} from './Controller/Project/project-requester.service';
+
+import { SocketIoModule, SocketIoConfig } from 'ngx-socket-io';
+import {HttpHelper} from './Model/Helper/http-helper/http-helper';
+import { CreateInviteCodeComponent } from './View/NormalPages/main-page/main-page-project/create-invite-code/create-invite-code.component';
+import { InvitationComponent } from './View/NormalPages/invitation/invitation.component';
+import {KanbanEventManagerService} from './Model/Whiteboard/ProjectSupporter/Kanban/kanban-event-manager.service';
+import {UiService} from './Model/Helper/ui-service/ui.service';
+import {OverlayModule} from '@angular/cdk/overlay';
+const config: SocketIoConfig = { url: HttpHelper.apiUrl, options: {} };
 
 const appRoutes: Routes = [
+  {
+    path: 'homepage',
+    component: HomePageComponent,
+    data: { title: 'Home' }
+  },
+  {
+    path: 'mainpage',
+    component: MainPageComponent,
+    data: { title: 'MainPage' },
+    children : [
+      {
+        path: '',
+        component: MainPageRootComponent,
+        outlet:'mainpage',
+      },
+    ]
+  },
+  {
+    path: 'project',
+    component: MainPageComponent,
+    data: { title: 'MainPage' },
+    children : [
+      {
+        path: '',
+        component: MainPageProjectComponent,
+        outlet:'mainpage',
+      },
+    ]
+  },
+  {
+    path: '',
+    redirectTo: 'homepage',
+    pathMatch: 'full'
+  },
+  {
+    path: 'invitation',
+    component: InvitationComponent,
+    data: { title: 'Invitation' }
+  },
   {
     path: 'login',
     component: LoginPageComponent,
     data: { title: 'SocialLogin' }
   },
   {
-    path: '',
-    redirectTo: 'whiteboard',
-    pathMatch: 'full'
+    path: 'signout',
+    component: SignOutComponent,
+    data: { title: 'SignOut' }
   },
   {
     path: 'whiteboard',
@@ -97,7 +182,7 @@ const appRoutes: Routes = [
   {
     path: 'login/failure',
     component: AuthProcessComponent,
-    data: { title: 'Whiteboard' }
+    data: { title: 'homepage' }
   }
 ];
 
@@ -127,6 +212,25 @@ const appRoutes: Routes = [
     SubPanelForFillComponent,
     SubPanelForArrowComponent,
     SubPanelForFontComponent,
+    HomePageComponent,
+    MainPageComponent,
+    GachiFooterComponent,
+    RightButtonGroupComponent,
+    GachiHeaderComponent,
+    GachiRightSidebarComponent,
+    SignOutComponent,
+    GachiMainHeaderComponent,
+    GachiLeftSidebarComponent,
+    ProjectCardComponent,
+    UserCardComponent,
+    MainPageRootComponent,
+    MainPageProjectComponent,
+    KanbanCardComponent,
+    WhiteboardCardComponent,
+    UserOverlayCardComponent,
+    CreateProjectComponent,
+    CreateInviteCodeComponent,
+    InvitationComponent,
   ],
   entryComponents: [
     KanbanComponent,
@@ -135,6 +239,9 @@ const appRoutes: Routes = [
     KanbanGroupSettingComponent,
     KanbanTagManagementComponent,
     AreYouSurePanelComponent,
+    CreateProjectComponent,
+    CreateInviteCodeComponent,
+    MatSpinner
   ],
   imports: [
     BrowserModule,
@@ -168,7 +275,14 @@ const appRoutes: Routes = [
     MatSelectModule,
     MatMenuModule,
     MatCheckboxModule,
-    MatTooltipModule
+    MatTooltipModule,
+    MatSidenavModule,
+    MatListModule,
+    SocketIoModule.forRoot(config),
+    MatStepperModule,
+    MatBadgeModule,
+    MatProgressSpinnerModule,
+    OverlayModule
   ],
   providers: [
     RouterHelperService,
@@ -203,6 +317,12 @@ const appRoutes: Routes = [
     CursorTrackerService,
     CursorChangeService,
     HorizonContextMenuService,
+    AuthRequestService,
+    GachiSidebarManagerService,
+    HtmlHelperService,
+    ProjectRequesterService,
+    KanbanEventManagerService,
+    UiService
   ],
   bootstrap: [AppComponent]
 })

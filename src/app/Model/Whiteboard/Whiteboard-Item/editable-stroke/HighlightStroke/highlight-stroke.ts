@@ -2,7 +2,7 @@ import {EditableStroke} from '../editable-stroke';
 
 import * as paper from 'paper';
 import {WhiteboardItemType} from '../../../../Helper/data-type-enum/data-type.enum';
-import {HighlightStrokeDto} from '../../../WhiteboardItemDto/EditableStrokeDto/HighlightStrokeDto/highlight-stroke-dto';
+import {HighlightStrokeDto} from '../../../../../DTO/WhiteboardItemDto/EditableStrokeDto/HighlightStrokeDto/highlight-stroke-dto';
 // @ts-ignore
 import Path = paper.Path;
 

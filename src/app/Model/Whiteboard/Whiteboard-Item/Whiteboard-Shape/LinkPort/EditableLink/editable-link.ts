@@ -22,9 +22,9 @@ import {MouseButtonEventEnum} from '../../../../Pointer/MouseButtonEventEnum/mou
 import {LinkAdjustorPositionEnum} from './linkAdjustorPositionEnum/link-adjustor-position-enum.enum';
 import {HandlerOption, ItemAdjustor} from '../../../ItemAdjustor/item-adjustor';
 import {WhiteboardShape} from '../../whiteboard-shape';
-import {WhiteboardShapeDto} from '../../../../WhiteboardItemDto/WhiteboardShapeDto/whiteboard-shape-dto';
-import {GachiColorDto} from '../../../../WhiteboardItemDto/ColorDto/gachi-color-dto';
-import {EditableLinkDto} from '../../../../WhiteboardItemDto/WhiteboardShapeDto/LinkPortDto/EditableLinkDto/editable-link-dto';
+import {WhiteboardShapeDto} from '../../../../../../DTO/WhiteboardItemDto/WhiteboardShapeDto/whiteboard-shape-dto';
+import {GachiColorDto} from '../../../../../../DTO/WhiteboardItemDto/ColorDto/gachi-color-dto';
+import {EditableLinkDto} from '../../../../../../DTO/WhiteboardItemDto/WhiteboardShapeDto/LinkPortDto/EditableLinkDto/editable-link-dto';
 import {WhiteboardItemType} from '../../../../../Helper/data-type-enum/data-type.enum';
 
 export abstract class EditableLink implements Editable{
