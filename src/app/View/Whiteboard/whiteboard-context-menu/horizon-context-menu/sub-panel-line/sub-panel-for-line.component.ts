@@ -16,26 +16,26 @@ import {EditableLink} from "../../../../../Model/Whiteboard/Whiteboard-Item/Whit
 })
 export class SubPanelForLineComponent implements OnInit {
   // TODO : 유저 데이터에 있을 컬러를 colors 로 지정해주면 댐 -- 전역에서 사용하는 user-color
-  private colors = [
+  public colors = [
     new Color(0, 0, 0),
     new Color(255, 0, 0),
     new Color(0, 255, 0),
     new Color(0, 0, 255),
   ];
-  private colorPickerPicked;
+  public colorPickerPicked;
 
   constructor(
-    private menu: HorizonContextMenuService,
+    public menu: HorizonContextMenuService,
   ) { }
 
   ngOnInit() {
   }
 
-  private colorToHTMLRGB(index: number) {
+  public colorToHTMLRGB(index: number) {
     return this.colors[index].toCSS(false);
   }
 
-  private onStrokeWidthChanged(event: MatSliderChange) {
+  public onStrokeWidthChanged(event: MatSliderChange) {
     if(this.menu.item instanceof EditableLink) {
       // 리메이크한 구조의 EditableLink 코드
       this.menu.item.linkWidth = event.value;
@@ -45,7 +45,7 @@ export class SubPanelForLineComponent implements OnInit {
     }
   }
 
-  private onColorPickerClicked(index: number) {
+  public onColorPickerClicked(index: number) {
     if(this.menu.item instanceof EditableLink) {
       // 리메이크한 구조의 EditableLink 코드
       this.menu.item.linkColor = this.colors[index];
@@ -55,13 +55,13 @@ export class SubPanelForLineComponent implements OnInit {
     }
   }
 
-  private onAddColorClicked() {
+  public onAddColorClicked() {
     let color = new Color(this.colorPickerPicked);
     this.colors.push(color);
     this.onColorPickerClicked(this.colors.length - 1);
   }
 
-  private colorSelectedToHTML(index: number) {
+  public colorSelectedToHTML(index: number) {
     if(this.menu.globalSelectedGroup.wbItemGroup.length > 0) {
       if(this.colors[index].equals(this.menu.coreItem.strokeColor)) {
         return "selected";

@@ -29,8 +29,8 @@ export class KanbanItemEditComponent implements OnInit {
   selected = 0;
   constructor(
     public dialogRef: MatDialogRef<KanbanItemEditComponent>,
-    private userManagerService:UserManagerService,
-    private colorService:KanbanItemColorService,
+    public userManagerService:UserManagerService,
+    public colorService:KanbanItemColorService,
     @Inject(MAT_DIALOG_DATA) public data: EditKanbanDialogData) {
     this.kanbanItem = data.kanbanItem;
     this.kanbanGroup = data.kanbanGroup;

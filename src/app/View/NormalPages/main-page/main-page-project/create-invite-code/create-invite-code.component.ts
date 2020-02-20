@@ -22,20 +22,20 @@ export class CreateInviteCodeComponentData{
   './../../../gachi-font.css','./../../../gachi-panel.css']
 })
 export class CreateInviteCodeComponent implements OnInit {
-  @ViewChild('stepper', {static: false}) stepper: MatStepper;
-  @ViewChild('remainSlider', {static: false}) remainSlider;
+  @ViewChild('stepper') stepper: MatStepper;
+  @ViewChild('remainSlider') remainSlider;
   inviteCodeFormGroup:FormGroup;
   finishFormGroup:FormGroup;
 
-  private projectDto:ProjectDto;
-  private inviteCode = "";
-  private inviteUrl = "";
+  public projectDto:ProjectDto;
+  public inviteCode = "";
+  public inviteUrl = "";
 
   constructor(
-    private dialogRef: MatDialogRef<CreateInviteCodeComponentData>,
-    private authRequestService:AuthRequestService,
-    private projectRequesterService:ProjectRequesterService,
-    private _formBuilder: FormBuilder,
+    public dialogRef: MatDialogRef<CreateInviteCodeComponentData>,
+    public authRequestService:AuthRequestService,
+    public projectRequesterService:ProjectRequesterService,
+    public _formBuilder: FormBuilder,
     @Inject(MAT_DIALOG_DATA) public data: CreateInviteCodeComponentData
   ) {
     this.projectDto = data.projectDto;

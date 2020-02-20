@@ -12,11 +12,11 @@ import {EditableLinkTypes} from "../../../../../Model/Whiteboard/Whiteboard-Item
   styleUrls: ['../horizon-context-menu.component.css']
 })
 export class SubPanelForArrowComponent implements OnInit {
-  private arrowStyles: Array<string>;
+  public arrowStyles: Array<string>;
 
   constructor(
-    private menu: HorizonContextMenuService,
-    private linkModeManager: LinkModeManagerService
+    public menu: HorizonContextMenuService,
+    public linkModeManager: LinkModeManagerService
   ) { }
 
   ngOnInit() {
@@ -33,11 +33,11 @@ export class SubPanelForArrowComponent implements OnInit {
   //   return false;
   // }
 
-  private onClickArrowStyle(style: string) {
+  public onClickArrowStyle(style: string) {
 
   }
 
-  private initArrowStyles() {
+  public initArrowStyles() {
     this.arrowStyles = new Array<string>();
     for(let style in EditableLinkTypes) {
       if(EditableLinkTypes.hasOwnProperty(style)) {

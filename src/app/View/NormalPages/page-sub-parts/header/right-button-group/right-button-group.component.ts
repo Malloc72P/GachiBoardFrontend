@@ -12,12 +12,12 @@ import {GachiSidebarManagerService} from '../../../../../Model/NormalPagesManage
 export class RightButtonGroupComponent implements OnInit {
   @Input() headerMode;
   constructor(
-    private authService:AuthRequestService,
-    private routerHelperService:RouterHelperService,
-    private sidebarManagerService:GachiSidebarManagerService
+    public authService:AuthRequestService,
+    public routerHelperService:RouterHelperService,
+    public sidebarManagerService:GachiSidebarManagerService
   ) { }
 
-  private isLoggedIn = false;
+  public isLoggedIn = false;
 
   ngOnInit() {
     this.isLoggedIn = this.authService.checkLoggedInUser();
@@ -34,14 +34,14 @@ export class RightButtonGroupComponent implements OnInit {
     })
   }
 
-  private toggleRightSidebar(){
+  public toggleRightSidebar(){
     this.sidebarManagerService.toggleRightSidebar();
   }
 
-  private onSignOutClick(){
+  public onSignOutClick(){
     this.authService.signOut();
   }
-  private onLogoClick(){
+  public onLogoClick(){
     this.routerHelperService.goToHomePage();
   }
 

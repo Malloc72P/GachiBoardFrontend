@@ -12,20 +12,20 @@ import {PointerMode} from '../../../../Model/Whiteboard/Pointer/pointer-mode-enu
   styleUrls: ['./tool-highlighter-panel.component.css']
 })
 export class ToolHighlighterPanelComponent implements OnInit {
-  private strokeWidth: number;
-  private colorPickerPicked: string;
-  private highlighterAlpha = 0.3;
+  public strokeWidth: number;
+  public colorPickerPicked: string;
+  public highlighterAlpha = 0.3;
 
-  private strokeColorIndex: number = 0;
-  private colors = [
+  public strokeColorIndex: number = 0;
+  public colors = [
     new Color(255, 255, 0, this.highlighterAlpha),
     new Color(0, 255, 0, this.highlighterAlpha),
     new Color(255, 0, 0, this.highlighterAlpha),
   ];
 
   constructor(
-    private pointerModeManagerService: PointerModeManagerService,
-    private panelManger: PanelManagerService
+    public pointerModeManagerService: PointerModeManagerService,
+    public panelManger: PanelManagerService
   ) { }
 
   ngOnInit() {

@@ -17,25 +17,25 @@ import {DrawingLayerManagerService} from '../../../../Model/Whiteboard/InfiniteC
 })
 export class HorizonContextMenuComponent implements OnInit {
   // TODO : 유저 데이터에 있을 컬러를 colors 로 지정해주면 댐 -- 전역에서 사용하는 user-color
-  private colors = [
+  public colors = [
     new Color(0, 0, 0),
     new Color(255, 0, 0),
     new Color(0, 255, 0),
     new Color(0, 0, 255),
   ];
-  private colorPickerPicked;
+  public colorPickerPicked;
 
   constructor(
-    private menu: HorizonContextMenuService,
-    private layerService: DrawingLayerManagerService,
+    public menu: HorizonContextMenuService,
+    public layerService: DrawingLayerManagerService,
   ) { }
 
   ngOnInit() {
   }
 
-  // ################### Private Method #####################
+  // ################### public Method #####################
 
-  private onClickMenuItem(action: HorizonContextMenuActions) {
+  public onClickMenuItem(action: HorizonContextMenuActions) {
     this.menu.subPanelHidden.hideOther(action);
     switch (action) {
       case HorizonContextMenuActions.LINE:
@@ -69,7 +69,7 @@ export class HorizonContextMenuComponent implements OnInit {
     }
   }
 
-  private getMenuButtonIcon(action: HorizonContextMenuActions) {
+  public getMenuButtonIcon(action: HorizonContextMenuActions) {
     switch (action) {
       case HorizonContextMenuActions.LINE:
         return "/assets/images/context-menu/line.svg#line";

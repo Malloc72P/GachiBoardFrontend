@@ -16,14 +16,14 @@ import {RouterHelperService} from '../../../../Model/Helper/router-helper-servic
   styleUrls: ['./main-page-root.component.css', './../main-article-style.css', './../../gachi-font.css']
 })
 export class MainPageRootComponent implements OnInit {
-  private projectList:Array<ProjectDto>;
-  private userDto:UserDTO = new UserDTO();
+  public projectList:Array<ProjectDto>;
+  public userDto:UserDTO = new UserDTO();
   constructor(
     public dialog: MatDialog,
-    private projectRequesterService:ProjectRequesterService,
-    private authRequestService:AuthRequestService,
-    private websocketManagerService:WebsocketManagerService,
-    private routerHelperService:RouterHelperService,
+    public projectRequesterService:ProjectRequesterService,
+    public authRequestService:AuthRequestService,
+    public websocketManagerService:WebsocketManagerService,
+    public routerHelperService:RouterHelperService,
   ) {
     let inviteCode = null;
     inviteCode = localStorage.getItem("inviteCode");

@@ -20,14 +20,14 @@ export class KanbanGroupSettingComponent implements OnInit {
   kanbanGroups: Array<KanbanGroup>;
   kanbanGroupsFormGroup: FormGroup;
   prevKanbanGroupSize = 0;
-  private onSubmitFlag = true;
+  public onSubmitFlag = true;
 
   constructor(
     public dialogRef: MatDialogRef<KanbanGroupSettingComponent>,
-    private userManagerService: UserManagerService,
-    private colorService: KanbanItemColorService,
-    private areYouSurePanelService: AreYouSurePanelService,
-    private htmlHelperService: HtmlHelperService,
+    public userManagerService: UserManagerService,
+    public colorService: KanbanItemColorService,
+    public areYouSurePanelService: AreYouSurePanelService,
+    public htmlHelperService: HtmlHelperService,
     @Inject(MAT_DIALOG_DATA) public data: KanbanGroupSettingDialogData,
   ) {
     this.kanbanGroups = new Array<KanbanGroup>();

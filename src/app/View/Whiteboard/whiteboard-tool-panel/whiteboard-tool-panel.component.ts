@@ -12,13 +12,13 @@ import {PointerModeEvent} from '../../../Model/Whiteboard/Pointer/PointerModeEve
   styleUrls: ['./whiteboard-tool-panel.component.css']
 })
 export class WhiteboardToolPanelComponent extends PopoverPanel implements OnInit {
-  private toolPanelToggleGroupValue;
+  public toolPanelToggleGroupValue;
 
   constructor(
-    private pointerModeEnumService: PointerModeEnumService,
+    public pointerModeEnumService: PointerModeEnumService,
     public pointerModeManagerService: PointerModeManagerService,
-    private panelManager: PanelManagerService,
-    private layerService: DrawingLayerManagerService,
+    public panelManager: PanelManagerService,
+    public layerService: DrawingLayerManagerService,
   ) {
     super(pointerModeEnumService);
     this.pointerModeEnumService = pointerModeEnumService;

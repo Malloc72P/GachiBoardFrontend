@@ -20,7 +20,7 @@ import Color = paper.Color;
 })
 export class SubPanelForFontComponent implements OnInit {
   // TODO : 유저 데이터에 있을 컬러를 colors 로 지정해주면 댐 -- 전역에서 사용하는 user-color
-  private colors = [
+  public colors = [
     new Color(0, 0, 0),
     new Color(255, 0, 0),
     new Color(0, 255, 0),
@@ -28,19 +28,19 @@ export class SubPanelForFontComponent implements OnInit {
   ];
 
   // TODO : WebFont 넣어주면 댐
-  private fontFamilyList = [
+  public fontFamilyList = [
     "sans-serif",
     "monospace",
   ];
-  private colorPickerPicked;
-  private fontStyle: FormGroup;
+  public colorPickerPicked;
+  public fontStyle: FormGroup;
 
-  private minSize = 10;
-  private maxSize = 100;
+  public minSize = 10;
+  public maxSize = 100;
 
   constructor(
-    private menu: HorizonContextMenuService,
-    private formBuilder: FormBuilder,
+    public menu: HorizonContextMenuService,
+    public formBuilder: FormBuilder,
   ) {
     this.fontStyle = formBuilder.group({
       family: this.fontFamilyList[0],
@@ -54,7 +54,7 @@ export class SubPanelForFontComponent implements OnInit {
 
   // ############# Font Family ##############
 
-  private onChangeFontFamily() {
+  public onChangeFontFamily() {
     this.menu.item.textStyle.fontFamily = this.fontStyle.value.family;
   }
 
@@ -68,7 +68,7 @@ export class SubPanelForFontComponent implements OnInit {
 
   // ############## Font Size ###############
 
-  private onChangeFontSize() {
+  public onChangeFontSize() {
     let changedSize = this.fontStyle.value.size;
 
     if(!(changedSize >= this.minSize && changedSize <= this.maxSize)) {
@@ -88,7 +88,7 @@ export class SubPanelForFontComponent implements OnInit {
 
   // ############# Font Weight ##############
 
-  private onChangeFontWeight(event: MatButtonToggleChange) {
+  public onChangeFontWeight(event: MatButtonToggleChange) {
     this.menu.item.textStyle.isBold = event.value.includes("bold");
     this.menu.item.textStyle.isItalic = event.value.includes("italic");
 
@@ -110,21 +110,21 @@ export class SubPanelForFontComponent implements OnInit {
 
   // ################ Color #################
 
-  private colorToHTMLRGB(index: number) {
+  public colorToHTMLRGB(index: number) {
     return this.colors[index].toCSS(false);
   }
 
-  private onColorPickerClicked(index: number) {
+  public onColorPickerClicked(index: number) {
     this.menu.item.textStyle.fontColor = this.colors[index].toCSS(false);
   }
 
-  private onAddColorClicked() {
+  public onAddColorClicked() {
     let color = new Color(this.colorPickerPicked);
     this.colors.push(color);
     this.onColorPickerClicked(this.colors.length - 1);
   }
 
-  private colorSelectedToHTML(index: number) {
+  public colorSelectedToHTML(index: number) {
     if(this.menu.item instanceof EditableShape) {
       if(this.colors[index].equals(this.menu.item.editText.fillColor)) {
         return "selected";

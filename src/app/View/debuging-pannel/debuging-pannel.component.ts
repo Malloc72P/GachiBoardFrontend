@@ -21,13 +21,13 @@ import {DebugingService} from "../../Model/Helper/DebugingHelper/debuging.servic
 })
 export class DebugingPannelComponent implements OnInit {
 
-  private paperProject;
+  public paperProject;
   constructor(
-    private pointerModeManager      : PointerModeManagerService,
-    private infiniteCanvasService   : InfiniteCanvasService,
-    private posCalcService          : PositionCalcService,
-    private zoomControlService      : ZoomControlService,
-    private debugingService         : DebugingService,
+    public pointerModeManager      : PointerModeManagerService,
+    public infiniteCanvasService   : InfiniteCanvasService,
+    public posCalcService          : PositionCalcService,
+    public zoomControlService      : ZoomControlService,
+    public debugingService         : DebugingService,
   ) { }
 
   ngOnInit() {

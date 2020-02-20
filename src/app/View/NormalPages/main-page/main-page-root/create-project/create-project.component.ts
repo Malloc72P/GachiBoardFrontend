@@ -20,14 +20,14 @@ export class CreateProjectComponentData{
     './../../../gachi-panel.css']
 })
 export class CreateProjectComponent implements OnInit {
-  @ViewChild('projectCreateForm', {static: false}) formEl: ElementRef<HTMLFormElement>;
+  @ViewChild('projectCreateForm') formEl: ElementRef<HTMLFormElement>;
 
   projectFormGroup:FormGroup;
 
   constructor(
-    private dialogRef: MatDialogRef<CreateProjectComponentData>,
-    private authRequestService:AuthRequestService,
-    private projectRequesterService:ProjectRequesterService,
+    public dialogRef: MatDialogRef<CreateProjectComponentData>,
+    public authRequestService:AuthRequestService,
+    public projectRequesterService:ProjectRequesterService,
 
     @Inject(MAT_DIALOG_DATA) public data: CreateProjectComponentData
   ) {

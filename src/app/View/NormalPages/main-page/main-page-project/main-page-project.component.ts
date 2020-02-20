@@ -33,23 +33,23 @@ import {WsKanbanController} from '../../../../Controller/Controller-WebSocket/we
     '../../popup-pannel-commons.css']
 })
 export class MainPageProjectComponent implements OnInit, OnDestroy {
-  private projectId = "";
+  public projectId = "";
 
-  private userDto:UserDTO = new UserDTO();
-  private projectDto:ProjectDto = new ProjectDto();
+  public userDto:UserDTO = new UserDTO();
+  public projectDto:ProjectDto = new ProjectDto();
 
   inProgressGroup:Array<KanbanItemDto>;
 
   constructor(
-    private route: ActivatedRoute,
-    private tagListMgrService:KanbanTagListManagerService,
-    private userManagerService:UserManagerService,
-    private htmlHelperService:HtmlHelperService,
-    private authRequestService:AuthRequestService,
+    public route: ActivatedRoute,
+    public tagListMgrService:KanbanTagListManagerService,
+    public userManagerService:UserManagerService,
+    public htmlHelperService:HtmlHelperService,
+    public authRequestService:AuthRequestService,
     public dialog: MatDialog,
-    private websocketManagerService:WebsocketManagerService,
-    private userManagerService1:UserManagerService,
-    private kanbanEventManager:KanbanEventManagerService,
+    public websocketManagerService:WebsocketManagerService,
+    public userManagerService1:UserManagerService,
+    public kanbanEventManager:KanbanEventManagerService,
   ) {
     this.projectId = this.route.snapshot.paramMap.get('projectId');
 
@@ -113,7 +113,7 @@ export class MainPageProjectComponent implements OnInit, OnDestroy {
     this.websocketManagerService.resetSocket();
   }
 
-  private isRequestedJoin = false;
+  public isRequestedJoin = false;
   joinProject(userDto){
     if (!this.isRequestedJoin) {
       let wsProjectController = WsProjectController.getInstance();

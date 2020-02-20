@@ -14,7 +14,7 @@ import {MatSidenav} from '@angular/material';
 export class HomePageComponent implements OnInit {
   @ViewChild('drawer', {static: true}) rightSidebar:MatSidenav;
 
-  constructor(private sidebarManagerService:GachiSidebarManagerService) { }
+  constructor(public sidebarManagerService:GachiSidebarManagerService) { }
 
   ngOnInit() {
     this.sidebarManagerService.sidebarEventEmitter

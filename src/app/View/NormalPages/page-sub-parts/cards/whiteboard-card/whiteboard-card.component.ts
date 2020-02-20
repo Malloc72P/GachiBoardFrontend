@@ -7,12 +7,12 @@ import {AnimeManagerService} from '../../../../../Model/AnimeManager/anime-manag
   styleUrls: ['./whiteboard-card.component.css', './../../../gachi-font.css']
 })
 export class WhiteboardCardComponent implements OnInit, AfterViewInit {
-  @ViewChild('wbCard', {static: false}) wbCard;
+  @ViewChild('wbCard') wbCard;
   @Input()marginValue = '0px';
-  private isHovering = false;
+  public isHovering = false;
 
   constructor(
-    private animeManagerService:AnimeManagerService
+    public animeManagerService:AnimeManagerService
   ) { }
 
   ngOnInit() {
