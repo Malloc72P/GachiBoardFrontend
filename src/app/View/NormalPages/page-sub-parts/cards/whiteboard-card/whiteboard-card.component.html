@@ -5,38 +5,22 @@
   <mat-card class="wb-card-wrapper">
     <mat-card-content class="wb-card-content-wrapper"
                       matRipple
+                      (click)="onWbCardClick()"
                       [ngStyle]="isHovering === true && { 'background' : '#7F7F7F' }">
       <img class="wb-card-profile-image"
            src="assets/images/normal-pages/project/whiteboard.png">
 
       <div class="wb-card-participant-wrapper wb-card-hidden"
            [ngClass]="{'wb-card-show' : isHovering}">
-        <app-user-overlay-card [isHovering]="isHovering"
-                               [userName]="'chen'"
+        <app-user-overlay-card *ngFor="let participant of whiteboardSession.connectedUsers"
+                               [isHovering]="isHovering"
+                               [userName]="websocketManagerService.getUserInfoByIdToken(participant).userName"
                                [marginValue]="'6px 0 6px 0'"
                                [imgSize]="'42px'"
                                [fontColor]="'white'"
                                [fontSize]="'16px'"
                                [enableSpashAnime]="true"
-                               [imgSrc]="'assets/images/normal-pages/project/chen.png'">
-        </app-user-overlay-card>
-        <app-user-overlay-card [isHovering]="isHovering"
-                               [userName]="'texas'"
-                               [marginValue]="'6px 0 6px 0'"
-                               [imgSize]="'42px'"
-                               [fontColor]="'white'"
-                               [fontSize]="'16px'"
-                               [enableSpashAnime]="true"
-                               [imgSrc]="'assets/images/normal-pages/project/texas.png'">
-        </app-user-overlay-card>
-        <app-user-overlay-card [isHovering]="isHovering"
-                               [userName]="'amiya'"
-                               [marginValue]="'6px 0 6px 0'"
-                               [imgSize]="'42px'"
-                               [fontColor]="'white'"
-                               [fontSize]="'16px'"
-                               [enableSpashAnime]="true"
-                               [imgSrc]="'assets/images/normal-pages/project/amiya.png'">
+                               [imgSrc]="websocketManagerService.getUserInfoByIdToken(participant).profileImg">
         </app-user-overlay-card>
       </div>
     </mat-card-content>
@@ -46,14 +30,14 @@
         <button mat-button class="wb-card-title-button">
           <mat-icon >turned_in_not</mat-icon>
         </button>
-        <span class="text-ellipsis">Whiteboard : 판금장갑 경량화</span>
+        <span class="text-ellipsis">Whiteboard : {{whiteboardSession.title}}</span>
         <span class="wb-bottom-spacer"></span>
         <button mat-button class="wb-card-title-button">
           <mat-icon >more_vert</mat-icon>
         </button>
       </div>
       <div class="wb-card-subtitle wb-card-bottom-row">
-        <span class="text-ellipsis">19.08.24 생성됨</span>
+        <span class="text-ellipsis">최근 수정 : {{websocketManagerService.getUserInfoByIdToken(whiteboardSession.recentlyModifiedBy).userName}}</span>
       </div>
     </div>
   </mat-card>

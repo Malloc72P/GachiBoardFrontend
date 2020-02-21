@@ -31,6 +31,7 @@ export enum WebSocketTypeEnum {
   RELOCATE,
   LOCK,
   UNLOCK,
+  JOIN
 }
 
 export class HttpHelper {
@@ -131,6 +132,9 @@ export class HttpHelper {
       unlock : new WebSocketRequest(
         "wbSession_unlock", WebSocketTypeEnum.UNLOCK
       ),
+      join : new WebSocketRequest(
+        "wbSession_join",WebSocketTypeEnum.JOIN
+      )
     }
   };
 

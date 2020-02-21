@@ -7,6 +7,8 @@ import {AuthRequestService} from '../../../../../Controller/SocialLogin/auth-req
 import {ProjectRequesterService} from '../../../../../Controller/Project/project-requester.service';
 import {HttpHelper} from '../../../../../Model/Helper/http-helper/http-helper';
 import {KanbanItem} from '../../../../../Model/Whiteboard/ProjectSupporter/Kanban/KanbanItem/kanban-item';
+import {WsWhiteboardSessionController} from '../../../../../Controller/Controller-WebSocket/websocket-manager/WhiteboardSessionWsController/ws-whiteboard-session.controller';
+import {WhiteboardSessionDto} from '../../../../../DTO/ProjectDto/WhiteboardSessionDto/whiteboard-session-dto';
 
 export class CreateWbSessionComponentData{
   constructor() {
@@ -39,12 +41,25 @@ export class CreateWbSessionComponent implements OnInit {
     console.log("CreateWbSessionComponent >> onSubmit >> 진입함");
 
     let title = this.wbSessionFormGroup.get("title").value;
-    let color = this.wbSessionFormGroup.get("color").value;
+    console.log("CreateWbSessionComponent >> onSubmit >> title : ",title);
 
+    let wsWbSessionController = WsWhiteboardSessionController.getInstance();
+    let wbSessionDto = new WhiteboardSessionDto();
+    wbSessionDto.title = title;
+    wsWbSessionController.waitRequestCreateWbSession(wbSessionDto)
+      .subscribe((data)=>{
+        console.log("CreateWbSessionComponent >>  >> data : ",data);
+        this.closePanel(true);
+        },(error)=>{
+          console.warn("CreateWbSessionComponent >> onSubmit >> error : ",error);
+          this.closePanel(false);
+      });
+
+  }
+  closePanel(createFlag){
     this.dialogRef.close({
-      createFlag : true,
+      createFlag : createFlag,
     });
-
   }
   onNoClick(): void {
     this.dialogRef.close();

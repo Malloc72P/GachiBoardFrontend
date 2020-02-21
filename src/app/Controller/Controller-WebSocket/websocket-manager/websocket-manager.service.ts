@@ -15,7 +15,9 @@ import {KanbanEventManagerService} from '../../../Model/Whiteboard/ProjectSuppor
 import {KanbanItemDto} from '../../../DTO/ProjectDto/KanbanDataDto/KanbanGroupDto/KanbanItemDto/kanban-item-dto';
 import {UiService} from '../../../Model/Helper/ui-service/ui.service';
 import {WbSessionEventManagerService} from './WhiteboardSessionWsController/wb-session-event-manager.service';
-import {WsWhiteboardSessionController} from './WhiteboardSessionWsController/ws-project-session.controller';
+import {WsWhiteboardSessionController} from './WhiteboardSessionWsController/ws-whiteboard-session.controller';
+import {ParticipantDto} from '../../../DTO/ProjectDto/ParticipantDto/participant-dto';
+import {WhiteboardSessionDto} from '../../../DTO/ProjectDto/WhiteboardSessionDto/whiteboard-session-dto';
 
 @Injectable({
   providedIn: 'root'
@@ -29,6 +31,7 @@ export class WebsocketManagerService {
   public isConnected = false;
   private _userInfo:UserDTO;
   public currentProjectDto:ProjectDto;
+  public currentWbSessionDto:WhiteboardSessionDto;
   public notVerifiedKanbanItems:Array<NotVerifiedKanbanItem>;
   private _wsPacketSeq = 0;
   constructor(
@@ -121,11 +124,39 @@ export class WebsocketManagerService {
     newPacket.accessToken = this.userInfo.accessToken;
     return newPacket;
   }
+
+  createWbSessionScopePacket(dataDto, action:WebsocketPacketActionEnum, specialAction?){
+    let newPacket:WebsocketPacketDto = null;
+    if(action != WebsocketPacketActionEnum.SPECIAL){
+      newPacket = new WebsocketPacketDto(
+        this._userInfo.idToken,
+        WebsocketPacketScopeEnum.PROJECT,
+        this.currentWbSessionDto._id,
+        dataDto,
+        action);
+    } else{
+      newPacket = new WebsocketPacketDto(
+        this._userInfo.idToken,
+        WebsocketPacketScopeEnum.PROJECT,
+        this.currentProjectDto._id,
+        dataDto,
+        action, specialAction);
+    }
+    newPacket.accessToken = this.userInfo.accessToken;
+    return newPacket;
+  }
   createWbScopePacket(){
 
   }
 
   get wsPacketSeq(): number {
     return this._wsPacketSeq++;
+  }
+  getUserInfoByIdToken(idToken):ParticipantDto{
+    for(let participant of this.currentProjectDto.participantList){
+      if(participant.idToken === idToken){
+        return participant;
+      }
+    }
   }
 }

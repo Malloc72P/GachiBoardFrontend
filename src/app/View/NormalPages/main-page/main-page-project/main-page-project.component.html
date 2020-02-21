@@ -57,10 +57,13 @@
   </mat-card-header>
 
   <mat-card-content class="card-content-wrapper">
-    <app-whiteboard-card [marginValue]="'8px 8px 8px 0'"></app-whiteboard-card>
-    <app-whiteboard-card [marginValue]="'8px 8px 8px 0'"></app-whiteboard-card>
-    <app-whiteboard-card [marginValue]="'8px 8px 8px 0'"></app-whiteboard-card>
-    <app-whiteboard-card [marginValue]="'8px 8px 8px 0'"></app-whiteboard-card>
+    <div *ngIf="wbSessionList.length === 0">
+      <h1><mat-icon style="margin: 0 16px 0 24px; font-weight: bolder;">error_outline</mat-icon>생성된 화이트보드가 하나도 없어요!</h1>
+    </div>
+    <app-whiteboard-card *ngFor="let wbSession of wbSessionList"
+                         [whiteboardSession]="wbSession"
+                         [projectId]="projectDto._id"
+                         [marginValue]="'8px 8px 8px 0'"></app-whiteboard-card>
   </mat-card-content>
 </mat-card>
 <!--프로젝트 Article #2-->

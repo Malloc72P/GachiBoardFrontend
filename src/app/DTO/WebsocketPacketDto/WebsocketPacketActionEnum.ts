@@ -10,6 +10,7 @@ export enum WebsocketPacketActionEnum {
   UNLOCK,
   ACK,
   NAK,
+  JOIN,
   SPECIAL,
 }
 

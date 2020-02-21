@@ -15,5 +15,6 @@ export enum WbSessionEventEnum {
   CREATE,
   DELETE,
   UPDATE,
-  READ
+  READ,
+  JOIN
 }

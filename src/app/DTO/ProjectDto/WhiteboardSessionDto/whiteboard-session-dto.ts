@@ -7,6 +7,7 @@ export class WhiteboardSessionDto {
   public recentlyModifiedBy;
   public startDate:Date;
   public wbItemArray:Array<WhiteboardItemDto>;
+  public connectedUsers:Array<string>;
 
   constructor(id?, wbTitle?, createdBy?, recentlyModifiedBy?, startDate?: Date) {
     this._id = id;

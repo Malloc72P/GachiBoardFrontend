@@ -27,6 +27,13 @@ import {WhiteboardItemDto} from '../../../DTO/WhiteboardItemDto/whiteboard-item-
 import {WhiteboardItemFactory} from '../../../Model/Whiteboard/InfiniteCanvas/WhiteboardItemFactory/whiteboard-item-factory';
 import {WorkHistoryManager} from '../../../Model/Whiteboard/InfiniteCanvas/DrawingLayerManager/WorkHistoryManager/work-history-manager';
 import {ItemLifeCycleEnum} from '../../../Model/Whiteboard/Whiteboard-Item/WhiteboardItemLifeCycle/WhiteboardItemLifeCycle';
+import {WhiteboardSessionDto} from '../../../DTO/ProjectDto/WhiteboardSessionDto/whiteboard-session-dto';
+import {ActivatedRoute} from '@angular/router';
+import {WsProjectController} from '../../../Controller/Controller-WebSocket/websocket-manager/ProjectWsController/ws-project.controller';
+import {WsWhiteboardSessionController} from '../../../Controller/Controller-WebSocket/websocket-manager/WhiteboardSessionWsController/ws-whiteboard-session.controller';
+import {WebsocketManagerService} from '../../../Controller/Controller-WebSocket/websocket-manager/websocket-manager.service';
+import {HtmlHelperService} from '../../../Model/NormalPagesManager/HtmlHelperService/html-helper.service';
+import {UserManagerService} from '../../../Model/UserManager/user-manager.service';
 
 @Component({
   selector: 'app-whiteboard-main',
@@ -56,7 +63,8 @@ export class WhiteboardMainComponent implements OnInit {
   }
 
   constructor(
-    public apiRequester: AuthRequestService,
+    public websocketManagerService: WebsocketManagerService,
+    public authRequestService: AuthRequestService,
     public routerHelper: RouterHelperService,
     public pointerModeManager: PointerModeManagerService,
     public infiniteCanvasService: InfiniteCanvasService,
@@ -69,10 +77,61 @@ export class WhiteboardMainComponent implements OnInit {
     public layerService: DrawingLayerManagerService,
     public linkModeManagerService: LinkModeManagerService,
     public cursorTrackerService: CursorTrackerService,
+    public route: ActivatedRoute,
+    public userManagerService: UserManagerService,
   ) {
   }
 
+  private wbSessionDto:WhiteboardSessionDto = new WhiteboardSessionDto();
   ngOnInit() {
+    this.initWhiteboardMainComponent();
+    this.route.queryParamMap.subscribe((params) => {
+      //#1. URI 패러미터 파싱 >>> WhiteboardSessionDto 획득
+      console.log("WhiteboardMainComponent >> #1. URI 패러미터 파싱 >>> WhiteboardSessionDto 획득");
+      let wbSessionId = params.get('wbSessionId');
+      let projectId   = params.get('projectId');
+
+      console.log("WhiteboardMainComponent >> ngOnInit >> wbSessionId : ",wbSessionId);
+      console.log("WhiteboardMainComponent >> ngOnInit >> projectId : ",projectId);
+      if(wbSessionId || projectId){
+        //#### 오류발생 팝업 띄우고 프로젝트 페이지로 리다이렉션
+      }
+      console.log("WhiteboardMainComponent >> ngOnInit >> wbSessionId : ",wbSessionId);
+      //#2. Protected 요청 수행
+      console.log("WhiteboardMainComponent >> Protected 요청 수행");
+      this.authRequestService.protectedApi().subscribe((userDto:UserDTO)=>{
+        //#3. Project Join 수행
+        console.log("WhiteboardMainComponent >> #3. Project Join 수행");
+        let wsProjectController = WsProjectController.getInstance();
+        wsProjectController.waitJoinProject(userDto.idToken,userDto.accessToken,projectId)
+          .subscribe((projectDto)=>{
+            this.userManagerService.initService(projectDto);
+            console.log("WhiteboardMainComponent >> #4. Whiteboard Join 수행");
+            console.log("WhiteboardMainComponent >> #5. WhiteboardSessionDto의 정보를 이용해서 WhiteboardItemList까지 가지고 있는 FullData 요청");
+            //#4. Whiteboard Join 수행
+            //#5. WhiteboardSessionDto의 정보를 이용해서 WhiteboardItemList까지 가지고 있는 FullData 요청
+            let wbSessionDto = new WhiteboardSessionDto();
+            wbSessionDto._id = wbSessionId;
+            let wsWbSessionController = WsWhiteboardSessionController.getInstance();
+            wsWbSessionController.waitRequestJoinWbSession(wbSessionDto)
+              .subscribe((wbSessionFullDto:WhiteboardSessionDto)=>{
+                console.log("WhiteboardMainComponent >>  >> wbSessionFullDto : ",wbSessionFullDto);
+                //#6. FullData획득시, 데이터에 있는 아이템을 전부 Layer서비스에 등록
+                console.log("WhiteboardMainComponent >> #6. FullData획득시, 데이터에 있는 아이템을 전부 Layer서비스에 등록");
+                /*setInterval(()=>{
+
+                },10000);*/
+                wsWbSessionController.requestPingToWbSession().subscribe((data) => {
+                  //console.log("WhiteboardMainComponent >> ngOnInit >> data : ", data);
+                })
+              });
+          });
+
+      });
+    });
+  }//ngOnInit()
+
+  initWhiteboardMainComponent(){
     this.currentPointerMode = PointerMode.MOVE;
 
     //Whiteboard Main Paper 생성
@@ -106,7 +165,7 @@ export class WhiteboardMainComponent implements OnInit {
         this.cursorTrackerService.refreshPoint();
       }
     };
-  }//ngOnInit()
+  }
 
   public initWhiteboardPaper() {
     paper.settings.hitTolerance = 40;

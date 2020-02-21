@@ -22,6 +22,15 @@ import {KanbanEventManagerService} from '../../../../Model/Whiteboard/ProjectSup
 import {WsKanbanController} from '../../../../Controller/Controller-WebSocket/websocket-manager/KanbanWsController/ws-kanban.controller';
 import {MatDialog} from '@angular/material/dialog';
 import {CreateWbSessionComponent, CreateWbSessionComponentData} from './create-wb-session/create-wb-session.component';
+import {WhiteboardSessionDto} from '../../../../DTO/ProjectDto/WhiteboardSessionDto/whiteboard-session-dto';
+import {WbSessionEventManagerService} from '../../../../Controller/Controller-WebSocket/websocket-manager/WhiteboardSessionWsController/wb-session-event-manager.service';
+import {Subscription} from 'rxjs';
+import {
+  WbSessionEvent,
+  WbSessionEventEnum
+} from '../../../../Controller/Controller-WebSocket/websocket-manager/WhiteboardSessionWsController/wb-session-event/wb-session-event';
+import {WsWhiteboardSessionController} from '../../../../Controller/Controller-WebSocket/websocket-manager/WhiteboardSessionWsController/ws-whiteboard-session.controller';
+import {RouterHelperService} from '../../../../Model/Helper/router-helper-service/router-helper.service';
 
 @Component({
   selector: 'app-main-page-project',
@@ -39,6 +48,8 @@ export class MainPageProjectComponent implements OnInit, OnDestroy {
   public projectDto:ProjectDto = new ProjectDto();
 
   inProgressGroup:Array<KanbanItemDto>;
+  wbSessionList:Array<WhiteboardSessionDto>;
+  public subscriptionList:Array<Subscription>;
 
   constructor(
     public route: ActivatedRoute,
@@ -50,13 +61,16 @@ export class MainPageProjectComponent implements OnInit, OnDestroy {
     public websocketManagerService:WebsocketManagerService,
     public userManagerService1:UserManagerService,
     public kanbanEventManager:KanbanEventManagerService,
+    public wbSessionEventManagerService:WbSessionEventManagerService,
   ) {
     this.projectId = this.route.snapshot.paramMap.get('projectId');
 
     this.inProgressGroup = new Array<KanbanItemDto>();
+    this.wbSessionList = new Array<WhiteboardSessionDto>();
+    this.subscriptionList = new Array<Subscription>();
 
     this.userDto = this.authRequestService.getUserInfo();
-    this.authRequestService.authEventEmitter.subscribe((authEvent:AuthEvent)=>{
+    let subscription = this.authRequestService.authEventEmitter.subscribe((authEvent:AuthEvent)=>{
       let userDto = authEvent.userInfo;
       this.userDto = userDto;
       this.getProjectDto();
@@ -65,20 +79,28 @@ export class MainPageProjectComponent implements OnInit, OnDestroy {
 
       this.joinProject(userDto);
     });
-    this.websocketManagerService.wsEventEmitter.subscribe((wsEvent:WebsocketEvent)=>{
+    this.subscriptionList.push(subscription);
+
+    subscription = this.websocketManagerService.wsEventEmitter.subscribe((wsEvent:WebsocketEvent)=>{
       if(wsEvent.action === WebsocketEventEnum.GET_PROJECT_FULL_DATA){
         let fullProjectDto:ProjectDto = wsEvent.data as ProjectDto;
         let kanbanData:KanbanDataDto = fullProjectDto.kanbanData;
+        let wbSessionListData:Array<WhiteboardSessionDto> = fullProjectDto.whiteboardSessionList;
         for(let kanbanItem of kanbanData.inProgressGroup){
           this.inProgressGroup.push(kanbanItem);
         }
+        for(let wbSession of wbSessionListData){
+          this.wbSessionList.push(wbSession);
+        }
       }
     });
+    this.subscriptionList.push(subscription);
     this.subscribeKanbanEventEmitter();
+    this.subscribeWbSessionEventEmitter();
   }
 
   subscribeKanbanEventEmitter(){
-    this.kanbanEventManager.kanbanEventEmitter.subscribe((kanbanEvent:KanbanEvent)=>{
+    let subscription = this.kanbanEventManager.kanbanEventEmitter.subscribe((kanbanEvent:KanbanEvent)=>{
       console.log("MainPageProjectComponent >> subscribeKanbanEventEmitter >> 진입함");
       console.log("MainPageProjectComponent >> subscribeKanbanEventEmitter >> kanbanEvent : ",kanbanEvent);
       switch (kanbanEvent.action) {
@@ -92,12 +114,33 @@ export class MainPageProjectComponent implements OnInit, OnDestroy {
       }
 
     });
+    this.subscriptionList.push(subscription);
+  }
+  subscribeWbSessionEventEmitter(){
+    let subscription = this.wbSessionEventManagerService.wsWbSessionEventEmitter
+      .subscribe((wbSessionEvent:WbSessionEvent)=>{
+        console.log("MainPageProjectComponent >> subscribeWbSessionEventEmitter >> wbSessionEvent : ",wbSessionEvent);
+      switch (wbSessionEvent.action) {
+        case WbSessionEventEnum.CREATE:
+        case WbSessionEventEnum.DELETE:
+        case WbSessionEventEnum.UPDATE:
+          this.refreshWbSessionList();
+      }
+    });
+    this.subscriptionList.push(subscription);
   }
 
   refreshInProgressGroup(){
     let wsKanbanController = WsKanbanController.getInstance();
     wsKanbanController.requestGetKanban().subscribe((kanbanData:KanbanDataDto)=>{
       this.inProgressGroup = kanbanData.inProgressGroup;
+    });
+  }
+  refreshWbSessionList(){
+    let wsKanbanController = WsWhiteboardSessionController.getInstance();
+    wsKanbanController.requestGetWbSessionList()
+      .subscribe((wbSessionList:Array<WhiteboardSessionDto>)=>{
+      this.wbSessionList = wbSessionList;
     });
   }
 
@@ -110,6 +153,9 @@ export class MainPageProjectComponent implements OnInit, OnDestroy {
     console.log("\n\n================================================");
     console.log("MainPageProjectComponent >> ngOnDestroy >> 진입함");
     console.log("================================================\n\n");
+    for(let subscriptionItem of this.subscriptionList){
+      subscriptionItem.unsubscribe();
+    }
     this.websocketManagerService.resetSocket();
   }
 
@@ -173,7 +219,9 @@ export class MainPageProjectComponent implements OnInit, OnDestroy {
     });
 
     dialogRef.afterClosed().subscribe((result) => {
-
+      if(result.createFlag){
+        this.refreshWbSessionList();
+      }
     });
   }
 

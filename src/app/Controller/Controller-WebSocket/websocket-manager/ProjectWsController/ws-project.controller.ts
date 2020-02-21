@@ -5,6 +5,7 @@ import {WebsocketPacketDto} from '../../../../DTO/WebsocketPacketDto/WebsocketPa
 import {WebsocketPacketActionEnum} from '../../../../DTO/WebsocketPacketDto/WebsocketPacketActionEnum';
 import {ProjectDto} from '../../../../DTO/ProjectDto/project-dto';
 import {WebsocketEvent, WebsocketEventEnum} from '../WebsocketEvent/WebsocketEvent';
+import {Observable} from 'rxjs';
 
 export class WsProjectController {
   private socket:Socket;
@@ -31,6 +32,31 @@ export class WsProjectController {
       project_id : project_id,
     };
     this.socket.emit(HttpHelper.websocketApi.project.joinProject.event,param);
+  }
+  waitJoinProject(idToken, accessToken, project_id){
+    return new Observable<any>((subscriber)=>{
+      console.warn("WsProjectController >> joinProject >> 진입함");
+      let param = {
+        idToken : idToken,
+        accessToken : accessToken,
+        project_id : project_id,
+      };
+      this.socket.emit(HttpHelper.websocketApi.project.joinProject.event,param);
+
+      this.socket.once(HttpHelper.websocketApi.project.joinProject.event,
+        (wsPacket:WebsocketPacketDto)=>{
+          console.log("WsProjectController >>  >> wsPacket : ",wsPacket);
+          switch (wsPacket.action) {
+            case WebsocketPacketActionEnum.ACK:
+              this.websocketManager.currentProjectDto = wsPacket.dataDto as ProjectDto;
+              subscriber.next(this.websocketManager.currentProjectDto);
+              break;
+            case WebsocketPacketActionEnum.NAK:
+              break;
+          }
+        });
+    });
+
   }
 
   private onParticipantJoin(){
