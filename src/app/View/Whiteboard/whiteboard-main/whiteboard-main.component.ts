@@ -123,7 +123,8 @@ export class WhiteboardMainComponent implements OnInit {
                 },10000);*/
                 wsWbSessionController.requestPingToWbSession().subscribe((data) => {
                   //console.log("WhiteboardMainComponent >> ngOnInit >> data : ", data);
-                })
+                });
+                this.minimapSyncService.syncMinimap();
               });
           });
 
