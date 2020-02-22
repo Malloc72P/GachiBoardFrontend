@@ -117,12 +117,23 @@
                           (pointerdown)="requestLock(item, group)"
                           (pointerup)="requestRelease(item, group)"
                           cdkDragHandle>
-                  <img mat-card-image
-                       class="kanban-item-manager-image"
-                       src="{{item.userInfo.profileImg}}"/>
-                  <mat-card-subtitle class="kanban-item-manager-name text-ellipsis">
-                    {{item.userInfo.userName}}
-                  </mat-card-subtitle>
+                  <span *ngIf="item.userInfo">
+                    <img mat-card-image
+                         class="kanban-item-manager-image"
+                         src="{{item.userInfo.profileImg}}"/>
+                    <mat-card-subtitle class="kanban-item-manager-name text-ellipsis">
+                      {{item.userInfo.userName}}
+                    </mat-card-subtitle>
+                  </span>
+                  <span *ngIf="!item.userInfo">
+                    <img mat-card-image
+                         class="kanban-item-manager-image"
+                         src="/assets/images/supporter/kanban/male.jpg"/>
+                    <mat-card-subtitle class="kanban-item-manager-name text-ellipsis">
+                      Unknown
+                    </mat-card-subtitle>
+                  </span>
+
                 </mat-card>
                 <!--마테리얼 칩 영역-->
                 <app-kanban-tag-list [kanbanItem]="item" [kanbanGroup]="group">

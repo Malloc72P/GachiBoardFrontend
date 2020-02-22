@@ -53,8 +53,7 @@ export class UserManagerService {
         return currentUser
       }
     }
-    return null;
-
+    return ParticipantDto.createUnknownParticipant();
   }
   deleteUser(userName:string){
     let index = -1;

@@ -493,12 +493,12 @@ export class KanbanComponent implements OnInit, OnDestroy {
 
   getProfileImg(idToken){
     if(idToken){
-      return this.userManagerService.getUserDataByIdToken(idToken).profileImg;
+      return this.websocketManagerService.getUserInfoByIdToken(idToken).profileImg;
     }
   }
   getUserName(idToken){
     if(idToken) {
-      return this.userManagerService.getUserDataByIdToken(idToken).userName;
+      return this.websocketManagerService.getUserInfoByIdToken(idToken).userName;
     }
   }
   checkEditorIsAnotherUser(idToken){

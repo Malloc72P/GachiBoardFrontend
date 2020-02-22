@@ -64,8 +64,11 @@ export class WsProjectController {
     this.socket.on(HttpHelper.websocketApi.project.joinProject.event,
       (wsPacket:WebsocketPacketDto)=>{
       console.log("WsProjectController >>  >> wsPacket : ",wsPacket);
+      let updatedProjectDto:ProjectDto = wsPacket.dataDto as ProjectDto;
       switch (wsPacket.action) {
         case WebsocketPacketActionEnum.SPECIAL:
+          console.log("WsProjectController >> onParticipantJoin >> SPECIAL >> wsPacket : ",wsPacket);
+          this.websocketManager.currentProjectDto.participantList = updatedProjectDto.participantList;
           break;
         case WebsocketPacketActionEnum.ACK:
           this.websocketManager.currentProjectDto = wsPacket.dataDto as ProjectDto;
