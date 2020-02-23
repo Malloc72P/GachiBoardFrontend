@@ -27,6 +27,9 @@ import {DrawingLayerManagerService} from '../../InfiniteCanvas/DrawingLayerManag
 import {PanelManagerService} from '../../Panel/panel-manager-service/panel-manager.service';
 import {CursorChangeService} from "../cursor-change-service/cursor-change.service";
 import {LinkService} from "../link-service/link.service";
+import {GachiPointDto} from '../../../../DTO/WhiteboardItemDto/PointDto/gachi-point-dto';
+import {WsWhiteboardSessionController} from '../../../../Controller/Controller-WebSocket/websocket-manager/WhiteboardSessionWsController/ws-whiteboard-session.controller';
+import {CursorTrackerService} from '../../CursorTracker/cursor-tracker-service/cursor-tracker.service';
 
 @Injectable({
   providedIn: 'root'
@@ -420,6 +423,7 @@ export class PointerModeManagerService {
       delta = new Point(html5Event.touches[0].clientX - this.prevPoint.x, html5Event.touches[0].clientY - this.prevPoint.y);
       this.prevPoint.x = html5Event.touches[0].clientX;
       this.prevPoint.y = html5Event.touches[0].clientY;
+
     }
 
     return this.posCalcService.reflectZoomWithPoint(delta);

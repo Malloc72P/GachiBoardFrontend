@@ -75,3 +75,25 @@ export class GachiColorDto {
     return new Color(this._red, this._green, this._blue, this._alpha);
   }
 }
+export class GachiColorList {
+  public static getColor(idx){
+    switch (idx) {
+      case 0 :
+        return "red";
+      case 1 :
+        return "blue";
+      case 2 :
+        return "yellow";
+      case 3 :
+        return "black";
+      case 4 :
+        return "purple";
+      case 5 :
+        return "cyan";
+      case 6 :
+        return "azure";
+      case 7 :
+        return "indigo";
+    }
+  }
+}

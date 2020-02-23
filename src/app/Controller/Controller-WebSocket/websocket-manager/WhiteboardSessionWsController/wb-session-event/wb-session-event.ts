@@ -16,5 +16,6 @@ export enum WbSessionEventEnum {
   DELETE,
   UPDATE,
   READ,
-  JOIN
+  JOIN,
+  UPDATE_CURSOR
 }

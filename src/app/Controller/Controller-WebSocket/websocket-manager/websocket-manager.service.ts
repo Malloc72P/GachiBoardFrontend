@@ -159,4 +159,12 @@ export class WebsocketManagerService {
       }
     }
   }
+  getUserIndexByIdToken(idToken):number{
+    for(let i = 0 ; i < this.currentProjectDto.participantList.length; i++){
+      let participant = this.currentProjectDto.participantList[i];
+      if(participant.idToken === idToken){
+        return i;
+      }
+    }
+  }
 }

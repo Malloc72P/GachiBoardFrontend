@@ -53,14 +53,23 @@ export class Cursor {
     this.height = this.group.bounds.height;
   }
 
+  private isMoving = false;
   public moveTo(point: Point) {
-    this.group.tween({
-      'bounds.topLeft': point
-    }, {
-      easing: 'linear',
-      duration: 166,
-    });
-    this.group.bringToFront();
+    if (!this.isMoving) {
+      this.isMoving = true;
+      /*if(point.x === this.group.position.x && point.y === this.group.position.y){
+        return;
+      }*/
+      this.group.tween({
+        'bounds.topLeft': point
+      }, {
+        easing: 'linear',
+        duration: 100,
+      }).then(() => {
+        this.isMoving = false;
+      });
+      this.group.bringToFront();
+    }
   }
 
   public remove() {
@@ -85,5 +94,9 @@ export class Cursor {
   private refreshCursorSizeForZooming(factor: number) {
     this.group.bounds.width = this.width / factor;
     this.group.bounds.height = this.height / factor;
+  }
+
+  public getPaperInstance(){
+    return this.group;
   }
 }
