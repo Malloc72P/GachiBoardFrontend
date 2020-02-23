@@ -1,3 +1,5 @@
+import ServerSetting from './ServerSetting.json';
+
 class ApiRequest {
   constructor(url, requestType){
     this.uri = url;
@@ -36,13 +38,13 @@ export enum WebSocketTypeEnum {
 
 export class HttpHelper {
   //TODO 이런거 json으로 뽑을 수 있으면 뽑아야 함.
-  private static readonly ngDomainName        =   "http://gachiboard.iptime.org";
-  private static readonly ngPort              =   ":4200";
-  private static readonly apiServerDomainName =   "http://gachiboard.iptime.org";
-  private static readonly apiServerPort       =   ":5200";
+  private static readonly ngDomainName        =   ServerSetting.ngDomain;
+  private static readonly ngPort              =   ServerSetting.ngPort;
+  private static readonly apiServerDomainName =   ServerSetting.apiDomain;
+  private static readonly apiServerPort       =   ServerSetting.apiPort;
   // private static readonly apiServerPort       =   ":5858";
-  private static readonly contentType         =   'application/json; charset=utf-8';
-  private static readonly tokenType           =   'bearer ';
+  private static readonly contentType         =   ServerSetting.contentType;
+  private static readonly tokenType           =   ServerSetting.tokenType;
 
   public static readonly ngUrl   =   HttpHelper.ngDomainName + HttpHelper.ngPort;
   public static readonly apiUrl  =   HttpHelper.apiServerDomainName + HttpHelper.apiServerPort;
