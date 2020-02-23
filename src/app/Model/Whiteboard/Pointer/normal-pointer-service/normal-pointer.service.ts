@@ -29,9 +29,6 @@ export class NormalPointerService {
 
   private action: NORMAL_POINTER_ACTIONS;
 
-  private prevTouchPoint = new Point(0,0);
-  private prevPoint = new Point(0,0);
-
   private selectedHandle;
 
   constructor(
@@ -59,7 +56,6 @@ export class NormalPointerService {
       if(this.isItemHit(event.point)) {
       }
       // 아이템 선택 실패 - 캔버스 이동
-      this.initDelta(event.event);
       // this.moveCanvas(event);
     } else {
       // 이 MouseDown 이 어떤 아이템을 Hit 했는지 찾아봄
@@ -69,7 +65,7 @@ export class NormalPointerService {
 
       // GSG 의 영역을 Hit 해서 드래깅을 해야할지 선택 취소를 해야할지 체크
       if(!this.tryDragging(event)) {
-        this.initDelta(event.event);
+
       }
     }
   }
@@ -272,50 +268,7 @@ export class NormalPointerService {
   }
 
   public moveCanvas(event) {
-    let delta = this.initDelta(event.event);
-
-    this.infiniteCanvasService.moveWithDelta(delta);
+    this.infiniteCanvasService.moveWithDelta(event.delta);
     this.infiniteCanvasService.solveDangerState();
-  }
-
-  private initDelta(html5Event: MouseEvent | TouchEvent): Point{
-    let delta: Point;
-
-    if(html5Event instanceof MouseEvent) {
-      delta = new Point(html5Event.x - this.prevPoint.x, html5Event.y - this.prevPoint.y);
-      this.prevPoint.x = html5Event.x;
-      this.prevPoint.y = html5Event.y;
-    } else {
-      delta = new Point(html5Event.touches[0].clientX - this.prevPoint.x, html5Event.touches[0].clientY - this.prevPoint.y);
-      this.prevPoint.x = html5Event.touches[0].clientX;
-      this.prevPoint.y = html5Event.touches[0].clientY;
-    }
-
-    return this.posCalcService.reflectZoomWithPoint(delta);
-  }
-
-  public canvasMovedByMouse(event){
-    let delta = this.posCalcService.reflectZoomWithPoint(
-      new Point( -event.movementX, -event.movementY )
-    );
-    this.infiniteCanvasService.moveWithDelta(delta);
-    this.infiniteCanvasService.solveDangerState();
-  }
-
-  public movedByTouch(event){
-    let endPoint = this.posCalcService.reflectZoomWithPoint(
-      new Point( event.changedTouches[0].clientX, event.changedTouches[0].clientY )
-    );
-    let calcX = endPoint.x - this.prevTouchPoint.x ;
-    let calcY = endPoint.y - this.prevTouchPoint.y ;
-
-    let delta = new Point( -calcX, -calcY );
-
-    // @ts-ignore
-    this.infiniteCanvasService.moveWithDelta(delta);
-    this.infiniteCanvasService.solveDangerState();
-
-    this.prevTouchPoint.x = endPoint.x;
-    this.prevTouchPoint.y = endPoint.y;
   }
 }

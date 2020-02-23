@@ -78,7 +78,6 @@ export class SubPanelForArrowComponent implements OnInit {
   public onClickTailSelector(type: string) {
     if(this.menu.item instanceof EditableLink) {
       this.menu.item.linkTailType = EditableLinkCapTypes[type];
-      console.log("SubPanelForArrowComponent >> onClickTailSelector >> this.menu.item.linkTailType : ", this.menu.item.linkTailType);
     }
   }
 

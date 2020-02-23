@@ -18,7 +18,6 @@ import {EditableLink} from "../../Whiteboard-Shape/LinkPort/EditableLink/editabl
 
 export class GlobalSelectedGroup extends ItemGroup {
   private static globalSelectedGroup: GlobalSelectedGroup;
-  private _currentSelectMode;
   private prevMode;
   private prevNumberOfChild;
 
@@ -63,7 +62,6 @@ export class GlobalSelectedGroup extends ItemGroup {
         });
       }
     }
-    console.log("GlobalSelectedGroup >> copySelectedWbItems >> this.copiedDtoArray : ", this.copiedDtoArray);
   }
 
   public extractCopiedItems(){

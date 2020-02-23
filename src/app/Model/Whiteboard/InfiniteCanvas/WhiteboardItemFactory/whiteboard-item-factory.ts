@@ -63,9 +63,6 @@ enum BUILD_MODE {
 }
 
 export class WhiteboardItemFactory {
-
-  private static MIN_SIZE_OF_WB_SHAPE = 5;
-
   private static layerService:DrawingLayerManagerService;
   public static initWhiteboardItemFactory(layerService:DrawingLayerManagerService){
     WhiteboardItemFactory.layerService = layerService;
