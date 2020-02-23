@@ -101,7 +101,6 @@ export class PointerModeManagerService {
     };
 
     this.currentProject.view.onMouseUp = (event) => {
-      event.delta = this.initDelta(event.event);
       if(event.event instanceof MouseEvent) {
         this.onMouseUp(event);
       } else {
