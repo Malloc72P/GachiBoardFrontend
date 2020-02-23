@@ -113,6 +113,7 @@ import {MatSidenavModule} from '@angular/material/sidenav';
 import {MatListModule} from '@angular/material/list';
 import {MatStepperModule} from '@angular/material/stepper';
 import {MatBadgeModule} from '@angular/material/badge';
+import { ToolLinkPanelComponent } from './View/Whiteboard/whiteboard-tool-panel/tool-link-panel/tool-link-panel.component';
 
 const config: SocketIoConfig = { url: HttpHelper.apiUrl, options: {} };
 
@@ -228,6 +229,7 @@ const appRoutes: Routes = [
     CreateProjectComponent,
     CreateInviteCodeComponent,
     InvitationComponent,
+    ToolLinkPanelComponent,
   ],
   entryComponents: [
     KanbanComponent,

@@ -5,7 +5,6 @@ import Color = paper.Color;
 import { Component, OnInit } from '@angular/core';
 import {HorizonContextMenuService} from "../../../../../Model/Whiteboard/ContextMenu/horizon-context-menu-service/horizon-context-menu.service";
 import {HorizonContextMenuActions} from "../../../../../Model/Whiteboard/ContextMenu/horizon-context-menu-service/horizon-context-menu.enum";
-import {subPanelStatus} from "../../../../../Model/Whiteboard/ContextMenu/horizon-context-menu-service/sub-panel-status";
 
 @Component({
   selector: 'app-sub-panel-for-fill',
@@ -59,8 +58,8 @@ export class SubPanelForFillComponent implements OnInit {
     return this.menu.centerTop;
   }
 
-  get isHiddenSubPanel(): subPanelStatus {
-    return this.menu.subPanelHidden;
+  get hidden(): boolean {
+    return this.menu.subPanelManager.isHidden(HorizonContextMenuActions.FILL);
   }
 
   get horizonContextMenuActions() {

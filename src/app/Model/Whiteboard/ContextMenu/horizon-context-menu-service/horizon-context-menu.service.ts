@@ -1,4 +1,6 @@
 import * as paper from 'paper';
+// @ts-ignore
+import Rectangle = paper.Rectangle;
 
 import {Injectable} from '@angular/core';
 import {HorizonContextMenuActions, HorizonContextMenuTypes} from "./horizon-context-menu.enum";
@@ -10,22 +12,20 @@ import {ZoomEvent} from "../../InfiniteCanvas/ZoomControl/ZoomEvent/zoom-event";
 import {ZoomEventEnum} from "../../InfiniteCanvas/ZoomControl/ZoomEvent/zoom-event-enum.enum";
 import {GlobalSelectedGroup} from "../../Whiteboard-Item/ItemGroup/GlobalSelectedGroup/global-selected-group";
 import {InfiniteCanvasService} from "../../InfiniteCanvas/infinite-canvas.service";
-import {subPanelStatus} from "./sub-panel-status";
 import {EditableRaster} from "../../Whiteboard-Item/Whiteboard-Shape/editable-raster/editable-raster";
 import {EditableLink} from "../../Whiteboard-Item/Whiteboard-Shape/LinkPort/EditableLink/editable-link";
 import {
   ItemLifeCycleEnum,
   ItemLifeCycleEvent
 } from "../../Whiteboard-Item/WhiteboardItemLifeCycle/WhiteboardItemLifeCycle";
-// @ts-ignore
-import Rectangle = paper.Rectangle;
+import {SubPanelManager} from "../../Panel/sub-panel-manager/sub-panel-manager";
 
 @Injectable({
   providedIn: 'root'
 })
 export class HorizonContextMenuService {
   private _isHidden = true;
-  private _subPanelHidden = new subPanelStatus();
+  private readonly _subPanelManager: SubPanelManager;
   private _centerTop = { x: 0, y: 0};
   private _menuItemArray = new Array<HorizonContextMenuActions>();
   private _globalSelectedGroup: GlobalSelectedGroup;
@@ -37,7 +37,14 @@ export class HorizonContextMenuService {
   constructor(
     private positionCalcService: PositionCalcService,
     private infiniteCanvasService: InfiniteCanvasService,
-  ) { }
+  ) {
+    this._subPanelManager = new SubPanelManager([
+      HorizonContextMenuActions.LINE,
+      HorizonContextMenuActions.FILL,
+      HorizonContextMenuActions.ARROW_WING,
+      HorizonContextMenuActions.FONT_STYLE
+    ]);
+  }
 
   public initializeHorizonContextMenuService(globalSelectedGroup: GlobalSelectedGroup){
     this._globalSelectedGroup = globalSelectedGroup;
@@ -49,7 +56,7 @@ export class HorizonContextMenuService {
     this.setMenuItem(this.instanceCheckItem(this._globalSelectedGroup.wbItemGroup));
     this.setMenuPosition(this.coreItem.bounds);
     this._isHidden = false;
-    this.subPanelHidden.hideAll();
+    this.subPanelManager.hideAll();
     setTimeout(() => {
       this.initMenuSizeValue();
     }, 0);
@@ -57,7 +64,7 @@ export class HorizonContextMenuService {
 
   public close() {
     this._isHidden = true;
-    this.subPanelHidden.hideAll();
+    this.subPanelManager.hideAll();
   }
 
   public refreshPosition() {
@@ -220,7 +227,6 @@ export class HorizonContextMenuService {
 
   private setMenuForArrow() {
     this._menuItemArray = new Array<HorizonContextMenuActions>(
-      HorizonContextMenuActions.LINE,
       HorizonContextMenuActions.ARROW_WING,
       HorizonContextMenuActions.MORE,
     );
@@ -304,8 +310,8 @@ export class HorizonContextMenuService {
     return this._menuItemArray;
   }
 
-  get subPanelHidden(): subPanelStatus {
-    return this._subPanelHidden;
+  get subPanelManager(): SubPanelManager {
+    return this._subPanelManager;
   }
 
   get globalSelectedGroup(): GlobalSelectedGroup {
