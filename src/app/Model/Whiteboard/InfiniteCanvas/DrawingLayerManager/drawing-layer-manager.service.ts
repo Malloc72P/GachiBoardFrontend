@@ -64,7 +64,7 @@ import {LinkHandler} from "../../Whiteboard-Item/Whiteboard-Shape/LinkPort/Edita
 })
 export class DrawingLayerManagerService {
   private _drawingLayer:Layer;
-  private currentProject:Project;
+  private _currentProject:Project;
   private _contextMenu: ContextMenuService;
 
   private _currentLinkerMode:LinkerMode;
@@ -107,9 +107,9 @@ export class DrawingLayerManagerService {
   }
 
   initializeDrawingLayerService(paperProject, contextMenuService: ContextMenuService){
-    this.currentProject = paperProject;
+    this._currentProject = paperProject;
     this._contextMenu = contextMenuService;
-    this.currentProject.layers.forEach((value, index, array)=>{
+    this._currentProject.layers.forEach((value, index, array)=>{
       if(value.data.type === DataType.DRAWING_CANVAS){
         this.drawingLayer = value;
       }
@@ -685,6 +685,11 @@ export class DrawingLayerManagerService {
 
   get cursorChanger(): CursorChangeService {
     return this._cursorChangeService;
+  }
+
+
+  get currentProject(): Project {
+    return this._currentProject;
   }
 
 //#####################################

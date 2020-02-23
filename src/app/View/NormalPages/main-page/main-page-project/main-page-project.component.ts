@@ -31,6 +31,7 @@ import {
 } from '../../../../Controller/Controller-WebSocket/websocket-manager/WhiteboardSessionWsController/wb-session-event/wb-session-event';
 import {WsWhiteboardSessionController} from '../../../../Controller/Controller-WebSocket/websocket-manager/WhiteboardSessionWsController/ws-whiteboard-session.controller';
 import {RouterHelperService} from '../../../../Model/Helper/router-helper-service/router-helper.service';
+import {CursorTrackerService} from '../../../../Model/Whiteboard/CursorTracker/cursor-tracker-service/cursor-tracker.service';
 
 @Component({
   selector: 'app-main-page-project',

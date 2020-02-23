@@ -49,7 +49,7 @@ export class CreateWbSessionComponent implements OnInit {
     wsWbSessionController.waitRequestCreateWbSession(wbSessionDto)
       .subscribe((data)=>{
         console.log("CreateWbSessionComponent >>  >> data : ",data);
-        this.closePanel(true);
+          this.closePanel(true);
         },(error)=>{
           console.warn("CreateWbSessionComponent >> onSubmit >> error : ",error);
           this.closePanel(false);

@@ -18,6 +18,7 @@ export class UserOverlayCardComponent implements OnInit, AfterViewInit,OnChanges
   @Input()enableDropShadow = true;
   @Input()dropShadowColor = 'black';
   @Input()enableSpashAnime = false;
+  @Input()enableUserName = true;
 
   @ViewChild('overlayEl') userOverlay;
 
@@ -55,7 +56,6 @@ export class UserOverlayCardComponent implements OnInit, AfterViewInit,OnChanges
       this.renderer.setStyle( this.userOverlayEl, "transform", `translate( 0px,  0px)` );
     },10);
   }
-
 
 
 }

@@ -32,7 +32,7 @@ export class WsWhiteboardSessionController {
 
   waitRequestCreateWbSession( wbSessionDto:WhiteboardSessionDto ){
 
-    this.websocketManager.uiService.spin$.next(true);
+    // this.websocketManager.uiService.spin$.next(true);
 
     return new Observable<any>((subscriber)=>{
 
@@ -45,7 +45,7 @@ export class WsWhiteboardSessionController {
 
       this.socket.once(HttpHelper.websocketApi.whiteboardSession.create.event,
         (wsPacketDto:WebsocketPacketDto)=>{
-          this.websocketManager.uiService.spin$.next(false);
+          // this.websocketManager.uiService.spin$.next(false);
           switch (wsPacketDto.action) {
             case WebsocketPacketActionEnum.ACK:
               console.log("WsWhiteboardSessionController >> waitRequestCreateWbSession >> wsPacketDto : ",wsPacketDto);

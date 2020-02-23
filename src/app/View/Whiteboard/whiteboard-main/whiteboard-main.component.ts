@@ -56,15 +56,13 @@ export class WhiteboardMainComponent implements OnInit,OnDestroy {
   public whiteboardPaperProject: Project;
   public whiteboardPaperScope: PaperScope;
 
-  public isMouseDown = false;
   public currentPointerMode;
   public htmlCanvasObject: HTMLCanvasElement;
   public htmlCanvasWrapperObject: HTMLDivElement;
 
-  cursorX = 0;
-  cursorY = 0;
-  ngTouchCursorX = 0;
-  ngTouchCursorY = 0;
+  public connectedUserList:Array<string>;
+  public wbTitle = "GachiBoard";
+
 
   ngCursorTracker(event) {
     this.debugingService.ngCursorX = event.x;
@@ -93,6 +91,7 @@ export class WhiteboardMainComponent implements OnInit,OnDestroy {
     public userManagerService: UserManagerService,
     public wbSessionEventManagerService: WbSessionEventManagerService,
   ) {
+    this.connectedUserList = new Array<string>();
   }
 
   private wbSessionDto:WhiteboardSessionDto = new WhiteboardSessionDto();
@@ -136,39 +135,8 @@ export class WhiteboardMainComponent implements OnInit,OnDestroy {
                   //console.log("WhiteboardMainComponent >> ngOnInit >> data : ", data);
                 });
                 this.minimapSyncService.syncMinimap();
-
-                this.cursorTrackerService.on();
-
-                for (let i = 0; i < wbSessionFullDto.connectedUsers.length; i++) {
-                  let currConnUserIdToken = wbSessionFullDto.connectedUsers[i];
-
-                  if(currConnUserIdToken === userDto.idToken){
-                    continue;
-                  }
-                  let currConnParticipantInfo:ParticipantDto = this.websocketManagerService.getUserInfoByIdToken(currConnUserIdToken);
-                  let targetIndex = this.websocketManagerService.getUserIndexByIdToken(currConnUserIdToken);
-
-                  let userColor = GachiColorList.getColor(targetIndex);
-                  console.log("WhiteboardMainComponent >>  >> userColor : ",userColor);
-
-                  this.cursorTrackerService.addUser(currConnParticipantInfo.idToken, new Point(0,0),new Color(userColor));
-                }
-                this.subscribeWbSessionEventEmitter();
-                this.whiteboardPaperProject.view.onMouseMove = (event) => {
-                  if (this.cursorThrottle) {
-                    return;
-                  }
-                  this.debugingService.cursorX = this.cursorTrackerService.currentCursorPosition.x = event.point.x;
-                  this.debugingService.cursorY = this.cursorTrackerService.currentCursorPosition.y = event.point.y;
-
-                  this.sendCursorData();
-                  this.cursorThrottle = true;
-                  setTimeout(()=>{
-                    this.cursorThrottle = false;
-                  },30);
-                };
-                this.cursorTrackerService.refreshPoint();
-
+                this.initCursorTrackerInstance(wbSessionFullDto, userDto);
+                this.wbTitle = wbSessionFullDto.title;
               });
           });
 
@@ -176,20 +144,50 @@ export class WhiteboardMainComponent implements OnInit,OnDestroy {
     });
   }//ngOnInit()
 
-  initCursorTracker(){
+  initCursorTrackerInstance(wbSessionFullDto, userDto){
+    this.cursorTrackerService.on();
+    this.connectedUserList = wbSessionFullDto.connectedUsers;
+    for (let i = 0; i < wbSessionFullDto.connectedUsers.length; i++) {
+      let currConnUserIdToken = wbSessionFullDto.connectedUsers[i];
 
+      if(currConnUserIdToken === userDto.idToken){
+        continue;
+      }
+      let currConnParticipantInfo:ParticipantDto = this.websocketManagerService.getUserInfoByIdToken(currConnUserIdToken);
+      let targetIndex = this.websocketManagerService.getUserIndexByIdToken(currConnUserIdToken);
+
+      let userColor = GachiColorList.getColor(targetIndex);
+      console.log("WhiteboardMainComponent >>  >> userColor : ",userColor);
+
+      this.cursorTrackerService.addUser(currConnParticipantInfo.idToken, new Point(0,0),new Color(userColor));
+    }
+    this.subscribeWbSessionEventEmitter();
+    this.whiteboardPaperProject.view.onMouseMove = (event) => {
+      if (this.cursorThrottle) {
+        return;
+      }
+      this.debugingService.cursorX = this.cursorTrackerService.currentCursorPosition.x = event.point.x;
+      this.debugingService.cursorY = this.cursorTrackerService.currentCursorPosition.y = event.point.y;
+
+      this.sendCursorData();
+      this.cursorThrottle = true;
+      setTimeout(()=>{
+        this.cursorThrottle = false;
+      },30);
+    };
+    this.cursorTrackerService.refreshPoint();
   }
   private wbSessionSubscription:Subscription;
   subscribeWbSessionEventEmitter(){
 
     this.wbSessionSubscription = this.wbSessionEventManagerService.wsWbSessionEventEmitter.subscribe((wbSessionEvent:WbSessionEvent)=>{
       if(wbSessionEvent.action === WbSessionEventEnum.JOIN){
-        /*let newUser = wbSessionEvent.additionalData;
-        console.log("WhiteboardMainComponent >> subscribeWbSessionEventEmitter >> newUser : ",newUser);
-        this.cursorTrackerService.deleteUser(newUser);
-        let targetIndex = this.websocketManagerService.getUserIndexByIdToken(newUser);
-        let userColor = GachiColorList.getColor(targetIndex);
-        this.cursorTrackerService.addUser(newUser, new Point(0, 0), new Color(userColor));*/
+        console.log("WhiteboardMainComponent >> JOIN >> wbSessionEvent : ",wbSessionEvent);
+
+        if (wbSessionEvent.additionalData) {
+          //this.connectedUserList.push(wbSessionEvent.additionalData);
+          this.pushToConnectedUserArray(wbSessionEvent.additionalData);
+        }
 
       } else if(wbSessionEvent.action === WbSessionEventEnum.UPDATE_CURSOR){
         //console.log("WhiteboardMainComponent >> UPDATE_CURSOR >> wbSessionEvent : ",wbSessionEvent.additionalData);
@@ -198,7 +196,16 @@ export class WhiteboardMainComponent implements OnInit,OnDestroy {
       }
     })
   }
-
+  pushToConnectedUserArray(idToken){
+    let i = this.connectedUserList.length;
+    while (i--) {
+      let currUserIdToken = this.connectedUserList[i];
+      if (currUserIdToken === idToken) {
+        this.connectedUserList.splice(i, 1);
+      }
+    }
+    this.connectedUserList.push(idToken);
+  }
   parsePositionData(cursorDataArray:Array<CursorData>){
     if(!cursorDataArray){ return; }
 
