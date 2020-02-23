@@ -31,14 +31,13 @@ export class LinkHandler {
     this.position = position;
     this.createHandler(fillColor);
 
-    this.linkChangeEvent = this.linkChangeEventSubscription;
-    this.linkSelectedEventAttach();
     this.setOwnerLifeCycleEvent();
   }
 
   public enable() {
     this.coreItem.visible = true;
     this.coreItem.bringToFront();
+    this.reflectZoomFactor();
     this.zoomEvent = this.zoomEventSubscription;
   }
 
@@ -119,42 +118,23 @@ export class LinkHandler {
     this._coreItem.data.struct = this;
   }
 
-  private linkSelectedEventAttach() {
-    // this._owner.fromLinkEventEmitter.subscribe((linkEvent: LinkEvent) => {
-    //   if(linkEvent.action === LinkEventEnum.WB_ITEM_DESELECTED) {
-    //     this.disable();
-    //   }
-    // });
-    // this._owner.linkEventEmitter.subscribe((linkEvent: LinkEvent) => {
-    //   if(linkEvent.action === LinkEventEnum.WB_ITEM_SELECTED) {
-    //     this.enable();
-    //   }
-    // });
-  }
-
-  private get linkChangeEventSubscription(): Subscription {
-    // return this._owner.toLinkEventEmitter.subscribe((linkEvent: LinkEvent) => {
-    //   if(linkEvent.action === LinkEventEnum.WB_ITEM_MODIFIED) {
-    //     this.coreItem.position = linkEvent.invokerItem.linkObject.lastSegment.point;
-    //     this.coreItem.bringToFront();
-    //   }
-    // });
-
-    return null;
-  }
-
   private get zoomEventSubscription(): Subscription {
     return this._owner.layerService.infiniteCanvasService.zoomEventEmitter.subscribe((zoomEvent: ZoomEvent) => {
       if(zoomEvent.action === ZoomEventEnum.ZOOM_CHANGED) {
-        let radius = HandlerOption.circleRadius / zoomEvent.zoomFactor;
-        let center = this.coreItem.position;
-        let size = new Size(radius * 2, radius * 2);
-
-        this.coreItem.strokeWidth = HandlerOption.strokeWidth / zoomEvent.zoomFactor;
-        this.coreItem.bounds = new Rectangle(size);
-        this.coreItem.position = center;
+        this.reflectZoomFactor();
       }
     });
+  }
+
+  private reflectZoomFactor() {
+    let zoomFactor = this.owner.layerService.posCalcService.getZoomState();
+    let radius = HandlerOption.circleRadius / zoomFactor;
+    let center = this.coreItem.position;
+    let size = new Size(radius * 2, radius * 2);
+
+    this.coreItem.strokeWidth = HandlerOption.strokeWidth / zoomFactor;
+    this.coreItem.bounds = new Rectangle(size);
+    this.coreItem.position = center;
   }
 
   get isEnable(): boolean {

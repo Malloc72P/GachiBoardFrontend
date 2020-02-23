@@ -1,7 +1,6 @@
 import * as paper from 'paper';
 
 import {Component, OnInit} from '@angular/core';
-import {subPanelStatus} from "../../../../../Model/Whiteboard/ContextMenu/horizon-context-menu-service/sub-panel-status";
 import {HorizonContextMenuActions} from "../../../../../Model/Whiteboard/ContextMenu/horizon-context-menu-service/horizon-context-menu.enum";
 import {HorizonContextMenuService} from "../../../../../Model/Whiteboard/ContextMenu/horizon-context-menu-service/horizon-context-menu.service";
 import {FormBuilder, FormGroup, Validators} from "@angular/forms";
@@ -142,8 +141,8 @@ export class SubPanelForFontComponent implements OnInit {
     return this.menu.centerTop;
   }
 
-  get isHiddenSubPanel(): subPanelStatus {
-    return this.menu.subPanelHidden;
+  get hidden(): boolean {
+    return this.menu.subPanelManager.isHidden(HorizonContextMenuActions.FONT_STYLE);
   }
 
   get horizonContextMenuActions() {

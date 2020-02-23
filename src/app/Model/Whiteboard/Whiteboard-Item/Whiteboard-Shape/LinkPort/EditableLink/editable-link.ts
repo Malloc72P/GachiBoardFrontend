@@ -25,7 +25,7 @@ export class EditableLink extends WhiteboardItem {
   private _fromLinkPort: LinkPort;   // 반대로 to, from Link Port 가 없으면 linkLine 을 DTO 에 실어 보냄
   private _linkHeadType: EditableLinkCapTypes;
   private _linkTailType: EditableLinkCapTypes;
-  private _capSize = 20;
+  private _capSize = 4;
 
   // private linkColor: Color;      // 실제로는 getter 와 setter 로 Path 오브젝트에 직접 접근할 예정
   // private linkWidth: number;     // DTO 도 마찬가지로 사용할 예정
@@ -231,7 +231,7 @@ export class EditableLink extends WhiteboardItem {
     switch (type) {
       case EditableLinkCapTypes.ARROW:
         let vector: Point = firstPoint.subtract(lastPoint);
-        let wingVector: Point = vector.normalize(this._capSize);
+        let wingVector: Point = vector.normalize(this.linkWidth * this._capSize);
         let leftWing: Point = lastPoint.add(wingVector.rotate(35, null));
         let rightWing: Point = lastPoint.add(wingVector.rotate(-35, null));
 
@@ -239,9 +239,9 @@ export class EditableLink extends WhiteboardItem {
         cap.add(leftWing);
         cap.add(lastPoint);
         cap.add(rightWing);
-        cap.visible = true;
         break;
       case EditableLinkCapTypes.NONE:
+        cap.removeSegments();
         break;
     }
   }
@@ -324,6 +324,7 @@ export class EditableLink extends WhiteboardItem {
       this.linkTail.strokeWidth = value;
     }
     this.linkLine.strokeWidth = value;
+    this.drawCaps();
   }
 
   set isDashed(value: boolean) {
@@ -351,7 +352,6 @@ export class EditableLink extends WhiteboardItem {
     if(!!value) {
       // 이전 링크포트에서 링크 제거
       this.removeToLinkFromOwner();
-
       this._toLinkPort = value;
       value.fromLinkList.push(this);
       this.endPoint = value.calcLinkPortPosition();

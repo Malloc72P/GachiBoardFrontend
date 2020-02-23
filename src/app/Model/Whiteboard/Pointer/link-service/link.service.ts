@@ -1,9 +1,4 @@
 import * as paper from 'paper';
-
-import {Injectable} from '@angular/core';
-import {EditableLinkCapTypes} from "../../Whiteboard-Item/Whiteboard-Shape/LinkPort/EditableLink/editable-link-types.enum";
-import {DrawingLayerManagerService} from "../../InfiniteCanvas/DrawingLayerManager/drawing-layer-manager.service";
-import {WhiteboardItemType} from "../../../Helper/data-type-enum/data-type.enum";
 // @ts-ignore
 import Point = paper.Point;
 // @ts-ignore
@@ -12,6 +7,11 @@ import Path = paper.Path;
 import Color = paper.Color;
 // @ts-ignore
 import Group = paper.Group;
+
+import {Injectable} from '@angular/core';
+import {EditableLinkCapTypes} from "../../Whiteboard-Item/Whiteboard-Shape/LinkPort/EditableLink/editable-link-types.enum";
+import {DrawingLayerManagerService} from "../../InfiniteCanvas/DrawingLayerManager/drawing-layer-manager.service";
+import {WhiteboardItemType} from "../../../Helper/data-type-enum/data-type.enum";
 import {WhiteboardItem} from "../../Whiteboard-Item/whiteboard-item";
 import {LinkHandlerPositions} from "../../Whiteboard-Item/Whiteboard-Shape/LinkPort/EditableLink/link-handler-positions";
 import {WhiteboardShape} from "../../Whiteboard-Item/Whiteboard-Shape/whiteboard-shape";
@@ -40,12 +40,12 @@ export class LinkService {
   ) {
     this.newLinkColor = new Color('black');
     this.newLinkWidth = 3;
-    this.newLinkCapSize = 20;
+    this.newLinkCapSize = 4;
     this.newLinkIsDashed = false;
 
     // TODO : TEST CODE
     this.newLinkHeadType = EditableLinkCapTypes.ARROW;
-    this.newLinkTailType = EditableLinkCapTypes.ARROW;
+    this.newLinkTailType = EditableLinkCapTypes.NONE;
   }
 
   public createLink(event, fromLinkPort?: LinkPort) {
@@ -95,23 +95,27 @@ export class LinkService {
   }
 
   public endLink(event) {
-    let newGroup: Group = new Group();
-    newGroup.addChildren([
-      this.newLinkLine,
-      this.newLinkHead,
-      this.newLinkTail,
-    ]);
-    this.layerService.addToDrawingLayer(
-      newGroup,
-      WhiteboardItemType.EDITABLE_LINK,
-      this.newLinkHeadType,
-      this.newLinkTailType,
-      this.toLinkPort,
-      this.fromLinkPort,
-    );
+    if(this.newLinkLine.length < 20) {
+      this.removeLink();
+    } else {
+      let newGroup: Group = new Group();
+      newGroup.addChildren([
+        this.newLinkLine,
+        this.newLinkHead,
+        this.newLinkTail,
+      ]);
+      this.layerService.addToDrawingLayer(
+        newGroup,
+        WhiteboardItemType.EDITABLE_LINK,
+        this.newLinkHeadType,
+        this.newLinkTailType,
+        this.toLinkPort,
+        this.fromLinkPort,
+      );
 
-    this.toLinkPort = undefined;
-    this.fromLinkPort = undefined;
+      this.toLinkPort = undefined;
+      this.fromLinkPort = undefined;
+    }
   }
 
   private initLineSegments() {
@@ -153,7 +157,7 @@ export class LinkService {
     switch (type) {
       case EditableLinkCapTypes.ARROW:
         let vector = firstPoint.subtract(lastPoint);
-        let wingVector = vector.normalize(this.newLinkCapSize);
+        let wingVector = vector.normalize(this.linkWidth * this.newLinkCapSize);
         let leftWing = lastPoint.add(wingVector.rotate(35, null));
         let rightWing = lastPoint.add(wingVector.rotate(-35, null));
 
@@ -167,8 +171,14 @@ export class LinkService {
     }
   }
 
+  private removeLink() {
+    this.newLinkLine.remove();
+    this.newLinkHead.remove();
+    this.newLinkTail.remove();
+  }
+
   get linkColor(): Color {
-    return this.newLinkLine.strokeColor;
+    return this.newLinkColor;
   }
 
   set linkColor(value: Color) {
@@ -176,7 +186,7 @@ export class LinkService {
   }
 
   get linkWidth(): number {
-    return this.newLinkLine.strokeWidth;
+    return this.newLinkWidth;
   }
 
   set linkWidth(value: number) {
@@ -189,5 +199,25 @@ export class LinkService {
 
   set isDashed(value: boolean) {
     this.newLinkIsDashed = value;
+  }
+
+  get linkHeadType(): EditableLinkCapTypes {
+    return this.newLinkHeadType;
+  }
+
+  set linkHeadType(value: EditableLinkCapTypes) {
+    this.newLinkHeadType = value;
+  }
+
+  get linkTailType(): EditableLinkCapTypes {
+    return this.newLinkTailType;
+  }
+
+  set linkTailType(value: EditableLinkCapTypes) {
+    this.newLinkTailType = value;
+  }
+
+  get linkCapSize(): number {
+    return this.newLinkCapSize;
   }
 }

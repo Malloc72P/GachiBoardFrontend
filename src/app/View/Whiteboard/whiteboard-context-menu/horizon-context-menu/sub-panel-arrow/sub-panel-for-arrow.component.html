@@ -1,13 +1,50 @@
 <div id="horizonContextMenu-Line" class="context-menu-wrapper"
-     [hidden]="isHiddenSubPanel.isHidden(horizonContextMenuActions.ARROW_WING)"
+     [hidden]="hidden"
      [style.left]="centerTop.x + 'px'"
      [style.top]="centerTop.y + 47 + 'px'">
   <mat-card class="sub-panel-wrapper">
-    <div class="circle-selector-wrapper">
-      <div *ngFor="let style of arrowStyles" class="selector" (click)="onClickArrowStyle(style)">
-        <svg width="24" height="24">
-          <use [attr.href]="'/assets/images/context-menu/links.svg#' + style"/>
-          <use [attr.href]="'/assets/images/context-menu/links.svg#selected'" *ngIf="false"/>
+    <!-- Mode Selector -->
+    <div class="link-style-selector-mode-wrap">
+      <span class="link-style-selector-mode mat-caption">Tail</span>
+      <span class="link-style-selector-mode mat-caption">Line</span>
+      <span class="link-style-selector-mode mat-caption">Head</span>
+    </div>
+    <div class="link-style-selector-mode-wrap">
+      <div *ngFor="let mode of ModeArray; let i = index" class="link-style-selector-mode selector" (click)="onClickModeSelector(i)">
+        <svg width="20" height="20" [style]="svgReflection(i)" [style.color]="linkColor">
+          <use [attr.href]="'/assets/images/context-menu/links.svg#' + mode"/>
+          <use [attr.href]="'/assets/images/context-menu/links.svg#selected'" *ngIf="currentMode(i)"/>
+        </svg>
+      </div>
+    </div>
+    <hr>
+    <!-- Link Tail -->
+    <div class="link-selector" [hidden]="subPanel.isHidden(SelectMode.TAIL)">
+      <div class="selector" *ngFor="let link of LinkArray" (click)="onClickTailSelector(link)">
+        <svg width="20" height="20" [style]="svgReflection(SelectMode.TAIL)">
+          <use [attr.href]="'/assets/images/context-menu/links.svg#' + link"/>
+          <use [attr.href]="'/assets/images/context-menu/links.svg#selected'" *ngIf="link === currentLinkTail"/>
+        </svg>
+      </div>
+    </div>
+    <!-- Link Line -->
+    <div class="link-selector" [hidden]="subPanel.isHidden(SelectMode.LINE)">
+      <!--    <span class="mat-caption">Width</span>-->
+      <mat-slider min="1" max="15" step="1" [(ngModel)]="linkWidth"></mat-slider>
+      <mat-checkbox class="dash-checkbox" [(ngModel)]="isDashed">Dash Line</mat-checkbox>
+      <hr>
+      <div>
+        <div *ngFor="let color of colors; index as i" class="color-selector {{colorSelected(i)}}"
+             [style.background-color]="colorToHtml(color)"
+             (click)="onChangeColorSelector(color)"></div>
+      </div>
+    </div>
+    <!-- Link Head -->
+    <div class="link-selector" [hidden]="subPanel.isHidden(SelectMode.HEAD)">
+      <div class="selector" *ngFor="let link of LinkArray" (click)="onClickHeadSelector(link)">
+        <svg width="20" height="20">
+          <use [attr.href]="'/assets/images/context-menu/links.svg#' + link"/>
+          <use [attr.href]="'/assets/images/context-menu/links.svg#selected'" *ngIf="link === currentLinkHead"/>
         </svg>
       </div>
     </div>

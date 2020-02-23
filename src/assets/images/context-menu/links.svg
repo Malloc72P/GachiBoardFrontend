@@ -4,47 +4,27 @@
     <path d="M15 10H3" id="b"/>
     <path d="M16.58 10.7l-5.66-5.65" id="c"/>
     <path d="M16.58 9.3l-5.66 5.65" id="d"/>
-    <path d="M8.02 10h-2" id="e"/>
+    <path d="M17 10H3" id="e"/>
     <path d="M5 10H3" id="f"/>
-    <path d="M11.06 10h-2" id="g"/>
-    <path d="M14.19 10h-2" id="h"/>
-    <path d="M12.25 6.41L10.84 5" id="i"/>
-    <path d="M14.42 8.52l-1.41-1.41" id="j"/>
-    <path d="M16.61 10.71L15.2 9.29" id="k"/>
-    <path d="M12.31 14.96l-1.41-1.42" id="l"/>
-    <path d="M14.46 12.81l-1.42-1.41" id="m"/>
-    <path d="M17 10H3" id="n"/>
-    <path d="M5 10H3" id="o"/>
-    <path d="M17 10h-2" id="p"/>
-    <path d="M7.94 10h-2" id="q"/>
-    <path d="M10.89 10h-2" id="r"/>
-    <path d="M13.97 10h-2" id="s"/>
+    <path d="M17 10h-2" id="g"/>
+    <path d="M7.94 10h-2" id="h"/>
+    <path d="M10.89 10h-2" id="i"/>
+    <path d="M13.97 10h-2" id="j"/>
   </defs>
-  <g id="SIMPLE_ARROW_LINK">
+  <g id="ARROW">
     <use href="#b" fill-opacity="0" stroke="#000" stroke-width="2"/>
     <use href="#c" fill-opacity="0" stroke="#000" stroke-width="2"/>
     <use href="#d" fill-opacity="0" stroke="#000" stroke-width="2"/>
   </g>
-  <g id="DASHED_ARROW_LINK">
+  <g id="NONE">
     <use href="#e" fill-opacity="0" stroke="#000" stroke-width="2"/>
+  </g>
+  <g id="DASHED">
     <use href="#f" fill-opacity="0" stroke="#000" stroke-width="2"/>
     <use href="#g" fill-opacity="0" stroke="#000" stroke-width="2"/>
     <use href="#h" fill-opacity="0" stroke="#000" stroke-width="2"/>
     <use href="#i" fill-opacity="0" stroke="#000" stroke-width="2"/>
     <use href="#j" fill-opacity="0" stroke="#000" stroke-width="2"/>
-    <use href="#k" fill-opacity="0" stroke="#000" stroke-width="2"/>
-    <use href="#l" fill-opacity="0" stroke="#000" stroke-width="2"/>
-    <use href="#m" fill-opacity="0" stroke="#000" stroke-width="2"/>
-  </g>
-  <g id="SIMPLE_LINE_LINK">
-    <use href="#n" fill-opacity="0" stroke="#000" stroke-width="2"/>
-  </g>
-  <g id="DASHED_LINE_LINK">
-    <use href="#o" fill-opacity="0" stroke="#000" stroke-width="2"/>
-    <use href="#p" fill-opacity="0" stroke="#000" stroke-width="2"/>
-    <use href="#q" fill-opacity="0" stroke="#000" stroke-width="2"/>
-    <use href="#r" fill-opacity="0" stroke="#000" stroke-width="2"/>
-    <use href="#s" fill-opacity="0" stroke="#000" stroke-width="2"/>
   </g>
   <g id="selected">
     <use href="#a" fill-opacity="0" stroke="#4252ff" stroke-width="2"/>

@@ -19,6 +19,10 @@ export class GachiColorDto {
     }
   }
 
+  public clone(): GachiColorDto {
+    return new GachiColorDto(this._red, this._green, this._blue, this._alpha);
+  }
+
   public setColorByPaperColor(color:Color){
     this._red   = color.red;
     this._green = color.green;

@@ -5,8 +5,6 @@ import Color = paper.Color;
 import {Component, Input, OnInit} from '@angular/core';
 import {HorizonContextMenuActions} from "../../../../Model/Whiteboard/ContextMenu/horizon-context-menu-service/horizon-context-menu.enum";
 import {HorizonContextMenuService} from "../../../../Model/Whiteboard/ContextMenu/horizon-context-menu-service/horizon-context-menu.service";
-import {MatSliderChange} from "@angular/material/slider";
-import {subPanelStatus} from "../../../../Model/Whiteboard/ContextMenu/horizon-context-menu-service/sub-panel-status";
 import {DrawingLayerManagerService} from '../../../../Model/Whiteboard/InfiniteCanvas/DrawingLayerManager/drawing-layer-manager.service';
 
 
@@ -36,13 +34,13 @@ export class HorizonContextMenuComponent implements OnInit {
   // ################### public Method #####################
 
   public onClickMenuItem(action: HorizonContextMenuActions) {
-    this.menu.subPanelHidden.hideOther(action);
+    this.menu.subPanelManager.hideOther(action);
     switch (action) {
       case HorizonContextMenuActions.LINE:
-        this.menu.subPanelHidden.toggleThis(action);
+        this.menu.subPanelManager.toggleThis(action);
         break;
       case HorizonContextMenuActions.FILL:
-        this.menu.subPanelHidden.toggleThis(action);
+        this.menu.subPanelManager.toggleThis(action);
         break;
       case HorizonContextMenuActions.LOCK:
         this.layerService.globalSelectedGroup.lockItems();
@@ -53,12 +51,12 @@ export class HorizonContextMenuComponent implements OnInit {
         this.menu.refreshMenuItem();
         break;
       case HorizonContextMenuActions.FONT_STYLE:
-        this.menu.subPanelHidden.toggleThis(action);
+        this.menu.subPanelManager.toggleThis(action);
         break;
       case HorizonContextMenuActions.MORE:
         break;
       case HorizonContextMenuActions.ARROW_WING:
-        this.menu.subPanelHidden.toggleThis(action);
+        this.menu.subPanelManager.toggleThis(action);
         break;
       case HorizonContextMenuActions.GROUP:
         this.layerService.groupSelectedItems();

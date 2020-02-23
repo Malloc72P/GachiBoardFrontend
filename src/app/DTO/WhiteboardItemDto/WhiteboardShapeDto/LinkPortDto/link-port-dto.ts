@@ -7,6 +7,10 @@ export class LinkPortDto {
     this._ownerWbItemId = ownerWbItemId;
   }
 
+  public clone(): LinkPortDto {
+    return new LinkPortDto(this.direction, this.ownerWbItemId);
+  }
+
   get direction() {
     return this._direction;
   }

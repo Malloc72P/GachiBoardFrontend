@@ -90,11 +90,7 @@ export class ItemGroup extends WhiteboardItem {
   }
 
   private moveTo(position: Point) {
-      console.log("ItemGroup >> moveTo >> position : ", position);
     if(this.isMovable) {
-      // this.wbItemGroup.forEach(wbItem => {
-      //   wbItem.group.position = position;
-      // });
       this.group.position = position;
       this.emitMoved();
       this.wbItemGroup.forEach(value => {

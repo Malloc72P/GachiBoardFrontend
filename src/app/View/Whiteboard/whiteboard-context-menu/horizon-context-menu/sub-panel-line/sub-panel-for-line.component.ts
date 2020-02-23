@@ -6,7 +6,6 @@ import {Component, OnInit} from '@angular/core';
 import {MatSliderChange} from "@angular/material/slider";
 import {HorizonContextMenuService} from "../../../../../Model/Whiteboard/ContextMenu/horizon-context-menu-service/horizon-context-menu.service";
 import {HorizonContextMenuActions} from "../../../../../Model/Whiteboard/ContextMenu/horizon-context-menu-service/horizon-context-menu.enum";
-import {subPanelStatus} from "../../../../../Model/Whiteboard/ContextMenu/horizon-context-menu-service/sub-panel-status";
 import {EditableLink} from "../../../../../Model/Whiteboard/Whiteboard-Item/Whiteboard-Shape/LinkPort/EditableLink/editable-link";
 
 @Component({
@@ -85,8 +84,8 @@ export class SubPanelForLineComponent implements OnInit {
     return this.menu.centerTop;
   }
 
-  get isHiddenSubPanel(): subPanelStatus {
-    return this.menu.subPanelHidden;
+  get hidden(): boolean {
+    return this.menu.subPanelManager.isHidden(HorizonContextMenuActions.LINE);
   }
 
   get horizonContextMenuActions() {

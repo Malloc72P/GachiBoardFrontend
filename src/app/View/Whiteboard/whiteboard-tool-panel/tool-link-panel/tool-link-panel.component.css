@@ -3,8 +3,31 @@ hr {
   border-bottom: none;
 }
 .panel-wrapper {
+  width: 128px;
   padding: 8px;
   transform: translate(0, -50%);
+}
+
+.selector {
+  display: inline-block;
+  cursor: pointer;
+  margin: 5px;
+}
+
+.link-style-selector-mode-wrap {
+  display: -webkit-box;
+  display: -moz-box;
+  display: -ms-flexbox;
+  display: -webkit-flex;
+  display: flex;
+}
+.link-style-selector-mode {
+  -webkit-box-flex: 1;
+  -moz-box-flex: 1;
+  width: 33%;
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
 }
 
 .color-selector {
@@ -16,21 +39,10 @@ hr {
   margin: 5px;
 }
 
-.color-selector-mode-wrap {
-  display: -webkit-box;
-  display: -moz-box;
-  display: -ms-flexbox;
-  display: -webkit-flex;
-  display: flex;
+.selected {
+  box-shadow: 0 0 0 2px white, 0 0 0 4px #4262ff;
 }
-.color-selector-mode {
-  -webkit-box-flex: 1;
-  -moz-box-flex: 1;
-  width: 50%;
-  -webkit-flex: 1;
-  -ms-flex: 1;
-  flex: 1;
-}
+
 .color-selector-svg {
   width: 28px;
   height: 28px;
@@ -46,9 +58,6 @@ hr {
   height: 20px;
   margin: 5px;
 }
-.selected {
-  box-shadow: 0 0 0 2px white, 0 0 0 4px #4262ff;
-}
 
 .shape-selector {
   display: inline-block;
@@ -59,6 +68,10 @@ hr {
   display: inline-block;
   width: 20px;
   height: 20px;
+}
+
+.dash-checkbox {
+  font-size: 12px;
 }
 
 svg * {

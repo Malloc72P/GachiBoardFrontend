@@ -60,7 +60,7 @@ export class EraserService {
   }
 
   // 사용자 경험상 지우개로 지워지면 안될 화이트보드 아이템을 등록
-  private itemChecker(wbItem: WhiteboardItem | EditableLink) {
+  private itemChecker(wbItem: WhiteboardItem) {
     if(wbItem instanceof WhiteboardItem) {
       switch (wbItem.type) {
         case WhiteboardItemType.SIMPLE_RASTER:
@@ -68,6 +68,7 @@ export class EraserService {
         case WhiteboardItemType.EDITABLE_CIRCLE:
         case WhiteboardItemType.EDITABLE_RECTANGLE:
         case WhiteboardItemType.EDITABLE_TRIANGLE:
+        case WhiteboardItemType.EDITABLE_LINK:
           return false;
         default:
           return true;

@@ -326,4 +326,8 @@ export class WhiteboardMainComponent implements OnInit {
         break;
     }
   }
+
+  get PointerMode() {
+    return PointerMode;
+  }
 }
