@@ -134,7 +134,16 @@ export class HttpHelper {
       ),
       join : new WebSocketRequest(
         "wbSession_join",WebSocketTypeEnum.JOIN
-      )
+      ),
+      create_cursor : new WebSocketRequest(
+        "wbSession_create_cursor", WebSocketTypeEnum.CREATE
+      ),
+      update_cursor : new WebSocketRequest(
+        "wbSession_update_cursor", WebSocketTypeEnum.UPDATE
+      ),
+      remove_cursor : new WebSocketRequest(
+        "wbSession_remove_cursor", WebSocketTypeEnum.DELETE
+      ),
     }
   };
 

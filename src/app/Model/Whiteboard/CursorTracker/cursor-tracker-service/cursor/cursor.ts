@@ -58,7 +58,7 @@ export class Cursor {
       'bounds.topLeft': point
     }, {
       easing: 'linear',
-      duration: 166,
+      duration: 150,
     });
     this.group.bringToFront();
   }
@@ -85,5 +85,9 @@ export class Cursor {
   private refreshCursorSizeForZooming(factor: number) {
     this.group.bounds.width = this.width / factor;
     this.group.bounds.height = this.height / factor;
+  }
+
+  public getPaperInstance(){
+    return this.group;
   }
 }

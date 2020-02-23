@@ -24,6 +24,9 @@ import {DrawingLayerManagerService} from '../../InfiniteCanvas/DrawingLayerManag
 import {PanelManagerService} from '../../Panel/panel-manager-service/panel-manager.service';
 import {CursorChangeService} from "../cursor-change-service/cursor-change.service";
 import {LinkService} from "../link-service/link.service";
+import {GachiPointDto} from '../../../../DTO/WhiteboardItemDto/PointDto/gachi-point-dto';
+import {WsWhiteboardSessionController} from '../../../../Controller/Controller-WebSocket/websocket-manager/WhiteboardSessionWsController/ws-whiteboard-session.controller';
+import {CursorTrackerService} from '../../CursorTracker/cursor-tracker-service/cursor-tracker.service';
 
 @Injectable({
   providedIn: 'root'
@@ -50,6 +53,7 @@ export class PointerModeManagerService {
       private layerService                : DrawingLayerManagerService,
       private panelManager                : PanelManagerService,
       private cursorChangeService         : CursorChangeService,
+      private cursorTrackerService        : CursorTrackerService,
     ) {
   }
 
@@ -261,6 +265,12 @@ export class PointerModeManagerService {
       }
 
     }
+    let newPosition = new GachiPointDto(
+      this.cursorTrackerService.currentCursorPosition.x,
+      this.cursorTrackerService.currentCursorPosition.y
+    );
+    let wsWbSessionColtroller = WsWhiteboardSessionController.getInstance();
+    wsWbSessionColtroller.sendCursorData(newPosition);
     this.minimapSyncService.syncMinimap();
   }
 
@@ -394,6 +404,12 @@ export class PointerModeManagerService {
         break;
     }
     this.minimapSyncService.syncMinimap();
+    let newPosition = new GachiPointDto(
+      this.cursorTrackerService.currentCursorPosition.x,
+      this.cursorTrackerService.currentCursorPosition.y
+    );
+    let wsWbSessionColtroller = WsWhiteboardSessionController.getInstance();
+    wsWbSessionColtroller.sendCursorData(newPosition);
   }
 
 

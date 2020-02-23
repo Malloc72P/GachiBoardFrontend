@@ -8,6 +8,7 @@ import {KanbanItemDto} from '../../../../DTO/ProjectDto/KanbanDataDto/KanbanGrou
 import {Observable} from 'rxjs';
 import {WhiteboardSessionDto} from '../../../../DTO/ProjectDto/WhiteboardSessionDto/whiteboard-session-dto';
 import {WbSessionEvent, WbSessionEventEnum} from './wb-session-event/wb-session-event';
+import {GachiPointDto} from '../../../../DTO/WhiteboardItemDto/PointDto/gachi-point-dto';
 
 export class WsWhiteboardSessionController {
   private socket:Socket;
@@ -20,6 +21,8 @@ export class WsWhiteboardSessionController {
     this.socket = this.websocketManager.socket;
     this.onWbSessionCreated();
     this.onPinged();
+    this.onWbSessionJoined();
+    this.onCursorDataUpdate();
   }
 
 
@@ -93,7 +96,7 @@ export class WsWhiteboardSessionController {
             case WebsocketPacketActionEnum.ACK:
               console.log("WsWhiteboardSessionController >> waitRequestJoinWbSession >> wsPacketDto : ",wsPacketDto);
               this.websocketManager.currentWbSessionDto = wsPacketDto.dataDto as WhiteboardSessionDto;
-              subscriber.next(packetDto.dataDto);
+              subscriber.next(this.websocketManager.currentWbSessionDto);
               break;
             case WebsocketPacketActionEnum.NAK:
               subscriber.error(packetDto);
@@ -109,7 +112,7 @@ export class WsWhiteboardSessionController {
         if (wsPacketDto.action === WebsocketPacketActionEnum.JOIN) {
           console.log("WsWhiteboardSessionController >> onWbSessionCreated >> wsPacketDto : ",wsPacketDto);
           this.websocketManager.wbSessionEventManagerService.wsWbSessionEventEmitter.emit(
-            new WbSessionEvent(WbSessionEventEnum.JOIN, wsPacketDto.dataDto as WhiteboardSessionDto));
+            new WbSessionEvent(WbSessionEventEnum.JOIN, wsPacketDto.dataDto as WhiteboardSessionDto, wsPacketDto.additionalData));
         }
       });
   }
@@ -190,6 +193,31 @@ export class WsWhiteboardSessionController {
         }
       });
   }
+
+  /* *************************************************** */
+  /* Cursor Tarcker Handler START */
+  /* *************************************************** */
+  sendCursorData(newPosition:GachiPointDto){
+    //this.websocketManager.uiService.spin$.next(true);
+    let packetDto = this.websocketManager.createWbSessionScopePacket(newPosition, WebsocketPacketActionEnum.SPECIAL, "cursor");
+    packetDto.wsPacketSeq = this.websocketManager.wsPacketSeq;
+
+    this.socket.emit(HttpHelper.websocketApi.whiteboardSession.update_cursor.event, packetDto);
+  }
+  private onCursorDataUpdate(){
+    this.socket.on(HttpHelper.websocketApi.whiteboardSession.update_cursor.event,
+      (wsPacketDto:WebsocketPacketDto)=>{
+        if (wsPacketDto.action === WebsocketPacketActionEnum.SPECIAL) {
+          this.websocketManager.wbSessionEventManagerService.wsWbSessionEventEmitter.emit(
+            new WbSessionEvent(WbSessionEventEnum.UPDATE_CURSOR, null, wsPacketDto.additionalData));
+        }
+      });
+  }
+
+
+  /* **************************************************** */
+  /* Cursor Tarcker Handler END */
+  /* **************************************************** */
 
 
 
