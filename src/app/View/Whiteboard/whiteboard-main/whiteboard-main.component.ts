@@ -154,6 +154,19 @@ export class WhiteboardMainComponent implements OnInit,OnDestroy {
                   this.cursorTrackerService.addUser(currConnParticipantInfo.idToken, new Point(0,0),new Color(userColor));
                 }
                 this.subscribeWbSessionEventEmitter();
+                this.whiteboardPaperProject.view.onMouseMove = (event) => {
+                  if (this.cursorThrottle) {
+                    return;
+                  }
+                  this.debugingService.cursorX = this.cursorTrackerService.currentCursorPosition.x = event.point.x;
+                  this.debugingService.cursorY = this.cursorTrackerService.currentCursorPosition.y = event.point.y;
+
+                  this.sendCursorData();
+                  this.cursorThrottle = true;
+                  setTimeout(()=>{
+                    this.cursorThrottle = false;
+                  },30);
+                };
                 this.cursorTrackerService.refreshPoint();
 
               });
@@ -224,13 +237,18 @@ export class WhiteboardMainComponent implements OnInit,OnDestroy {
     this.linkModeManagerService.initLinkModeManagerService(this.layerService.linkModeEventEmitter);
     WhiteboardItemFactory.initWhiteboardItemFactory(this.layerService);
     this.cursorTrackerService.initializeCursorTrackerService(this.infiniteCanvasService.zoomEventEmitter);
-
-    this.whiteboardPaperProject.view.onMouseMove = (event) => {
-      this.debugingService.cursorX = this.cursorTrackerService.currentCursorPosition.x = event.point.x;
-      this.debugingService.cursorY = this.cursorTrackerService.currentCursorPosition.y = event.point.y;
-    };
   }
 
+  sendCursorData(){
+    let newPosition = new GachiPointDto(
+      this.cursorTrackerService.currentCursorPosition.x,
+      this.cursorTrackerService.currentCursorPosition.y
+    );
+    let wsWbSessionColtroller = WsWhiteboardSessionController.getInstance();
+    wsWbSessionColtroller.sendCursorData(newPosition);
+  }
+
+  private cursorThrottle = false;
   public initWhiteboardPaper() {
     paper.settings.hitTolerance = 40;
 

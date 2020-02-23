@@ -37,6 +37,9 @@ export class PointerModeManagerService {
   public mouseDown = false;
   public currentProject: Project;
 
+  private intervalObject;
+
+
   constructor(
       public brushService                 : BrushService,
       public eraser                       : EraserService,
@@ -265,12 +268,6 @@ export class PointerModeManagerService {
       }
 
     }
-    let newPosition = new GachiPointDto(
-      this.cursorTrackerService.currentCursorPosition.x,
-      this.cursorTrackerService.currentCursorPosition.y
-    );
-    let wsWbSessionColtroller = WsWhiteboardSessionController.getInstance();
-    wsWbSessionColtroller.sendCursorData(newPosition);
     this.minimapSyncService.syncMinimap();
   }
 
@@ -404,14 +401,7 @@ export class PointerModeManagerService {
         break;
     }
     this.minimapSyncService.syncMinimap();
-    let newPosition = new GachiPointDto(
-      this.cursorTrackerService.currentCursorPosition.x,
-      this.cursorTrackerService.currentCursorPosition.y
-    );
-    let wsWbSessionColtroller = WsWhiteboardSessionController.getInstance();
-    wsWbSessionColtroller.sendCursorData(newPosition);
   }
-
 
   private static segmentVerifier(segment){
     if(!segment){//hit했지만, item을 못불러온 경우 리턴
