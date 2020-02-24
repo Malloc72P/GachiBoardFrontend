@@ -7,23 +7,17 @@ import {HighlightStrokeDto} from '../../../../../DTO/WhiteboardItemDto/EditableS
 import Path = paper.Path;
 
 export class HighlightStroke extends EditableStroke {
-  private _opacity: number;
   constructor(id, path:Path, layerService) {
     super(id, WhiteboardItemType.HIGHLIGHT_STROKE,
             path,
             layerService);
-
   }
 
   public exportToDto(): HighlightStrokeDto {
     return super.exportToDto() as HighlightStrokeDto;
   }
 
-  get opacity(): number {
-    return this._opacity;
-  }
-
-  set opacity(value: number) {
-    this._opacity = value;
+  public update(dto: HighlightStrokeDto) {
+    super.update(dto);
   }
 }

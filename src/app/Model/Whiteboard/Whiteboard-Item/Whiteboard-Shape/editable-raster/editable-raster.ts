@@ -46,18 +46,18 @@ export abstract class EditableRaster extends WhiteboardShape {
 
   notifyItemCreation() {
     console.log("EditableRaster >> notifyItemCreation >> 진입함");
-    this.wbItemsLifeCycleEventEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.CREATE));
+    this.globalLifeCycleEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.CREATE));
   }
 
   notifyItemModified() {
     console.log("EditableRaster >> notifyItemModified >> 진입함");
-    this.wbItemsLifeCycleEventEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.MODIFY));
+    this.globalLifeCycleEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.MODIFY));
     /*this.notifyOwnerChangeEventToLinkPort();*/
   }
 
   refreshItem() {
     console.log("EditableRaster >> refreshItem >> 진입함");
-    this.wbItemsLifeCycleEventEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.MODIFY));
+    this.globalLifeCycleEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.MODIFY));
     /*this.notifyOwnerChangeEventToLinkPort();*/
   }
 
@@ -66,7 +66,7 @@ export abstract class EditableRaster extends WhiteboardShape {
     console.log("EditableRaster >> destroyItem >> 진입함");
     this.coreItem.remove();
     this.group.remove();
-    this.wbItemsLifeCycleEventEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.DESTROY));
+    this.globalLifeCycleEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.DESTROY));
   }
 
   exportToDto(): EditableRasterDto {

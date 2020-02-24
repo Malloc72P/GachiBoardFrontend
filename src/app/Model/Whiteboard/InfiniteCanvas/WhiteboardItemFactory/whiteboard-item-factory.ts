@@ -73,10 +73,10 @@ export class WhiteboardItemFactory {
     return new Observable((observer)=>{
       let copyLinkMap: Map<number, EditableLinkDto>;
       copyLinkMap = WhiteboardItemFactory.extractCopyLinkArray(copiedDtoArray);
-      console.log("WhiteboardItemFactory >>  >> copyLinkMap : ", copyLinkMap);
 
       let copyWbItemArray: Array<WhiteboardItemDto>;
       copyWbItemArray = WhiteboardItemFactory.extractCopyWbItemArray(copiedDtoArray);
+      let observerCount = copyWbItemArray.length;
 
       let wbItemIdMap = new Map<number, number>();
       let tempGsgArray = new Array<WhiteboardItem>();
@@ -86,19 +86,23 @@ export class WhiteboardItemFactory {
         WhiteboardItemFactory.waitForCreateWbItem(currDto, BUILD_MODE.CLONE).subscribe((factoryResult:WbItemFactoryResult)=>{
           wbItemIdMap.set(currDto.id, factoryResult.newWbItem.id);
           tempGsgArray.push(factoryResult.newWbItem);
+          observerCount--;
+          if(observerCount <= 0) {
+            for(let [id, linkDto] of copyLinkMap) {
+              let replacedLinkDto = this.replaceLinkPort(linkDto, wbItemIdMap);
+              tempGsgArray.push(WhiteboardItemFactory.buildEditableLink(BUILD_MODE.CLONE, replacedLinkDto, tempGsgArray));
+            }
+            observer.next(tempGsgArray);
+          }
         });
       }
-      for(let [id, linkDto] of copyLinkMap) {
-        let replacedLinkDto = this.replaceLinkPort(linkDto, wbItemIdMap);
-        tempGsgArray.push(WhiteboardItemFactory.buildEditableLink(BUILD_MODE.CLONE, replacedLinkDto, tempGsgArray));
-      }
-      observer.next(tempGsgArray);
     });
   }
   public static buildWbItems(wbItemDto:WhiteboardItemDto):Observable<any>{
     return new Observable((observer)=>{
       WhiteboardItemFactory.waitForCreateWbItem(wbItemDto, BUILD_MODE.CREATE)
         .subscribe((wbFactoryRes:WbItemFactoryResult)=>{
+          console.log("WhiteboardItemFactory >> buildWbItems >> wbFactoryRes : ",wbFactoryRes);
           observer.next(wbFactoryRes);
         });
     });
@@ -170,7 +174,6 @@ export class WhiteboardItemFactory {
           break;
         case WhiteboardItemType.SIMPLE_RASTER:
           WhiteboardItemFactory.buildEditableRaster(wbId, wbItemDto as EditableRasterDto).subscribe((data)=>{
-            console.log("WhiteboardItemFactory >> 5 >> 진입함");
             observer.next(data);
           });
           break;

@@ -67,10 +67,10 @@ export class ImportFileService {
       raster = new Raster(base64Image);
 
       raster.onLoad = () => {
-        this.layerService.addToDrawingLayer(raster, WhiteboardItemType.SIMPLE_RASTER);
-
         raster.bounds.topLeft = new Point(startPoint.x + sumWidth.value, startPoint.y); // raster bounds.topLeft 왜 안먹지?
         sumWidth.value += raster.width + 10;
+
+        this.layerService.addToDrawingLayer(raster, WhiteboardItemType.SIMPLE_RASTER);
       };
     };
   }

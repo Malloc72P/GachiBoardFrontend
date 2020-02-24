@@ -131,14 +131,14 @@ export class EditableLink extends WhiteboardItem {
     this.linkHead.remove();
     this.linkTail.remove();
     this.linkLine.remove();
-    this.wbItemsLifeCycleEventEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.DESTROY));
+    this.globalLifeCycleEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.DESTROY));
   }
 
   public notifyItemCreation() {
-    this.wbItemsLifeCycleEventEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.CREATE));
+    this.globalLifeCycleEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.CREATE));
   }
   public notifyItemModified() {
-    this.wbItemsLifeCycleEventEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.MODIFY));
+    this.globalLifeCycleEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.MODIFY));
   }
   public refreshItem() {
 
@@ -166,7 +166,7 @@ export class EditableLink extends WhiteboardItem {
     if(!!this.toLinkPortLifeCycle) {
       this.toLinkPortLifeCycle.unsubscribe();
     }
-    return this.toLinkPort.owner.lifeCycleEmitter.subscribe((event: ItemLifeCycleEvent) => {
+    return this.toLinkPort.owner.localLifeCycleEmitter.subscribe((event: ItemLifeCycleEvent) => {
       switch (event.action) {
         case ItemLifeCycleEnum.MOVED:
         case ItemLifeCycleEnum.RESIZED:
@@ -180,7 +180,7 @@ export class EditableLink extends WhiteboardItem {
     if(!!this.fromLinkPortLifeCycle) {
       this.fromLinkPortLifeCycle.unsubscribe();
     }
-    return this.fromLinkPort.owner.lifeCycleEmitter.subscribe((event: ItemLifeCycleEvent) => {
+    return this.fromLinkPort.owner.localLifeCycleEmitter.subscribe((event: ItemLifeCycleEvent) => {
       switch (event.action) {
         case ItemLifeCycleEnum.DESTROY:
           this.destroyItem();
@@ -194,7 +194,7 @@ export class EditableLink extends WhiteboardItem {
   }
 
   private setLifeCycleEvent() {
-    this.lifeCycleEmitter.subscribe((event: ItemLifeCycleEvent) => {
+    this.localLifeCycleEmitter.subscribe((event: ItemLifeCycleEvent) => {
       switch (event.action) {
         case ItemLifeCycleEnum.MOVED:
         case ItemLifeCycleEnum.RESIZED:

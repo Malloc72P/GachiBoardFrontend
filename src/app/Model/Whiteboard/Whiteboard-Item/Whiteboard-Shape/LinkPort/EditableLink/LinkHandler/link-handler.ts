@@ -73,7 +73,7 @@ export class LinkHandler {
   }
 
   private setOwnerLifeCycleEvent() {
-    this.owner.lifeCycleEmitter.subscribe((event: ItemLifeCycleEvent) => {
+    this.owner.localLifeCycleEmitter.subscribe((event: ItemLifeCycleEvent) => {
       let item = event.item as EditableLink;
       switch (this.position) {
         case LinkHandlerPositions.END_OF_LINK:

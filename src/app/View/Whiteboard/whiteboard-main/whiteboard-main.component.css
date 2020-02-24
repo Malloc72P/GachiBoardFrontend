@@ -26,7 +26,7 @@ app-project-supporter-pannel {
 }
 
 #textEditor {
-  z-index: 100;
+  z-index: 500;
   text-align: center;
   display: inline-block;
 

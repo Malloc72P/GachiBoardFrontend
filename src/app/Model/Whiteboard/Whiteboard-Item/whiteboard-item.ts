@@ -46,8 +46,8 @@ export abstract class WhiteboardItem {
   protected _prevPoint = new Point(0,0);
   protected _selectMode;
 
-  protected _wbItemsLifeCycleEventEmitter: EventEmitter<any>;
-  protected _lifeCycleEmitter = new EventEmitter<any>();
+  protected _globalLifeCycleEmitter: EventEmitter<any>;
+  protected _localLifeCycleEmitter = new EventEmitter<any>();
   protected _zoomEventEmitter: EventEmitter<any>;
   protected constructor(id, type, item, layerService){
     this.id = id;
@@ -67,7 +67,7 @@ export abstract class WhiteboardItem {
 
     this.layerService = layerService;
 
-    this.wbItemsLifeCycleEventEmitter = this.layerService.wbItemLifeCycleEventEmitter;
+    this.globalLifeCycleEmitter = this.layerService.globalLifeCycleEmitter;
     this.zoomEventEmitter = this.layerService.infiniteCanvasService.zoomEventEmitter;
 
     this.layerService.selectModeEventEmitter.subscribe((data: SelectEvent)=>{
@@ -191,7 +191,7 @@ export abstract class WhiteboardItem {
     if(this.isGrouped && this.parentEdtGroup){
       this.parentEdtGroup.destroyItem();
     }
-    this.lifeCycleEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.DESTROY));
+    this.localLifeCycleEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.DESTROY));
   }
 
   checkEditable(){
@@ -251,31 +251,38 @@ export abstract class WhiteboardItem {
   // ################ LifeCycle Emit Method #################
 
   public emitCreate() {
-    this.lifeCycleEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.CREATE));
+    this.localLifeCycleEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.CREATE));
+    this.globalLifeCycleEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.CREATE));
   }
 
   public emitModify() {
-    this.lifeCycleEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.MODIFY));
+    this.localLifeCycleEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.MODIFY));
+    this.globalLifeCycleEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.MODIFY));
   }
 
   public emitDestroy() {
-    this.lifeCycleEmitter.emit(new ItemLifeCycleEvent(this.id, null, ItemLifeCycleEnum.DESTROY));
+    this.localLifeCycleEmitter.emit(new ItemLifeCycleEvent(this.id, null, ItemLifeCycleEnum.DESTROY));
+    this.globalLifeCycleEmitter.emit(new ItemLifeCycleEvent(this.id, null, ItemLifeCycleEnum.DESTROY));
   }
 
   public emitMoved() {
-    this.lifeCycleEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.MOVED));
+    this.localLifeCycleEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.MOVED));
+    this.globalLifeCycleEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.MOVED));
   }
 
   public emitResized() {
-    this.lifeCycleEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.RESIZED));
+    this.localLifeCycleEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.RESIZED));
+    this.globalLifeCycleEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.RESIZED));
   }
 
   public emitSelected() {
-    this.lifeCycleEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.SELECTED));
+    this.localLifeCycleEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.SELECTED));
+    this.globalLifeCycleEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.SELECTED));
   }
 
   public emitDeselected() {
-    this.lifeCycleEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.DESELECTED));
+    this.localLifeCycleEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.DESELECTED));
+    this.globalLifeCycleEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.DESELECTED));
   }
 
   // ################ Getter & Setter #################
@@ -288,12 +295,12 @@ export abstract class WhiteboardItem {
     this._coreItem = value;
   }
 
-  get wbItemsLifeCycleEventEmitter(): EventEmitter<any> {
-    return this._wbItemsLifeCycleEventEmitter;
+  get globalLifeCycleEmitter(): EventEmitter<any> {
+    return this._globalLifeCycleEmitter;
   }
 
-  set wbItemsLifeCycleEventEmitter(value: EventEmitter<any>) {
-    this._wbItemsLifeCycleEventEmitter = value;
+  set globalLifeCycleEmitter(value: EventEmitter<any>) {
+    this._globalLifeCycleEmitter = value;
   }
 
   get id() {
@@ -416,8 +423,8 @@ export abstract class WhiteboardItem {
     this._parentEdtGroup = value;
   }
 
-  get lifeCycleEmitter(): EventEmitter<any> {
-    return this._lifeCycleEmitter;
+  get localLifeCycleEmitter(): EventEmitter<any> {
+    return this._localLifeCycleEmitter;
   }
 
   get isLocked(): boolean {
@@ -426,9 +433,9 @@ export abstract class WhiteboardItem {
 
   set isLocked(value: boolean) {
     if(value) {
-      this.lifeCycleEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.LOCKED));
+      this.localLifeCycleEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.LOCKED));
     } else {
-      this.lifeCycleEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.UNLOCKED));
+      this.localLifeCycleEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.UNLOCKED));
     }
 
     if(this.isGrouped) {

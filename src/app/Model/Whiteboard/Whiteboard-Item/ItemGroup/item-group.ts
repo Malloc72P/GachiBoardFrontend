@@ -131,8 +131,10 @@ export class ItemGroup extends WhiteboardItem {
     }
   }
   public moveEnd() {
-    this.layerService.horizonContextMenuService.open();
-    this.wbItemsLifeCycleEventEmitter.emit(new ItemLifeCycleEvent(this.id,this,ItemLifeCycleEnum.MODIFY));
+    this.wbItemGroup.forEach(value => {
+      value.emitModify();
+    });
+    this.emitModify();
     console.log("ItemGroup >> moveEnd >> 진입함");
     console.log("ItemGroup >> moveEnd >> this.wbItemGroup : ",this.wbItemGroup);
     let wsWbController = WsWhiteboardController.getInstance();
@@ -154,7 +156,7 @@ export class ItemGroup extends WhiteboardItem {
 
     this.resetDistance();
     this.setSingleSelectMode();
-    this.wbItemsLifeCycleEventEmitter.emit(new ItemLifeCycleEvent(this.id,this,ItemLifeCycleEnum.MODIFY));
+    this.globalLifeCycleEmitter.emit(new ItemLifeCycleEvent(this.id,this,ItemLifeCycleEnum.MODIFY));
     // this.wbItemGroup.forEach((value, index, array)=>{
     //   value.refreshItem();
     // })
@@ -270,7 +272,7 @@ export class ItemGroup extends WhiteboardItem {
     super.destroyItem();
     //unGroup하는 작업 실시
     this.coreItem.remove();
-    this.wbItemsLifeCycleEventEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.DESTROY));
+    this.globalLifeCycleEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.DESTROY));
   }
 
   destroyItemAndChildren() {
@@ -287,11 +289,11 @@ export class ItemGroup extends WhiteboardItem {
   }
 
   public notifyItemCreation() {
-    this.wbItemsLifeCycleEventEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.CREATE));
+    this.globalLifeCycleEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.CREATE));
   }
 
   public notifyItemModified() {
-    this.wbItemsLifeCycleEventEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.MODIFY));
+    this.globalLifeCycleEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.MODIFY));
   }
 
   exportToDto(): ItemGroupDto {
@@ -309,7 +311,7 @@ export class ItemGroup extends WhiteboardItem {
     // this.wbItemGroup.forEach((value, index, array)=>{
     //   value.refreshItem();
     // });
-    this.wbItemsLifeCycleEventEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.MODIFY));
+    this.globalLifeCycleEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.MODIFY));
   }
 
 

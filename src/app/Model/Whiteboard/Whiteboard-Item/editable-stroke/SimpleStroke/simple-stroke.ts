@@ -27,4 +27,8 @@ export class SimpleStroke extends EditableStroke {
     return super.exportToDto() as SimpleStrokeDto;
   }
 
+  public update(dto: SimpleStrokeDto) {
+    super.update(dto);
+  }
+
 }

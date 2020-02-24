@@ -1,14 +1,15 @@
 import {ItemHandler} from '../item-handler';
 
 import * as paper from 'paper';
-import {PointCalculator} from '../../../../Pointer/point-calculator/point-calculator';
 // @ts-ignore
 import Point = paper.Point;
+import {PointCalculator} from '../../../../Pointer/point-calculator/point-calculator';
 
-export class SizeHandler extends ItemHandler{
+export class SizeHandler extends ItemHandler  {
   private static readonly HANDLER_FILL_COLOR = "white";
   constructor(wbItem, handlerDirection, handlerOption, guideLine){
     super(wbItem, handlerDirection, SizeHandler.HANDLER_FILL_COLOR, handlerOption, guideLine);
+    // TODO : 잦은 커서 변경으로 인한 성능 저하 발생
     this.setCursor();
   }
 
@@ -52,8 +53,6 @@ export class SizeHandler extends ItemHandler{
     }
 
     selectedGroup.resizeTo(new paper.Rectangle(this.adjustSizeFrom, event.point));
-
-    // this.owner.myItemAdjustor.refreshItemAdjustorSize();
   }
 
   public onMouseUp(event) {
