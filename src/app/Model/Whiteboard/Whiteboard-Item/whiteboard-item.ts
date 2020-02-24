@@ -182,7 +182,7 @@ export abstract class WhiteboardItem {
   public abstract refreshItem();
 
   public update(dto: WhiteboardItemDto) {
-    this.group.position = dto.center.paperPoint;
+    this.group.position = GachiPointDto.getPaperPoint(dto.center);
     this.isGrouped = dto.isGrouped;
     this.parentEdtGroup = dto.parentEdtGroupId;
   }

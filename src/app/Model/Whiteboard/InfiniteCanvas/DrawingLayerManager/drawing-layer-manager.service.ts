@@ -65,6 +65,7 @@ import {
   WbItemEventEnum
 } from '../../../../Controller/Controller-WebSocket/websocket-manager/WhiteboardWsController/wb-item-event/wb-item-event';
 import {WhiteboardItemFactory} from '../WhiteboardItemFactory/whiteboard-item-factory';
+import {WbItemFactoryResult} from '../WhiteboardItemFactory/WbItemFactoryResult/wb-item-factory-result';
 
 
 @Injectable({
@@ -165,7 +166,10 @@ export class DrawingLayerManagerService {
       console.log("DrawingLayerManagerService >> initWbItemWsEventHandler >> recvWbItemEvent : ",recvWbItemEvent);
       switch (recvWbItemEvent.action) {
         case WbItemEventEnum.CREATE:
-          WhiteboardItemFactory.buildWbItems(recvWbItemEvent.data);
+          WhiteboardItemFactory.buildWbItems(recvWbItemEvent.data)
+            .subscribe((res:WbItemFactoryResult)=>{
+              console.log("DrawingLayerManagerService >> initWbItemWsEventHandler >> res : ",res);
+            });
           break;
         case WbItemEventEnum.DELETE:
           break;
@@ -201,7 +205,7 @@ export class DrawingLayerManagerService {
             wsWbController.waitRequestCreateWbItem(data.item.exportToDto())
               .subscribe((packetDto)=>{
                 console.log("DrawingLayerManagerService >> addToDrawingLayer >> packetDto : ",packetDto);
-                data.item.id = packetDto.dataDto._id;
+                data.item.id = packetDto.dataDto.id;
                 console.log("DrawingLayerManagerService >> addToDrawingLayer >> CREATE >> newWhiteboardItem : ",data.item);
               });
           }
@@ -706,7 +710,8 @@ export class DrawingLayerManagerService {
   }
 
   public getWbId(){
-    return this._idGenerator++;
+    // return this._idGenerator++;
+    return -1;
   }
 
 
