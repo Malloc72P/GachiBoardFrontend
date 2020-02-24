@@ -10,5 +10,4 @@ export class HighlightStrokeDto extends EditableStrokeDto{
   constructor(id, type, center: GachiPointDto, isGrouped, parentEdtGroupId, segments: Array<GachiSegmentDto>, strokeWidth, strokeColor) {
     super(id, type, center, isGrouped, parentEdtGroupId, segments, strokeWidth, strokeColor);
   }
-
 }
