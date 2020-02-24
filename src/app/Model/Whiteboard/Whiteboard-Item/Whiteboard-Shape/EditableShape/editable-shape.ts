@@ -51,7 +51,6 @@ export abstract class EditableShape extends WhiteboardShape {
     this._textStyle = textStyle;
     this._textStyle.eventEmitter = this.editTextEvent;
     this.editTextEvent.subscribe(() => {
-      console.log("EditableShape >> refreshed");
       this.refreshItem();
       this.layerService.setEditorTextStyle(this._textStyle);
     });
@@ -68,7 +67,6 @@ export abstract class EditableShape extends WhiteboardShape {
   }
 
   public notifyItemModified() {
-    console.log('EditableShape >> notifyItemModified >> 진입함');
 
     this.width = this.group.bounds.width;
     this.height = this.group.bounds.height;
@@ -90,13 +88,11 @@ export abstract class EditableShape extends WhiteboardShape {
   }
 
   public notifyItemCreation() {
-    console.log('EditableShape >> createItem >> 진입함');
     this.wbItemsLifeCycleEventEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.CREATE));
   }
 
   public destroyItem() {
     super.destroyItem();
-    console.log('EditableShape >> destroyItem >> 진입함');
     this.editText.remove();
     this.coreItem.remove();
     this.group.remove();
@@ -104,7 +100,6 @@ export abstract class EditableShape extends WhiteboardShape {
   }
 
   public refreshItem() {
-    console.log('EditableShape >> refreshItem >> 진입함');
     let newTopLeft = new Point(this.group.bounds.topLeft.x, this.group.bounds.topLeft.y);
 
     let newWidth = this.group.bounds.width;

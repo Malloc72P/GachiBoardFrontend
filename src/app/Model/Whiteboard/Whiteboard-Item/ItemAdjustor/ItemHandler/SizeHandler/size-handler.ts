@@ -58,6 +58,8 @@ export class SizeHandler extends ItemHandler{
 
   public onMouseUp(event) {
     // this.owner.refreshItem();
+    let selectedGroup = this.owner.layerService.globalSelectedGroup;
+    selectedGroup.resizeEnd();
     // TODO : HorizonContextMenuService Test Code
   }
 

@@ -7,6 +7,8 @@ import {WebsocketPacketDto} from '../../../../DTO/WebsocketPacketDto/WebsocketPa
 import {Observable} from 'rxjs';
 import {WbItemEvent, WbItemEventEnum} from './wb-item-event/wb-item-event';
 import {WhiteboardItemDto} from '../../../../DTO/WhiteboardItemDto/whiteboard-item-dto';
+import {WhiteboardItem} from '../../../../Model/Whiteboard/Whiteboard-Item/whiteboard-item';
+import {ItemLifeCycleEnum} from '../../../../Model/Whiteboard/Whiteboard-Item/WhiteboardItemLifeCycle/WhiteboardItemLifeCycle';
 
 export class WsWhiteboardController {
   private socket:Socket;
@@ -77,14 +79,14 @@ export class WsWhiteboardController {
   /* *************************************************** */
   /* Request Update START */
   /* *************************************************** */
-  waitRequestUpdateWbItem( wbItemDto:WhiteboardItemDto ){
-
+  waitRequestUpdateWbItem( wbItem:WhiteboardItem, updateEvent:ItemLifeCycleEnum ){
     //this.websocketManager.uiService.spin$.next(true);
-
     return new Observable<any>((subscriber)=>{
+      let wbItemDto = wbItem.exportToDto();
 
       let packetDto = this.websocketManager.createWbSessionScopePacket(wbItemDto,WebsocketPacketActionEnum.UPDATE);
       packetDto.wsPacketSeq = this.websocketManager.wsPacketSeq;
+      packetDto.additionalData = updateEvent;
 
       this.socket.emit(HttpHelper.websocketApi.whiteboardItem.update.event, packetDto);
 
@@ -113,7 +115,10 @@ export class WsWhiteboardController {
           console.log("WsWhiteboardController >> onWbItemUpdated >> wsPacketDto : ",wsPacketDto);
 
           this.websocketManager.wbItemEventManagerService.wsWbItemEventEmitter.emit(
-            new WbItemEvent( WbItemEventEnum.UPDATE, wsPacketDto.dataDto as WhiteboardItemDto)
+            new WbItemEvent(
+              WbItemEventEnum.UPDATE,
+              wsPacketDto.dataDto as WhiteboardItemDto,
+              wsPacketDto.additionalData as ItemLifeCycleEnum)
           );
 
         }

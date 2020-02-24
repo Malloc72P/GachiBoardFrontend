@@ -188,29 +188,27 @@ export class DrawingLayerManagerService {
       if(!data){
         return;
       }
-      console.log("DrawingLayerManagerService >> initLifeCycleHandler >> data : ",data.item.id);
+      if( (data.item instanceof EditableItemGroup) || (data.item instanceof GlobalSelectedGroup) ){
+        return;
+      }
+      let wsWbController = WsWhiteboardController.getInstance();
       switch (data.action) {
         case ItemLifeCycleEnum.CREATE:
           this.whiteboardItemArray.push(data.item);
-          if( !(data.item instanceof EditableItemGroup) && !(data.item instanceof GlobalSelectedGroup) ){
-            this.drawingLayer.addChild(data.item.group);
+          this.drawingLayer.addChild(data.item.group);
 
-            if(data.item.id === -1){
-              let wsWbController = WsWhiteboardController.getInstance();
-              wsWbController.waitRequestCreateWbItem(data.item.exportToDto())
-                .subscribe((packetDto)=>{
-                  console.log("DrawingLayerManagerService >> addToDrawingLayer >> packetDto : ",packetDto);
-                  data.item.id = packetDto.dataDto._id;
-                  console.log("DrawingLayerManagerService >> addToDrawingLayer >> newWhiteboardItem : ",data.item);
-                });
-            }
+          if(data.item.id === -1){
+            wsWbController.waitRequestCreateWbItem(data.item.exportToDto())
+              .subscribe((packetDto)=>{
+                console.log("DrawingLayerManagerService >> addToDrawingLayer >> packetDto : ",packetDto);
+                data.item.id = packetDto.dataDto._id;
+                console.log("DrawingLayerManagerService >> addToDrawingLayer >> CREATE >> newWhiteboardItem : ",data.item);
+              });
           }
           break;
         case ItemLifeCycleEnum.MODIFY:
           break;
         case ItemLifeCycleEnum.DESTROY:
-          let removeIdx = this.indexOfWhiteboardArray(data.id);
-          this.whiteboardItemArray.splice(removeIdx, 1);
           break;
       }
     });
@@ -708,7 +706,7 @@ export class DrawingLayerManagerService {
   }
 
   public getWbId(){
-    return -1;
+    return this._idGenerator++;
   }
 
 

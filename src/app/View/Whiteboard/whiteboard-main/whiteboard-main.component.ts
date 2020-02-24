@@ -245,7 +245,6 @@ export class WhiteboardMainComponent implements OnInit,OnDestroy {
     WhiteboardItemFactory.initWhiteboardItemFactory(this.layerService);
     this.cursorTrackerService.initializeCursorTrackerService(this.infiniteCanvasService.zoomEventEmitter);
     this.whiteboardPaperProject.activeLayer.onFrame = (event) => {
-
     };
   }
 

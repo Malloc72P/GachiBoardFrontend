@@ -19,6 +19,7 @@ import {ItemLifeCycleEnum, ItemLifeCycleEvent} from '../WhiteboardItemLifeCycle/
 import {WhiteboardShape} from '../Whiteboard-Shape/whiteboard-shape';
 import {ItemGroupDto} from '../../../../DTO/WhiteboardItemDto/ItemGroupDto/item-group-dto';
 import {EditableLink} from "../Whiteboard-Shape/LinkPort/EditableLink/editable-link";
+import {WsWhiteboardController} from '../../../../Controller/Controller-WebSocket/websocket-manager/WhiteboardWsController/ws-whiteboard.controller';
 
 export class ItemGroup extends WhiteboardItem {
   private _wbItemGroup: Array<WhiteboardItem>;
@@ -121,9 +122,27 @@ export class ItemGroup extends WhiteboardItem {
     }
   }
 
+  public resizeEnd(){
+    console.log("ItemGroup >> resizeEnd >> 진입함");
+    console.log("ItemGroup >> resizeEnd >> this.wbItemGroup : ",this.wbItemGroup);
+    let wsWbController = WsWhiteboardController.getInstance();
+    for(let wbItem of this.wbItemGroup){
+      wsWbController.waitRequestUpdateWbItem(wbItem, ItemLifeCycleEnum.RESIZED);
+    }
+  }
   public moveEnd() {
     this.layerService.horizonContextMenuService.open();
     this.wbItemsLifeCycleEventEmitter.emit(new ItemLifeCycleEvent(this.id,this,ItemLifeCycleEnum.MODIFY));
+    console.log("ItemGroup >> moveEnd >> 진입함");
+    console.log("ItemGroup >> moveEnd >> this.wbItemGroup : ",this.wbItemGroup);
+    let wsWbController = WsWhiteboardController.getInstance();
+    for(let wbItem of this.wbItemGroup){
+      console.log("ItemGroup >> moveEnd >> wbItem : ",wbItem);
+      wsWbController.waitRequestUpdateWbItem(wbItem, ItemLifeCycleEnum.MOVED)
+        .subscribe((data)=>{
+          console.log("ItemGroup >>  >> data : ",data);
+        });
+    }
   }
 
 
