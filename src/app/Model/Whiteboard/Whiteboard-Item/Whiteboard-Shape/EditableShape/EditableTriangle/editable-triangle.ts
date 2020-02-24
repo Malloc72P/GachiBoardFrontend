@@ -38,4 +38,8 @@ export class EditableTriangle extends EditableShape {
     return super.exportToDto() as EditableTriangleDto;
   }
 
+  public update(dto: EditableTriangleDto) {
+    super.update(dto);
+  }
+
 }

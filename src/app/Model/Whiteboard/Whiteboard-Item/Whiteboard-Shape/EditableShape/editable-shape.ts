@@ -24,6 +24,7 @@ import {EventEmitter} from '@angular/core';
 import {ItemLifeCycleEnum, ItemLifeCycleEvent} from '../../WhiteboardItemLifeCycle/WhiteboardItemLifeCycle';
 import {WhiteboardShape} from '../whiteboard-shape';
 import {EditableShapeDto} from '../../../../../DTO/WhiteboardItemDto/WhiteboardShapeDto/EditableShapeDto/editable-shape-dto';
+import {Subscription} from "rxjs";
 
 export abstract class EditableShape extends WhiteboardShape {
   private _textContent: string;
@@ -33,36 +34,36 @@ export abstract class EditableShape extends WhiteboardShape {
   private _editText: PointText;
   private static readonly EDIT_TEXT_PADDING = 5;
   private _isEditing: boolean;
+  private editTextEvent = new EventEmitter();
+
 
   protected constructor(id, type, item: Item, textStyle, editText, layerService) {
     super(id, type, item, layerService);
-    this.topLeft = new Point(item.bounds.topLeft.x, item.bounds.topLeft.y);
-    this.width = item.bounds.width;
-    this.height = item.bounds.height;
-    this.borderColor = item.style.strokeColor;
-    this.borderWidth = item.style.strokeWidth;
-    if (item.style.fillColor) {
-      this.fillColor = item.style.fillColor;
-    } else {
-      // @ts-ignore
-      this.fillColor = 'transparent';
-    }
-    this.opacity = item.opacity;
-    this.textStyle = textStyle;
-    this.textContent = '';
-    this.rawTextContent = '';
 
     this.editText = editText;
-    this.textBound = new Rectangle(editText.bounds);
     this.editText.justification = 'center';
+    this._rawTextContent = '';
+
+    this.textBound = new Rectangle(editText.bounds);
     this.layerService = layerService;
     this.isEditing = false;
 
-    this.textStyle.changed.subscribe(() => {
-      console.log("EditableShape >> textStyle >> Changed");
+    this._textStyle = textStyle;
+    this._textStyle.eventEmitter = this.editTextEvent;
+    this.editTextEvent.subscribe(() => {
+      console.log("EditableShape >> refreshed");
       this.refreshItem();
-      this.layerService.setEditorTextStyle(this.textStyle);
+      this.layerService.setEditorTextStyle(this._textStyle);
     });
+    this.lifeCycleEmitter.subscribe((event: ItemLifeCycleEvent) => {
+      switch (event.action) {
+        case ItemLifeCycleEnum.RESIZED:
+          this.refreshItem();
+          this.layerService.setEditorTextStyle(this._textStyle);
+          break;
+      }
+    });
+
     this.notifyItemCreation();
   }
 
@@ -133,7 +134,7 @@ export abstract class EditableShape extends WhiteboardShape {
       this.textStyle
     );
 
-    this.modifyEditText(adjustedTextContent, this.rawTextContent);
+    this.modifyEditText(adjustedTextContent);
 
     if(!this.layerService.isEditingText) {
       this.editText.bringToFront();
@@ -143,10 +144,9 @@ export abstract class EditableShape extends WhiteboardShape {
     //this.notifyOwnerChangeEventToLinkPort();
   }
 
-  public modifyEditText(content, rawContent) {
+  public modifyEditText(content) {
 
     this.textContent = content;
-    this.rawTextContent = rawContent;
 
     this.editText.content = this.textContent;
     this.editText.position = this.coreItem.bounds.center;
@@ -233,21 +233,30 @@ export abstract class EditableShape extends WhiteboardShape {
     return this.layerService.posCalcService.advConvertLengthNgToPaper(width);
   }
 
+  public update(dto: EditableShapeDto) {
+    super.update(dto);
+
+    this.textContent = dto.textContent;
+    this.rawTextContent = dto.textContent;
+    this.textStyle = dto.textStyle.clone();
+  }
+
   exportToDto(): EditableShapeDto {
     let editableShapeDto:EditableShapeDto =  super.exportToDto() as EditableShapeDto;
+
     editableShapeDto.textContent = this.textContent;
     editableShapeDto.rawTextContent = this.rawTextContent;
     editableShapeDto.textStyle = this.textStyle.clone();
-    // editableShapeDto.textStyle = this.textStyle;
+
     return editableShapeDto;
   }
 
   get textContent(): string {
-    return this._textContent;
+    return this.editText.content;
   }
 
   set textContent(value: string) {
-    this._textContent = value;
+    this.editText.content = value;
   }
 
   get rawTextContent(): string {
@@ -256,6 +265,7 @@ export abstract class EditableShape extends WhiteboardShape {
 
   set rawTextContent(value: string) {
     this._rawTextContent = value;
+    this.editTextEvent.emit();
   }
 
   get textStyle(): TextStyle {
@@ -263,7 +273,7 @@ export abstract class EditableShape extends WhiteboardShape {
   }
 
   set textStyle(value: TextStyle) {
-    this._textStyle = value;
+    this._textStyle.update(value);
   }
 
   get textBound(): paper.Rectangle {

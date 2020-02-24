@@ -180,6 +180,13 @@ export abstract class WhiteboardItem {
   public abstract notifyItemCreation();
   public abstract notifyItemModified();
   public abstract refreshItem();
+
+  public update(dto: WhiteboardItemDto) {
+    this.group.position = dto.center.paperPoint;
+    this.isGrouped = dto.isGrouped;
+    this.parentEdtGroup = dto.parentEdtGroupId;
+  }
+
   public destroyItem(){
     if(this.isGrouped && this.parentEdtGroup){
       this.parentEdtGroup.destroyItem();
@@ -298,11 +305,11 @@ export abstract class WhiteboardItem {
   }
 
   get topLeft(): paper.Point {
-    return this._topLeft;
+    return this.coreItem.bounds.topLeft;
   }
 
   set topLeft(value: paper.Point) {
-    this._topLeft = value;
+    this.coreItem.bounds.topLeft = value;
   }
 
   get group() {

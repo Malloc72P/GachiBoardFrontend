@@ -126,14 +126,15 @@ export class ShapeService {
       this.handlePath.remove();
     }
 
-    let whiteboardItem = this.layerService.getWhiteboardItem(this.newPath);
-    if(whiteboardItem){
-      whiteboardItem.notifyItemModified();
-    }
+    // let whiteboardItem = this.layerService.getWhiteboardItem(this.newPath);
+    // if(whiteboardItem){
+    //   whiteboardItem.notifyItemModified();
+    // }
 
     this.isCreated = false;
     this.minDrawBound.remove();
     this.toolState = 'normal';
+    this.createShapeItem();
   }
 
   private createShapeItem(){
@@ -220,7 +221,7 @@ export class ShapeService {
       default:
         break;
     }
-    this.createShapeItem();
+    // this.createShapeItem();
   }
 
   private createRectangle(point: paper.Point) {
@@ -272,7 +273,7 @@ export class ShapeService {
     this.newPath.strokeColor = this._strokeColor;
     this.newPath.fillColor = this._fillColor;
     this.newPath.strokeWidth = this._strokeWidth;
-    this.createShapeItem();
+    // this.createShapeItem();
   }
 
   private createHandleRectangle(point: paper.Point) {
