@@ -4,7 +4,6 @@ import Point = paper.Point;
 // @ts-ignore
 import Circle = paper.Path.Circle;
 
-import {WhiteboardShape} from '../whiteboard-shape';
 import {LinkPortDirectionEnum} from './LinkPortDirectionEnum/link-port-direction-enum.enum';
 import {PositionCalcService} from '../../../PositionCalc/position-calc.service';
 import {HandlerOption} from '../../ItemAdjustor/item-adjustor';
@@ -20,7 +19,7 @@ import {ItemLifeCycleEnum, ItemLifeCycleEvent} from "../../WhiteboardItemLifeCyc
 import {LinkService} from "../../../Pointer/link-service/link.service";
 
 export class LinkPort {
-  private _owner:WhiteboardShape;
+  private _owner;
   private _direction;
 
   private _fromLinkList:Array<EditableLink>;
@@ -317,23 +316,11 @@ export class LinkPort {
   }
 
   exportToDto(): LinkPortDto {
-    // let fromLinkDtoList = new Array<EditableLinkDto>();
-    // let toLinkDtoList = new Array<EditableLinkDto>();
-    //
-    // this.fromLinkList.forEach((value, index, array)=>{
-    //   fromLinkDtoList.push(value.exportToDto());
-    // });
-    // this.toLinkList.forEach((value, index, array)=>{
-    //   toLinkDtoList.push(value.exportToDto());
-    // });
     return new LinkPortDto(
       this.direction,
       this.owner.id,
-      // fromLinkDtoList,
-      // toLinkDtoList
     );
   }
-
 
   get posCalcService(): PositionCalcService {
     return this._posCalcService;

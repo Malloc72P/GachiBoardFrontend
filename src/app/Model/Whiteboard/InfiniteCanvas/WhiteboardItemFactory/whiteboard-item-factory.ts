@@ -97,6 +97,13 @@ export class WhiteboardItemFactory {
           }
         });
       }
+      if(copyWbItemArray.length <= 0) {
+        for(let [id, linkDto] of copyLinkMap) {
+          let replacedLinkDto = this.replaceLinkPort(linkDto, wbItemIdMap);
+          tempGsgArray.push(WhiteboardItemFactory.buildEditableLink(BUILD_MODE.CLONE, replacedLinkDto, tempGsgArray));
+        }
+        observer.next(tempGsgArray);
+      }
     });
   }
 
@@ -410,11 +417,8 @@ export class WhiteboardItemFactory {
     if(!!copiedGSG) {
       wbItemGroup = copiedGSG;
     } else {
-      wbItemGroup = WhiteboardItemFactory.layerService.globalSelectedGroup.wbItemGroup;
+      wbItemGroup = WhiteboardItemFactory.layerService.whiteboardItemArray;
     }
-
-    wbItemGroup.forEach(value => {
-    });
 
     for(let wbItem of wbItemGroup) {
       if(wbItem.id === linkPortDto.ownerWbItemId && wbItem instanceof WhiteboardShape) {

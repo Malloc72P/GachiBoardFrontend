@@ -119,9 +119,6 @@ export abstract class EditableShape extends WhiteboardShape {
     if(!this.layerService.isEditingText) {
       this.editText.bringToFront();
     }
-
-    this.globalLifeCycleEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.MODIFY));
-    //this.notifyOwnerChangeEventToLinkPort();
   }
 
   public modifyEditText(content) {

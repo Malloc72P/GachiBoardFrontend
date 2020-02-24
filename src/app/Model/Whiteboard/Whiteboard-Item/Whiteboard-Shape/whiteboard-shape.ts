@@ -39,21 +39,6 @@ export class WhiteboardShape extends WhiteboardItem implements Editable{
     this._linkPortMap = value;
   }
 
-  public update(dto: WhiteboardShapeDto) {
-    this.width = dto.width;
-    this.height = dto.height;
-    this.borderColor = dto.borderColor;
-    this.fillColor = dto.fillColor;
-    this.opacity = dto.opacity;
-
-    super.update(dto as WhiteboardItemDto);
-
-    // TODO : linkPort 에 대한 정보를 업데이트 할 필요가 있을지 검증 필요
-    // dto.linkPortsDto.forEach(value => {
-    //   this.linkPortMap.set()
-    // });
-  }
-
   public getDirectionPoint(direction){
     switch (direction) {
       case LinkPortDirectionEnum.TOP :
@@ -134,6 +119,21 @@ export class WhiteboardShape extends WhiteboardItem implements Editable{
     wbShapeDto.linkPortsDto = linkPortsDto;
 
     return wbShapeDto;
+  }
+
+  public update(dto: WhiteboardShapeDto) {
+    this.width = dto.width;
+    this.height = dto.height;
+    this.borderColor = dto.borderColor;
+    this.fillColor = dto.fillColor;
+    this.opacity = dto.opacity;
+
+    super.update(dto as WhiteboardItemDto);
+
+    // TODO : linkPort 에 대한 정보를 업데이트 할 필요가 있을지 검증 필요
+    // dto.linkPortsDto.forEach(value => {
+    //   this.linkPortMap.set()
+    // });
   }
 
   get width(): number {

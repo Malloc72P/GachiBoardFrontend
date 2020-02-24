@@ -72,8 +72,12 @@ export abstract class EditableRaster extends WhiteboardShape {
   exportToDto(): EditableRasterDto {
     let editableRasterDto:EditableRasterDto =  super.exportToDto() as EditableRasterDto;
     editableRasterDto.imageBlob = this.imageBlob;
-    return editableRasterDto;
 
+    return editableRasterDto;
+  }
+
+  public update(dto: EditableRasterDto) {
+    super.update(dto);
   }
 
 

@@ -91,13 +91,4 @@ export class EditableLinkDto extends WhiteboardItemDto {
       dto.capSize, dto.linkColor, dto.linkWidth, dto.isDashed
     );
   }
-
-  public clone() {
-    return new EditableLinkDto(
-      new WhiteboardItemDto(this.id, this.type, this.center, this.isGrouped, this.parentEdtGroupId),
-      this.toLinkPort, this.toPoint, this.fromLinkPort, this.fromPoint,
-      this.linkHeadType, this.linkTailType,
-      this.capSize, this.linkColor, this.linkWidth, this.isDashed
-    );
-  }
 }

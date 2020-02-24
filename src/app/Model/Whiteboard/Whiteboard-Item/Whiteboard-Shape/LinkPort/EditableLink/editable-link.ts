@@ -19,6 +19,9 @@ import {LinkHandler} from "./LinkHandler/link-handler";
 import {WhiteboardShape} from "../../whiteboard-shape";
 import {Subscription} from "rxjs";
 import {EditableLinkDto} from "../../../../../../DTO/WhiteboardItemDto/WhiteboardShapeDto/LinkPortDto/EditableLinkDto/editable-link-dto";
+import {LinkPortDto} from "../../../../../../DTO/WhiteboardItemDto/WhiteboardShapeDto/LinkPortDto/link-port-dto";
+import {GachiPointDto} from "../../../../../../DTO/WhiteboardItemDto/PointDto/gachi-point-dto";
+import {GachiColorDto} from "../../../../../../DTO/WhiteboardItemDto/ColorDto/gachi-color-dto";
 
 export class EditableLink extends WhiteboardItem {
   private _toLinkPort: LinkPort;     // DTO 전송시 to, from Link Port 가 있으면 linkLine 은 null
@@ -160,6 +163,40 @@ export class EditableLink extends WhiteboardItem {
       this.linkWidth,
       this.isDashed
       )
+  }
+
+  public update(dto: EditableLinkDto) {
+    super.update(dto);
+
+    this.toLinkPort = this.getLinkPort(dto.toLinkPort);
+    if(!this.toLinkPort) {
+      this.endPoint = GachiPointDto.getPaperPoint(dto.toPoint);
+    }
+
+    this.fromLinkPort = this.getLinkPort(dto.fromLinkPort);
+    if(!this.fromLinkPort) {
+      this.entryPoint = GachiPointDto.getPaperPoint(dto.fromPoint);
+    }
+
+    this.linkHeadType = dto.linkHeadType;
+    this.linkTailType = dto.linkTailType;
+    this.capSize = dto.capSize;
+    this.linkColor = GachiColorDto.getPaperColor(dto.linkColor);
+    this.linkWidth = dto.linkWidth;
+    this.isDashed = dto.isDashed;
+  }
+
+  private getLinkPort(dto: LinkPortDto) {
+    if(!dto) {
+      return undefined;
+    }
+
+    for(let wbItem of this.layerService.whiteboardItemArray) {
+      if(wbItem.id === dto.ownerWbItemId && wbItem instanceof WhiteboardShape) {
+        return wbItem.linkPortMap.get(dto.direction);
+      }
+    }
+    return undefined;
   }
 
   private subscribeToLinkPortOwnerLifeCycle(): Subscription {
@@ -333,6 +370,10 @@ export class EditableLink extends WhiteboardItem {
     } else {
       this.linkLine.dashArray = undefined;
     }
+  }
+
+  get isDashed(): boolean {
+    return !!this.linkLine.dashArray.length;
   }
 
   get capSize(): number {
