@@ -33,6 +33,9 @@ export class CursorChangeService {
       case PointerMode.SHAPE:
         this.htmlCanvasElement.style.cursor = CursorSetting.shape;
         break;
+      case PointerMode.LINK:
+        this.htmlCanvasElement.style.cursor = CursorSetting.link;
+        break;
       case PointerMode.ERASER:
         this.htmlCanvasElement.style.cursor = CursorSetting.eraser;
         break;

@@ -493,12 +493,11 @@ export class DrawingLayerManagerService {
     pointTextItem.sendToBack();
 
     // EditText bound 계산
-    let bound = editableShape.coreItem.bounds;
 
-    let htmlEditorPoint = this.posCalcService.advConvertPaperToNg(new Point(editableShape.group.bounds.topLeft.x, editableShape.group.bounds.topLeft.y));
+    let htmlEditorPoint = this.posCalcService.advConvertPaperToNg(editableShape.topLeft.clone());
 
-    let edtWidth = this.posCalcService.advConvertLengthPaperToNg(bound.width);
-    let edtHeight = this.posCalcService.advConvertLengthPaperToNg(bound.height);
+    let edtWidth = this.posCalcService.advConvertLengthPaperToNg(editableShape.width);
+    let edtHeight = this.posCalcService.advConvertLengthPaperToNg(editableShape.height);
 
     // EditText HTML Element 스타일 설정
     this.setWrapperStyle(htmlTextEditorWrapper, htmlEditorPoint, edtWidth, edtHeight, padding);
@@ -531,12 +530,7 @@ export class DrawingLayerManagerService {
     htmlTextEditorElement = document.getElementById("textEditor");
     htmlCanvasElement = document.getElementById("cv1");
 
-
-
-
-    //에디트 텍스트 값 변경 >>> rawTextContent만 수정하고 refreshItem을 호출하면 알아서 content수정하고 크기조절하고 다 해줌
     editableShape.rawTextContent = htmlTextEditorElement.innerHTML;
-    editableShape.refreshItem();
 
     htmlTextEditorElement.innerText = "";
   }

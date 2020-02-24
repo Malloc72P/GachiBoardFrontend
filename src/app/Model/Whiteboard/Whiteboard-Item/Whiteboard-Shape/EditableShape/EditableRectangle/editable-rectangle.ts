@@ -28,4 +28,8 @@ export class EditableRectangle extends EditableShape {
   exportToDto(): EditableRectangleDto {
     return super.exportToDto() as EditableRectangleDto;
   }
+
+  update(dto: EditableRectangleDto) {
+    super.update(dto);
+  }
 }

@@ -70,8 +70,9 @@ export class WhiteboardItemFactory {
 
   public static cloneWbItems(copiedDtoArray):Observable<any>{
     return new Observable((observer)=>{
-      let copyLinkArray: Array<EditableLinkDto>;
-      copyLinkArray = WhiteboardItemFactory.extractCopyLinkArray(copiedDtoArray);
+      let copyLinkMap: Map<number, EditableLinkDto>;
+      copyLinkMap = WhiteboardItemFactory.extractCopyLinkArray(copiedDtoArray);
+      console.log("WhiteboardItemFactory >>  >> copyLinkMap : ", copyLinkMap);
 
       let copyWbItemArray: Array<WhiteboardItemDto>;
       copyWbItemArray = WhiteboardItemFactory.extractCopyWbItemArray(copiedDtoArray);
@@ -86,7 +87,7 @@ export class WhiteboardItemFactory {
           tempGsgArray.push(factoryResult.newWbItem);
         });
       }
-      for(let linkDto of copyLinkArray) {
+      for(let [id, linkDto] of copyLinkMap) {
         let replacedLinkDto = this.replaceLinkPort(linkDto, wbItemIdMap);
         tempGsgArray.push(WhiteboardItemFactory.buildEditableLink(BUILD_MODE.CLONE, replacedLinkDto, tempGsgArray));
       }
@@ -371,12 +372,12 @@ export class WhiteboardItemFactory {
     return WhiteboardItemFactory.createEditableLink(wbId, linkDto, copiedGSG);
   }
 
-  private static extractCopyLinkArray(copiedWbDto: Array<WhiteboardItemDto>): Array<EditableLinkDto> {
-    let copyLinkArray = new Array<EditableLinkDto>();
+  private static extractCopyLinkArray(copiedWbDto: Array<WhiteboardItemDto>): Map<number, EditableLinkDto> {
+    let copyLinkArray = new Map<number, EditableLinkDto>();
 
     copiedWbDto.forEach(dto => {
       if(dto.type === WhiteboardItemType.EDITABLE_LINK) {
-        copyLinkArray.push(dto as EditableLinkDto);
+        copyLinkArray.set(dto.id, dto as EditableLinkDto);
       }
     });
 
