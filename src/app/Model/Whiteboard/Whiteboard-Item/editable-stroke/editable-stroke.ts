@@ -36,24 +36,24 @@ export abstract class EditableStroke extends WhiteboardItem implements Editable{
 
   public notifyItemModified() {
     console.log("EditableStroke >> notifyItemModified >> 진입함");
-    this.wbItemsLifeCycleEventEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.MODIFY));
+    this.globalLifeCycleEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.MODIFY));
   }
 
   public notifyItemCreation() {
     console.log("EditableStroke >> createItem >> 진입함");
-    this.wbItemsLifeCycleEventEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.CREATE));
+    this.globalLifeCycleEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.CREATE));
   }
 
   public refreshItem() {
     console.log("EditableStroke >> refreshItem >> 진입함");
-    this.wbItemsLifeCycleEventEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.MODIFY));
+    this.globalLifeCycleEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.MODIFY));
   }
   public destroyItem() {
     super.destroyItem();
     console.log("EditableStroke >> destroyItem >> 진입함");
     this.coreItem.remove();
     this.group.remove();
-    this.wbItemsLifeCycleEventEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.DESTROY));
+    this.globalLifeCycleEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.DESTROY));
   }
 
   public exportToDto(): EditableStrokeDto {

@@ -44,18 +44,16 @@ export abstract class EditableShape extends WhiteboardShape {
     this.editText.justification = 'center';
     this._rawTextContent = '';
 
-    this.textBound = new Rectangle(editText.bounds);
     this.layerService = layerService;
     this.isEditing = false;
 
     this._textStyle = textStyle;
     this._textStyle.eventEmitter = this.editTextEvent;
     this.editTextEvent.subscribe(() => {
-      console.log("EditableShape >> refreshed");
       this.refreshItem();
       this.layerService.setEditorTextStyle(this._textStyle);
     });
-    this.lifeCycleEmitter.subscribe((event: ItemLifeCycleEvent) => {
+    this.localLifeCycleEmitter.subscribe((event: ItemLifeCycleEvent) => {
       switch (event.action) {
         case ItemLifeCycleEnum.RESIZED:
           this.refreshItem();
@@ -69,29 +67,13 @@ export abstract class EditableShape extends WhiteboardShape {
 
   public notifyItemModified() {
     console.log('EditableShape >> notifyItemModified >> 진입함');
-
-    this.width = this.group.bounds.width;
-    this.height = this.group.bounds.height;
-    this.topLeft = this.group.bounds.topLeft;
-
-    this.borderColor = this.coreItem.style.strokeColor;
-    this.borderWidth = this.coreItem.style.strokeWidth;
-    if (this.coreItem.style.fillColor) {
-      this.fillColor = this.coreItem.style.fillColor;
-    } else {
-      // @ts-ignore
-      this.fillColor = 'transparent';
-    }
-    this.opacity = this.coreItem.opacity;
-    this.textBound = new Rectangle(this.editText.bounds);
-
-    this.wbItemsLifeCycleEventEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.MODIFY));
+    this.globalLifeCycleEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.MODIFY));
     //this.notifyOwnerChangeEventToLinkPort();
   }
 
   public notifyItemCreation() {
     console.log('EditableShape >> createItem >> 진입함');
-    this.wbItemsLifeCycleEventEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.CREATE));
+    this.globalLifeCycleEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.CREATE));
   }
 
   public destroyItem() {
@@ -100,11 +82,10 @@ export abstract class EditableShape extends WhiteboardShape {
     this.editText.remove();
     this.coreItem.remove();
     this.group.remove();
-    this.wbItemsLifeCycleEventEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.DESTROY));
+    this.globalLifeCycleEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.DESTROY));
   }
 
   public refreshItem() {
-    console.log('EditableShape >> refreshItem >> 진입함');
     let newTopLeft = new Point(this.group.bounds.topLeft.x, this.group.bounds.topLeft.y);
 
     let newWidth = this.group.bounds.width;
@@ -140,7 +121,7 @@ export abstract class EditableShape extends WhiteboardShape {
       this.editText.bringToFront();
     }
 
-    this.wbItemsLifeCycleEventEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.MODIFY));
+    this.globalLifeCycleEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.MODIFY));
     //this.notifyOwnerChangeEventToLinkPort();
   }
 
@@ -155,8 +136,6 @@ export abstract class EditableShape extends WhiteboardShape {
     this.editText.fontSize = this.textStyle.fontSize;
     this.editText.fontWeight = this.textStyle.fontWeight;
     this.editText.fillColor = new Color(this.textStyle.fontColor);
-
-    this.textBound = new Rectangle(this.editText.bounds);
 
     this.editText.bringToFront();
   }
@@ -237,7 +216,7 @@ export abstract class EditableShape extends WhiteboardShape {
     super.update(dto);
 
     this.textContent = dto.textContent;
-    this.rawTextContent = dto.textContent;
+    this.rawTextContent = dto.rawTextContent;
     this.textStyle = dto.textStyle.clone();
   }
 
@@ -277,11 +256,7 @@ export abstract class EditableShape extends WhiteboardShape {
   }
 
   get textBound(): paper.Rectangle {
-    return this._textBound;
-  }
-
-  set textBound(value: paper.Rectangle) {
-    this._textBound = value;
+    return this.editText.bounds;
   }
 
   get editText(): paper.PointText {

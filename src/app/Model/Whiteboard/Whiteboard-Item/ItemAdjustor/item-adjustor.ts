@@ -40,7 +40,7 @@ export class ItemAdjustor {
   }
 
   private subscribeLifeCycleEvent() {
-    this.owner.layerService.globalSelectedGroup.lifeCycleEmitter.subscribe((event: ItemLifeCycleEvent) => {
+    this.owner.layerService.globalSelectedGroup.localLifeCycleEmitter.subscribe((event: ItemLifeCycleEvent) => {
       switch (event.action) {
         case ItemLifeCycleEnum.MOVED:
         case ItemLifeCycleEnum.RESIZED:

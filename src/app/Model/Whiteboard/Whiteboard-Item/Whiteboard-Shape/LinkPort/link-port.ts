@@ -123,7 +123,7 @@ export class LinkPort {
   }
 
   private setLifeCycleEvent() {
-    this.owner.lifeCycleEmitter.subscribe((event: ItemLifeCycleEvent) => {
+    this.owner.localLifeCycleEmitter.subscribe((event: ItemLifeCycleEvent) => {
       switch (event.action) {
         case ItemLifeCycleEnum.CREATE:
         case ItemLifeCycleEnum.MOVED:

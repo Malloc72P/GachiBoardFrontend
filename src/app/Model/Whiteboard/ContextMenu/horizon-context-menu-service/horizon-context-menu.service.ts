@@ -79,7 +79,7 @@ export class HorizonContextMenuService {
 
   // ################### Private Method #####################
   private subscribeLifeCycleEvent() {
-    this.globalSelectedGroup.lifeCycleEmitter.subscribe((event: ItemLifeCycleEvent) => {
+    this.globalSelectedGroup.localLifeCycleEmitter.subscribe((event: ItemLifeCycleEvent) => {
       switch (event.action) {
         case ItemLifeCycleEnum.MOVED:
         case ItemLifeCycleEnum.RESIZED:

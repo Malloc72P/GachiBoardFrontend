@@ -84,7 +84,7 @@ export class DrawingLayerManagerService {
 
   private hitOption = { segments: true, stroke: true, fill: true, tolerance: 15 };
 
-  @Output() wbItemLifeCycleEventEmitter:EventEmitter<any> = new EventEmitter<any>();
+  @Output() globalLifeCycleEmitter:EventEmitter<any> = new EventEmitter<any>();
   @Output() pointerModeEventEmitter:EventEmitter<any> = new EventEmitter<any>();
   @Output() selectModeEventEmitter:EventEmitter<any> = new EventEmitter<any>();
   @Output() linkModeEventEmitter:EventEmitter<any> = new EventEmitter<any>();
@@ -143,8 +143,8 @@ export class DrawingLayerManagerService {
 
   }
   private initLifeCycleHandler(){
-    WorkHistoryManager.initInstance(this.wbItemLifeCycleEventEmitter);
-    this.wbItemLifeCycleEventEmitter.subscribe((data:ItemLifeCycleEvent)=>{
+    WorkHistoryManager.initInstance(this.globalLifeCycleEmitter);
+    this.globalLifeCycleEmitter.subscribe((data:ItemLifeCycleEvent)=>{
       if(!data){
         return;
       }
