@@ -3,34 +3,34 @@ import * as paper from 'paper';
 import Color = paper.Color;
 
 export class GachiColorDto {
-  private _red;
-  private _green;
-  private _blue;
-  private _alpha;
+  public red;
+  public green;
+  public blue;
+  public alpha;
 
   constructor(red, green, blue, alpha?) {
-    this._red = red;
-    this._green = green;
-    this._blue = blue;
+    this.red = red;
+    this.green = green;
+    this.blue = blue;
     if(alpha){
-      this._alpha = alpha;
+      this.alpha = alpha;
     }else{
-      this._alpha = 1;
+      this.alpha = 1;
     }
   }
 
-  public clone(): GachiColorDto {
-    return new GachiColorDto(this._red, this._green, this._blue, this._alpha);
+  public static clone(dto: GachiColorDto): GachiColorDto{
+    return new GachiColorDto(dto.red, dto.green, dto.blue, dto.alpha);
   }
 
-  public setColorByPaperColor(color:Color){
-    this._red   = color.red;
-    this._green = color.green;
-    this._blue  = color.blue;
-    this._alpha = color.alpha;
+  public static setColorByPaperColor(target: GachiColorDto, color: Color) {
+    target.red   = color.red;
+    target.green = color.green;
+    target.blue  = color.blue;
+    target.alpha = color.alpha;
   }
 
-  public static createColor(color:Color){
+  public static createColor(color:Color): GachiColorDto {
     if(!color){
       return new GachiColorDto(0,0,0,1);
     }
@@ -39,42 +39,11 @@ export class GachiColorDto {
     );
   }
 
-  get red() {
-    return this._red;
-  }
-
-  set red(value) {
-    this._red = value;
-  }
-
-  get green() {
-    return this._green;
-  }
-
-  set green(value) {
-    this._green = value;
-  }
-
-  get blue() {
-    return this._blue;
-  }
-
-  set blue(value) {
-    this._blue = value;
-  }
-
-  get alpha() {
-    return this._alpha;
-  }
-
-  set alpha(value) {
-    this._alpha = value;
-  }
-
-  get paperColor(): Color {
-    return new Color(this._red, this._green, this._blue, this._alpha);
+  public static getPaperColor(dto: GachiColorDto): Color{
+    return new Color(dto.red, dto.green, dto.blue, dto.alpha);
   }
 }
+
 export class GachiColorList {
   public static getColor(idx){
     switch (idx) {

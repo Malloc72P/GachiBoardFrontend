@@ -3,21 +3,23 @@ import * as paper from 'paper';
 import Point = paper.Point;
 
 export class GachiPointDto {
-  public x:number;
-  public y:number;
+  public x: number;
+  public y: number;
 
   constructor(x, y) {
     this.x = x;
     this.y = y;
   }
 
+  public static clone(dto: GachiPointDto): GachiPointDto {
+    return new GachiPointDto(dto.x, dto.y);
+  }
+
   public clone(): GachiPointDto {
     return new GachiPointDto(this.x, this.y);
   }
 
-
-
-  get paperPoint(): Point {
-    return new Point(this.x, this.y);
+  public static getPaperPoint(dto: GachiPointDto): Point {
+    return new Point(dto.x, dto.y);
   }
 }

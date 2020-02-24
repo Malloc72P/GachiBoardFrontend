@@ -55,6 +55,7 @@ import {LinkPortDto} from "../../../../DTO/WhiteboardItemDto/WhiteboardShapeDto/
 import {LinkPort} from "../../Whiteboard-Item/Whiteboard-Shape/LinkPort/link-port";
 import {EditableLinkDto} from "../../../../DTO/WhiteboardItemDto/WhiteboardShapeDto/LinkPortDto/EditableLinkDto/editable-link-dto";
 import {WhiteboardShape} from "../../Whiteboard-Item/Whiteboard-Shape/whiteboard-shape";
+import {GachiPointDto} from "../../../../DTO/WhiteboardItemDto/PointDto/gachi-point-dto";
 
 
 enum BUILD_MODE {
@@ -96,7 +97,7 @@ export class WhiteboardItemFactory {
   }
 
   private static replaceLinkPort(linkDto: EditableLinkDto, wbItemIdMap: Map<number, number>): EditableLinkDto {
-    let newLinkDto = linkDto.clone();
+    let newLinkDto = EditableLinkDto.clone(linkDto);
 
     if(!!linkDto.toLinkPort) {
       newLinkDto.toLinkPort.ownerWbItemId = wbItemIdMap.get(linkDto.toLinkPort.ownerWbItemId);
@@ -173,7 +174,7 @@ export class WhiteboardItemFactory {
     let newPath:Path;
     newPath =  new paper.Path({
       segments: [],
-      strokeColor: WhiteboardItemFactory.convertGachiColorToPaperColor(edtStrokeDto.strokeColor),
+      strokeColor: GachiColorDto.getPaperColor(edtStrokeDto.strokeColor),
       strokeWidth: edtStrokeDto.strokeWidth,
       strokeCap: 'round',
       strokeJoin: 'round',
@@ -328,29 +329,21 @@ export class WhiteboardItemFactory {
     shapeObject.bounds.width = wbShapeDto.width;
     shapeObject.bounds.height = wbShapeDto.height;
     shapeObject.position = new Point(wbShapeDto.center.x, wbShapeDto.center.y);
-    shapeObject.strokeColor = WhiteboardItemFactory.convertGachiColorToPaperColor(wbShapeDto.borderColor);
-    shapeObject.fillColor = WhiteboardItemFactory.convertGachiColorToPaperColor(wbShapeDto.fillColor);
+    shapeObject.strokeColor = GachiColorDto.getPaperColor(wbShapeDto.borderColor);
+    shapeObject.fillColor = GachiColorDto.getPaperColor(wbShapeDto.fillColor);
     shapeObject.strokeWidth = wbShapeDto.borderWidth;
-  }
-
-  private static convertGachiColorToPaperColor(gachiColor:GachiColorDto){
-    return new Color(
-      gachiColor.red,
-      gachiColor.green,
-      gachiColor.blue,
-      gachiColor.alpha );
   }
 
   private static createEditableLink(wbId, linkDto: EditableLinkDto, copiedGSG?: Array<WhiteboardItem>): EditableLink {
     let linkLine = EditableLink.createLinkLine(
-      linkDto.fromPoint.paperPoint,
-      linkDto.toPoint.paperPoint,
-      linkDto.linkColor.paperColor,
+      GachiPointDto.getPaperPoint(linkDto.fromPoint),
+      GachiPointDto.getPaperPoint(linkDto.toPoint),
+      GachiColorDto.getPaperColor(linkDto.linkColor),
       linkDto.linkWidth,
       linkDto.isDashed);
 
-    let linkHead = EditableLink.createCap(linkDto.linkColor.paperColor, linkDto.linkWidth);
-    let linkTail = EditableLink.createCap(linkDto.linkColor.paperColor, linkDto.linkWidth);
+    let linkHead = EditableLink.createCap(GachiColorDto.getPaperColor(linkDto.linkColor), linkDto.linkWidth);
+    let linkTail = EditableLink.createCap(GachiColorDto.getPaperColor(linkDto.linkColor), linkDto.linkWidth);
 
     let group: Group = new Group();
     group.addChildren([linkLine, linkHead, linkTail]);

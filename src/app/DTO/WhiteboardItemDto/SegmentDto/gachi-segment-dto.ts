@@ -5,19 +5,19 @@ import Segment = paper.Segment;
 import {GachiPointDto} from "../PointDto/gachi-point-dto";
 
 export class GachiSegmentDto {
-  private _point: GachiPointDto;
-  private _handleIn: GachiPointDto;
-  private _handleOut: GachiPointDto;
+  public point: GachiPointDto;
+  public handleIn: GachiPointDto;
+  public handleOut: GachiPointDto;
 
   constructor(segment?: Segment) {
     if(!!segment) {
-      this._point = new GachiPointDto(segment.point.x, segment.point.y);
-      this._handleIn = new GachiPointDto(segment.handleOut.x, segment.handleOut.y);
-      this._handleOut = new GachiPointDto(segment.handleIn.x, segment.handleIn.y);
+      this.point = new GachiPointDto(segment.point.x, segment.point.y);
+      this.handleIn = new GachiPointDto(segment.handleOut.x, segment.handleOut.y);
+      this.handleOut = new GachiPointDto(segment.handleIn.x, segment.handleIn.y);
     } else {
-      this._point = new GachiPointDto(0, 0);
-      this._handleIn = new GachiPointDto(0, 0);
-      this._handleOut = new GachiPointDto(0, 0);
+      this.point = new GachiPointDto(0, 0);
+      this.handleIn = new GachiPointDto(0, 0);
+      this.handleOut = new GachiPointDto(0, 0);
     }
   }
 
@@ -30,28 +30,4 @@ export class GachiSegmentDto {
   //
   //   return segment;
   // }
-
-  get point(): GachiPointDto {
-    return this._point;
-  }
-
-  set point(value: GachiPointDto) {
-    this._point = value;
-  }
-
-  get handleIn(): GachiPointDto {
-    return this._handleIn;
-  }
-
-  set handleIn(value: GachiPointDto) {
-    this._handleIn = value;
-  }
-
-  get handleOut(): GachiPointDto {
-    return this._handleOut;
-  }
-
-  set handleOut(value: GachiPointDto) {
-    this._handleOut = value;
-  }
 }
