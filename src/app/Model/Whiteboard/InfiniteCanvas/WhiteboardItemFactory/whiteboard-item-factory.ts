@@ -93,6 +93,14 @@ export class WhiteboardItemFactory {
       observer.next(tempGsgArray);
     });
   }
+  public static buildWbItems(wbItemDto:WhiteboardItemDto):Observable<any>{
+    return new Observable((observer)=>{
+      WhiteboardItemFactory.waitForCreateWbItem(wbItemDto, BUILD_MODE.CREATE)
+        .subscribe((wbFactoryRes:WbItemFactoryResult)=>{
+          observer.next(wbFactoryRes);
+        });
+    });
+  }
 
   private static replaceLinkPort(linkDto: EditableLinkDto, wbItemIdMap: Map<number, number>): EditableLinkDto {
     let newLinkDto = linkDto.clone();
@@ -111,7 +119,7 @@ export class WhiteboardItemFactory {
     return new Observable((observer)=>{
       WhiteboardItemFactory.createWbItem(buildMode, wbItemDto)
         .subscribe((data:WhiteboardItem)=>{
-          data.group.opacity = 0;
+          data.group.opacity = 1;
           observer.next(new WbItemFactoryResult( data, wbItemDto ));
         });
     });

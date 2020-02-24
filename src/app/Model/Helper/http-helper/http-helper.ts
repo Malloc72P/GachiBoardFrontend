@@ -146,6 +146,26 @@ export class HttpHelper {
       remove_cursor : new WebSocketRequest(
         "wbSession_remove_cursor", WebSocketTypeEnum.DELETE
       ),
+    },
+    whiteboardItem : {
+      read : new WebSocketRequest(
+        "wbItem_read", WebSocketTypeEnum.READ
+      ),
+      create : new WebSocketRequest(
+        "wbItem_create", WebSocketTypeEnum.CREATE
+      ),
+      update : new WebSocketRequest(
+        "wbItem_update", WebSocketTypeEnum.UPDATE
+      ),
+      delete : new WebSocketRequest(
+        "wbItem_delete", WebSocketTypeEnum.DELETE
+      ),
+      lock : new WebSocketRequest(
+        "wbItem_lock", WebSocketTypeEnum.LOCK
+      ),
+      unlock : new WebSocketRequest(
+        "wbItem_unlock", WebSocketTypeEnum.UNLOCK
+      ),
     }
   };
 

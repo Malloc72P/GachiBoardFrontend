@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, Input, OnInit} from '@angular/core';
 import {PointerModeManagerService} from "../../Model/Whiteboard/Pointer/pointer-mode-manager-service/pointer-mode-manager.service";
 import {InfiniteCanvasService} from "../../Model/Whiteboard/InfiniteCanvas/infinite-canvas.service";
 import {PositionCalcService} from "../../Model/Whiteboard/PositionCalc/position-calc.service";
@@ -20,8 +20,7 @@ import {DebugingService} from "../../Model/Helper/DebugingHelper/debuging.servic
   styleUrls: ['./debuging-pannel.component.css']
 })
 export class DebugingPannelComponent implements OnInit {
-
-  public paperProject;
+  @Input() paperProject;
   constructor(
     public pointerModeManager      : PointerModeManagerService,
     public infiniteCanvasService   : InfiniteCanvasService,
@@ -31,7 +30,6 @@ export class DebugingPannelComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    this.paperProject = paper.project;
   }
 
 

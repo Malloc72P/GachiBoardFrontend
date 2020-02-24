@@ -57,6 +57,14 @@ import {ItemHandler} from "../../Whiteboard-Item/ItemAdjustor/ItemHandler/item-h
 import {WhiteboardShape} from "../../Whiteboard-Item/Whiteboard-Shape/whiteboard-shape";
 import {LinkHandlerPositions} from "../../Whiteboard-Item/Whiteboard-Shape/LinkPort/EditableLink/link-handler-positions";
 import {LinkHandler} from "../../Whiteboard-Item/Whiteboard-Shape/LinkPort/EditableLink/LinkHandler/link-handler";
+import {WsWhiteboardController} from '../../../../Controller/Controller-WebSocket/websocket-manager/WhiteboardWsController/ws-whiteboard.controller';
+import Global = WebAssembly.Global;
+import {WbItemEventManagerService} from '../../../../Controller/Controller-WebSocket/websocket-manager/WhiteboardWsController/wb-item-event-manager.service';
+import {
+  WbItemEvent,
+  WbItemEventEnum
+} from '../../../../Controller/Controller-WebSocket/websocket-manager/WhiteboardWsController/wb-item-event/wb-item-event';
+import {WhiteboardItemFactory} from '../WhiteboardItemFactory/whiteboard-item-factory';
 
 
 @Injectable({
@@ -94,12 +102,14 @@ export class DrawingLayerManagerService {
     private _infiniteCanvasService:InfiniteCanvasService,
     private _horizonContextMenuService: HorizonContextMenuService,
     private _cursorChangeService: CursorChangeService,
+    private wbItemEventManagerService: WbItemEventManagerService,
   ) {
     this._whiteboardItemArray = new Array<WhiteboardItem>();
     this._editableLinkArray = new Array<EditableLink>();
 
     //### 1 화이트보드 아이템 라이프사이클 이벤트
     this.initLifeCycleHandler();
+    this.initWbItemWsEventHandler();
     //### 2 포인터 모드 이벤트
     this.initPointerHandler();
     //### 3 링커 모드 이벤트
@@ -142,17 +152,58 @@ export class DrawingLayerManagerService {
     });
 
   }
+  /* *************************************************** */
+  /* Whiteboard Item Lifecycle Handler START */
+  /* *************************************************** */
+
+  private initWbItemWsEventHandler(){
+    this.wbItemEventManagerService.wsWbItemEventEmitter
+      .subscribe((recvWbItemEvent:WbItemEvent)=>{
+      if(!recvWbItemEvent){
+        return;
+      }
+      console.log("DrawingLayerManagerService >> initWbItemWsEventHandler >> recvWbItemEvent : ",recvWbItemEvent);
+      switch (recvWbItemEvent.action) {
+        case WbItemEventEnum.CREATE:
+          WhiteboardItemFactory.buildWbItems(recvWbItemEvent.data);
+          break;
+        case WbItemEventEnum.DELETE:
+          break;
+        case WbItemEventEnum.UPDATE:
+          break;
+        case WbItemEventEnum.READ:
+          break;
+        case WbItemEventEnum.LOCK:
+          break;
+        case WbItemEventEnum.UNLOCK:
+          break;
+      }
+    });
+  }
+
+
   private initLifeCycleHandler(){
     WorkHistoryManager.initInstance(this.wbItemLifeCycleEventEmitter);
     this.wbItemLifeCycleEventEmitter.subscribe((data:ItemLifeCycleEvent)=>{
       if(!data){
         return;
       }
+      console.log("DrawingLayerManagerService >> initLifeCycleHandler >> data : ",data.item.id);
       switch (data.action) {
         case ItemLifeCycleEnum.CREATE:
           this.whiteboardItemArray.push(data.item);
-          if( !(data.item instanceof EditableItemGroup) ){
+          if( !(data.item instanceof EditableItemGroup) && !(data.item instanceof GlobalSelectedGroup) ){
             this.drawingLayer.addChild(data.item.group);
+
+            if(data.item.id === -1){
+              let wsWbController = WsWhiteboardController.getInstance();
+              wsWbController.waitRequestCreateWbItem(data.item.exportToDto())
+                .subscribe((packetDto)=>{
+                  console.log("DrawingLayerManagerService >> addToDrawingLayer >> packetDto : ",packetDto);
+                  data.item.id = packetDto.dataDto._id;
+                  console.log("DrawingLayerManagerService >> addToDrawingLayer >> newWhiteboardItem : ",data.item);
+                });
+            }
           }
           break;
         case ItemLifeCycleEnum.MODIFY:
@@ -164,6 +215,9 @@ export class DrawingLayerManagerService {
       }
     });
   }
+  /* **************************************************** */
+  /* Whiteboard Item Lifecycle Handler END */
+  /* **************************************************** */
 
   private initLinkModeHandler(){
     this.linkModeEventEmitter.subscribe((data:LinkerModeChangeEvent)=>{
@@ -271,6 +325,7 @@ export class DrawingLayerManagerService {
       // extras[2] : toLinkPort, extras[2] : fromLinkPort
       newWhiteboardItem = new EditableLink(this.getWbId(), item, extras[0], extras[1], this, extras[2], extras[3]);
     }
+
     return newWhiteboardItem;
   }
 
@@ -659,7 +714,7 @@ export class DrawingLayerManagerService {
   }
 
   public getWbId(){
-    return this._idGenerator++;
+    return -1;
   }
 
 

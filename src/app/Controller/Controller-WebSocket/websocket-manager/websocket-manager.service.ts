@@ -18,6 +18,8 @@ import {WbSessionEventManagerService} from './WhiteboardSessionWsController/wb-s
 import {WsWhiteboardSessionController} from './WhiteboardSessionWsController/ws-whiteboard-session.controller';
 import {ParticipantDto} from '../../../DTO/ProjectDto/ParticipantDto/participant-dto';
 import {WhiteboardSessionDto} from '../../../DTO/ProjectDto/WhiteboardSessionDto/whiteboard-session-dto';
+import {WbItemEventManagerService} from './WhiteboardWsController/wb-item-event-manager.service';
+import {WsWhiteboardController} from './WhiteboardWsController/ws-whiteboard.controller';
 
 @Injectable({
   providedIn: 'root'
@@ -39,6 +41,7 @@ export class WebsocketManagerService {
     private authRequestService:AuthRequestService,
     public kanbanEventManagerService:KanbanEventManagerService,
     public wbSessionEventManagerService:WbSessionEventManagerService,
+    public wbItemEventManagerService:WbItemEventManagerService,
     public uiService:UiService,
   ) {
     this.authRequestService.authEventEmitter.subscribe((authEvent:AuthEvent)=>{
@@ -51,6 +54,7 @@ export class WebsocketManagerService {
     WsProjectController.initInstance(this);
     WsKanbanController.initInstance(this);
     WsWhiteboardSessionController.initInstance(this);
+    WsWhiteboardController.initInstance(this);
 
     this.notVerifiedKanbanItems = new Array<NotVerifiedKanbanItem>();
   }
@@ -144,9 +148,6 @@ export class WebsocketManagerService {
     }
     newPacket.accessToken = this.userInfo.accessToken;
     return newPacket;
-  }
-  createWbScopePacket(){
-
   }
 
   get wsPacketSeq(): number {
