@@ -14,21 +14,67 @@ export class TextStyle {
   private _isBold: boolean;
   private _horizontalAlign: Align;
   private _verticalAlign: Align;
-  private readonly _changeEmitter: EventEmitter<any>;
+  private _changeEmitter: EventEmitter<any>;
 
   constructor(fontFamily?: string, fontSize?: number, fontColor?: string, isBold?: boolean, isItalic?: boolean, horizontalAlign?: Align, verticalAlign?: Align) {
-    this._changeEmitter = new EventEmitter<any>();
-    this.fontFamily = fontFamily ? fontFamily : "sans-serif";
-    this.fontSize = fontSize ? fontSize : 12;
-    this.fontColor = fontColor ? fontColor : "black";
-    this.horizontalAlign = horizontalAlign ? horizontalAlign : Align.CENTER;
-    this.verticalAlign = verticalAlign ? verticalAlign : Align.CENTER;
-    this.isBold = isBold ? isBold : false;
-    this.isItalic = isItalic ? isItalic : false;
+    this._fontFamily = fontFamily ? fontFamily : "sans-serif";
+    this._fontSize = fontSize ? fontSize : 12;
+    this._fontColor = fontColor ? fontColor : "black";
+    this._horizontalAlign = horizontalAlign ? horizontalAlign : Align.CENTER;
+    this._verticalAlign = verticalAlign ? verticalAlign : Align.CENTER;
+    this._isBold = isBold ? isBold : false;
+    this._isItalic = isItalic ? isItalic : false;
   }
 
   public clone() {
     return new TextStyle(this.fontFamily, this.fontSize, this.fontColor, this.isBold, this.isItalic, this.horizontalAlign, this.verticalAlign);
+  }
+
+  public update(style: TextStyle) {
+    let changed = false;
+
+    if(this._fontFamily !== style.fontFamily) {
+      this._fontFamily = style.fontFamily;
+      changed = true;
+    }
+    if(this._fontSize !== style.fontSize) {
+      this._fontSize = style.fontSize;
+      changed = true;
+    }
+    if(this._fontColor !== style.fontColor) {
+      this._fontColor = style.fontColor;
+      changed = true;
+    }
+    if(this._horizontalAlign !== style.horizontalAlign) {
+      this._horizontalAlign = style.horizontalAlign;
+      changed = true;
+    }
+    if(this._verticalAlign !== style.verticalAlign) {
+      this._verticalAlign = style.verticalAlign;
+      changed = true;
+    }
+    if(this._isBold !== style.isBold) {
+      this._isBold = style.isBold;
+      changed = true;
+    }
+    if(this._isItalic !== style.isItalic) {
+      this._isItalic = style.isItalic;
+      changed = true;
+    }
+
+    if(changed) this.emitChange();
+  }
+
+  private emitChange() {
+    if(!!this._changeEmitter) {
+      this._changeEmitter.emit();
+    }
+  }
+
+  set eventEmitter(value: EventEmitter<any>) {
+    this._changeEmitter = value;
+
+    console.log("TextStyle >> eventEmitter >> this._changeEmitter : ", this._changeEmitter);
   }
 
   get fontFamily() {
@@ -37,7 +83,7 @@ export class TextStyle {
 
   set fontFamily(value) {
     this._fontFamily = value;
-    this._changeEmitter.emit();
+    this.emitChange();
   }
 
   get fontSize() {
@@ -46,7 +92,7 @@ export class TextStyle {
 
   set fontSize(value) {
     this._fontSize = value;
-    this._changeEmitter.emit();
+    this.emitChange();
   }
 
   get fontColor(): string {
@@ -55,7 +101,7 @@ export class TextStyle {
 
   set fontColor(value: string) {
     this._fontColor = value;
-    this._changeEmitter.emit();
+    this.emitChange();
   }
 
   get isBold(): boolean {
@@ -64,7 +110,7 @@ export class TextStyle {
 
   set isBold(value: boolean) {
     this._isBold = value;
-    this._changeEmitter.emit();
+    this.emitChange();
   }
 
   get isItalic() {
@@ -73,7 +119,7 @@ export class TextStyle {
 
   set isItalic(value) {
     this._isItalic = value;
-    this._changeEmitter.emit();
+    this.emitChange();
   }
 
   get horizontalAlign() {
@@ -82,7 +128,7 @@ export class TextStyle {
 
   set horizontalAlign(value) {
     this._horizontalAlign = value;
-    this._changeEmitter.emit();
+    this.emitChange();
   }
 
   get verticalAlign() {
@@ -91,7 +137,7 @@ export class TextStyle {
 
   set verticalAlign(value) {
     this._verticalAlign = value;
-    this._changeEmitter.emit();
+    this.emitChange();
   }
 
   get fontWeight(): string {
@@ -100,9 +146,5 @@ export class TextStyle {
     this.isItalic ? weight += " italic" : null;
 
     return weight;
-  }
-
-  get changed(): EventEmitter<any> {
-    return this._changeEmitter;
   }
 }
