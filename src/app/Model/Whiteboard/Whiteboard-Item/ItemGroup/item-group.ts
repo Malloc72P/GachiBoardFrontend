@@ -274,6 +274,11 @@ export class ItemGroup extends WhiteboardItem {
     this.coreItem.remove();
     this.globalLifeCycleEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.DESTROY));
   }
+  destroyItemAndNoEmit() {
+    super.destroyItem();
+    //unGroup하는 작업 실시
+    this.coreItem.remove();
+  }
 
   destroyItemAndChildren() {
     for (let i = 0; i < this._wbItemGroup.length; i++) {

@@ -98,13 +98,23 @@ export class WhiteboardItemFactory {
       }
     });
   }
-  public static buildWbItems(wbItemDto:WhiteboardItemDto):Observable<any>{
+  public static buildWbItems(wbItemDto:WhiteboardItemDto, wbItemArray?:Array<WhiteboardItem>):Observable<any>{
     return new Observable((observer)=>{
-      WhiteboardItemFactory.waitForCreateWbItem(wbItemDto, BUILD_MODE.CREATE)
-        .subscribe((wbFactoryRes:WbItemFactoryResult)=>{
-          console.log("WhiteboardItemFactory >> buildWbItems >> wbFactoryRes : ",wbFactoryRes);
-          observer.next(wbFactoryRes);
-        });
+      if(wbItemArray){
+        WhiteboardItemFactory.waitForCreateWbItem(wbItemDto, BUILD_MODE.CREATE, wbItemArray)
+          .subscribe((wbFactoryRes:WbItemFactoryResult)=>{
+            console.log("WhiteboardItemFactory >> buildWbItems >> wbFactoryRes : ",wbFactoryRes);
+            observer.next(wbFactoryRes);
+          });
+      }
+      else {
+        WhiteboardItemFactory.waitForCreateWbItem(wbItemDto, BUILD_MODE.CREATE)
+          .subscribe((wbFactoryRes:WbItemFactoryResult)=>{
+            console.log("WhiteboardItemFactory >> buildWbItems >> wbFactoryRes : ",wbFactoryRes);
+            observer.next(wbFactoryRes);
+          });
+
+      }
     });
   }
 
@@ -121,7 +131,7 @@ export class WhiteboardItemFactory {
     return newLinkDto;
   }
 
-  public static waitForCreateWbItem(wbItemDto:WhiteboardItemDto, buildMode:BUILD_MODE) :Observable<any>{
+  public static waitForCreateWbItem(wbItemDto:WhiteboardItemDto, buildMode:BUILD_MODE, wbItemArray?:Array<WhiteboardItem>) :Observable<any>{
     return new Observable((observer)=>{
       WhiteboardItemFactory.createWbItem(buildMode, wbItemDto)
         .subscribe((data:WhiteboardItem)=>{
@@ -169,9 +179,11 @@ export class WhiteboardItemFactory {
         case WhiteboardItemType.EDITABLE_TRIANGLE:
         case WhiteboardItemType.EDITABLE_CARD:
           newWbItem = WhiteboardItemFactory.buildEditableShape(wbId, wbItemDto as EditableShapeDto);
-
           observer.next(newWbItem);
           break;
+        case WhiteboardItemType.EDITABLE_LINK:
+          newWbItem = WhiteboardItemFactory.buildEditableLink(BUILD_MODE.CREATE, wbItemDto as EditableLinkDto);
+          observer.next(newWbItem);
         case WhiteboardItemType.SIMPLE_RASTER:
           WhiteboardItemFactory.buildEditableRaster(wbId, wbItemDto as EditableRasterDto).subscribe((data)=>{
             observer.next(data);

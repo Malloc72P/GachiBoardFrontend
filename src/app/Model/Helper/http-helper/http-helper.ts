@@ -35,6 +35,10 @@ export enum WebSocketTypeEnum {
   UNLOCK,
   JOIN
 }
+export enum SpecialAction {
+  PASTE_COMPLETE,
+  RELOCATE_PASTE_COMPLETE
+}
 
 export class HttpHelper {
   //TODO 이런거 json으로 뽑을 수 있으면 뽑아야 함.
@@ -153,6 +157,9 @@ export class HttpHelper {
       ),
       create : new WebSocketRequest(
         "wbItem_create", WebSocketTypeEnum.CREATE
+      ),
+      create_multiple : new WebSocketRequest(
+        "wbItem_create_multiple", WebSocketTypeEnum.CREATE
       ),
       update : new WebSocketRequest(
         "wbItem_update", WebSocketTypeEnum.UPDATE

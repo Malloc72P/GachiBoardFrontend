@@ -80,7 +80,7 @@ export abstract class EditableShape extends WhiteboardShape {
       this.fillColor = 'transparent';
     }
     this.opacity = this.coreItem.opacity;
-    this.textBound = new Rectangle(this.editText.bounds);
+    this._textBound = new Rectangle(this.editText.bounds);
 
     this.globalLifeCycleEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.MODIFY));
     //this.notifyOwnerChangeEventToLinkPort();
@@ -96,6 +96,12 @@ export abstract class EditableShape extends WhiteboardShape {
     this.coreItem.remove();
     this.group.remove();
     this.globalLifeCycleEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.DESTROY));
+  }
+  public destroyItemAndNoEmit() {
+    super.destroyItem();
+    this.editText.remove();
+    this.coreItem.remove();
+    this.group.remove();
   }
 
   public refreshItem() {

@@ -193,6 +193,7 @@ export abstract class WhiteboardItem {
     }
     this.localLifeCycleEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.DESTROY));
   }
+  public abstract destroyItemAndNoEmit();
 
   checkEditable(){
     let currentPointerMode = this.layerService.currentPointerMode;

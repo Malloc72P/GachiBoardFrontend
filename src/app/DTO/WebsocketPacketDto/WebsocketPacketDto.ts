@@ -9,7 +9,7 @@ export class WebsocketPacketDto {
   public action:WebsocketPacketActionEnum;
   public accessToken;
   public additionalData;//혹시나 추가로 보낼 데이터가 있으면 여기서 채우면 됨
-  public specialAction:string;
+  public specialAction;
 
   constructor(senderIdToken     : string,
               packetScope       : WebsocketPacketScopeEnum,

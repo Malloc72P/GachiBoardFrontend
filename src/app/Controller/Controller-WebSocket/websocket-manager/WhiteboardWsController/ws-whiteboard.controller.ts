@@ -24,6 +24,7 @@ export class WsWhiteboardController {
     this.onWbItemUpdated();
     this.onWbItemLocked();
     this.onWbItemUnlocked();
+    this.onMultipleWbItemCreated();
   }
 
 
@@ -73,7 +74,56 @@ export class WsWhiteboardController {
       });
   }
   /* **************************************************** */
-  /* Request Create END */
+  /* Request Create Multiple WbItem END */
+  /* **************************************************** */
+
+  /* *************************************************** */
+  /* Request Create START */
+  /* *************************************************** */
+  waitRequestCreateMultipleWbItem( wbItemDtos:Array<WhiteboardItemDto> ){
+
+    //this.websocketManager.uiService.spin$.next(true);
+
+    return new Observable<any>((subscriber)=>{
+
+      let packetDto = this.websocketManager.createWbSessionScopePacket(wbItemDtos,WebsocketPacketActionEnum.CREATE_MULTIPLE);
+      packetDto.wsPacketSeq = this.websocketManager.wsPacketSeq;
+
+      this.socket.emit(HttpHelper.websocketApi.whiteboardItem.create_multiple.event, packetDto);
+
+      //#### 요청 완료
+
+      this.socket.once(HttpHelper.websocketApi.whiteboardItem.create_multiple.event,
+        (wsPacketDto:WebsocketPacketDto)=>{
+          //this.websocketManager.uiService.spin$.next(false);
+          switch (wsPacketDto.action) {
+            case WebsocketPacketActionEnum.ACK:
+              console.log("WsWhiteboardController >> waitRequestCreateWbItem >> wsPacketDto : ",wsPacketDto);
+              subscriber.next(wsPacketDto);
+              break;
+            case WebsocketPacketActionEnum.NAK:
+              subscriber.error(wsPacketDto);
+              break;
+          }
+        })
+    });
+  }
+
+  private onMultipleWbItemCreated(){
+    this.socket.on(HttpHelper.websocketApi.whiteboardItem.create_multiple.event,
+      (wsPacketDto:WebsocketPacketDto)=>{
+        if (wsPacketDto.action === WebsocketPacketActionEnum.CREATE_MULTIPLE) {
+          console.log("WsWhiteboardController >> onWbItemCreated >> wsPacketDto : ",wsPacketDto);
+
+          this.websocketManager.wbItemEventManagerService.wsWbItemEventEmitter.emit(
+            new WbItemEvent( WbItemEventEnum.CREATE_MULTIPLE, null, wsPacketDto.dataDto)
+          );
+
+        }
+      });
+  }
+  /* **************************************************** */
+  /* Request Create Multiple WbItem END */
   /* **************************************************** */
 
   /* *************************************************** */
@@ -167,7 +217,7 @@ export class WsWhiteboardController {
           console.log("WsWhiteboardController >> onWbItemDeleted >> wsPacketDto : ",wsPacketDto);
 
           this.websocketManager.wbItemEventManagerService.wsWbItemEventEmitter.emit(
-            new WbItemEvent( WbItemEventEnum.UPDATE, wsPacketDto.dataDto as WhiteboardItemDto)
+            new WbItemEvent( WbItemEventEnum.DELETE, wsPacketDto.dataDto as WhiteboardItemDto)
           );
 
         }

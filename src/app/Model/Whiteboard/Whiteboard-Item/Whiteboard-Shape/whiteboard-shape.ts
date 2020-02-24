@@ -117,6 +117,14 @@ export class WhiteboardShape extends WhiteboardItem implements Editable{
     }
 
   }
+  destroyItemAndNoEmit() {
+    super.destroyItem();
+    if(this.linkPortMap){
+      this.linkPortMap.forEach((value, key, map)=>{
+        value.destroyPortAndLink();
+      })
+    }
+  }
   exportToDto(): WhiteboardShapeDto {
     let wbShapeDto:WhiteboardShapeDto = super.exportToDto() as WhiteboardShapeDto;
 

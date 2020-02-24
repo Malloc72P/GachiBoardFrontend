@@ -1,5 +1,6 @@
 export enum WebsocketPacketActionEnum {
   CREATE,
+  CREATE_MULTIPLE,
   CREATE_TAG,
   READ,
   UPDATE,

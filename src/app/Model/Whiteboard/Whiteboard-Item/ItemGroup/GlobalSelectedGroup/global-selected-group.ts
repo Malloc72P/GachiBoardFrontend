@@ -15,6 +15,8 @@ import {WhiteboardItemDto} from '../../../../../DTO/WhiteboardItemDto/whiteboard
 import {WhiteboardItemFactory} from '../../../InfiniteCanvas/WhiteboardItemFactory/whiteboard-item-factory';
 import {Observable} from 'rxjs';
 import {EditableLink} from "../../Whiteboard-Shape/LinkPort/EditableLink/editable-link";
+import {WsWhiteboardController} from '../../../../../Controller/Controller-WebSocket/websocket-manager/WhiteboardWsController/ws-whiteboard.controller';
+import {WebsocketPacketDto} from '../../../../../DTO/WebsocketPacketDto/WebsocketPacketDto';
 
 export class GlobalSelectedGroup extends ItemGroup {
   private static globalSelectedGroup: GlobalSelectedGroup;
@@ -95,11 +97,27 @@ export class GlobalSelectedGroup extends ItemGroup {
         }
         this.wbItemGroup.forEach(value => {
         });
-        this.relocateItemGroup(newPosition);
+
+        let wsWbController = WsWhiteboardController.getInstance();
+        let wbItemDtoArray:Array<WhiteboardItemDto> = new Array<WhiteboardItemDto>();
+
         for (let i = 0; i < data.length; i++) {
-          data[i].group.opacity = 1;
-          data[i].coreItem.opacity = 1;
+          let newWbItem = data[i];
+          wbItemDtoArray.push(newWbItem.exportToDto());
+
         }
+        wsWbController.waitRequestCreateMultipleWbItem(wbItemDtoArray)
+          .subscribe((wsPacketDto:WebsocketPacketDto)=>{
+            let recvWbItemDtoArray:Array<WhiteboardItemDto> = wsPacketDto.dataDto as Array<WhiteboardItemDto>;
+            for (let i = 0; i < data.length; i++) {
+              let newWbItem = data[i];
+              newWbItem.id = recvWbItemDtoArray[i].id;
+              newWbItem.group.opacity = 1;
+              newWbItem.coreItem.opacity = 1;
+              this.insertOneIntoSelection(newWbItem);
+            }
+            this.relocateItemGroup(newPosition);
+          })
       });
     }
   }
@@ -208,6 +226,9 @@ export class GlobalSelectedGroup extends ItemGroup {
   }
 
   destroyItem() {
+    this.destroyAllFromGroup();
+  }
+  destroyItemAndNoEmit() {
     this.destroyAllFromGroup();
   }
 

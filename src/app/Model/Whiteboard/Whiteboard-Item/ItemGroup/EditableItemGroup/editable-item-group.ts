@@ -47,6 +47,14 @@ export class EditableItemGroup extends ItemGroup implements Editable{
 
     this.globalLifeCycleEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.DESTROY));
   }
+  public destroyItemAndNoEmit() {
+    this.coreItem.remove();
+
+    this.wbItemGroup.forEach((value, index, array)=>{
+      value.isGrouped = false;
+      value.parentEdtGroup = null;
+    });
+  }
 
   public pushAllChildIntoGSG(){
     this.wbItemGroup.forEach((value, index, array)=>{

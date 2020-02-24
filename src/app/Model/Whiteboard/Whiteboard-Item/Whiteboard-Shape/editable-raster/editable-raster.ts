@@ -68,6 +68,12 @@ export abstract class EditableRaster extends WhiteboardShape {
     this.group.remove();
     this.globalLifeCycleEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.DESTROY));
   }
+  destroyItemAndNoEmit() {
+    super.destroyItem();
+    console.log("EditableRaster >> destroyItem >> 진입함");
+    this.coreItem.remove();
+    this.group.remove();
+  }
 
   exportToDto(): EditableRasterDto {
     let editableRasterDto:EditableRasterDto =  super.exportToDto() as EditableRasterDto;

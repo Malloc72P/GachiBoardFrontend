@@ -134,7 +134,7 @@ export class WebsocketManagerService {
     if(action != WebsocketPacketActionEnum.SPECIAL){
       newPacket = new WebsocketPacketDto(
         this._userInfo.idToken,
-        WebsocketPacketScopeEnum.PROJECT,
+        WebsocketPacketScopeEnum.WHITEBOARD,
         this.currentWbSessionDto._id,
         dataDto,
         action);

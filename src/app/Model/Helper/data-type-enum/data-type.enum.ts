@@ -18,7 +18,6 @@ export enum WhiteboardItemType {
   SIMPLE_RASTER,
   GLOBAL_SELECTED_GROUP,
   EDITABLE_LINK,
-  SIMPLE_LINE_LINK,
   EDITABLE_GROUP,
 }
 

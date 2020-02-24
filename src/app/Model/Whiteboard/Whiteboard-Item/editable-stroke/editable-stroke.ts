@@ -48,6 +48,12 @@ export abstract class EditableStroke extends WhiteboardItem implements Editable{
     this.group.remove();
     this.globalLifeCycleEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.DESTROY));
   }
+  public destroyItemAndNoEmit() {
+    super.destroyItem();
+    console.log("EditableStroke >> destroyItem >> 진입함");
+    this.coreItem.remove();
+    this.group.remove();
+  }
 
   public exportToDto(): EditableStrokeDto {
     let editableStrokeDto:EditableStrokeDto =  super.exportToDto() as EditableStrokeDto;

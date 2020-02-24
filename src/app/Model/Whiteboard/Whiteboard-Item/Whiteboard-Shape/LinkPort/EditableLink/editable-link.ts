@@ -133,6 +133,17 @@ export class EditableLink extends WhiteboardItem {
     this.linkLine.remove();
     this.globalLifeCycleEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.DESTROY));
   }
+  public destroyItemAndNoEmit() {
+    super.destroyItem();
+    this.removeToLinkFromOwner();
+    this.removeFromLinkFromOwner();
+    this._linkHandlers.forEach(value => {
+      value.destroy();
+    });
+    this.linkHead.remove();
+    this.linkTail.remove();
+    this.linkLine.remove();
+  }
 
   public notifyItemCreation() {
     this.globalLifeCycleEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.CREATE));

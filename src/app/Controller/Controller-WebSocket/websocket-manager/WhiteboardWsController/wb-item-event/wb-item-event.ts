@@ -13,9 +13,12 @@ export class WbItemEvent {
 }
 export enum WbItemEventEnum {
   CREATE,
+  CREATE_MULTIPLE,
   DELETE,
   UPDATE,
   READ,
   LOCK,
-  UNLOCK
+  UNLOCK,
+  PASTE_COMPLETE,
+  PASTE_RELOCATE_COMPLETE
 }
