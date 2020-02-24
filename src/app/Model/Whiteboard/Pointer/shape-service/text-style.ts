@@ -1,4 +1,5 @@
 import {EventEmitter} from "@angular/core";
+import {GachiTextStyleDto} from "../../../../DTO/WhiteboardItemDto/WhiteboardShapeDto/EditableShapeDto/GachiTextStyleDto/gachi-text-style-dto";
 
 export enum Align {
   LEFT,
@@ -14,6 +15,7 @@ export class TextStyle {
   private _isBold: boolean;
   private _horizontalAlign: Align;
   private _verticalAlign: Align;
+
   private _changeEmitter: EventEmitter<any>;
 
   constructor(fontFamily?: string, fontSize?: number, fontColor?: string, isBold?: boolean, isItalic?: boolean, horizontalAlign?: Align, verticalAlign?: Align) {
@@ -73,8 +75,6 @@ export class TextStyle {
 
   set eventEmitter(value: EventEmitter<any>) {
     this._changeEmitter = value;
-
-    console.log("TextStyle >> eventEmitter >> this._changeEmitter : ", this._changeEmitter);
   }
 
   get fontFamily() {

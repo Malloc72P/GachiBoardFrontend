@@ -25,12 +25,11 @@ import {ItemLifeCycleEnum, ItemLifeCycleEvent} from '../../WhiteboardItemLifeCyc
 import {WhiteboardShape} from '../whiteboard-shape';
 import {EditableShapeDto} from '../../../../../DTO/WhiteboardItemDto/WhiteboardShapeDto/EditableShapeDto/editable-shape-dto';
 import {Subscription} from "rxjs";
+import {GachiTextStyleDto} from "../../../../../DTO/WhiteboardItemDto/WhiteboardShapeDto/EditableShapeDto/GachiTextStyleDto/gachi-text-style-dto";
 
 export abstract class EditableShape extends WhiteboardShape {
-  private _textContent: string;
   private _rawTextContent: string;
   private _textStyle: TextStyle;
-  private _textBound: Rectangle;
   private _editText: PointText;
   private static readonly EDIT_TEXT_PADDING = 5;
   private _isEditing: boolean;
@@ -217,7 +216,7 @@ export abstract class EditableShape extends WhiteboardShape {
 
     this.textContent = dto.textContent;
     this.rawTextContent = dto.rawTextContent;
-    this.textStyle = dto.textStyle.clone();
+    this.textStyle = GachiTextStyleDto.getTextStyle(dto.textStyle);
   }
 
   exportToDto(): EditableShapeDto {
@@ -225,7 +224,7 @@ export abstract class EditableShape extends WhiteboardShape {
 
     editableShapeDto.textContent = this.textContent;
     editableShapeDto.rawTextContent = this.rawTextContent;
-    editableShapeDto.textStyle = this.textStyle.clone();
+    editableShapeDto.textStyle = GachiTextStyleDto.create(this.textStyle);
 
     return editableShapeDto;
   }
