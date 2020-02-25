@@ -156,6 +156,7 @@ export abstract class WhiteboardItem {
         from: this.group.bounds.topLeft,
         to: this.group.bounds.bottomRight,
       });
+      blindRect.name = "blind-main";
       // @ts-ignore
       blindRect.fillColor = "black";
       // @ts-ignore
@@ -167,6 +168,7 @@ export abstract class WhiteboardItem {
       blindText.fontWeight = "bold";
       blindText.content = occupierName + " 님이 수정중";
       blindText.bounds.topRight = this.group.bounds.bottomRight;
+      blindText.name = "blind-text";
 
       let blindTextBg = new Rectangle({
         from: blindText.bounds.topLeft,
@@ -174,6 +176,7 @@ export abstract class WhiteboardItem {
       });
       // @ts-ignore
       blindTextBg.fillColor = "black";
+      blindTextBg.name = "blind-text-bg";
       // @ts-ignore
       blindTextBg.opacity = 0.5;
       blindTextBg.bounds.topLeft = blindText.bounds.topLeft;
@@ -184,9 +187,33 @@ export abstract class WhiteboardItem {
       this.blindGroup.addChild(blindTextBg);
       this.blindGroup.addChild(blindText);
 
-      //this.blindGroup.position = this.group.position;
-
     }
+  }
+  updateBlindGroup(){
+    if(!this.blindGroup){
+      return;
+    }
+    let blindRect;
+    let blindText;
+    let blindTextBg;
+    for(let i = 0 ; i < this.blindGroup.children.length; i++){
+      let currItem = this.blindGroup.children[i];
+      console.log("WhiteboardItem >> updateBlindGroup >> currItem : ",currItem);
+      console.log("WhiteboardItem >> updateBlindGroup >> currItem : ",currItem.name);
+      if (currItem.name === 'blind-main') {
+        blindRect = currItem;
+      } else if (currItem.name === 'blind-text-bg') {
+        blindTextBg = currItem;
+      } else if (currItem.name === 'blind-text') {
+        blindText = currItem;
+      }
+    }
+    console.log("WhiteboardItem >> updateBlindGroup >> blindRect : ",blindRect);
+    console.log("WhiteboardItem >> updateBlindGroup >> blindText : ",blindText);
+    console.log("WhiteboardItem >> updateBlindGroup >> blindTextBg : ",blindTextBg);
+    blindRect.bounds = this.group.bounds;
+    blindText.bounds.topRight = this.group.bounds.bottomRight;
+    blindTextBg.bounds.topLeft = blindText.bounds.topLeft;
   }
   onNotOccupied(){
     if(this.isOccupied){
@@ -247,6 +274,9 @@ export abstract class WhiteboardItem {
     this.group.position = GachiPointDto.getPaperPoint(dto.center);
     this.isGrouped = dto.isGrouped;
     this.parentEdtGroup = dto.parentEdtGroupId;
+    if(this.blindGroup){
+      this.updateBlindGroup();
+    }
   }
 
   public destroyItem(){

@@ -131,14 +131,11 @@ export class WsWhiteboardController {
   /* *************************************************** */
   /* Request Update START */
   /* *************************************************** */
-  waitRequestUpdateWbItem( wbItem:WhiteboardItem, updateEvent:ItemLifeCycleEnum ){
+  waitRequestUpdateWbItem( wbItemDto:WhiteboardItemDto){
     //this.websocketManager.uiService.spin$.next(true);
     return new Observable<any>((subscriber)=>{
-      let wbItemDto = wbItem.exportToDto();
-
       let packetDto = this.websocketManager.createWbSessionScopePacket(wbItemDto,WebsocketPacketActionEnum.UPDATE);
       packetDto.wsPacketSeq = this.websocketManager.wsPacketSeq;
-      packetDto.additionalData = updateEvent;
 
       this.socket.emit(HttpHelper.websocketApi.whiteboardItem.update.event, packetDto);
 

@@ -200,6 +200,8 @@ export class DrawingLayerManagerService {
           }
           break;
         case WbItemEventEnum.UPDATE:
+          let updateItem = this.findItemById(recvWbItemEvent.data.id);
+          updateItem.update(recvWbItemEvent.data);
           break;
         case WbItemEventEnum.READ:
           break;
@@ -229,18 +231,11 @@ export class DrawingLayerManagerService {
         case ItemLifeCycleEnum.CREATE:
           this.whiteboardItemArray.push(data.item);
           this.drawingLayer.addChild(data.item.group);
-
-          /*if(data.item.id === -1){
-            wsWbController.waitRequestCreateWbItem(data.item.exportToDto())
-              .subscribe((packetDto)=>{
-                console.log("\n\n================\nDrawingLayerManagerService >> addToDrawingLayer >> packetDto : ",packetDto);
-                data.item.id = packetDto.dataDto.id;
-                console.log("DrawingLayerManagerService >> addToDrawingLayer >> CREATE >> newWhiteboardItem : ",data.item);
-                console.log("============\n\n");
-              });
-          }*/
           break;
         case ItemLifeCycleEnum.MODIFY:
+          wsWbController.waitRequestUpdateWbItem(data.item.exportToDto()).subscribe(()=>{
+
+          });
           console.log("DrawingLayerManagerService >> initLifeCycleHandler >> MODIFY >> 진입함");
           break;
         case ItemLifeCycleEnum.DESTROY:

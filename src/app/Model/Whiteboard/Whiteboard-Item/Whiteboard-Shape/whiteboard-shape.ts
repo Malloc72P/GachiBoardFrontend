@@ -148,6 +148,7 @@ export class WhiteboardShape extends WhiteboardItem implements Editable{
     this.height = dto.height;
     this.borderColor = dto.borderColor;
     this.fillColor = dto.fillColor;
+    this.borderWidth = dto.borderWidth;
     this.opacity = dto.opacity;
 
     super.update(dto as WhiteboardItemDto);
