@@ -139,11 +139,20 @@ export class WhiteboardItemFactory {
 
   public static waitForCreateWbItem(wbItemDto:WhiteboardItemDto, buildMode:BUILD_MODE, wbItemArray?:Array<WhiteboardItem>) :Observable<any>{
     return new Observable((observer)=>{
-      WhiteboardItemFactory.createWbItem(buildMode, wbItemDto)
-        .subscribe((data:WhiteboardItem)=>{
-          data.group.opacity = 1;
-          observer.next(new WbItemFactoryResult( data, wbItemDto ));
-        });
+      if(wbItemArray){
+        WhiteboardItemFactory.createWbItem(buildMode, wbItemDto, wbItemArray)
+          .subscribe((data:WhiteboardItem)=>{
+            data.group.opacity = 1;
+            observer.next(new WbItemFactoryResult( data, wbItemDto ));
+          });
+      }else {
+        WhiteboardItemFactory.createWbItem(buildMode, wbItemDto)
+          .subscribe((data:WhiteboardItem)=>{
+            data.group.opacity = 1;
+            observer.next(new WbItemFactoryResult( data, wbItemDto ));
+          });
+      }
+
     });
   }
 
@@ -160,7 +169,7 @@ export class WhiteboardItemFactory {
     }
     return wbId;
   }
-  private static createWbItem(buildMode:BUILD_MODE, wbItemDto:WhiteboardItemDto) :Observable<any>{
+  private static createWbItem(buildMode:BUILD_MODE, wbItemDto:WhiteboardItemDto, wbItemArray?:Array<WhiteboardItem>) :Observable<any>{
     return new Observable((observer)=>{
       let newWbItem;
 
@@ -189,7 +198,11 @@ export class WhiteboardItemFactory {
           observer.next(newWbItem);
           break;
         case WhiteboardItemType.EDITABLE_LINK:
-          newWbItem = WhiteboardItemFactory.buildEditableLink(BUILD_MODE.CREATE, wbItemDto as EditableLinkDto);
+          if(wbItemArray){
+            newWbItem = WhiteboardItemFactory.buildEditableLink(BUILD_MODE.CREATE, wbItemDto as EditableLinkDto, wbItemArray);
+          }else {
+            newWbItem = WhiteboardItemFactory.buildEditableLink(BUILD_MODE.CREATE, wbItemDto as EditableLinkDto);
+          }
           observer.next(newWbItem);
           break;
         case WhiteboardItemType.SIMPLE_RASTER:

@@ -162,7 +162,7 @@ export class DrawingLayerManagerService {
       console.log("DrawingLayerManagerService >> initWbItemWsEventHandler >> recvWbItemEvent : ",recvWbItemEvent);
       switch (recvWbItemEvent.action) {
         case WbItemEventEnum.CREATE:
-          WhiteboardItemFactory.buildWbItems(recvWbItemEvent.data)
+          WhiteboardItemFactory.buildWbItems(recvWbItemEvent.data, this.whiteboardItemArray)
             .subscribe((res:WbItemFactoryResult)=>{
               res.newWbItem.group.opacity = 1;
               res.newWbItem.coreItem.opacity = 1;
@@ -172,7 +172,7 @@ export class DrawingLayerManagerService {
         case WbItemEventEnum.CREATE_MULTIPLE:
           let wbItemDtos:Array<WhiteboardItemDto> = recvWbItemEvent.additionalData as Array<WhiteboardItemDto>;
           for(let wbItemDto of wbItemDtos){
-            WhiteboardItemFactory.buildWbItems(wbItemDto)
+            WhiteboardItemFactory.buildWbItems(wbItemDto, this.whiteboardItemArray)
               .subscribe((res:WbItemFactoryResult)=>{
                 res.newWbItem.group.opacity = 1;
                 res.newWbItem.coreItem.opacity = 1;
@@ -190,7 +190,9 @@ export class DrawingLayerManagerService {
         case WbItemEventEnum.OCCUPIED:
           let occupiedItem = this.findItemById(recvWbItemEvent.data.id);
           let wsPacketDto:WebsocketPacketDto = recvWbItemEvent.additionalData;
-          occupiedItem.onOccupied(this.websocketManagerService.getUserInfoByIdToken(wsPacketDto.senderIdToken).userName);
+          if (occupiedItem) {
+            occupiedItem.onOccupied(this.websocketManagerService.getUserInfoByIdToken(wsPacketDto.senderIdToken).userName);
+          }
           break;
         case WbItemEventEnum.NOT_OCCUPIED:
           let notOccupiedItem = this.findItemById(recvWbItemEvent.data.id);
