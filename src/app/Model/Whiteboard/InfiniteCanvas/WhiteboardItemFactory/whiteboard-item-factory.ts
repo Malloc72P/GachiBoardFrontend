@@ -184,6 +184,7 @@ export class WhiteboardItemFactory {
         case WhiteboardItemType.EDITABLE_LINK:
           newWbItem = WhiteboardItemFactory.buildEditableLink(BUILD_MODE.CREATE, wbItemDto as EditableLinkDto);
           observer.next(newWbItem);
+          break;
         case WhiteboardItemType.SIMPLE_RASTER:
           WhiteboardItemFactory.buildEditableRaster(wbId, wbItemDto as EditableRasterDto).subscribe((data)=>{
             observer.next(data);
