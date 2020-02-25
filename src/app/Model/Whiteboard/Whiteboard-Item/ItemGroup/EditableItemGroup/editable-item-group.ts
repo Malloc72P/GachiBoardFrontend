@@ -47,7 +47,8 @@ export class EditableItemGroup extends ItemGroup implements Editable{
       value.parentEdtGroup = null;
     });
 
-    this.globalLifeCycleEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.DESTROY));
+    this.localEmitDestroy();
+    this.globalEmitDestroy();
   }
 
   public pushAllChildIntoGSG(){
@@ -60,4 +61,7 @@ export class EditableItemGroup extends ItemGroup implements Editable{
     return super.exportToDto() as EditableItemGroupDto;
   }
 
+  public update(dto: EditableItemGroupDto) {
+    super.update(dto);
+  }
 }

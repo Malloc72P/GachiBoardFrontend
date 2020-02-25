@@ -33,12 +33,16 @@ export class EraserService {
     }
 
     this.createEraseStroke(event.point);
-    // this.newPath.data.type = DataType.EREASER;
     this.removeProcess(event.point);
   }
 
   public drawPath(event) {
     this.newPath.add(event.point);
+    setTimeout(() => {
+      if(!!this.newPath) {
+        this.newPath.firstSegment.remove();
+      }
+    }, 300);
     this.removeProcess(event.point);
   }
 
@@ -53,9 +57,6 @@ export class EraserService {
       if(this.itemChecker(foundItem)) {
         foundItem.destroyItem();
       }
-    }
-    if(this.newPath.segments.length > 20){
-      this.newPath.removeSegments(this.newPath.firstSegment.index,this.newPath.lastSegment.index - 20);
     }
   }
 

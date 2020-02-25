@@ -198,11 +198,6 @@ export class ItemGroup extends WhiteboardItem {
 
     wbItem.localEmitSelected();
     wbItem.globalEmitSelected();
-    // if(this.getNumberOfChild() > 1) {
-    //   this.wbItemGroup[0].localEmitDeselected();
-    // } else {
-    //   wbItem.localEmitSelected();
-    // }
     this.localEmitSelectChanged();
   }
 
@@ -292,6 +287,18 @@ export class ItemGroup extends WhiteboardItem {
     }
 
     return itemGroupDto
+  }
+
+  public update(dto: ItemGroupDto) {
+    super.update(dto);
+
+    this.extractAllFromGroup();
+    dto.wbItemIdGroup.forEach(value => {
+      let item = this.layerService.getItemById(value);
+      item.isGrouped = true;
+      item.parentEdtGroup = this;
+      this.wbItemGroup.splice(this.wbItemGroup.length, 0, item);
+    });
   }
 
   public localEmitSelectChanged() {
