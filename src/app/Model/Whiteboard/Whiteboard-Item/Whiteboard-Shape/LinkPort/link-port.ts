@@ -43,6 +43,7 @@ export class LinkPort {
   private tempLink;
 
   private ownerLifeCycleSubscription: Subscription;
+  private zoomChangeSubscription: Subscription;
 
   constructor(owner, direction){
     this.owner = owner;
@@ -50,17 +51,8 @@ export class LinkPort {
     this.posCalcService = this.owner.layerService.posCalcService;
     this.layerService = this.owner.layerService;
 
-    this.initZoomHandler();
-
     this.fromLinkList = new Array<EditableLink>();
     this.toLinkList = new Array<EditableLink>();
-  }
-
-  private initZoomHandler(){
-    this.owner.zoomEventEmitter.subscribe((zoomEvent:ZoomEvent)=>{
-      this.onZoomChange(zoomEvent);
-    });
-
   }
 
   private createHandlerCircle() {
@@ -94,10 +86,26 @@ export class LinkPort {
           break;
       }
     });
+    this.zoomChangeSubscription = this.owner.zoomEventEmitter.subscribe((zoomEvent: ZoomEvent) => {
+      switch (zoomEvent.action) {
+        case ZoomEventEnum.ZOOM_CHANGED:
+          this.refreshForZoomChange(zoomEvent.zoomFactor);
+          break;
+        case ZoomEventEnum.ZOOM_IN:
+          break;
+        case ZoomEventEnum.ZOOM_OUT:
+          break;
+        default:
+          break;
+      }
+    })
   }
   public disable(){
     if(!!this.ownerLifeCycleSubscription) {
       this.ownerLifeCycleSubscription.unsubscribe();
+    }
+    if(!!this.zoomChangeSubscription) {
+      this.zoomChangeSubscription.unsubscribe();
     }
     if(!!this._handlerCircleObject) {
       this._handlerCircleObject.remove();
@@ -119,37 +127,19 @@ export class LinkPort {
     }
   }
 
-  private onZoomChange(zoomEvent:ZoomEvent){
-    switch (zoomEvent.action) {
-      case ZoomEventEnum.ZOOM_CHANGED:
-        this.refreshForZoomChange();
-        break;
-      case ZoomEventEnum.ZOOM_IN:
-        break;
-      case ZoomEventEnum.ZOOM_OUT:
-        break;
-      default:
-        break;
+  private refreshForZoomChange(zoomFactor: number){
+    if(!this._handlerCircleObject) {
+      return;
     }
-  }
-
-  private refreshForZoomChange(){
-    let zoomFactor = this.owner.layerService.posCalcService.getZoomState();
-    LinkPort.reflectZoomFactorToHandler(this, zoomFactor);
-  }
-
-  private static reflectZoomFactorToHandler(value, zoomFactor){
     const diameter = HandlerOption.circleRadius / zoomFactor * 2;
-    const center = value.handlerCircleObject.position;
-    const topLeft = value.handlerCircleObject.bounds.topLeft;
+    const center = this._handlerCircleObject.position;
+    const topLeft = this._handlerCircleObject.bounds.topLeft;
 
-    value.handlerCircleObject.strokeWidth = HandlerOption.strokeWidth / zoomFactor;
-    value.handlerCircleObject.bounds = new paper.Rectangle(topLeft, new paper.Size(diameter, diameter));
-    value.handlerCircleObject.position = center;
+    this._handlerCircleObject.strokeWidth = HandlerOption.strokeWidth / zoomFactor;
+    this._handlerCircleObject.bounds = new paper.Rectangle(topLeft, new paper.Size(diameter, diameter));
+    this._handlerCircleObject.position = center;
 
-    if(value instanceof LinkPort){
-      value.spreadHandler();
-    }
+    this.spreadHandler();
   }
 
 

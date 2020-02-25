@@ -119,7 +119,6 @@ export class LassoSelectorService {
     this.removeItem(this.newPath);
   }
   private createLassoPath(point){
-    console.log("LassoSelectorService >> createLassoPath >>  : ", );
     this.removeLassoPath();
     let zoomFactor = this.posCalcService.getZoomState();
     if(this.newPath){
