@@ -26,7 +26,9 @@ import {EditableItemGroupDto} from '../../../../../DTO/WhiteboardItemDto/ItemGro
 export class EditableItemGroup extends ItemGroup implements Editable{
   constructor(id, layerService) {
     super(id, WhiteboardItemType.EDITABLE_GROUP, null, layerService);
-    this.notifyItemCreation();
+
+    this.localEmitCreate();
+    this.globalEmitCreate();
   }
 
   public addItem(wbItem:WhiteboardItem){
@@ -45,7 +47,8 @@ export class EditableItemGroup extends ItemGroup implements Editable{
       value.parentEdtGroup = null;
     });
 
-    this.globalLifeCycleEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.DESTROY));
+    this.localEmitDestroy();
+    this.globalEmitDestroy();
   }
   public destroyItemAndNoEmit() {
     this.coreItem.remove();
@@ -54,6 +57,7 @@ export class EditableItemGroup extends ItemGroup implements Editable{
       value.isGrouped = false;
       value.parentEdtGroup = null;
     });
+    this.destroyBlind();
   }
 
   public pushAllChildIntoGSG(){
@@ -66,4 +70,7 @@ export class EditableItemGroup extends ItemGroup implements Editable{
     return super.exportToDto() as EditableItemGroupDto;
   }
 
+  public update(dto: EditableItemGroupDto) {
+    super.update(dto);
+  }
 }

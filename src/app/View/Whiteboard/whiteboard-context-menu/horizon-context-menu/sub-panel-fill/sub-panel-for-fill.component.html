@@ -4,7 +4,7 @@
      [style.top]="centerTop.y + 47 + 'px'">
   <mat-card class="sub-panel-wrapper">
     <div class="circle-selector-wrapper">
-      <div *ngFor="let color of colors; index as i" class="selector {{colorSelectedToHTML(i)}}"
+      <div *ngFor="let color of colors; index as i" class="selector {{colorSelected(i)}}"
            [style.background-color]="colorToHTMLRGB(i)"
            (click)="onColorPickerClicked(i)">
       </div>

@@ -19,6 +19,9 @@ import {LinkHandler} from "./LinkHandler/link-handler";
 import {WhiteboardShape} from "../../whiteboard-shape";
 import {Subscription} from "rxjs";
 import {EditableLinkDto} from "../../../../../../DTO/WhiteboardItemDto/WhiteboardShapeDto/LinkPortDto/EditableLinkDto/editable-link-dto";
+import {LinkPortDto} from "../../../../../../DTO/WhiteboardItemDto/WhiteboardShapeDto/LinkPortDto/link-port-dto";
+import {GachiPointDto} from "../../../../../../DTO/WhiteboardItemDto/PointDto/gachi-point-dto";
+import {GachiColorDto} from "../../../../../../DTO/WhiteboardItemDto/ColorDto/gachi-color-dto";
 
 export class EditableLink extends WhiteboardItem {
   private _toLinkPort: LinkPort;     // DTO 전송시 to, from Link Port 가 있으면 linkLine 은 null
@@ -60,8 +63,10 @@ export class EditableLink extends WhiteboardItem {
     this.linkHeadType = linkHeadType;
     this.linkTailType = linkTailType;
 
-    this.notifyItemCreation();
     this.setLifeCycleEvent();
+
+    this.localEmitCreate();
+    this.globalEmitCreate();
   }
 
   public initLink(startPoint: Point) {
@@ -131,6 +136,7 @@ export class EditableLink extends WhiteboardItem {
     this.linkHead.remove();
     this.linkTail.remove();
     this.linkLine.remove();
+
     this.globalLifeCycleEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.DESTROY));
   }
   public destroyItemAndNoEmit() {
@@ -143,16 +149,7 @@ export class EditableLink extends WhiteboardItem {
     this.linkHead.remove();
     this.linkTail.remove();
     this.linkLine.remove();
-  }
-
-  public notifyItemCreation() {
-    this.globalLifeCycleEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.CREATE));
-  }
-  public notifyItemModified() {
-    this.globalLifeCycleEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.MODIFY));
-  }
-  public refreshItem() {
-
+    this.destroyBlind();
   }
 
   public exportToDto(): EditableLinkDto {
@@ -160,17 +157,51 @@ export class EditableLink extends WhiteboardItem {
 
     return new EditableLinkDto(
       wbItemDto,
-      this.toLinkPort,
-      this.toPoint,
-      this.fromLinkPort,
-      this.fromPoint,
+      this.toLinkPort ? new LinkPortDto(this.toLinkPort.direction, this.toLinkPort.owner.id) : undefined,
+      new GachiPointDto(this.toPoint.x, this.toPoint.y),
+      this.fromLinkPort ? new LinkPortDto(this.fromLinkPort.direction, this.fromLinkPort.owner.id) : undefined,
+      new GachiPointDto(this.fromPoint.x, this.fromPoint.y),
       this.linkHeadType,
       this.linkTailType,
       this.capSize,
-      this.linkColor,
+      GachiColorDto.createColor(this.linkColor),
       this.linkWidth,
       this.isDashed
       )
+  }
+
+  public update(dto: EditableLinkDto) {
+    super.update(dto);
+
+    this.toLinkPort = this.getLinkPort(dto.toLinkPort);
+    if(!this.toLinkPort) {
+      this.endPoint = GachiPointDto.getPaperPoint(dto.toPoint);
+    }
+
+    this.fromLinkPort = this.getLinkPort(dto.fromLinkPort);
+    if(!this.fromLinkPort) {
+      this.entryPoint = GachiPointDto.getPaperPoint(dto.fromPoint);
+    }
+
+    this.linkHeadType = dto.linkHeadType;
+    this.linkTailType = dto.linkTailType;
+    this.capSize = dto.capSize;
+    this.linkColor = GachiColorDto.getPaperColor(dto.linkColor);
+    this.linkWidth = dto.linkWidth;
+    this.isDashed = dto.isDashed;
+  }
+
+  private getLinkPort(dto: LinkPortDto) {
+    if(!dto) {
+      return undefined;
+    }
+
+    for(let wbItem of this.layerService.whiteboardItemArray) {
+      if(wbItem.id === dto.ownerWbItemId && wbItem instanceof WhiteboardShape) {
+        return wbItem.linkPortMap.get(dto.direction);
+      }
+    }
+    return undefined;
   }
 
   private subscribeToLinkPortOwnerLifeCycle(): Subscription {
@@ -211,13 +242,9 @@ export class EditableLink extends WhiteboardItem {
         case ItemLifeCycleEnum.RESIZED:
           this.refreshLink();
           break;
-        case ItemLifeCycleEnum.SELECTED:
-          this.layerService.globalSelectedGroup.deactivateSelectedMode();
-          this.enableHandlers();
-          break;
         case ItemLifeCycleEnum.DESELECTED:
           this.disableHandlers();
-          break;1
+          break;
       }
     });
   }
@@ -344,6 +371,10 @@ export class EditableLink extends WhiteboardItem {
     } else {
       this.linkLine.dashArray = undefined;
     }
+  }
+
+  get isDashed(): boolean {
+    return !!this.linkLine.dashArray.length;
   }
 
   get capSize(): number {

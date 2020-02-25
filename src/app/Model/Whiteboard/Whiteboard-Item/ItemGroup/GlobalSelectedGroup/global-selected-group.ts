@@ -15,6 +15,7 @@ import {WsWhiteboardController} from '../../../../../Controller/Controller-WebSo
 import {WebsocketPacketDto} from '../../../../../DTO/WebsocketPacketDto/WebsocketPacketDto';
 import {EventEmitter} from '@angular/core';
 import {GsgSelectEvent, GsgSelectEventEnum} from './GsgSelectEvent/GsgSelectEvent';
+import {ItemLifeCycleEnum, ItemLifeCycleEvent} from "../../WhiteboardItemLifeCycle/WhiteboardItemLifeCycle";
 // @ts-ignore
 import Item = paper.Item;
 // @ts-ignore
@@ -36,7 +37,7 @@ export class GlobalSelectedGroup extends ItemGroup {
     this.prevMode = SelectModeEnum.SINGLE_SELECT;
     this.prevNumberOfChild = this.getNumberOfChild();
     this.copiedDtoArray = new Array<WhiteboardItemDto>();
-    this.notifyItemCreation();
+
     this.gsgSelectorEventEmitter = new EventEmitter<any>();
 
     this.gsgSelectorEventEmitter.subscribe((gsgEvent:GsgSelectEvent)=>{
@@ -58,7 +59,10 @@ export class GlobalSelectedGroup extends ItemGroup {
             });
           break;
       }
-    })
+    });
+    this.setLifeCycleEvent();
+    this.localEmitCreate();
+    this.globalEmitCreate();
   }
 
   public static getInstance(id, layerService) {
@@ -151,30 +155,22 @@ export class GlobalSelectedGroup extends ItemGroup {
   public lockItems() {
     this.wbItemGroup.forEach(value => {
       value.isLocked = true;
+      value.localEmitLocked();
+      value.globalEmitLocked();
     });
-    this.extractAllFromSelection();
+    this.localEmitLocked();
+    this.isLocked = true;
   }
 
   public unlockItems() {
     this.wbItemGroup.forEach(value => {
       value.isLocked = false;
+      value.localEmitUnlocked();
+      value.globalEmitUnlocked();
     });
+    this.localEmitUnlocked();
     this.isLocked = false;
   }
-
-  notifyItemCreation() {
-    super.notifyItemCreation();
-  }
-  public notifyItemSelected(wbItem) {
-    this.layerService.selectModeEventEmitter
-      .emit(new SelectEvent(SelectEventEnum.ITEM_SELECTED, wbItem));
-  }
-  public notifyItemDeselected(wbItem) {
-    this.layerService.selectModeEventEmitter
-      .emit(new SelectEvent(SelectEventEnum.ITEM_DESELECTED, wbItem));
-  }
-
-
 
   //####################
   public deleteSelectedLink(){
@@ -210,8 +206,33 @@ export class GlobalSelectedGroup extends ItemGroup {
     }
     this.resetMyItemAdjustor();
     this.layerService.horizonContextMenuService.open();
-    this.emitSelected();
+    //this.emitSelected();
     this.gsgSelectorEventEmitter.emit(new GsgSelectEvent(GsgSelectEventEnum.SELECTED, wbItem));
+  }
+
+  private setLifeCycleEvent() {
+    this.localLifeCycleEmitter.subscribe((event: ItemLifeCycleEvent) => {
+      switch (event.action) {
+        case ItemLifeCycleEnum.SELECT_CHANGED:
+          let gsg = event.item as GlobalSelectedGroup;
+          if(gsg.getNumberOfChild() === 1) {
+            let item = gsg.wbItemGroup[0];
+            if(item instanceof WhiteboardShape) {
+              item.enableLinkPort();
+            } else if (item instanceof EditableLink) {
+              item.enableHandlers();
+            }
+          } else if (gsg.getNumberOfChild() > 1) {
+            let item = gsg.wbItemGroup[0];
+            if(item instanceof WhiteboardShape) {
+              item.disableLinkPort();
+            } else if (item instanceof EditableLink) {
+              item.disableHandlers();
+            }
+          }
+          break;
+      }
+    })
   }
 
   private checkLocking(wbItem: WhiteboardItem) {
@@ -241,7 +262,6 @@ export class GlobalSelectedGroup extends ItemGroup {
     this.isLinkSelected = false;
     this.extractAllFromGroup();
     this.isLocked = false;
-    this.emitDeselected();
   }
 
   public removeOneFromGroup(wbItem) {
@@ -251,8 +271,6 @@ export class GlobalSelectedGroup extends ItemGroup {
     } else {
       this.layerService.horizonContextMenuService.close();
     }
-    this.notifyItemDeselected(wbItem);
-    this.emitDeselected();
     this.gsgSelectorEventEmitter.emit(new GsgSelectEvent(GsgSelectEventEnum.DESELECTED, wbItem));
   }
 
@@ -261,6 +279,7 @@ export class GlobalSelectedGroup extends ItemGroup {
   }
   destroyItemAndNoEmit() {
     this.destroyAllFromGroup();
+    this.destroyBlind();
   }
 
   exportToDto() {

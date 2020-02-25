@@ -35,22 +35,16 @@ export class SubPanelForLineComponent implements OnInit {
   }
 
   public onStrokeWidthChanged(event: MatSliderChange) {
-    if(this.menu.item instanceof EditableLink) {
-      // 리메이크한 구조의 EditableLink 코드
-      this.menu.item.linkWidth = event.value;
-    } else {
-      // 기존 코드
+    if(this.menu.coreItem.strokeWidth !== event.value) {
       this.menu.coreItem.strokeWidth = event.value;
+      this.menu.item.isModified = true;
     }
   }
 
   public onColorPickerClicked(index: number) {
-    if(this.menu.item instanceof EditableLink) {
-      // 리메이크한 구조의 EditableLink 코드
-      this.menu.item.linkColor = this.colors[index];
-    } else {
-      // 기존 코드
+    if(this.menu.coreItem.strokeColor !== this.colors[index]) {
       this.menu.coreItem.strokeColor = this.colors[index];
+      this.menu.item.isModified = true;
     }
   }
 

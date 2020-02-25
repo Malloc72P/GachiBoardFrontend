@@ -26,6 +26,8 @@ export class LinkHandler {
   private zoomEvent: Subscription;
   private linkChangeEvent: Subscription;
 
+  private isResized: boolean = false;
+
   constructor(owner: EditableLink, position: LinkHandlerPositions, fillColor: Color | string) {
     this._owner = owner;
     this.position = position;
@@ -60,16 +62,23 @@ export class LinkHandler {
 
   public onMouseDrag(event) {
     this.owner.drawLink(event.point, this.position);
+    this.owner.localEmitResized();
+    this.owner.layerService.globalSelectedGroup.localEmitResized();
+    this.isResized = true;
   }
 
   public onMouseUp(event) {
-
+    if(this.isResized) {
+      this.owner.localEmitModify();
+      this.owner.globalEmitModify();
+      this.owner.layerService.globalSelectedGroup.globalEmitModify();
+      this.isResized = false;
+    }
   }
 
   public moveTo(point: Point) {
     this.coreItem.position = point;
     this.coreItem.bringToFront();
-    this.owner.layerService.globalSelectedGroup.emitMoved();
   }
 
   private setOwnerLifeCycleEvent() {

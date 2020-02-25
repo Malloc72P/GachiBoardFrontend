@@ -10,6 +10,7 @@ import Item = paper.Item;
 import {GachiColorDto} from '../../../../DTO/WhiteboardItemDto/ColorDto/gachi-color-dto';
 import {LinkPortDto} from '../../../../DTO/WhiteboardItemDto/WhiteboardShapeDto/LinkPortDto/link-port-dto';
 import {WhiteboardItemDto} from "../../../../DTO/WhiteboardItemDto/whiteboard-item-dto";
+import {ItemLifeCycleEnum, ItemLifeCycleEvent} from "../WhiteboardItemLifeCycle/WhiteboardItemLifeCycle";
 
 export class WhiteboardShape extends WhiteboardItem implements Editable{
   private _linkPortMap:Map<any,LinkPort>;
@@ -19,6 +20,7 @@ export class WhiteboardShape extends WhiteboardItem implements Editable{
 
     this.initLinkPortMap();
     this.activateShadowEffect();
+    this.setLifeCycleEvent();
   }
 
   protected initLinkPortMap(){
@@ -30,6 +32,26 @@ export class WhiteboardShape extends WhiteboardItem implements Editable{
     this.linkPortMap.set( LinkPortDirectionEnum.RIGHT, new LinkPort(this, LinkPortDirectionEnum.RIGHT) );
   }
 
+  private setLifeCycleEvent() {
+    this.localLifeCycleEmitter.subscribe((event: ItemLifeCycleEvent) => {
+      switch (event.action) {
+        case ItemLifeCycleEnum.DESELECTED:
+          this.disableLinkPort();
+          break;
+      }
+    });
+  }
+
+  public enableLinkPort() {
+    this.linkPortMap.forEach(value => {
+      value.enable();
+    });
+  }
+  public disableLinkPort() {
+    this.linkPortMap.forEach(value => {
+      value.disable();
+    });
+  }
 
   get linkPortMap(): Map<any, LinkPort> {
     return this._linkPortMap;
@@ -37,21 +59,6 @@ export class WhiteboardShape extends WhiteboardItem implements Editable{
 
   set linkPortMap(value: Map<any, LinkPort>) {
     this._linkPortMap = value;
-  }
-
-  public update(dto: WhiteboardShapeDto) {
-    this.width = dto.width;
-    this.height = dto.height;
-    this.borderColor = dto.borderColor;
-    this.fillColor = dto.fillColor;
-    this.opacity = dto.opacity;
-
-    super.update(dto as WhiteboardItemDto);
-
-    // TODO : linkPort 에 대한 정보를 업데이트 할 필요가 있을지 검증 필요
-    // dto.linkPortsDto.forEach(value => {
-    //   this.linkPortMap.set()
-    // });
   }
 
   public getDirectionPoint(direction){
@@ -99,20 +106,11 @@ export class WhiteboardShape extends WhiteboardItem implements Editable{
     return closestDirection;
   }
 
-  notifyItemCreation() {
-  }
-
-  notifyItemModified() {
-  }
-
-  refreshItem() {
-  }
-
   destroyItem() {
     super.destroyItem();
     if(this.linkPortMap){
       this.linkPortMap.forEach((value, key, map)=>{
-        value.destroyPortAndLink();
+        value.destroyLink();
       })
     }
 
@@ -121,9 +119,10 @@ export class WhiteboardShape extends WhiteboardItem implements Editable{
     super.destroyItem();
     if(this.linkPortMap){
       this.linkPortMap.forEach((value, key, map)=>{
-        value.destroyPortAndLink();
+        value.destroyLink();
       })
     }
+    this.destroyBlind();
   }
   exportToDto(): WhiteboardShapeDto {
     let wbShapeDto:WhiteboardShapeDto = super.exportToDto() as WhiteboardShapeDto;
@@ -142,6 +141,21 @@ export class WhiteboardShape extends WhiteboardItem implements Editable{
     wbShapeDto.linkPortsDto = linkPortsDto;
 
     return wbShapeDto;
+  }
+
+  public update(dto: WhiteboardShapeDto) {
+    this.width = dto.width;
+    this.height = dto.height;
+    this.borderColor = dto.borderColor;
+    this.fillColor = dto.fillColor;
+    this.opacity = dto.opacity;
+
+    super.update(dto as WhiteboardItemDto);
+
+    // TODO : linkPort 에 대한 정보를 업데이트 할 필요가 있을지 검증 필요
+    // dto.linkPortsDto.forEach(value => {
+    //   this.linkPortMap.set()
+    // });
   }
 
   get width(): number {

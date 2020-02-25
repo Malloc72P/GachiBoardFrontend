@@ -56,6 +56,7 @@ import {LinkPort} from "../../Whiteboard-Item/Whiteboard-Shape/LinkPort/link-por
 import {EditableLinkDto} from "../../../../DTO/WhiteboardItemDto/WhiteboardShapeDto/LinkPortDto/EditableLinkDto/editable-link-dto";
 import {WhiteboardShape} from "../../Whiteboard-Item/Whiteboard-Shape/whiteboard-shape";
 import {GachiPointDto} from "../../../../DTO/WhiteboardItemDto/PointDto/gachi-point-dto";
+import {GachiTextStyleDto} from "../../../../DTO/WhiteboardItemDto/WhiteboardShapeDto/EditableShapeDto/GachiTextStyleDto/gachi-text-style-dto";
 
 
 enum BUILD_MODE {
@@ -101,6 +102,13 @@ export class WhiteboardItemFactory {
             observer.next(tempGsgArray);
           }
         });
+      }
+      if(copyWbItemArray.length <= 0) {
+        for(let [id, linkDto] of copyLinkMap) {
+          let replacedLinkDto = this.replaceLinkPort(linkDto, wbItemIdMap);
+          tempGsgArray.push(WhiteboardItemFactory.buildEditableLink(BUILD_MODE.CLONE, replacedLinkDto, tempGsgArray));
+        }
+        observer.next(tempGsgArray);
       }
     });
   }
@@ -246,7 +254,7 @@ export class WhiteboardItemFactory {
         newEdtShape = new EditableRectangle(
           wbId,
           tempShapeObject,
-          editableShapeDto.textStyle,
+          GachiTextStyleDto.getTextStyle(editableShapeDto.textStyle),
           tempPointText,
           WhiteboardItemFactory.layerService);
         break;
@@ -255,7 +263,7 @@ export class WhiteboardItemFactory {
         newEdtShape = new EditableCircle(
           wbId,
           tempShapeObject,
-          editableShapeDto.textStyle,
+          GachiTextStyleDto.getTextStyle(editableShapeDto.textStyle),
           tempPointText,
           WhiteboardItemFactory.layerService);
         break;
@@ -264,7 +272,7 @@ export class WhiteboardItemFactory {
         newEdtShape = new EditableTriangle(
           wbId,
           tempShapeObject,
-          editableShapeDto.textStyle,
+          GachiTextStyleDto.getTextStyle(editableShapeDto.textStyle),
           tempPointText,
           WhiteboardItemFactory.layerService);
         break;
@@ -273,7 +281,7 @@ export class WhiteboardItemFactory {
         newEdtShape = new EditableCard(
           wbId,
           tempShapeObject,
-          editableShapeDto.textStyle,
+          GachiTextStyleDto.getTextStyle(editableShapeDto.textStyle),
           tempPointText,
           WhiteboardItemFactory.layerService);
         break;
@@ -305,14 +313,15 @@ export class WhiteboardItemFactory {
 
   private static createPointText(editableShapeDto:EditableShapeDto) : PointText{
     let tempPointText:PointText;
+    let textStyle = GachiTextStyleDto.getTextStyle(editableShapeDto.textStyle);
 
     //#1 PointText 생성
     tempPointText = new PointText(
       {
-        fontFamily  : editableShapeDto.textStyle.fontFamily,
-        fontSize    : editableShapeDto.textStyle.fontSize,
-        fontWeight  : editableShapeDto.textStyle.fontWeight,
-        fillColor   : editableShapeDto.textStyle.fontColor,
+        fontFamily  : textStyle.fontFamily,
+        fontSize    : textStyle.fontSize,
+        fontWeight  : textStyle.fontWeight,
+        fillColor   : textStyle.fontColor,
       }
     );
     return tempPointText;
@@ -450,11 +459,8 @@ export class WhiteboardItemFactory {
     if(!!copiedGSG) {
       wbItemGroup = copiedGSG;
     } else {
-      wbItemGroup = WhiteboardItemFactory.layerService.globalSelectedGroup.wbItemGroup;
+      wbItemGroup = WhiteboardItemFactory.layerService.whiteboardItemArray;
     }
-
-    wbItemGroup.forEach(value => {
-    });
 
     for(let wbItem of wbItemGroup) {
       if(wbItem.id === linkPortDto.ownerWbItemId && wbItem instanceof WhiteboardShape) {

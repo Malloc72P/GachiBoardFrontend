@@ -71,19 +71,29 @@ export class SubPanelForArrowComponent implements OnInit {
 
   public onClickHeadSelector(type: string) {
     if(this.menu.item instanceof EditableLink) {
-      this.menu.item.linkHeadType = EditableLinkCapTypes[type];
+      if(this.menu.item.linkHeadType !== EditableLinkCapTypes[type]) {
+        this.menu.item.linkHeadType = EditableLinkCapTypes[type];
+        this.menu.item.isModified = true;
+        console.log("SubPanelForArrowComponent >> onClickHeadSelector >> this.menu.item.isModified : ", this.menu.item.isModified);
+      }
     }
   }
 
   public onClickTailSelector(type: string) {
     if(this.menu.item instanceof EditableLink) {
-      this.menu.item.linkTailType = EditableLinkCapTypes[type];
+      if(this.menu.item.linkTailType !== EditableLinkCapTypes[type]) {
+        this.menu.item.linkTailType = EditableLinkCapTypes[type];
+        this.menu.item.isModified = true;
+      }
     }
   }
 
   public onChangeColorSelector(color: Color) {
     if(this.menu.item instanceof EditableLink) {
-      this.menu.item.linkColor = color;
+      if(!this.menu.item.linkColor.equals(color)) {
+        this.menu.item.linkColor = color;
+        this.menu.item.isModified = true;
+      }
     }
   }
 
@@ -181,7 +191,10 @@ export class SubPanelForArrowComponent implements OnInit {
 
   set linkWidth(value: number) {
     if(this.menu.item instanceof EditableLink) {
-      this.menu.item.linkWidth = value;
+      if(this.menu.item.linkWidth !== value) {
+        this.menu.item.linkWidth = value;
+        this.menu.item.isModified = true;
+      }
     }
   }
 
@@ -194,7 +207,10 @@ export class SubPanelForArrowComponent implements OnInit {
 
   set isDashed(value: boolean) {
     if(this.menu.item instanceof EditableLink) {
-      this.menu.item.isDashed = value;
+      if(this.menu.item.isDashed !== value) {
+        this.menu.item.isDashed = value;
+        this.menu.item.isModified = true;
+      }
     }
   }
 

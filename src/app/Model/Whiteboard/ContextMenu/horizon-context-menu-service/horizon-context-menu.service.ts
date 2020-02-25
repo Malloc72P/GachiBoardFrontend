@@ -64,6 +64,7 @@ export class HorizonContextMenuService {
 
   public close() {
     this._isHidden = true;
+    this.checkModifiedItem();
     this.subPanelManager.hideAll();
   }
 
@@ -78,6 +79,16 @@ export class HorizonContextMenuService {
   }
 
   // ################### Private Method #####################
+  private checkModifiedItem() {
+    if(!!this.item) {
+      if(this.item.isModified) {
+        this.item.localEmitModify();
+        this.item.globalEmitModify();
+        this.item.isModified = false;
+      }
+    }
+  }
+
   private subscribeLifeCycleEvent() {
     this.globalSelectedGroup.localLifeCycleEmitter.subscribe((event: ItemLifeCycleEvent) => {
       switch (event.action) {

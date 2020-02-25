@@ -24,18 +24,15 @@ import {EventEmitter} from '@angular/core';
 import {ItemLifeCycleEnum, ItemLifeCycleEvent} from '../../WhiteboardItemLifeCycle/WhiteboardItemLifeCycle';
 import {WhiteboardShape} from '../whiteboard-shape';
 import {EditableShapeDto} from '../../../../../DTO/WhiteboardItemDto/WhiteboardShapeDto/EditableShapeDto/editable-shape-dto';
-import {Subscription} from "rxjs";
+import {GachiTextStyleDto} from "../../../../../DTO/WhiteboardItemDto/WhiteboardShapeDto/EditableShapeDto/GachiTextStyleDto/gachi-text-style-dto";
 
 export abstract class EditableShape extends WhiteboardShape {
-  private _textContent: string;
   private _rawTextContent: string;
   private _textStyle: TextStyle;
-  private _textBound: Rectangle;
   private _editText: PointText;
   private static readonly EDIT_TEXT_PADDING = 5;
   private _isEditing: boolean;
   private editTextEvent = new EventEmitter();
-
 
   protected constructor(id, type, item: Item, textStyle, editText, layerService) {
     super(id, type, item, layerService);
@@ -61,47 +58,21 @@ export abstract class EditableShape extends WhiteboardShape {
           break;
       }
     });
-
-    this.notifyItemCreation();
+    this.localEmitCreate();
+    this.globalEmitCreate();
   }
-
-  public notifyItemModified() {
-
-    this.width = this.group.bounds.width;
-    this.height = this.group.bounds.height;
-    this.topLeft = this.group.bounds.topLeft;
-
-    this.borderColor = this.coreItem.style.strokeColor;
-    this.borderWidth = this.coreItem.style.strokeWidth;
-    if (this.coreItem.style.fillColor) {
-      this.fillColor = this.coreItem.style.fillColor;
-    } else {
-      // @ts-ignore
-      this.fillColor = 'transparent';
-    }
-    this.opacity = this.coreItem.opacity;
-    this._textBound = new Rectangle(this.editText.bounds);
-
-    this.globalLifeCycleEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.MODIFY));
-    //this.notifyOwnerChangeEventToLinkPort();
-  }
-
-  public notifyItemCreation() {
-  this.globalLifeCycleEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.CREATE));
-  }
-
   public destroyItem() {
     super.destroyItem();
     this.editText.remove();
     this.coreItem.remove();
     this.group.remove();
-    this.globalLifeCycleEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.DESTROY));
   }
   public destroyItemAndNoEmit() {
     super.destroyItem();
     this.editText.remove();
     this.coreItem.remove();
     this.group.remove();
+    this.destroyBlind();
   }
 
   public refreshItem() {
@@ -139,9 +110,6 @@ export abstract class EditableShape extends WhiteboardShape {
     if(!this.layerService.isEditingText) {
       this.editText.bringToFront();
     }
-
-    this.globalLifeCycleEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.MODIFY));
-    //this.notifyOwnerChangeEventToLinkPort();
   }
 
   public modifyEditText(content) {
@@ -236,7 +204,7 @@ export abstract class EditableShape extends WhiteboardShape {
 
     this.textContent = dto.textContent;
     this.rawTextContent = dto.rawTextContent;
-    this.textStyle = dto.textStyle.clone();
+    this.textStyle = GachiTextStyleDto.getTextStyle(dto.textStyle);
   }
 
   exportToDto(): EditableShapeDto {
@@ -244,8 +212,7 @@ export abstract class EditableShape extends WhiteboardShape {
 
     editableShapeDto.textContent = this.textContent;
     editableShapeDto.rawTextContent = this.rawTextContent;
-    //editableShapeDto.textStyle = this.textStyle.clone();
-    editableShapeDto.textStyle = new TextStyle();
+    editableShapeDto.textStyle = GachiTextStyleDto.create(this.textStyle);
 
     return editableShapeDto;
   }

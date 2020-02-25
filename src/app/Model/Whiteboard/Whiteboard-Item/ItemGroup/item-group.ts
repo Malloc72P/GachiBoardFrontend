@@ -24,6 +24,10 @@ import {WsWhiteboardController} from '../../../../Controller/Controller-WebSocke
 export class ItemGroup extends WhiteboardItem {
   private _wbItemGroup: Array<WhiteboardItem>;
 
+  // 움직였는지 체크하기 위한 변수
+  private isMoved: boolean = false;
+  private isResized: boolean = false;
+
   constructor(id, type, item: Item, layerService) {
     super(id, type, item, layerService);
     this.coreItem = this.group;
@@ -83,28 +87,33 @@ export class ItemGroup extends WhiteboardItem {
       this.group.position.x += event.delta.x;
       this.group.position.y += event.delta.y;
 
-      this.emitMoved();
+      this.isMoved = true;
+      this.localEmitMoved();
       this.wbItemGroup.forEach(value => {
-        value.emitMoved();
+        value.localEmitMoved();
       });
     }
   }
 
   private moveTo(position: Point) {
     if(this.isMovable) {
+      this.isMoved = true;
       this.group.position = position;
-      this.emitMoved();
+      this.localEmitMoved();
       this.wbItemGroup.forEach(value => {
-        value.emitMoved();
+        value.localEmitMoved();
+        value.globalEmitMoved();
       });
     }
   }
 
   public resizeTo(bound: paper.Rectangle) {
     this.group.bounds = bound;
-    this.emitResized();
+    this.isResized = true;
+    this.localEmitResized();
     this.wbItemGroup.forEach(value => {
-      value.emitResized();
+      value.localEmitResized();
+      value.globalEmitResized();
     });
   }
 
@@ -122,30 +131,30 @@ export class ItemGroup extends WhiteboardItem {
     }
   }
 
-  public resizeEnd(){
-    console.log("ItemGroup >> resizeEnd >> 진입함");
-    console.log("ItemGroup >> resizeEnd >> this.wbItemGroup : ",this.wbItemGroup);
-    let wsWbController = WsWhiteboardController.getInstance();
-    for(let wbItem of this.wbItemGroup){
-      wsWbController.waitRequestUpdateWbItem(wbItem, ItemLifeCycleEnum.RESIZED);
-    }
-  }
   public moveEnd() {
-    this.wbItemGroup.forEach(value => {
-      value.emitModify();
-    });
-    this.emitModify();
-    let wsWbController = WsWhiteboardController.getInstance();
-    for(let wbItem of this.wbItemGroup){
-      wsWbController.waitRequestUpdateWbItem(wbItem, ItemLifeCycleEnum.MOVED)
-        .subscribe((data)=>{
-          console.log("ItemGroup >>  >> data : ",data);
-        });
+    if(this.isMoved) {
+      this.wbItemGroup.forEach(value => {
+        value.localEmitModify();
+        value.globalEmitModify();
+      });
+      this.localEmitModify();
+      this.isMoved = false;
     }
   }
 
+  public resizeEnd() {
+    if(this.isResized) {
+      this.wbItemGroup.forEach(value => {
+        value.localEmitModify();
+        value.globalEmitModify();
+      });
+      this.localEmitModify();
+      this.isResized = false;
+    }
+  }
 
   public onMouseUp(event){
+    console.log("ItemGroup >> onMouseUp >> 이걸 발견 하신다면 제보해주세요 - 윤상현");
     this.calcCurrentDistance(event);
     if(!this.isMovable){
       return;
@@ -187,35 +196,32 @@ export class ItemGroup extends WhiteboardItem {
     wbItem.isSelected = true;
     this.coreItem.addChild(wbItem.group);
     this.group.bringToFront();
-    if(this.getNumberOfChild() > 1) {
-      this.wbItemGroup[0].emitDeselected();
-    } else {
-      wbItem.emitSelected();
-    }
+
+    wbItem.localEmitSelected();
+    wbItem.globalEmitSelected();
+    this.localEmitSelectChanged();
   }
 
   public extractOneFromGroup(wbItem: WhiteboardItem) {
-
     for (let i = 0; i < this.wbItemGroup.length; i++) {
       if (this.wbItemGroup[i].id === wbItem.id) {
         let drawingLayer = this.coreItem.parent;
         //자식을 drawingLayer 로 옮겨줌.
         let willBeExtract = this.wbItemGroup[i];
         willBeExtract.isSelected = false;
-        if(willBeExtract instanceof WhiteboardShape){
-          willBeExtract.linkPortMap.forEach((value, key, map)=>{
-            value.emitWbItemDeselected();
-          });
-        }
+
         drawingLayer.addChild(willBeExtract.group);
         this.wbItemGroup.splice(i, 1);
         this.resetMyItemAdjustor();
-        willBeExtract.emitDeselected();
 
-        if(this.getNumberOfChild() === 1) {
-          this.wbItemGroup[0].emitSelected();
-        }
+        willBeExtract.localEmitDeselected();
+        willBeExtract.globalEmitDeselected();
 
+        // if(this.getNumberOfChild() === 1) {
+        //   this.wbItemGroup[0].localEmitSelected();
+        // }
+
+        this.localEmitSelectChanged();
         return;
       }
     }
@@ -241,16 +247,13 @@ export class ItemGroup extends WhiteboardItem {
       //자식을 drawingLayer로 옮겨줌.
       let willBeExtract = this.wbItemGroup[i];
       willBeExtract.isSelected = false;
-      if(willBeExtract instanceof WhiteboardShape){
-        willBeExtract.linkPortMap.forEach((value, key, map)=>{
-          value.emitWbItemDeselected();
-        });
-      }
       drawingLayer.addChild(willBeExtract.group);
-      willBeExtract.emitDeselected();
+      willBeExtract.localEmitDeselected();
+      willBeExtract.globalEmitDeselected();
     }
     this.wbItemGroup.splice(0, this.wbItemGroup.length);
     this.resetMyItemAdjustor();
+    this.localEmitSelectChanged();
   }
   public destroyAllFromGroup() {
     for (let i = 0; i < this.wbItemGroup.length; i++) {
@@ -275,27 +278,11 @@ export class ItemGroup extends WhiteboardItem {
     super.destroyItem();
     //unGroup하는 작업 실시
     this.coreItem.remove();
-  }
-
-  destroyItemAndChildren() {
-    for (let i = 0; i < this._wbItemGroup.length; i++) {
-      console.log("ItemGroup >> destroyItemAndChildren >> this.wbItemGroup[i] : ", this.wbItemGroup[i]);
-      this.wbItemGroup[i].destroyItem();
-    }
-    this.deactivateSelectedMode();
-    // this.removeBackgroundRect();
+    this.destroyBlind();
   }
 
   public getNumberOfChild() {
     return this.wbItemGroup.length;
-  }
-
-  public notifyItemCreation() {
-    this.globalLifeCycleEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.CREATE));
-  }
-
-  public notifyItemModified() {
-    this.globalLifeCycleEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.MODIFY));
   }
 
   exportToDto(): ItemGroupDto {
@@ -309,13 +296,21 @@ export class ItemGroup extends WhiteboardItem {
     return itemGroupDto
   }
 
-  public refreshItem() {
-    // this.wbItemGroup.forEach((value, index, array)=>{
-    //   value.refreshItem();
-    // });
-    this.globalLifeCycleEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.MODIFY));
+  public update(dto: ItemGroupDto) {
+    super.update(dto);
+
+    this.extractAllFromGroup();
+    dto.wbItemIdGroup.forEach(value => {
+      let item = this.layerService.getItemById(value);
+      item.isGrouped = true;
+      item.parentEdtGroup = this;
+      this.wbItemGroup.splice(this.wbItemGroup.length, 0, item);
+    });
   }
 
+  public localEmitSelectChanged() {
+    this.localLifeCycleEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.SELECT_CHANGED));
+  }
 
   get wbItemGroup(): Array<WhiteboardItem> {
     return this._wbItemGroup;
@@ -324,13 +319,4 @@ export class ItemGroup extends WhiteboardItem {
   set wbItemGroup(value: Array<WhiteboardItem>) {
     this._wbItemGroup = value;
   }
-
-  //
-  // get backgroundRect(): paper.Path.Rectangle {
-  //   return this._backgroundRect;
-  // }
-  //
-  // set backgroundRect(value: paper.Path.Rectangle) {
-  //   this._backgroundRect = value;
-  // }
 }

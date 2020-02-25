@@ -20,7 +20,6 @@ export class BrushService {
   private strokeWidth = 1;
   private newPath: paper.Path;
   private currentProject: paper.Project;
-  private newSimpleStroke;
 
   constructor(
     private posCalcService: PositionCalcService,
