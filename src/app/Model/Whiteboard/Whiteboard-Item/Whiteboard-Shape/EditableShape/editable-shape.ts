@@ -24,7 +24,6 @@ import {EventEmitter} from '@angular/core';
 import {ItemLifeCycleEnum, ItemLifeCycleEvent} from '../../WhiteboardItemLifeCycle/WhiteboardItemLifeCycle';
 import {WhiteboardShape} from '../whiteboard-shape';
 import {EditableShapeDto} from '../../../../../DTO/WhiteboardItemDto/WhiteboardShapeDto/EditableShapeDto/editable-shape-dto';
-import {Subscription} from "rxjs";
 import {GachiTextStyleDto} from "../../../../../DTO/WhiteboardItemDto/WhiteboardShapeDto/EditableShapeDto/GachiTextStyleDto/gachi-text-style-dto";
 
 export abstract class EditableShape extends WhiteboardShape {
@@ -34,7 +33,6 @@ export abstract class EditableShape extends WhiteboardShape {
   private static readonly EDIT_TEXT_PADDING = 5;
   private _isEditing: boolean;
   private editTextEvent = new EventEmitter();
-
 
   protected constructor(id, type, item: Item, textStyle, editText, layerService) {
     super(id, type, item, layerService);
@@ -60,8 +58,8 @@ export abstract class EditableShape extends WhiteboardShape {
           break;
       }
     });
-
-    this.notifyItemCreation();
+    this.localEmitCreate();
+    this.globalEmitCreate();
   }
 
   public notifyItemModified() {
@@ -77,11 +75,9 @@ export abstract class EditableShape extends WhiteboardShape {
 
   public destroyItem() {
     super.destroyItem();
-    console.log('EditableShape >> destroyItem >> 진입함');
     this.editText.remove();
     this.coreItem.remove();
     this.group.remove();
-    this.globalLifeCycleEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.DESTROY));
   }
 
   public refreshItem() {

@@ -44,8 +44,7 @@ export class ItemAdjustor {
       switch (event.action) {
         case ItemLifeCycleEnum.MOVED:
         case ItemLifeCycleEnum.RESIZED:
-        case ItemLifeCycleEnum.SELECTED:
-        case ItemLifeCycleEnum.DESELECTED:
+        case ItemLifeCycleEnum.SELECT_CHANGED:
           this.reboundToItem(event.item);
           if(!!this.sizeHandlers) {
             this.sizeHandlers.forEach(value => {
@@ -70,7 +69,6 @@ export class ItemAdjustor {
     }
     if(!!this.background) {
       this.background.remove();
-      console.log("ItemAdjustor >> destroyItemAdjustor >>  : ", );
     }
     if (this.sizeHandlers) {
       this.sizeHandlers.forEach((value, key, map) => {

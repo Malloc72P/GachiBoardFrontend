@@ -134,7 +134,6 @@ export class DrawingLayerManagerService {
 
   private initPointerHandler(){
     this.pointerModeEventEmitter.subscribe((data:PointerModeEvent)=>{
-      console.log("DrawingLayerManagerService >> pointerModeEventEmitter >> data : ",PointerMode[data.currentMode]);
       this.currentPointerMode = data.currentMode;
       if(this.globalSelectedGroup){
         this.globalSelectedGroup.extractAllFromSelection();
@@ -148,6 +147,8 @@ export class DrawingLayerManagerService {
       if(!data){
         return;
       }
+      // TODO : 라이프 사이클 체크용 로그
+      // console.log("GlobalLifeCycle >> ", data.item.constructor.name, " ", data.item.id, " : ", ItemLifeCycleEnum[data.action]);
       switch (data.action) {
         case ItemLifeCycleEnum.CREATE:
           this.whiteboardItemArray.push(data.item);
@@ -170,24 +171,6 @@ export class DrawingLayerManagerService {
       console.log("DrawingLayerManagerService >> linkModeEventEmitter >> data : ",data);
       this.currentLinkerMode = data.currentLinkerMode;
     });
-  }
-
-
-  private calcTolerance(point: Point) {
-    return this.fromPoint.getDistance(point) > 10;
-  }
-
-  private initFromPoint(point: Point) {
-    this.fromPoint = point;
-  }
-  private initPoint(event: MouseEvent | TouchEvent): Point {
-    let point: Point;
-    if(event instanceof MouseEvent) {
-      point = new Point(event.clientX, event.clientY);
-    } else {
-      point = new Point(event.touches[0].clientX, event.touches[0].clientY);
-    }
-    return point;
   }
 
   get drawingLayer(): paper.Layer {

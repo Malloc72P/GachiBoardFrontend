@@ -5,6 +5,7 @@ import Color = paper.Color;
 import { Component, OnInit } from '@angular/core';
 import {HorizonContextMenuService} from "../../../../../Model/Whiteboard/ContextMenu/horizon-context-menu-service/horizon-context-menu.service";
 import {HorizonContextMenuActions} from "../../../../../Model/Whiteboard/ContextMenu/horizon-context-menu-service/horizon-context-menu.enum";
+import {WhiteboardItem} from "../../../../../Model/Whiteboard/Whiteboard-Item/whiteboard-item";
 
 @Component({
   selector: 'app-sub-panel-for-fill',
@@ -33,7 +34,12 @@ export class SubPanelForFillComponent implements OnInit {
   }
 
   public onColorPickerClicked(index: number) {
-    this.menu.coreItem.fillColor = this.colors[index];
+    if(this.menu.item instanceof WhiteboardItem) {
+      if(!this.menu.item.coreItem.fillColor.equals(this.colors[index])) {
+        this.menu.coreItem.fillColor = this.colors[index];
+        this.menu.item.isModified = true;
+      }
+    }
   }
 
   public onAddColorClicked() {
@@ -42,7 +48,7 @@ export class SubPanelForFillComponent implements OnInit {
     this.onColorPickerClicked(this.colors.length - 1);
   }
 
-  public colorSelectedToHTML(index: number) {
+  public colorSelected(index: number) {
     if(this.menu.globalSelectedGroup.wbItemGroup.length > 0) {
       if(this.colors[index].equals(this.menu.coreItem.fillColor)) {
         return "selected";

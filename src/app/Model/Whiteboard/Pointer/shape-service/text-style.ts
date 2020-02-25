@@ -21,7 +21,7 @@ export class TextStyle {
   constructor(fontFamily?: string, fontSize?: number, fontColor?: string, isBold?: boolean, isItalic?: boolean, horizontalAlign?: Align, verticalAlign?: Align) {
     this._fontFamily = fontFamily ? fontFamily : "sans-serif";
     this._fontSize = fontSize ? fontSize : 12;
-    this._fontColor = fontColor ? fontColor : "black";
+    this._fontColor = fontColor ? fontColor : "#000000";
     this._horizontalAlign = horizontalAlign ? horizontalAlign : Align.CENTER;
     this._verticalAlign = verticalAlign ? verticalAlign : Align.CENTER;
     this._isBold = isBold ? isBold : false;

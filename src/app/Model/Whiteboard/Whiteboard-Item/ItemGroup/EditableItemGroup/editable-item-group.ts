@@ -26,7 +26,9 @@ import {EditableItemGroupDto} from '../../../../../DTO/WhiteboardItemDto/ItemGro
 export class EditableItemGroup extends ItemGroup implements Editable{
   constructor(id, layerService) {
     super(id, WhiteboardItemType.EDITABLE_GROUP, null, layerService);
-    this.notifyItemCreation();
+
+    this.localEmitCreate();
+    this.globalEmitCreate();
   }
 
   public addItem(wbItem:WhiteboardItem){

@@ -73,8 +73,10 @@ export class SubPanelForFontComponent implements OnInit {
     if(!(changedSize >= this.minSize && changedSize <= this.maxSize)) {
       return;
     }
-
-    this.menu.item.textStyle.fontSize = this.fontStyle.value.size;
+    if(this.menu.item.textStyle.fontSize !== this.fontStyle.value.size) {
+      this.menu.item.textStyle.fontSize = this.fontStyle.value.size;
+      this.menu.item.isModified = true;
+    }
   }
 
   get fontSize(): string {
@@ -88,9 +90,14 @@ export class SubPanelForFontComponent implements OnInit {
   // ############# Font Weight ##############
 
   public onChangeFontWeight(event: MatButtonToggleChange) {
-    this.menu.item.textStyle.isBold = event.value.includes("bold");
-    this.menu.item.textStyle.isItalic = event.value.includes("italic");
-
+    if(this.menu.item.textStyle.isBold !== event.value.includes("bold")) {
+      this.menu.item.textStyle.isBold = event.value.includes("bold");
+      this.menu.item.isModified = true;
+    }
+    if(this.menu.item.textStyle.isItalic !== event.value.includes("italic")) {
+      this.menu.item.textStyle.isItalic = event.value.includes("italic");
+      this.menu.item.isModified = true;
+    }
   }
 
   get isBold(): boolean {
@@ -110,11 +117,14 @@ export class SubPanelForFontComponent implements OnInit {
   // ################ Color #################
 
   public colorToHTMLRGB(index: number) {
-    return this.colors[index].toCSS(false);
+    return this.colors[index].toCSS(true);
   }
 
   public onColorPickerClicked(index: number) {
-    this.menu.item.textStyle.fontColor = this.colors[index].toCSS(false);
+    if(this.menu.item.textStyle.fontColor !== this.colors[index].toCSS(true)) {
+      this.menu.item.textStyle.fontColor = this.colors[index].toCSS(true);
+      this.menu.item.isModified = true;
+    }
   }
 
   public onAddColorClicked() {
@@ -125,7 +135,7 @@ export class SubPanelForFontComponent implements OnInit {
 
   public colorSelectedToHTML(index: number) {
     if(this.menu.item instanceof EditableShape) {
-      if(this.colors[index].equals(this.menu.item.editText.fillColor)) {
+      if(this.colors[index].toCSS(true) === this.menu.item.textStyle.fontColor) {
         return "selected";
       } else {
         return;

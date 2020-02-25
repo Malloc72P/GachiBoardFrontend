@@ -56,6 +56,7 @@ export class SizeHandler extends ItemHandler  {
   }
 
   public onMouseUp(event) {
+    this.owner.layerService.globalSelectedGroup.resizeEnd();
   }
 
   private initSizingDataBeforeResizing() {

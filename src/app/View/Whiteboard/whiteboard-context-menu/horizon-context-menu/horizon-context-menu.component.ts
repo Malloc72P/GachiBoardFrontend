@@ -34,6 +34,7 @@ export class HorizonContextMenuComponent implements OnInit {
   // ################### public Method #####################
 
   public onClickMenuItem(action: HorizonContextMenuActions) {
+    this.checkModifiedItem();
     this.menu.subPanelManager.hideOther(action);
     switch (action) {
       case HorizonContextMenuActions.LINE:
@@ -90,6 +91,15 @@ export class HorizonContextMenuComponent implements OnInit {
     }
   }
 
+  private checkModifiedItem() {
+    if(!!this.menu.item) {
+      if(this.menu.item.isModified) {
+        this.menu.item.localEmitModify();
+        this.menu.item.globalEmitModify();
+        this.menu.item.isModified = false;
+      }
+    }
+  }
   // ################ Getter & Setter #################
 
   convertEnumToName(enumNumber){

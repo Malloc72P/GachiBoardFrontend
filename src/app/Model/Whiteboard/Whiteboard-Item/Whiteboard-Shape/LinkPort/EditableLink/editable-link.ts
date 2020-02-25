@@ -63,8 +63,10 @@ export class EditableLink extends WhiteboardItem {
     this.linkHeadType = linkHeadType;
     this.linkTailType = linkTailType;
 
-    this.notifyItemCreation();
     this.setLifeCycleEvent();
+
+    this.localEmitCreate();
+    this.globalEmitCreate();
   }
 
   public initLink(startPoint: Point) {
@@ -134,17 +136,6 @@ export class EditableLink extends WhiteboardItem {
     this.linkHead.remove();
     this.linkTail.remove();
     this.linkLine.remove();
-    this.globalLifeCycleEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.DESTROY));
-  }
-
-  public notifyItemCreation() {
-    this.globalLifeCycleEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.CREATE));
-  }
-  public notifyItemModified() {
-    this.globalLifeCycleEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.MODIFY));
-  }
-  public refreshItem() {
-
   }
 
   public exportToDto(): EditableLinkDto {
@@ -152,9 +143,9 @@ export class EditableLink extends WhiteboardItem {
 
     return new EditableLinkDto(
       wbItemDto,
-      new LinkPortDto(this.toLinkPort.direction, this.toLinkPort.owner.id),
+      this.toLinkPort ? new LinkPortDto(this.toLinkPort.direction, this.toLinkPort.owner.id) : undefined,
       new GachiPointDto(this.toPoint.x, this.toPoint.y),
-      new LinkPortDto(this.fromLinkPort.direction, this.fromLinkPort.owner.id),
+      this.fromLinkPort ? new LinkPortDto(this.fromLinkPort.direction, this.fromLinkPort.owner.id) : undefined,
       new GachiPointDto(this.fromPoint.x, this.fromPoint.y),
       this.linkHeadType,
       this.linkTailType,
@@ -237,13 +228,9 @@ export class EditableLink extends WhiteboardItem {
         case ItemLifeCycleEnum.RESIZED:
           this.refreshLink();
           break;
-        case ItemLifeCycleEnum.SELECTED:
-          this.layerService.globalSelectedGroup.deactivateSelectedMode();
-          this.enableHandlers();
-          break;
         case ItemLifeCycleEnum.DESELECTED:
           this.disableHandlers();
-          break;1
+          break;
       }
     });
   }

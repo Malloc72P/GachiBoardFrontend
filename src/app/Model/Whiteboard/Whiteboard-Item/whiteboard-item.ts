@@ -23,7 +23,6 @@ import {GachiPointDto} from '../../../DTO/WhiteboardItemDto/PointDto/gachi-point
 import {ItemLifeCycleEnum, ItemLifeCycleEvent} from "./WhiteboardItemLifeCycle/WhiteboardItemLifeCycle";
 
 export abstract class WhiteboardItem {
-
   protected _id: number;
   protected _type;
   protected _group:Group;
@@ -34,6 +33,7 @@ export abstract class WhiteboardItem {
   protected _myItemAdjustor: ItemAdjustor;
 
   private _isGrouped = false;
+  private _isModified: boolean = false;
   private _parentEdtGroup:EditableItemGroup = null;
 
   private _disableLinkHandler;
@@ -73,6 +73,11 @@ export abstract class WhiteboardItem {
     this.layerService.selectModeEventEmitter.subscribe((data: SelectEvent)=>{
       this.onSelectEvent(data);
     });
+
+    // TODO : 로컬 라이프사이클 체크용 로그
+    // this._localLifeCycleEmitter.subscribe((event: ItemLifeCycleEvent) => {
+    //   console.log("LocalLifeCycle >> ", event.item.constructor.name, " ", event.item.id, " : ", ItemLifeCycleEnum[event.action]);
+    // });
   }
   protected activateShadowEffect(){
     this.coreItem.shadowColor = new Color(0,0,0);
@@ -175,12 +180,6 @@ export abstract class WhiteboardItem {
     }
   }
 
-
-
-  public abstract notifyItemCreation();
-  public abstract notifyItemModified();
-  public abstract refreshItem();
-
   public update(dto: WhiteboardItemDto) {
     this.group.position = GachiPointDto.getPaperPoint(dto.center);
     this.isGrouped = dto.isGrouped;
@@ -191,7 +190,8 @@ export abstract class WhiteboardItem {
     if(this.isGrouped && this.parentEdtGroup){
       this.parentEdtGroup.destroyItem();
     }
-    this.localLifeCycleEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.DESTROY));
+    this.localEmitDestroy();
+    this.globalEmitDestroy();
   }
 
   checkEditable(){
@@ -250,39 +250,67 @@ export abstract class WhiteboardItem {
 
   // ################ LifeCycle Emit Method #################
 
-  public emitCreate() {
+  public localEmitCreate() {
     this.localLifeCycleEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.CREATE));
+  }
+  public globalEmitCreate() {
     this.globalLifeCycleEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.CREATE));
   }
 
-  public emitModify() {
+  public localEmitModify() {
     this.localLifeCycleEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.MODIFY));
+  }
+  public globalEmitModify() {
     this.globalLifeCycleEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.MODIFY));
   }
 
-  public emitDestroy() {
-    this.localLifeCycleEmitter.emit(new ItemLifeCycleEvent(this.id, null, ItemLifeCycleEnum.DESTROY));
-    this.globalLifeCycleEmitter.emit(new ItemLifeCycleEvent(this.id, null, ItemLifeCycleEnum.DESTROY));
+  public localEmitDestroy() {
+    this.localLifeCycleEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.DESTROY));
+  }
+  public globalEmitDestroy() {
+    this.globalLifeCycleEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.DESTROY));
   }
 
-  public emitMoved() {
+  public localEmitMoved() {
     this.localLifeCycleEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.MOVED));
+  }
+  public globalEmitMoved() {
     this.globalLifeCycleEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.MOVED));
   }
 
-  public emitResized() {
+  public localEmitResized() {
     this.localLifeCycleEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.RESIZED));
+  }
+  public globalEmitResized() {
     this.globalLifeCycleEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.RESIZED));
   }
 
-  public emitSelected() {
+  public localEmitSelected() {
     this.localLifeCycleEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.SELECTED));
+  }
+  public globalEmitSelected() {
     this.globalLifeCycleEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.SELECTED));
   }
 
-  public emitDeselected() {
+  public localEmitDeselected() {
     this.localLifeCycleEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.DESELECTED));
+  }
+  public globalEmitDeselected() {
     this.globalLifeCycleEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.DESELECTED));
+  }
+
+  public localEmitLocked() {
+    this.localLifeCycleEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.LOCKED));
+  }
+  public globalEmitLocked() {
+    this.globalLifeCycleEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.LOCKED));
+  }
+
+  public localEmitUnlocked() {
+    this.localLifeCycleEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.UNLOCKED));
+  }
+  public globalEmitUnlocked() {
+    this.globalLifeCycleEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.UNLOCKED));
   }
 
   // ################ Getter & Setter #################
@@ -432,12 +460,6 @@ export abstract class WhiteboardItem {
   }
 
   set isLocked(value: boolean) {
-    if(value) {
-      this.localLifeCycleEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.LOCKED));
-    } else {
-      this.localLifeCycleEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.UNLOCKED));
-    }
-
     if(this.isGrouped) {
       this.parentEdtGroup.isLocked = value;
     }
@@ -452,5 +474,13 @@ export abstract class WhiteboardItem {
       }
     }
     return false;
+  }
+
+  get isModified(): boolean {
+    return this._isModified;
+  }
+
+  set isModified(value: boolean) {
+    this._isModified = value;
   }
 }

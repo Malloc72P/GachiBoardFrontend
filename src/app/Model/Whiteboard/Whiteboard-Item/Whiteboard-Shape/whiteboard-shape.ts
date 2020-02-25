@@ -10,6 +10,7 @@ import Item = paper.Item;
 import {GachiColorDto} from '../../../../DTO/WhiteboardItemDto/ColorDto/gachi-color-dto';
 import {LinkPortDto} from '../../../../DTO/WhiteboardItemDto/WhiteboardShapeDto/LinkPortDto/link-port-dto';
 import {WhiteboardItemDto} from "../../../../DTO/WhiteboardItemDto/whiteboard-item-dto";
+import {ItemLifeCycleEnum, ItemLifeCycleEvent} from "../WhiteboardItemLifeCycle/WhiteboardItemLifeCycle";
 
 export class WhiteboardShape extends WhiteboardItem implements Editable{
   private _linkPortMap:Map<any,LinkPort>;
@@ -19,6 +20,7 @@ export class WhiteboardShape extends WhiteboardItem implements Editable{
 
     this.initLinkPortMap();
     this.activateShadowEffect();
+    this.setLifeCycleEvent();
   }
 
   protected initLinkPortMap(){
@@ -30,6 +32,26 @@ export class WhiteboardShape extends WhiteboardItem implements Editable{
     this.linkPortMap.set( LinkPortDirectionEnum.RIGHT, new LinkPort(this, LinkPortDirectionEnum.RIGHT) );
   }
 
+  private setLifeCycleEvent() {
+    this.localLifeCycleEmitter.subscribe((event: ItemLifeCycleEvent) => {
+      switch (event.action) {
+        case ItemLifeCycleEnum.DESELECTED:
+          this.disableLinkPort();
+          break;
+      }
+    });
+  }
+
+  public enableLinkPort() {
+    this.linkPortMap.forEach(value => {
+      value.enable();
+    });
+  }
+  public disableLinkPort() {
+    this.linkPortMap.forEach(value => {
+      value.disable();
+    });
+  }
 
   get linkPortMap(): Map<any, LinkPort> {
     return this._linkPortMap;
@@ -84,20 +106,11 @@ export class WhiteboardShape extends WhiteboardItem implements Editable{
     return closestDirection;
   }
 
-  notifyItemCreation() {
-  }
-
-  notifyItemModified() {
-  }
-
-  refreshItem() {
-  }
-
   destroyItem() {
     super.destroyItem();
     if(this.linkPortMap){
       this.linkPortMap.forEach((value, key, map)=>{
-        value.destroyPortAndLink();
+        value.destroyLink();
       })
     }
 
