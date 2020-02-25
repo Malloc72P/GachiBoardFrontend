@@ -8,6 +8,9 @@ export class LinkPortDto {
   }
 
   public static clone(dto: LinkPortDto): LinkPortDto {
-    return new LinkPortDto(dto.direction, dto.ownerWbItemId);
+    if(!!dto) {
+      return new LinkPortDto(dto.direction, dto.ownerWbItemId);
+    }
+    return undefined;
   }
 }

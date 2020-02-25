@@ -12,7 +12,10 @@ export class GachiPointDto {
   }
 
   public static clone(dto: GachiPointDto): GachiPointDto {
-    return new GachiPointDto(dto.x, dto.y);
+    if(!!dto) {
+      return new GachiPointDto(dto.x, dto.y);
+    }
+    return undefined;
   }
 
   public clone(): GachiPointDto {
