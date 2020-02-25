@@ -244,7 +244,8 @@ export abstract class EditableShape extends WhiteboardShape {
 
     editableShapeDto.textContent = this.textContent;
     editableShapeDto.rawTextContent = this.rawTextContent;
-    editableShapeDto.textStyle = this.textStyle.clone();
+    //editableShapeDto.textStyle = this.textStyle.clone();
+    editableShapeDto.textStyle = new TextStyle();
 
     return editableShapeDto;
   }

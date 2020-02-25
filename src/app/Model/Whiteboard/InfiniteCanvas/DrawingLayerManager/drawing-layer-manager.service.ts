@@ -28,19 +28,13 @@ import {PositionCalcService} from '../../PositionCalc/position-calc.service';
 import {
   ItemLifeCycleEnum,
   ItemLifeCycleEvent,
-  LinkItemLifeCycleEvent
 } from '../../Whiteboard-Item/WhiteboardItemLifeCycle/WhiteboardItemLifeCycle';
 import {SimpleRaster} from '../../Whiteboard-Item/Whiteboard-Shape/editable-raster/SimpleRaster/simple-raster';
-import {ZoomControlService} from '../ZoomControl/zoom-control.service';
 import {GlobalSelectedGroup} from '../../Whiteboard-Item/ItemGroup/GlobalSelectedGroup/global-selected-group';
 import {PointerModeEvent} from '../../Pointer/PointerModeEvent/pointer-mode-event';
 import {PointerMode} from '../../Pointer/pointer-mode-enum-service/pointer-mode-enum.service';
-import {SelectModeEnum} from './SelectModeEnum/select-mode-enum.enum';
-import {SelectEvent} from './SelectEvent/select-event';
-import {SelectEventEnum} from './SelectEventEnum/select-event.enum';
 import {InfiniteCanvasService} from '../infinite-canvas.service';
 import {ItemGroup} from '../../Whiteboard-Item/ItemGroup/item-group';
-import {PointerModeManagerService} from '../../Pointer/pointer-mode-manager-service/pointer-mode-manager.service';
 import {LinkPort} from '../../Whiteboard-Item/Whiteboard-Shape/LinkPort/link-port';
 import {EditableShape} from '../../Whiteboard-Item/Whiteboard-Shape/EditableShape/editable-shape';
 import {ContextMenuService} from "../../ContextMenu/context-menu-service/context-menu.service";
@@ -51,14 +45,10 @@ import {EditableItemGroup} from '../../Whiteboard-Item/ItemGroup/EditableItemGro
 import {HorizonContextMenuService} from "../../ContextMenu/horizon-context-menu-service/horizon-context-menu.service";
 import {WorkHistoryManager} from './WorkHistoryManager/work-history-manager';
 import {CursorChangeService} from "../../Pointer/cursor-change-service/cursor-change.service";
-import value from "*.json";
-import {SizeHandler} from "../../Whiteboard-Item/ItemAdjustor/ItemHandler/SizeHandler/size-handler";
 import {ItemHandler} from "../../Whiteboard-Item/ItemAdjustor/ItemHandler/item-handler";
 import {WhiteboardShape} from "../../Whiteboard-Item/Whiteboard-Shape/whiteboard-shape";
-import {LinkHandlerPositions} from "../../Whiteboard-Item/Whiteboard-Shape/LinkPort/EditableLink/link-handler-positions";
 import {LinkHandler} from "../../Whiteboard-Item/Whiteboard-Shape/LinkPort/EditableLink/LinkHandler/link-handler";
 import {WsWhiteboardController} from '../../../../Controller/Controller-WebSocket/websocket-manager/WhiteboardWsController/ws-whiteboard.controller';
-import Global = WebAssembly.Global;
 import {WbItemEventManagerService} from '../../../../Controller/Controller-WebSocket/websocket-manager/WhiteboardWsController/wb-item-event-manager.service';
 import {
   WbItemEvent,
@@ -68,6 +58,8 @@ import {WhiteboardItemFactory} from '../WhiteboardItemFactory/whiteboard-item-fa
 import {WbItemFactoryResult} from '../WhiteboardItemFactory/WbItemFactoryResult/wb-item-factory-result';
 import {MinimapSyncService} from '../MinimapSync/minimap-sync.service';
 import {WhiteboardItemDto} from '../../../../DTO/WhiteboardItemDto/whiteboard-item-dto';
+import {WebsocketPacketDto} from '../../../../DTO/WebsocketPacketDto/WebsocketPacketDto';
+import {WebsocketManagerService} from '../../../../Controller/Controller-WebSocket/websocket-manager/websocket-manager.service';
 
 
 @Injectable({
@@ -95,10 +87,10 @@ export class DrawingLayerManagerService {
 
   private hitOption = { segments: true, stroke: true, fill: true, tolerance: 15 };
 
-  @Output() globalLifeCycleEmitter:EventEmitter<any> = new EventEmitter<any>();
+  @Output() globalLifeCycleEmitter:EventEmitter<any>  = new EventEmitter<any>();
   @Output() pointerModeEventEmitter:EventEmitter<any> = new EventEmitter<any>();
-  @Output() selectModeEventEmitter:EventEmitter<any> = new EventEmitter<any>();
-  @Output() linkModeEventEmitter:EventEmitter<any> = new EventEmitter<any>();
+  @Output() selectModeEventEmitter:EventEmitter<any>  = new EventEmitter<any>();
+  @Output() linkModeEventEmitter:EventEmitter<any>    = new EventEmitter<any>();
 
   constructor(
     private _posCalcService:PositionCalcService,
@@ -107,6 +99,7 @@ export class DrawingLayerManagerService {
     private _cursorChangeService: CursorChangeService,
     private wbItemEventManagerService: WbItemEventManagerService,
     private minimapSyncService: MinimapSyncService,
+    private websocketManagerService: WebsocketManagerService,
   ) {
     this._whiteboardItemArray = new Array<WhiteboardItem>();
     this._editableLinkArray = new Array<EditableLink>();
@@ -194,6 +187,15 @@ export class DrawingLayerManagerService {
             delItem.destroyItemAndNoEmit();
           }
           break;
+        case WbItemEventEnum.OCCUPIED:
+          let occupiedItem = this.findItemById(recvWbItemEvent.data.id);
+          let wsPacketDto:WebsocketPacketDto = recvWbItemEvent.additionalData;
+          occupiedItem.onOccupied(this.websocketManagerService.getUserInfoByIdToken(wsPacketDto.senderIdToken).userName);
+          break;
+        case WbItemEventEnum.NOT_OCCUPIED:
+          let notOccupiedItem = this.findItemById(recvWbItemEvent.data.id);
+          notOccupiedItem.onNotOccupied();
+          break;
         case WbItemEventEnum.UPDATE:
           break;
         case WbItemEventEnum.READ:
@@ -211,7 +213,6 @@ export class DrawingLayerManagerService {
   private initLifeCycleHandler(){
     WorkHistoryManager.initInstance(this.globalLifeCycleEmitter);
     this.globalLifeCycleEmitter.subscribe((data:ItemLifeCycleEvent)=>{
-      console.log("\n\n=========");
       if(!data){
         return;
       }
@@ -245,7 +246,6 @@ export class DrawingLayerManagerService {
           });
           break;
       }
-      console.log("==========\n\n");
     });
   }
   deleteItemFromWbArray(id){
@@ -381,19 +381,6 @@ export class DrawingLayerManagerService {
 
 
   //##### 화이트보드 아이템을 찾는 메서드 #######
-  public getItemById( targetId ){
-    //let found = this.findItemById(paperId);
-    let found = null;
-    let children = this.whiteboardItemArray;
-
-    for(let i = 0 ; i < children.length; i++){
-      let currItem = children[i];
-      if(currItem.id === targetId ){
-        return currItem;
-      }
-    }
-    return found;
-  }
   public indexOfWhiteboardArray(id){
     let children = this.whiteboardItemArray;
     for(let i = 0 ; i < children.length; i++){
@@ -410,16 +397,6 @@ export class DrawingLayerManagerService {
       }
     }
     return null;
-  }
-
-  public getWhiteboardItem( item ) : WhiteboardItem{
-    let tgt;
-    if(item instanceof Group){
-      tgt = item
-    }else{
-      tgt = item.parent;
-    }
-    return tgt.data.struct;
   }
 
   public getHittedItemHandler(point): ItemHandler {
@@ -505,6 +482,11 @@ export class DrawingLayerManagerService {
         if(value instanceof EditableLink) {
           continue;
         }
+      }
+
+      if(value.isOccupied){
+        //다른 유저에 의해 선점된 아이템이면 건너뜀
+        continue;
       }
 
       let hitOption: { fill: boolean, segments: boolean, stroke: boolean, tolerance: number };

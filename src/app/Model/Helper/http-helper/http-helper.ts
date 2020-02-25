@@ -33,7 +33,9 @@ export enum WebSocketTypeEnum {
   RELOCATE,
   LOCK,
   UNLOCK,
-  JOIN
+  JOIN,
+  OCCUPIED,
+  NOT_OCCUPIED
 }
 export enum SpecialAction {
   PASTE_COMPLETE,
@@ -172,6 +174,12 @@ export class HttpHelper {
       ),
       unlock : new WebSocketRequest(
         "wbItem_unlock", WebSocketTypeEnum.UNLOCK
+      ),
+      occupied : new WebSocketRequest(
+        "wbItem_lock", WebSocketTypeEnum.OCCUPIED
+      ),
+      notOccupied : new WebSocketRequest(
+        "wbItem_unlock", WebSocketTypeEnum.NOT_OCCUPIED
       ),
     }
   };

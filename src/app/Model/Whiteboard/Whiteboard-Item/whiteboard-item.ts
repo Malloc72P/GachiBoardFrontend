@@ -8,7 +8,11 @@ import Color = paper.Color;
 // @ts-ignore
 import Point = paper.Point;
 // @ts-ignore
-import Rectangle = paper.Rectangle;
+import Rectangle = paper.Path.Rectangle;
+// @ts-ignore
+import TextItem = paper.TextItem;
+// @ts-ignore
+import PointText = paper.PointText;
 
 import {EventEmitter} from '@angular/core';
 import {ItemAdjustor} from './ItemAdjustor/item-adjustor';
@@ -21,6 +25,7 @@ import {EditableItemGroup} from './ItemGroup/EditableItemGroup/editable-item-gro
 import {WhiteboardItemDto} from '../../../DTO/WhiteboardItemDto/whiteboard-item-dto';
 import {GachiPointDto} from '../../../DTO/WhiteboardItemDto/PointDto/gachi-point-dto';
 import {ItemLifeCycleEnum, ItemLifeCycleEvent} from "./WhiteboardItemLifeCycle/WhiteboardItemLifeCycle";
+import {WhiteboardItemType} from '../../Helper/data-type-enum/data-type.enum';
 
 export abstract class WhiteboardItem {
 
@@ -45,6 +50,8 @@ export abstract class WhiteboardItem {
   protected _trailDistance = 0;
   protected _prevPoint = new Point(0,0);
   protected _selectMode;
+
+  public isOccupied = false;
 
   protected _globalLifeCycleEmitter: EventEmitter<any>;
   protected _localLifeCycleEmitter = new EventEmitter<any>();
@@ -128,6 +135,61 @@ export abstract class WhiteboardItem {
       point = new Point(event.touches[0].clientX, event.touches[0].clientY);
     }
     return point;
+  }
+
+  protected blindGroup;
+  onOccupied(occupierName){
+    console.log("WhiteboardItem >> onOccupied >> 진입함");
+    // let blindRect:Rectangle = new Rectangle(this.group.bounds);
+    if(!this.isOccupied){
+      this.isOccupied = true;
+
+      this.blindGroup = new Group();
+
+      let blindRect = new Rectangle({
+        from: this.group.bounds.topLeft,
+        to: this.group.bounds.bottomRight,
+      });
+      // @ts-ignore
+      blindRect.fillColor = "black";
+      // @ts-ignore
+      blindRect.opacity = 0.3;
+
+      let blindText = new PointText(this.group.bounds.bottomRight);
+      // @ts-ignore
+      blindText.fillColor = "white";
+      blindText.fontWeight = "bold";
+      blindText.content = occupierName + " 님이 수정중";
+      blindText.bounds.topRight = this.group.bounds.bottomRight;
+
+      let blindTextBg = new Rectangle({
+        from: blindText.bounds.topLeft,
+        to: blindText.bounds.bottomRight,
+      });
+      // @ts-ignore
+      blindTextBg.fillColor = "black";
+      // @ts-ignore
+      blindTextBg.opacity = 0.5;
+      blindTextBg.bounds.topLeft = blindText.bounds.topLeft;
+
+      blindText.bringToFront();
+
+      this.blindGroup.addChild(blindRect);
+      this.blindGroup.addChild(blindTextBg);
+      this.blindGroup.addChild(blindText);
+
+      //this.blindGroup.position = this.group.position;
+
+    }
+  }
+  onNotOccupied(){
+    if(this.isOccupied){
+      this.isOccupied = false;
+      if(this.blindGroup){
+        this.blindGroup.removeChildren();
+        this.blindGroup.remove();
+      }
+    }
   }
 
   protected calcCurrentDistance(event){

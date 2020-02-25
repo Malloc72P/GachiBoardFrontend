@@ -19,6 +19,6 @@ export enum WbItemEventEnum {
   READ,
   LOCK,
   UNLOCK,
-  PASTE_COMPLETE,
-  PASTE_RELOCATE_COMPLETE
+  OCCUPIED,
+  NOT_OCCUPIED
 }

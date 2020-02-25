@@ -13,6 +13,8 @@ export enum WebsocketPacketActionEnum {
   NAK,
   JOIN,
   SPECIAL,
+  OCCUPIED,
+  NOT_OCCUPIED
 }
 
 export enum WebsocketPacketScopeEnum {

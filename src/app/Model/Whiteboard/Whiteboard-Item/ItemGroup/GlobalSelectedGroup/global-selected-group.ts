@@ -1,8 +1,4 @@
 import * as paper from 'paper';
-// @ts-ignore
-import Item = paper.Item;
-// @ts-ignore
-import Path = paper.Path;
 
 import {ItemGroup} from '../item-group';
 import {WhiteboardItemType} from '../../../../Helper/data-type-enum/data-type.enum';
@@ -14,9 +10,15 @@ import {WhiteboardShape} from '../../Whiteboard-Shape/whiteboard-shape';
 import {WhiteboardItemDto} from '../../../../../DTO/WhiteboardItemDto/whiteboard-item-dto';
 import {WhiteboardItemFactory} from '../../../InfiniteCanvas/WhiteboardItemFactory/whiteboard-item-factory';
 import {Observable} from 'rxjs';
-import {EditableLink} from "../../Whiteboard-Shape/LinkPort/EditableLink/editable-link";
+import {EditableLink} from '../../Whiteboard-Shape/LinkPort/EditableLink/editable-link';
 import {WsWhiteboardController} from '../../../../../Controller/Controller-WebSocket/websocket-manager/WhiteboardWsController/ws-whiteboard.controller';
 import {WebsocketPacketDto} from '../../../../../DTO/WebsocketPacketDto/WebsocketPacketDto';
+import {EventEmitter} from '@angular/core';
+import {GsgSelectEvent, GsgSelectEventEnum} from './GsgSelectEvent/GsgSelectEvent';
+// @ts-ignore
+import Item = paper.Item;
+// @ts-ignore
+import Path = paper.Path;
 
 export class GlobalSelectedGroup extends ItemGroup {
   private static globalSelectedGroup: GlobalSelectedGroup;
@@ -27,12 +29,36 @@ export class GlobalSelectedGroup extends ItemGroup {
 
   private _isLinkSelected = false;
 
+  public gsgSelectorEventEmitter:EventEmitter<any>;
+
   private constructor(id, type, item: Item, layerService) {
     super(id, type, item, layerService);
     this.prevMode = SelectModeEnum.SINGLE_SELECT;
     this.prevNumberOfChild = this.getNumberOfChild();
     this.copiedDtoArray = new Array<WhiteboardItemDto>();
     this.notifyItemCreation();
+    this.gsgSelectorEventEmitter = new EventEmitter<any>();
+
+    this.gsgSelectorEventEmitter.subscribe((gsgEvent:GsgSelectEvent)=>{
+      let wsWbController = WsWhiteboardController.getInstance();
+
+      switch (gsgEvent.action) {
+        case GsgSelectEventEnum.SELECTED:
+          console.log(`GlobalSelectedGroup >> SELECTED >> [ ${gsgEvent.wbItem.id} ] >> 진입함`);
+          wsWbController.waitRequestOccupyWbItem(gsgEvent.wbItem.exportToDto())
+            .subscribe(()=>{
+
+            });
+          break;
+        case GsgSelectEventEnum.DESELECTED:
+          console.log(`GlobalSelectedGroup >> DESELECTED >> [ ${gsgEvent.wbItem.id} ] >> 진입함`);
+          wsWbController.waitRequestNotOccupyWbItem(gsgEvent.wbItem.exportToDto())
+            .subscribe(()=>{
+
+            });
+          break;
+      }
+    })
   }
 
   public static getInstance(id, layerService) {
@@ -185,6 +211,7 @@ export class GlobalSelectedGroup extends ItemGroup {
     this.resetMyItemAdjustor();
     this.layerService.horizonContextMenuService.open();
     this.emitSelected();
+    this.gsgSelectorEventEmitter.emit(new GsgSelectEvent(GsgSelectEventEnum.SELECTED, wbItem));
   }
 
   private checkLocking(wbItem: WhiteboardItem) {
@@ -208,6 +235,9 @@ export class GlobalSelectedGroup extends ItemGroup {
 
   public extractAllFromSelection() {
     this.layerService.horizonContextMenuService.close();
+    for(let i = 0 ; i < this.wbItemGroup.length; i++){
+      this.gsgSelectorEventEmitter.emit(new GsgSelectEvent(GsgSelectEventEnum.DESELECTED, this.wbItemGroup[i]));
+    }
     this.isLinkSelected = false;
     this.extractAllFromGroup();
     this.isLocked = false;
@@ -223,6 +253,7 @@ export class GlobalSelectedGroup extends ItemGroup {
     }
     this.notifyItemDeselected(wbItem);
     this.emitDeselected();
+    this.gsgSelectorEventEmitter.emit(new GsgSelectEvent(GsgSelectEventEnum.DESELECTED, wbItem));
   }
 
   destroyItem() {

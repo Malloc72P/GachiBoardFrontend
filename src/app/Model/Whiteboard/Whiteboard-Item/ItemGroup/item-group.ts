@@ -135,11 +135,8 @@ export class ItemGroup extends WhiteboardItem {
       value.emitModify();
     });
     this.emitModify();
-    console.log("ItemGroup >> moveEnd >> 진입함");
-    console.log("ItemGroup >> moveEnd >> this.wbItemGroup : ",this.wbItemGroup);
     let wsWbController = WsWhiteboardController.getInstance();
     for(let wbItem of this.wbItemGroup){
-      console.log("ItemGroup >> moveEnd >> wbItem : ",wbItem);
       wsWbController.waitRequestUpdateWbItem(wbItem, ItemLifeCycleEnum.MOVED)
         .subscribe((data)=>{
           console.log("ItemGroup >>  >> data : ",data);

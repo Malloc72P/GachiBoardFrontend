@@ -25,6 +25,8 @@ export class WsWhiteboardController {
     this.onWbItemLocked();
     this.onWbItemUnlocked();
     this.onMultipleWbItemCreated();
+    this.onWbItemOccupied();
+    this.onWbItemNotOccupied();
   }
 
 
@@ -359,6 +361,106 @@ export class WsWhiteboardController {
   /* **************************************************** */
   /* Request Unlock END */
   /* **************************************************** */
+
+  /* *************************************************** */
+  /* Request Occupied START */
+  /* *************************************************** */
+  waitRequestOccupyWbItem( wbItemDto:WhiteboardItemDto ){
+
+    //this.websocketManager.uiService.spin$.next(true);
+
+    return new Observable<any>((subscriber)=>{
+
+      let packetDto = this.websocketManager.createWbSessionScopePacket(wbItemDto,WebsocketPacketActionEnum.OCCUPIED);
+      packetDto.wsPacketSeq = this.websocketManager.wsPacketSeq;
+
+      this.socket.emit(HttpHelper.websocketApi.whiteboardItem.occupied.event, packetDto);
+
+      //#### 요청 완료
+
+      this.socket.once(HttpHelper.websocketApi.whiteboardItem.occupied.event,
+        (wsPacketDto:WebsocketPacketDto)=>{
+          //this.websocketManager.uiService.spin$.next(false);
+          switch (wsPacketDto.action) {
+            case WebsocketPacketActionEnum.ACK:
+              console.log("WsWhiteboardController >> waitRequestLockWbItem >> wsPacketDto : ",wsPacketDto);
+              subscriber.next(wsPacketDto);
+              break;
+            case WebsocketPacketActionEnum.NAK:
+              subscriber.error(wsPacketDto);
+              break;
+          }
+        })
+    });
+  }
+
+  private onWbItemOccupied(){
+    this.socket.on(HttpHelper.websocketApi.whiteboardItem.occupied.event,
+      (wsPacketDto:WebsocketPacketDto)=>{
+        if (wsPacketDto.action === WebsocketPacketActionEnum.OCCUPIED) {
+          console.log("WsWhiteboardController >> onWbItemLocked >> wsPacketDto : ",wsPacketDto);
+
+          this.websocketManager.wbItemEventManagerService.wsWbItemEventEmitter.emit(
+            new WbItemEvent( WbItemEventEnum.OCCUPIED, wsPacketDto.dataDto as WhiteboardItemDto, wsPacketDto)
+          );
+
+        }
+      });
+  }
+  /* **************************************************** */
+  /* Request Occupied END */
+  /* **************************************************** */
+
+  /* *************************************************** */
+  /* Request Not Occupied START */
+  /* *************************************************** */
+  waitRequestNotOccupyWbItem( wbItemDto:WhiteboardItemDto ){
+
+    //this.websocketManager.uiService.spin$.next(true);
+
+    return new Observable<any>((subscriber)=>{
+
+      let packetDto = this.websocketManager.createWbSessionScopePacket(wbItemDto,WebsocketPacketActionEnum.NOT_OCCUPIED);
+      packetDto.wsPacketSeq = this.websocketManager.wsPacketSeq;
+
+      this.socket.emit(HttpHelper.websocketApi.whiteboardItem.notOccupied.event, packetDto);
+
+      //#### 요청 완료
+
+      this.socket.once(HttpHelper.websocketApi.whiteboardItem.notOccupied.event,
+        (wsPacketDto:WebsocketPacketDto)=>{
+          //this.websocketManager.uiService.spin$.next(false);
+          switch (wsPacketDto.action) {
+            case WebsocketPacketActionEnum.ACK:
+              console.log("WsWhiteboardController >> waitRequestLockWbItem >> wsPacketDto : ",wsPacketDto);
+              subscriber.next(wsPacketDto);
+              break;
+            case WebsocketPacketActionEnum.NAK:
+              subscriber.error(wsPacketDto);
+              break;
+          }
+        })
+    });
+  }
+
+  private onWbItemNotOccupied(){
+    this.socket.on(HttpHelper.websocketApi.whiteboardItem.notOccupied.event,
+      (wsPacketDto:WebsocketPacketDto)=>{
+        if (wsPacketDto.action === WebsocketPacketActionEnum.NOT_OCCUPIED) {
+          console.log("WsWhiteboardController >> onWbItemLocked >> wsPacketDto : ",wsPacketDto);
+
+          this.websocketManager.wbItemEventManagerService.wsWbItemEventEmitter.emit(
+            new WbItemEvent( WbItemEventEnum.NOT_OCCUPIED, wsPacketDto.dataDto as WhiteboardItemDto)
+          );
+
+        }
+      });
+  }
+  /* **************************************************** */
+  /* Request Not Occupied END */
+  /* **************************************************** */
+
+
 
 
   public static initInstance(websocketManager){
