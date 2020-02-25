@@ -152,14 +152,14 @@ export class EditableLink extends WhiteboardItem {
 
     return new EditableLinkDto(
       wbItemDto,
-      this.toLinkPort,
-      this.toPoint,
-      this.fromLinkPort,
-      this.fromPoint,
+      new LinkPortDto(this.toLinkPort.direction, this.toLinkPort.owner.id),
+      new GachiPointDto(this.toPoint.x, this.toPoint.y),
+      new LinkPortDto(this.fromLinkPort.direction, this.fromLinkPort.owner.id),
+      new GachiPointDto(this.fromPoint.x, this.fromPoint.y),
       this.linkHeadType,
       this.linkTailType,
       this.capSize,
-      this.linkColor,
+      GachiColorDto.createColor(this.linkColor),
       this.linkWidth,
       this.isDashed
       )
