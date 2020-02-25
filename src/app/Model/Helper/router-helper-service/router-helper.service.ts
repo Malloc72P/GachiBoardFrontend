@@ -19,6 +19,9 @@ export class RouterHelperService {
   goToHomePage(){
     this.goToTarget("homepage");
   }
+  redirectToHomePage(){
+    document.location.href = "/homepage";
+  }
   goToProjectPage(projectId){
     this.router.navigate(["project", {projectId:projectId}]);
   }

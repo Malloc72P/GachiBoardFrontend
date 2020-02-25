@@ -68,6 +68,12 @@ export class WhiteboardItemFactory {
   public static initWhiteboardItemFactory(layerService:DrawingLayerManagerService){
     WhiteboardItemFactory.layerService = layerService;
   }
+  private static _tempIdGen = 0;
+
+
+  static get tempIdGen(): number {
+    return this._tempIdGen++;
+  }
 
   public static cloneWbItems(copiedDtoArray):Observable<any>{
     return new Observable((observer)=>{
@@ -148,7 +154,8 @@ export class WhiteboardItemFactory {
         wbId = originId;
         break;
       case BUILD_MODE.CLONE:
-        wbId = WhiteboardItemFactory.layerService.getWbId();
+        // wbId = WhiteboardItemFactory.layerService.getWbId();
+        wbId = WhiteboardItemFactory.tempIdGen;
         break;
     }
     return wbId;
