@@ -286,12 +286,12 @@ export abstract class WhiteboardItem {
     this.localEmitDestroy();
     this.globalEmitDestroy();
   }
+  public abstract destroyItemAndNoEmit();
   destroyBlind(){//여기서 말하는 블라인드는, 다른 유저가 선점했을때 ...님이 수정중 이라고 뜨는 그 회색음영의 개체를 말함
     if(this.blindGroup){
       this.blindGroup.remove();
     }
   }
-  public abstract destroyItemAndNoEmit();
 
   checkEditable(){
     let currentPointerMode = this.layerService.currentPointerMode;

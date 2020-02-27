@@ -147,6 +147,11 @@ export class GlobalSelectedGroup extends ItemGroup {
               this.insertOneIntoSelection(newWbItem);
             }
             this.relocateItemGroup(newPosition);
+            for (let i = 0; i < data.length; i++) {
+              let newWbItem = data[i];
+              wsWbController.waitRequestUpdateWbItem(newWbItem.exportToDto())
+                .subscribe(()=>{});
+            }
           })
       });
     }
@@ -278,7 +283,7 @@ export class GlobalSelectedGroup extends ItemGroup {
     this.destroyAllFromGroup();
   }
   destroyItemAndNoEmit() {
-    this.destroyAllFromGroup();
+    // this.destroyAllFromGroup();
     this.destroyBlind();
   }
 

@@ -128,11 +128,9 @@ export class DrawingLayerManagerService {
   }
 
   public addWbLink(editableLink:EditableLink){
-    console.log("DrawingLayerManagerService >> addWbLink >> 진입함 : ",editableLink.id);
     this.editableLinkArray.push(editableLink);
   }
   public deleteWbLink(editableLink:EditableLink){
-    console.log("DrawingLayerManagerService >> deleteWbLink >> 진입함 : ",editableLink.id);
     let deleteIdx = this.editableLinkArray.indexOf(editableLink);
     if(deleteIdx > -1){
       this.editableLinkArray.splice(deleteIdx, 1);
@@ -158,14 +156,12 @@ export class DrawingLayerManagerService {
       if(!recvWbItemEvent){
         return;
       }
-      console.log("DrawingLayerManagerService >> initWbItemWsEventHandler >> recvWbItemEvent : ",recvWbItemEvent);
       switch (recvWbItemEvent.action) {
         case WbItemEventEnum.CREATE:
           WhiteboardItemFactory.buildWbItems(recvWbItemEvent.data, this.whiteboardItemArray)
             .subscribe((res:WbItemFactoryResult)=>{
               res.newWbItem.group.opacity = 1;
               res.newWbItem.coreItem.opacity = 1;
-              console.log("DrawingLayerManagerService >> initWbItemWsEventHandler >> res : ",res);
             });
           break;
         case WbItemEventEnum.CREATE_MULTIPLE:
@@ -180,7 +176,6 @@ export class DrawingLayerManagerService {
           break;
         case WbItemEventEnum.DELETE:
           let delItem = this.findItemById(recvWbItemEvent.data.id);
-          console.log("DrawingLayerManagerService >> DELETE >> delItem : ",delItem);
           if(delItem){
             this.deleteItemFromWbArray(delItem.id);
             delItem.destroyItemAndNoEmit();
@@ -226,7 +221,6 @@ export class DrawingLayerManagerService {
       }
       let wsWbController = WsWhiteboardController.getInstance();
       // TODO : 라이프 사이클 체크용 로그
-      // console.log("GlobalLifeCycle >> ", data.item.constructor.name, " ", data.item.id, " : ", ItemLifeCycleEnum[data.action]);
       switch (data.action) {
         case ItemLifeCycleEnum.CREATE:
           this.whiteboardItemArray.push(data.item);
@@ -236,12 +230,9 @@ export class DrawingLayerManagerService {
           wsWbController.waitRequestUpdateWbItem(data.item.exportToDto()).subscribe(()=>{
 
           });
-          console.log("DrawingLayerManagerService >> initLifeCycleHandler >> MODIFY >> 진입함");
           break;
         case ItemLifeCycleEnum.DESTROY:
-          console.log("DrawingLayerManagerService >> initLifeCycleHandler >> DESTROY >> 진입함");
           wsWbController.waitRequestDeleteWbItem(data.item.exportToDto()).subscribe((ackPacket)=>{
-            console.log("DrawingLayerManagerService >> DESTROY >> ackPacket : ",ackPacket);
             this.deleteItemFromWbArray(data.id);
           });
           break;
@@ -275,7 +266,6 @@ export class DrawingLayerManagerService {
   }
   private initLinkModeHandler(){
     this.linkModeEventEmitter.subscribe((data:LinkerModeChangeEvent)=>{
-      console.log("DrawingLayerManagerService >> linkModeEventEmitter >> data : ",data);
       this.currentLinkerMode = data.currentLinkerMode;
     });
   }
@@ -365,10 +355,7 @@ export class DrawingLayerManagerService {
       let wsWbController = WsWhiteboardController.getInstance();
       wsWbController.waitRequestCreateWbItem(newWhiteboardItem.exportToDto())
         .subscribe((packetDto) => {
-          console.log('\n\n================\nDrawingLayerManagerService >> addToDrawingLayer >> packetDto : ', packetDto);
           newWhiteboardItem.id = packetDto.dataDto.id;
-          console.log('DrawingLayerManagerService >> addToDrawingLayer >> CREATE >> newWhiteboardItem : ', newWhiteboardItem);
-          console.log("============\n\n");
         });
     }
     return newWhiteboardItem;

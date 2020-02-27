@@ -39,7 +39,7 @@ export class EraserService {
   public drawPath(event) {
     this.newPath.add(event.point);
     setTimeout(() => {
-      if(!!this.newPath) {
+      if(this.newPath && this.newPath.firstSegment) {
         this.newPath.firstSegment.remove();
       }
     }, 300);

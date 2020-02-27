@@ -116,7 +116,7 @@ export class WhiteboardShape extends WhiteboardItem implements Editable{
 
   }
   destroyItemAndNoEmit() {
-    super.destroyItem();
+    // super.destroyItem();
     if(this.linkPortMap){
       this.linkPortMap.forEach((value, key, map)=>{
         value.destroyLink();
@@ -144,14 +144,24 @@ export class WhiteboardShape extends WhiteboardItem implements Editable{
   }
 
   public update(dto: WhiteboardShapeDto) {
+    console.log("WhiteboardShape >> update >> 진입함");
     this.width = dto.width;
     this.height = dto.height;
     this.borderColor = dto.borderColor;
     this.fillColor = dto.fillColor;
     this.borderWidth = dto.borderWidth;
     this.opacity = dto.opacity;
-
     super.update(dto as WhiteboardItemDto);
+
+    for(let [key, linkPort] of this.linkPortMap){
+        for(let fromLink of linkPort.fromLinkList){
+            fromLink.refreshLink();
+        }
+      for(let toLink of linkPort.toLinkList){
+        toLink.refreshLink();
+      }
+    }
+
 
     // TODO : linkPort 에 대한 정보를 업데이트 할 필요가 있을지 검증 필요
     // dto.linkPortsDto.forEach(value => {

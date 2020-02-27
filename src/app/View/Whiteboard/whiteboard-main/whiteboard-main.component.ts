@@ -46,6 +46,9 @@ import PaperScope = paper.PaperScope;
 // @ts-ignore
 import Color = paper.Color;
 import {CursorData} from '../../../DTO/ProjectDto/WhiteboardSessionDto/Cursor-Data/Cursor-Data';
+import {WsWhiteboardController} from '../../../Controller/Controller-WebSocket/websocket-manager/WhiteboardWsController/ws-whiteboard.controller';
+import {WebsocketPacketDto} from '../../../DTO/WebsocketPacketDto/WebsocketPacketDto';
+import {WbItemFactoryResult} from '../../../Model/Whiteboard/InfiniteCanvas/WhiteboardItemFactory/WbItemFactoryResult/wb-item-factory-result';
 
 @Component({
   selector: 'app-whiteboard-main',
@@ -137,6 +140,21 @@ export class WhiteboardMainComponent implements OnInit,OnDestroy {
                 this.minimapSyncService.syncMinimap();
                 this.initCursorTrackerInstance(wbSessionFullDto, userDto);
                 this.wbTitle = wbSessionFullDto.title;
+
+                let wsWbController = WsWhiteboardController.getInstance();
+                wsWbController.waitRequestGetWbItemList()
+                  .subscribe((wsPacketDto:WebsocketPacketDto)=>{
+                    let recvWbItemDtoList:Array<WhiteboardItemDto> = wsPacketDto.dataDto as Array<WhiteboardItemDto>;
+                    console.log("WhiteboardMainComponent >> waitRequestGetWbItemList >> recvWbItemDtoList : ",recvWbItemDtoList);
+                    for(let recvWbItemDto of recvWbItemDtoList){
+                        WhiteboardItemFactory.buildWbItems(recvWbItemDto, this.layerService.whiteboardItemArray)
+                          .subscribe((factoryRes:WbItemFactoryResult)=>{
+                            factoryRes.newWbItem.group.opacity = 1;
+                            factoryRes.newWbItem.coreItem.opacity = 1;
+                            this.minimapSyncService.syncMinimap();
+                          });
+                    }
+                  });
               });
           });
 

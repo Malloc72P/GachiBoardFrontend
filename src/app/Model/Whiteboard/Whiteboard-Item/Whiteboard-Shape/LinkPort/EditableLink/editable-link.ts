@@ -140,7 +140,7 @@ export class EditableLink extends WhiteboardItem {
     this.globalLifeCycleEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.DESTROY));
   }
   public destroyItemAndNoEmit() {
-    super.destroyItem();
+    // super.destroyItem();
     this.removeToLinkFromOwner();
     this.removeFromLinkFromOwner();
     this._linkHandlers.forEach(value => {
@@ -284,7 +284,8 @@ export class EditableLink extends WhiteboardItem {
     }
   }
 
-  private refreshLink() {
+  public refreshLink() {
+    console.log("EditableLink >> refreshLink >> 진입함");
     if(!!this._toLinkPort) {
       this.endPoint = this._toLinkPort.calcLinkPortPosition();
     }

@@ -33,6 +33,41 @@ export class WsWhiteboardController {
   /* *************************************************** */
   /* Request Create START */
   /* *************************************************** */
+  waitRequestGetWbItemList( ){
+
+    this.websocketManager.uiService.spin$.next(true);
+
+    return new Observable<any>((subscriber)=>{
+
+      let packetDto = this.websocketManager.createWbSessionScopePacket({},WebsocketPacketActionEnum.READ);
+      packetDto.wsPacketSeq = this.websocketManager.wsPacketSeq;
+
+      this.socket.emit(HttpHelper.websocketApi.whiteboardItem.read.event, packetDto);
+
+      //#### 요청 완료
+
+      this.socket.once(HttpHelper.websocketApi.whiteboardItem.read.event,
+        (wsPacketDto:WebsocketPacketDto)=>{
+          this.websocketManager.uiService.spin$.next(false);
+          switch (wsPacketDto.action) {
+            case WebsocketPacketActionEnum.ACK:
+              console.log("WsWhiteboardController >> waitRequestGetWbItemList >> wsPacketDto : ",wsPacketDto);
+              subscriber.next(wsPacketDto);
+              break;
+            case WebsocketPacketActionEnum.NAK:
+              subscriber.error(wsPacketDto);
+              break;
+          }
+        })
+    });
+  }
+  /* **************************************************** */
+  /* Request Create Multiple WbItem END */
+  /* **************************************************** */
+
+  /* *************************************************** */
+  /* Request Create START */
+  /* *************************************************** */
   waitRequestCreateWbItem( wbItemDto:WhiteboardItemDto ){
 
     //this.websocketManager.uiService.spin$.next(true);
@@ -226,40 +261,6 @@ export class WsWhiteboardController {
   /* Request Delete END */
   /* **************************************************** */
 
-  /* *************************************************** */
-  /* Request Get START */
-  /* *************************************************** */
-  waitRequestGetWbItem(  ){
-
-    //this.websocketManager.uiService.spin$.next(true);
-
-    return new Observable<any>((subscriber)=>{
-
-      let packetDto = this.websocketManager.createWbSessionScopePacket({},WebsocketPacketActionEnum.READ);
-      packetDto.wsPacketSeq = this.websocketManager.wsPacketSeq;
-
-      this.socket.emit(HttpHelper.websocketApi.whiteboardItem.read.event, packetDto);
-
-      //#### 요청 완료
-
-      this.socket.once(HttpHelper.websocketApi.whiteboardItem.read.event,
-        (wsPacketDto:WebsocketPacketDto)=>{
-          //this.websocketManager.uiService.spin$.next(false);
-          switch (wsPacketDto.action) {
-            case WebsocketPacketActionEnum.ACK:
-              console.log("WsWhiteboardController >> waitRequestGetWbItem >> wsPacketDto : ",wsPacketDto);
-              subscriber.next(wsPacketDto);
-              break;
-            case WebsocketPacketActionEnum.NAK:
-              subscriber.error(wsPacketDto);
-              break;
-          }
-        })
-    });
-  }
-  /* **************************************************** */
-  /* Request Get END */
-  /* **************************************************** */
 
   /* *************************************************** */
   /* Request Lock START */
