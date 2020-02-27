@@ -1,4 +1,5 @@
 import {WhiteboardItemDto} from '../../WhiteboardItemDto/whiteboard-item-dto';
+import {WbItemPacketDto} from '../../WhiteboardItemDto/WbItemPacketDto/WbItemPacketDto';
 
 export class WhiteboardSessionDto {
   public _id;
@@ -6,7 +7,7 @@ export class WhiteboardSessionDto {
   public createdBy;
   public recentlyModifiedBy;
   public startDate:Date;
-  public wbItemArray:Array<WhiteboardItemDto>;
+  public wbItemArray:Array<WbItemPacketDto>;
   public connectedUsers:Array<string>;
 
   constructor(id?, wbTitle?, createdBy?, recentlyModifiedBy?, startDate?: Date) {

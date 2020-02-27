@@ -49,6 +49,7 @@ import {CursorData} from '../../../DTO/ProjectDto/WhiteboardSessionDto/Cursor-Da
 import {WsWhiteboardController} from '../../../Controller/Controller-WebSocket/websocket-manager/WhiteboardWsController/ws-whiteboard.controller';
 import {WebsocketPacketDto} from '../../../DTO/WebsocketPacketDto/WebsocketPacketDto';
 import {WbItemFactoryResult} from '../../../Model/Whiteboard/InfiniteCanvas/WhiteboardItemFactory/WbItemFactoryResult/wb-item-factory-result';
+import {WbItemPacketDto} from '../../../DTO/WhiteboardItemDto/WbItemPacketDto/WbItemPacketDto';
 
 @Component({
   selector: 'app-whiteboard-main',
@@ -141,20 +142,24 @@ export class WhiteboardMainComponent implements OnInit,OnDestroy {
                 this.initCursorTrackerInstance(wbSessionFullDto, userDto);
                 this.wbTitle = wbSessionFullDto.title;
 
-                let wsWbController = WsWhiteboardController.getInstance();
+                let recvWbItemPacketDtoList:Array<WbItemPacketDto> = wbSessionFullDto.wbItemArray as Array<WbItemPacketDto>;
+                console.log("WhiteboardMainComponent >> waitRequestGetWbItemList >> recvWbItemPacketDtoList : ",recvWbItemPacketDtoList);
+                for(let recvWbItemPacket of recvWbItemPacketDtoList){
+                  WhiteboardItemFactory.buildWbItems(recvWbItemPacket.wbItemDto, this.layerService.whiteboardItemArray)
+                    .subscribe((factoryRes:WbItemFactoryResult)=>{
+                      factoryRes.newWbItem.group.opacity = 1;
+                      factoryRes.newWbItem.coreItem.opacity = 1;
+                      this.minimapSyncService.syncMinimap();
+                    });
+                }
+
+
+                // let wsWbController = WsWhiteboardController.getInstance();
+/*
                 wsWbController.waitRequestGetWbItemList()
                   .subscribe((wsPacketDto:WebsocketPacketDto)=>{
-                    let recvWbItemDtoList:Array<WhiteboardItemDto> = wsPacketDto.dataDto as Array<WhiteboardItemDto>;
-                    console.log("WhiteboardMainComponent >> waitRequestGetWbItemList >> recvWbItemDtoList : ",recvWbItemDtoList);
-                    for(let recvWbItemDto of recvWbItemDtoList){
-                        WhiteboardItemFactory.buildWbItems(recvWbItemDto, this.layerService.whiteboardItemArray)
-                          .subscribe((factoryRes:WbItemFactoryResult)=>{
-                            factoryRes.newWbItem.group.opacity = 1;
-                            factoryRes.newWbItem.coreItem.opacity = 1;
-                            this.minimapSyncService.syncMinimap();
-                          });
-                    }
                   });
+*/
               });
           });
 
