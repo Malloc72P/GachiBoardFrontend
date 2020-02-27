@@ -16,6 +16,6 @@ export class WhiteboardSessionDto {
     this.createdBy = createdBy;
     this.recentlyModifiedBy = recentlyModifiedBy;
     this.startDate = startDate;
-    this.wbItemArray = new Array<WhiteboardItemDto>();
+    this.wbItemArray = new Array<WbItemPacketDto>();
   }
 }
