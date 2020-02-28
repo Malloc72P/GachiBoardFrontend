@@ -2,7 +2,7 @@
   display: inline-block;
   width: 98%;
   min-width: 340px;
-  height: 280px;
+  height: 260px;
   padding: 0;
   transition: 0.2s;
 }
@@ -27,7 +27,7 @@
 .wb-card-header-wrapper{
   display: flex;
   flex-flow: column;
-  height: 100px;
+  height: 80px;
   padding: 0;
   opacity: 0.8;
 }
@@ -38,14 +38,14 @@
   display: flex;
   flex-flow: row;
   font-size: 18px;
-  line-height: 52px;
+  line-height: 42px;
   padding-left: 7px;
 }
 .wb-card-subtitle{
   display: flex;
   flex-flow: row;
   font-size: 18px;
-  line-height: 52px;
+  line-height: 42px;
   padding-left: 16px;
 }
 .wb-bottom-spacer{
@@ -77,8 +77,10 @@
   /*visibility: visible;*/
 }
 .wb-card-title-button{
-  padding: 8px 12px;
+  padding: 0;
   min-width: 42px;
+  min-height: 20px;
+  height: 40px;
 }
 .wb-card-enter-button{
   margin-right: 12px;

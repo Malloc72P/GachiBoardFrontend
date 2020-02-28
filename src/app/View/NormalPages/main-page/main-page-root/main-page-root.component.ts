@@ -1,6 +1,4 @@
 import {Component, Input, OnInit} from '@angular/core';
-import {KanbanItemEditComponent} from '../../kanban/kanban-item-edit/kanban-item-edit.component';
-import {MatDialog} from '@angular/material';
 import {CreateProjectComponent} from './create-project/create-project.component';
 import {ProjectDto} from '../../../../DTO/ProjectDto/project-dto';
 import {ProjectRequesterService} from '../../../../Controller/Project/project-requester.service';
@@ -9,6 +7,7 @@ import {AuthRequestService} from '../../../../Controller/SocialLogin/auth-reques
 import {AuthEvent} from '../../../../Controller/SocialLogin/auth-request/AuthEvent/AuthEvent';
 import {WebsocketManagerService} from '../../../../Controller/Controller-WebSocket/websocket-manager/websocket-manager.service';
 import {RouterHelperService} from '../../../../Model/Helper/router-helper-service/router-helper.service';
+import {MatDialog} from '@angular/material/dialog';
 
 @Component({
   selector: 'app-main-page-root',
@@ -16,14 +15,13 @@ import {RouterHelperService} from '../../../../Model/Helper/router-helper-servic
   styleUrls: ['./main-page-root.component.css', './../main-article-style.css', './../../gachi-font.css']
 })
 export class MainPageRootComponent implements OnInit {
-  private projectList:Array<ProjectDto>;
-  private userDto:UserDTO = new UserDTO();
+  public projectList:Array<ProjectDto>;
+  public userDto:UserDTO = new UserDTO();
   constructor(
     public dialog: MatDialog,
-    private projectRequesterService:ProjectRequesterService,
-    private authRequestService:AuthRequestService,
-    private websocketManagerService:WebsocketManagerService,
-    private routerHelperService:RouterHelperService,
+    public projectRequesterService:ProjectRequesterService,
+    public authRequestService:AuthRequestService,
+    public routerHelperService:RouterHelperService,
   ) {
     let inviteCode = null;
     inviteCode = localStorage.getItem("inviteCode");

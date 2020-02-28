@@ -1,6 +1,8 @@
 import * as paper from 'paper';
+// @ts-ignore
+import Rectangle = paper.Rectangle;
 
-import {EventEmitter, Injectable} from '@angular/core';
+import {Injectable} from '@angular/core';
 import {HorizonContextMenuActions, HorizonContextMenuTypes} from "./horizon-context-menu.enum";
 import {WhiteboardItem} from "../../Whiteboard-Item/whiteboard-item";
 import {PositionCalcService} from "../../PositionCalc/position-calc.service";
@@ -10,19 +12,20 @@ import {ZoomEvent} from "../../InfiniteCanvas/ZoomControl/ZoomEvent/zoom-event";
 import {ZoomEventEnum} from "../../InfiniteCanvas/ZoomControl/ZoomEvent/zoom-event-enum.enum";
 import {GlobalSelectedGroup} from "../../Whiteboard-Item/ItemGroup/GlobalSelectedGroup/global-selected-group";
 import {InfiniteCanvasService} from "../../InfiniteCanvas/infinite-canvas.service";
-import {subPanelStatus} from "./sub-panel-status";
 import {EditableRaster} from "../../Whiteboard-Item/Whiteboard-Shape/editable-raster/editable-raster";
-import {SimpleArrowLink} from "../../Whiteboard-Item/Whiteboard-Shape/LinkPort/EditableLink/SimpleArrowLink/simple-arrow-link";
-// @ts-ignore
-import Rectangle = paper.Rectangle;
 import {EditableLink} from "../../Whiteboard-Item/Whiteboard-Shape/LinkPort/EditableLink/editable-link";
+import {
+  ItemLifeCycleEnum,
+  ItemLifeCycleEvent
+} from "../../Whiteboard-Item/WhiteboardItemLifeCycle/WhiteboardItemLifeCycle";
+import {SubPanelManager} from "../../Panel/sub-panel-manager/sub-panel-manager";
 
 @Injectable({
   providedIn: 'root'
 })
 export class HorizonContextMenuService {
   private _isHidden = true;
-  private _subPanelHidden = new subPanelStatus();
+  private readonly _subPanelManager: SubPanelManager;
   private _centerTop = { x: 0, y: 0};
   private _menuItemArray = new Array<HorizonContextMenuActions>();
   private _globalSelectedGroup: GlobalSelectedGroup;
@@ -34,11 +37,75 @@ export class HorizonContextMenuService {
   constructor(
     private positionCalcService: PositionCalcService,
     private infiniteCanvasService: InfiniteCanvasService,
-  ) { }
+  ) {
+    this._subPanelManager = new SubPanelManager([
+      HorizonContextMenuActions.LINE,
+      HorizonContextMenuActions.FILL,
+      HorizonContextMenuActions.ARROW_WING,
+      HorizonContextMenuActions.FONT_STYLE
+    ]);
+  }
 
   public initializeHorizonContextMenuService(globalSelectedGroup: GlobalSelectedGroup){
     this._globalSelectedGroup = globalSelectedGroup;
+    this.subscribeLifeCycleEvent();
+    this.subscribeZoomEvent();
+  }
+
+  public open() {
+    this.setMenuItem(this.instanceCheckItem(this._globalSelectedGroup.wbItemGroup));
+    this.setMenuPosition(this.coreItem.bounds);
+    this._isHidden = false;
+    this.subPanelManager.hideAll();
+    setTimeout(() => {
+      this.initMenuSizeValue();
+    }, 0);
+  }
+
+  public close() {
+    this._isHidden = true;
+    this.checkModifiedItem();
+    this.subPanelManager.hideAll();
+  }
+
+  public refreshPosition() {
+    if(!!this.coreItem) {
+      this.setMenuPosition(this.coreItem.bounds);
+    }
+  }
+
+  public refreshMenuItem() {
+    this.setMenuItem(this.instanceCheckItem(this._globalSelectedGroup.wbItemGroup));
+  }
+
+  // ################### Private Method #####################
+  private checkModifiedItem() {
+    if(!!this.item) {
+      if(this.item.isModified) {
+        this.item.localEmitModify();
+        this.item.globalEmitModify();
+        this.item.isModified = false;
+      }
+    }
+  }
+
+  private subscribeLifeCycleEvent() {
+    this.globalSelectedGroup.localLifeCycleEmitter.subscribe((event: ItemLifeCycleEvent) => {
+      switch (event.action) {
+        case ItemLifeCycleEnum.MOVED:
+        case ItemLifeCycleEnum.RESIZED:
+        case ItemLifeCycleEnum.SELECTED:
+        case ItemLifeCycleEnum.DESELECTED:
+          this.refreshPosition();
+          break;
+      }
+    });
+  }
+  private subscribeZoomEvent() {
     this.infiniteCanvasService.zoomEventEmitter.subscribe((zoomEvent: ZoomEvent) => {
+      if(this.isHidden) {
+        return;
+      }
       if(zoomEvent.action === ZoomEventEnum.ZOOM_CHANGED) {
         setTimeout(() => {
           this.refreshPosition();
@@ -46,24 +113,6 @@ export class HorizonContextMenuService {
       }
     });
   }
-
-  public open() {
-    this.setMenuItem(this.instanceCheckItem(this._globalSelectedGroup.wbItemGroup));
-    this.setMenuPosition(this.coreItem.bounds);
-    this._isHidden = false;
-    this.initMenuSizeValue();
-  }
-
-  public close() {
-    this._isHidden = true;
-    this.subPanelHidden.hideAll();
-  }
-
-  public refreshPosition() {
-    this.setMenuPosition(this.coreItem.bounds);
-  }
-
-  // ################### Private Method #####################
 
   private setMenuItem(type: HorizonContextMenuTypes) {
     switch (type) {
@@ -86,6 +135,14 @@ export class HorizonContextMenuService {
         this.setMenuForItem();
         break;
     }
+
+    if(this.globalSelectedGroup.isLocked) {
+      this.menuItemArray.forEach(((value, index) => {
+        if(value === HorizonContextMenuActions.LOCK) {
+          this.menuItemArray[index] = HorizonContextMenuActions.UNLOCK;
+        }
+      }));
+    }
   }
 
   private instanceCheckItem(wbItemGroup: Array<WhiteboardItem>): HorizonContextMenuTypes {
@@ -102,10 +159,7 @@ export class HorizonContextMenuService {
     // GSG 에 선택된 아이템이 한개 (단일선택)
     } else {
       let item = wbItemGroup[0];
-      if(this._globalSelectedGroup.isLinkSelected) {
-        this._item = this.findLink(item as EditableShape);
-        return HorizonContextMenuTypes.ARROW;
-      } else if(item instanceof EditableRaster) {
+      if(item instanceof EditableRaster) {
         this._item = item;
         return HorizonContextMenuTypes.RASTER;
       } else if(item instanceof EditableShape) {
@@ -114,13 +168,16 @@ export class HorizonContextMenuService {
       } else if(item instanceof EditableStroke) {
         this._item = item;
         return HorizonContextMenuTypes.STROKE;
+      } else if(item instanceof EditableLink) {
+        this._item = item;
+        return HorizonContextMenuTypes.ARROW;
       } else {
         this._item = item;
       }
     }
   }
 
-  private findLink(item: EditableShape): SimpleArrowLink {
+  private findLink(item: EditableShape): EditableLink {
     let findItem = undefined;
     item.linkPortMap.forEach(value => {
       value.fromLinkList.forEach( valueOfValue => {
@@ -181,7 +238,6 @@ export class HorizonContextMenuService {
 
   private setMenuForArrow() {
     this._menuItemArray = new Array<HorizonContextMenuActions>(
-      HorizonContextMenuActions.LINE,
       HorizonContextMenuActions.ARROW_WING,
       HorizonContextMenuActions.MORE,
     );
@@ -253,6 +309,10 @@ export class HorizonContextMenuService {
     return this._isHidden;
   }
 
+  get isOpen(): boolean {
+    return !this.isHidden;
+  }
+
   get centerTop(): { x: number; y: number } {
     return this._centerTop;
   }
@@ -261,8 +321,8 @@ export class HorizonContextMenuService {
     return this._menuItemArray;
   }
 
-  get subPanelHidden(): subPanelStatus {
-    return this._subPanelHidden;
+  get subPanelManager(): SubPanelManager {
+    return this._subPanelManager;
   }
 
   get globalSelectedGroup(): GlobalSelectedGroup {
@@ -276,8 +336,6 @@ export class HorizonContextMenuService {
   get coreItem() {
     if(this.item instanceof WhiteboardItem) {
       return this.item.coreItem;
-    } else if(this.item instanceof SimpleArrowLink) {
-      return this.item.linkObject;
     } else if(Array.isArray(this.item)) {
       return this.globalSelectedGroup.group;
     }

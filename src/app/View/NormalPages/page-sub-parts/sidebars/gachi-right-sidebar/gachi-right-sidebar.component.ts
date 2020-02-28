@@ -9,10 +9,10 @@ import {AuthRequestService} from '../../../../../Controller/SocialLogin/auth-req
   styleUrls: ['./gachi-right-sidebar.component.css', './../../../gachi-font.css']
 })
 export class GachiRightSidebarComponent implements OnInit {
-  private isLoggedIn = false;
+  public isLoggedIn = false;
   constructor(
-    private sidebarManagerService:GachiSidebarManagerService,
-    private authService:AuthRequestService,) {
+    public sidebarManagerService:GachiSidebarManagerService,
+    public authService:AuthRequestService,) {
 
   }
 

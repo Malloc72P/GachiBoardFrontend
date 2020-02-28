@@ -1,14 +1,15 @@
 <div #overlayEl class="popup-participant-list"
      [ngStyle]="{ 'margin' : marginValue}"
-     [ngClass]="{'wb-card-show' : isHovering}">
-  <div style="padding: 3px;">
+     ><!--[ngClass]="{'wb-card-show' : isHovering}"-->
+  <div style="padding: 3px; text-align: center;">
     <img class="wb-card-participant-img"
          src="{{imgSrc}}"
          [ngClass]="{'wb-card-drop-shadow' : enableDropShadow && isHovering}"
          [ngStyle]="{ 'width' : imgSize, 'height' : imgSize,
                       'filter': 'drop-shadow(0px 0px 8px '+dropShadowColor+')'}">
 
-    <div class="wb-card-participant-name-wrapper"
+    <div class="wb-card-participant-name-wrapper text-ellipsis"
+         *ngIf="enableUserName"
          [ngStyle]="{ 'filter': 'drop-shadow(0px 0px 8px '+dropShadowColor+')'}">
 
       <span [ngStyle]="{'color' : fontColor, 'font-size' : fontSize}">{{userName}}</span>

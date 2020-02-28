@@ -7,11 +7,12 @@ import Point = paper.Point;
 // @ts-ignore
 import Item = paper.Item;
 // @ts-ignore
-import Segment = paper.Segment;
+import Size = paper.Size;
 // @ts-ignore
-import Color = paper.Color;
+import Rectangle = paper.Rectangle;
 import {WhiteboardItemType} from '../../../../../Helper/data-type-enum/data-type.enum';
 import {EditableCircleDto} from '../../../../../../DTO/WhiteboardItemDto/WhiteboardShapeDto/EditableShapeDto/EditableCircleDto/editable-circle-dto';
+
 export class EditableCircle extends EditableShape {
   private _radius: number;
   constructor(id, item:Item, textStyle, editText, layerService) {
@@ -32,6 +33,11 @@ export class EditableCircle extends EditableShape {
     return editableCircleDto;
   }
 
+  public update(dto: EditableCircleDto) {
+    super.update(dto);
+
+    this.radius = dto.radius;
+  }
 
   get radius(): number {
     return this._radius;
@@ -39,5 +45,8 @@ export class EditableCircle extends EditableShape {
 
   set radius(value: number) {
     this._radius = value;
+    let center = this.coreItem.position;
+    this.coreItem.bounds = new Rectangle(this.topLeft, new Size(value * 2, value * 2));
+    this.coreItem.position = center;
   }
 }

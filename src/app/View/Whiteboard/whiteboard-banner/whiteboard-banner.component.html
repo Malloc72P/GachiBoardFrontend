@@ -1,0 +1,32 @@
+<div class="banner-outer-wrapper">
+  <mat-card class="banner-card">
+    <div class="banner-card-header">
+      <mat-icon class="banner-title-icon"
+                style="margin: 0 6px 0 0">dashboard</mat-icon>
+      <h3 class="banner-title">{{wbTitle}}</h3>
+
+      <button mat-button class="banner-menu-btn" [matMenuTriggerFor]="wbMainMenu"><mat-icon>more_vert</mat-icon></button>
+
+      <mat-menu #wbMainMenu="matMenu">
+        <button mat-menu-item ><span>화이트보드 속성</span></button>
+      </mat-menu>
+      <app-user-overlay-card *ngFor="let idToken of connectedUserList"
+                             (click)="onUserImageClick(idToken)"
+                             matRipple class="banner-user-btn"
+                             matTooltip="{{websocketManagerService.getUserInfoByIdToken(idToken).userName}}"
+                             style="margin-right: 8px; cursor: pointer;"
+                             [userName]="websocketManagerService.getUserInfoByIdToken(idToken).userName"
+                             [marginValue]="'0'"
+                             [imgSize]="'36px'"
+                             [fontColor]="'white'"
+                             [fontSize]="'16px'"
+                             [dropShadowColor]="'white'"
+                             [enableUserName]="false"
+                             [imgSrc]="websocketManagerService.getUserInfoByIdToken(idToken).profileImg">
+      </app-user-overlay-card>
+    </div>
+  </mat-card>
+  <!--<div class="wb-user-wrapper">
+
+  </div>-->
+</div>

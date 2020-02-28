@@ -9,33 +9,18 @@ import {WhiteboardShapeDto} from '../../../../DTO/WhiteboardItemDto/WhiteboardSh
 import Item = paper.Item;
 import {GachiColorDto} from '../../../../DTO/WhiteboardItemDto/ColorDto/gachi-color-dto';
 import {LinkPortDto} from '../../../../DTO/WhiteboardItemDto/WhiteboardShapeDto/LinkPortDto/link-port-dto';
+import {WhiteboardItemDto} from "../../../../DTO/WhiteboardItemDto/whiteboard-item-dto";
+import {ItemLifeCycleEnum, ItemLifeCycleEvent} from "../WhiteboardItemLifeCycle/WhiteboardItemLifeCycle";
 
 export class WhiteboardShape extends WhiteboardItem implements Editable{
-  private _width: number;
-  private _height: number;
-  private _borderColor;
-  private _borderWidth: number;
-  private _fillColor: paper.Color;
-  private _opacity: number;
   private _linkPortMap:Map<any,LinkPort>;
+
   protected constructor(id, type, item:Item,layerService) {
     super(id, type, item, layerService);
-    this.topLeft  = item.bounds.topLeft;
-    this.width    = item.bounds.width;
-    this.height    = item.bounds.height;
-    this.borderColor = item.style.strokeColor;
-    this.borderWidth = item.style.strokeWidth;
-
-    if(item.style.fillColor){
-      this.fillColor = item.style.fillColor;
-    }else{
-      // @ts-ignore
-      this.fillColor = "transparent";
-    }
-    this.opacity = item.opacity;
 
     this.initLinkPortMap();
     this.activateShadowEffect();
+    this.setLifeCycleEvent();
   }
 
   protected initLinkPortMap(){
@@ -47,6 +32,26 @@ export class WhiteboardShape extends WhiteboardItem implements Editable{
     this.linkPortMap.set( LinkPortDirectionEnum.RIGHT, new LinkPort(this, LinkPortDirectionEnum.RIGHT) );
   }
 
+  private setLifeCycleEvent() {
+    this.localLifeCycleEmitter.subscribe((event: ItemLifeCycleEvent) => {
+      switch (event.action) {
+        case ItemLifeCycleEnum.DESELECTED:
+          this.disableLinkPort();
+          break;
+      }
+    });
+  }
+
+  public enableLinkPort() {
+    this.linkPortMap.forEach(value => {
+      value.enable();
+    });
+  }
+  public disableLinkPort() {
+    this.linkPortMap.forEach(value => {
+      value.disable();
+    });
+  }
 
   get linkPortMap(): Map<any, LinkPort> {
     return this._linkPortMap;
@@ -55,6 +60,7 @@ export class WhiteboardShape extends WhiteboardItem implements Editable{
   set linkPortMap(value: Map<any, LinkPort>) {
     this._linkPortMap = value;
   }
+
   public getDirectionPoint(direction){
     switch (direction) {
       case LinkPortDirectionEnum.TOP :
@@ -100,90 +106,114 @@ export class WhiteboardShape extends WhiteboardItem implements Editable{
     return closestDirection;
   }
 
-  notifyItemCreation() {
-  }
-
-  notifyItemModified() {
-  }
-
-  refreshItem() {
-  }
-
   destroyItem() {
     super.destroyItem();
     if(this.linkPortMap){
       this.linkPortMap.forEach((value, key, map)=>{
-        value.destroyPortAndLink();
+        value.destroyLink();
       })
     }
 
   }
+  destroyItemAndNoEmit() {
+    // super.destroyItem();
+    if(this.linkPortMap){
+      this.linkPortMap.forEach((value, key, map)=>{
+        value.destroyLink();
+      })
+    }
+    this.destroyBlind();
+  }
   exportToDto(): WhiteboardShapeDto {
     let wbShapeDto:WhiteboardShapeDto = super.exportToDto() as WhiteboardShapeDto;
 
-    let bounds = this.coreItem.bounds;
     let linkPortsDto = new Array<LinkPortDto>();
     this.linkPortMap.forEach((value, key, map)=>{
       linkPortsDto.push(value.exportToDto());
     });
 
-    wbShapeDto.width = bounds.width;
-    wbShapeDto.height = bounds.height;
-    wbShapeDto.borderColor = GachiColorDto.createColor(this.coreItem.strokeColor);
-    wbShapeDto.borderWidth = this.coreItem.strokeWidth;
-    wbShapeDto.fillColor = GachiColorDto.createColor(this.coreItem.fillColor);
-    wbShapeDto.opacity = this.coreItem.opacity;
+    wbShapeDto.width = this.width;
+    wbShapeDto.height = this.height;
+    wbShapeDto.borderColor = GachiColorDto.createColor(this.borderColor);
+    wbShapeDto.borderWidth = this.borderWidth;
+    wbShapeDto.fillColor = GachiColorDto.createColor(this.fillColor);
+    wbShapeDto.opacity = this.opacity;
     wbShapeDto.linkPortsDto = linkPortsDto;
 
     return wbShapeDto;
   }
 
+  public update(dto: WhiteboardShapeDto) {
+    console.log("WhiteboardShape >> update >> 진입함");
+    this.width = dto.width;
+    this.height = dto.height;
+    this.borderColor = dto.borderColor;
+    this.fillColor = dto.fillColor;
+    this.borderWidth = dto.borderWidth;
+    this.opacity = dto.opacity;
+    super.update(dto as WhiteboardItemDto);
+
+    for(let [key, linkPort] of this.linkPortMap){
+        for(let fromLink of linkPort.fromLinkList){
+            fromLink.refreshLink();
+        }
+      for(let toLink of linkPort.toLinkList){
+        toLink.refreshLink();
+      }
+    }
+
+
+    // TODO : linkPort 에 대한 정보를 업데이트 할 필요가 있을지 검증 필요
+    // dto.linkPortsDto.forEach(value => {
+    //   this.linkPortMap.set()
+    // });
+  }
+
   get width(): number {
-    return this._width;
+    return this.coreItem.bounds.width;
   }
 
   set width(value: number) {
-    this._width = value;
+    this.coreItem.bounds.width = value;
   }
 
   get height(): number {
-    return this._height;
+    return this.coreItem.bounds.height;
   }
 
   set height(value: number) {
-    this._height = value;
+    this.coreItem.bounds.height = value;
   }
 
   get borderColor() {
-    return this._borderColor;
+    return this.coreItem.strokeColor;
   }
 
   set borderColor(value) {
-    this._borderColor = value;
+    this.coreItem.strokeColor = value;
   }
 
   get borderWidth(): number {
-    return this._borderWidth;
+    return this.coreItem.strokeWidth;
   }
 
   set borderWidth(value: number) {
-    this._borderWidth = value;
+    this.coreItem.strokeWidth = value;
   }
 
   get fillColor(): paper.Color {
-    return this._fillColor;
+    return this.coreItem.fillColor;
   }
 
   set fillColor(value: paper.Color) {
-    this._fillColor = value;
+    this.coreItem.fillColor = value;
   }
 
   get opacity(): number {
-    return this._opacity;
+    return this.coreItem.opacity;
   }
 
   set opacity(value: number) {
-    this._opacity = value;
+    this.coreItem.opacity = value;
   }
-
 }

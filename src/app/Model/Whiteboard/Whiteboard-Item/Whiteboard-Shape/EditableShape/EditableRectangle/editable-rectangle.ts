@@ -1,4 +1,3 @@
-import {EditableShape} from '../editable-shape';
 import * as paper from 'paper';
 // @ts-ignore
 import Path = paper.Path;
@@ -10,6 +9,8 @@ import Item = paper.Item;
 import Segment = paper.Segment;
 // @ts-ignore
 import Color = paper.Color;
+
+import {EditableShape} from '../editable-shape';
 import {WhiteboardItemType} from '../../../../../Helper/data-type-enum/data-type.enum';
 import {EditableRectangleDto} from '../../../../../../DTO/WhiteboardItemDto/WhiteboardShapeDto/EditableShapeDto/EditableRectangleDto/editable-rectangle-dto';
 
@@ -27,5 +28,9 @@ export class EditableRectangle extends EditableShape {
 
   exportToDto(): EditableRectangleDto {
     return super.exportToDto() as EditableRectangleDto;
+  }
+
+  update(dto: EditableRectangleDto) {
+    super.update(dto);
   }
 }

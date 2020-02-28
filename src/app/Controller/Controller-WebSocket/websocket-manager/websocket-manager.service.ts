@@ -14,24 +14,34 @@ import {KanbanItem} from '../../../Model/Whiteboard/ProjectSupporter/Kanban/Kanb
 import {KanbanEventManagerService} from '../../../Model/Whiteboard/ProjectSupporter/Kanban/kanban-event-manager.service';
 import {KanbanItemDto} from '../../../DTO/ProjectDto/KanbanDataDto/KanbanGroupDto/KanbanItemDto/kanban-item-dto';
 import {UiService} from '../../../Model/Helper/ui-service/ui.service';
+import {WbSessionEventManagerService} from './WhiteboardSessionWsController/wb-session-event-manager.service';
+import {WsWhiteboardSessionController} from './WhiteboardSessionWsController/ws-whiteboard-session.controller';
+import {ParticipantDto} from '../../../DTO/ProjectDto/ParticipantDto/participant-dto';
+import {WhiteboardSessionDto} from '../../../DTO/ProjectDto/WhiteboardSessionDto/whiteboard-session-dto';
+import {WbItemEventManagerService} from './WhiteboardWsController/wb-item-event-manager.service';
+import {WsWhiteboardController} from './WhiteboardWsController/ws-whiteboard.controller';
 
 @Injectable({
   providedIn: 'root'
 })
 export class WebsocketManagerService {
   @Output() wsEventEmitter:EventEmitter<any> = new EventEmitter<any>();
-  //SocketIO를 통해 데이터를 불러오고 싶을때 사용
-  //미리 해당 이벤트이미터를 subscribe하고, 데이터를 요청하는 메세지를 전송하면 됨
+  //SocketIO를 통해 데이터를 불러오고 싶을때 사용 >>> 하지 말것!
+  //미리 해당 이벤트이미터를 subscribe하고, 데이터를 요청하는 메세지를 전송하면 됨 >>> 이럴 필요 없음!!!
+  //DEPRECATED!!! waitRequest시리즈의 메서드를 쓰면 됨!!!
 
   public isConnected = false;
   private _userInfo:UserDTO;
   public currentProjectDto:ProjectDto;
+  public currentWbSessionDto:WhiteboardSessionDto;
   public notVerifiedKanbanItems:Array<NotVerifiedKanbanItem>;
   private _wsPacketSeq = 0;
   constructor(
     private _socket:Socket,
     private authRequestService:AuthRequestService,
     public kanbanEventManagerService:KanbanEventManagerService,
+    public wbSessionEventManagerService:WbSessionEventManagerService,
+    public wbItemEventManagerService:WbItemEventManagerService,
     public uiService:UiService,
   ) {
     this.authRequestService.authEventEmitter.subscribe((authEvent:AuthEvent)=>{
@@ -43,6 +53,8 @@ export class WebsocketManagerService {
     //#### WS Controller 초기화
     WsProjectController.initInstance(this);
     WsKanbanController.initInstance(this);
+    WsWhiteboardSessionController.initInstance(this);
+    WsWhiteboardController.initInstance(this);
 
     this.notVerifiedKanbanItems = new Array<NotVerifiedKanbanItem>();
   }
@@ -116,11 +128,44 @@ export class WebsocketManagerService {
     newPacket.accessToken = this.userInfo.accessToken;
     return newPacket;
   }
-  createWbScopePacket(){
 
+  createWbSessionScopePacket(dataDto, action:WebsocketPacketActionEnum, specialAction?){
+    let newPacket:WebsocketPacketDto = null;
+    if(action != WebsocketPacketActionEnum.SPECIAL){
+      newPacket = new WebsocketPacketDto(
+        this._userInfo.idToken,
+        WebsocketPacketScopeEnum.WHITEBOARD,
+        this.currentWbSessionDto._id,
+        dataDto,
+        action);
+    } else{
+      newPacket = new WebsocketPacketDto(
+        this._userInfo.idToken,
+        WebsocketPacketScopeEnum.PROJECT,
+        this.currentProjectDto._id,
+        dataDto,
+        action, specialAction);
+    }
+    newPacket.accessToken = this.userInfo.accessToken;
+    return newPacket;
   }
 
   get wsPacketSeq(): number {
     return this._wsPacketSeq++;
+  }
+  getUserInfoByIdToken(idToken):ParticipantDto{
+    for(let participant of this.currentProjectDto.participantList){
+      if(participant.idToken === idToken){
+        return participant;
+      }
+    }
+  }
+  getUserIndexByIdToken(idToken):number{
+    for(let i = 0 ; i < this.currentProjectDto.participantList.length; i++){
+      let participant = this.currentProjectDto.participantList[i];
+      if(participant.idToken === idToken){
+        return i;
+      }
+    }
   }
 }

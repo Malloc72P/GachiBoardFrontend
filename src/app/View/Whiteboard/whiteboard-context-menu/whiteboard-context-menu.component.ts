@@ -15,15 +15,15 @@ import Point = paper.Point;
 })
 
 export class WhiteboardContextMenuComponent implements OnInit {
-  @ViewChild(MatMenuTrigger, {static: false}) matMenuTrigger: MatMenuTrigger;
+  @ViewChild(MatMenuTrigger) matMenuTrigger: MatMenuTrigger;
   @ViewChild('contextMenu', {static: true}) contextMenu;
 
-  private HTMLContextMenu;
+  public HTMLContextMenu;
 
   constructor(
-    private layerService: DrawingLayerManagerService,
-    private positionCalcService: PositionCalcService,
-    private contextMenuService: ContextMenuService,
+    public layerService: DrawingLayerManagerService,
+    public positionCalcService: PositionCalcService,
+    public contextMenuService: ContextMenuService,
   ) { }
 
   ngAfterViewInit() {
@@ -36,7 +36,7 @@ export class WhiteboardContextMenuComponent implements OnInit {
     });
   }
 
-  private onClickOutsideMenu(event) {
+  public onClickOutsideMenu(event) {
     this.HTMLContextMenu = document.getElementById("contextMenu");
 
     if(this.HTMLContextMenu){

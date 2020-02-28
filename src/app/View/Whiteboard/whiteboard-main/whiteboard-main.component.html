@@ -14,10 +14,12 @@
     <div class="verticalSpacer"></div>
   </div>
   <app-whiteboard-tool-panel id="toolPanel"></app-whiteboard-tool-panel>
-  <app-tool-brush-panel [hidden]="panelManager.isHideBrushPanel" id="brushPanel"></app-tool-brush-panel>
-  <app-tool-highlighter-panel [hidden]="panelManager.isHideHighlighterPanel" id="highlighterPanel"></app-tool-highlighter-panel>
-  <app-tool-shape-panel [hidden]="panelManager.isHideShapePanel" id="shapePanel"></app-tool-shape-panel>
-  <!--<app-debuging-pannel></app-debuging-pannel>-->
+  <app-tool-brush-panel [hidden]="panelManager.subPanel.isHidden(PointerMode.DRAW)" id="brushPanel"></app-tool-brush-panel>
+  <app-tool-highlighter-panel [hidden]="panelManager.subPanel.isHidden(PointerMode.HIGHLIGHTER)" id="highlighterPanel"></app-tool-highlighter-panel>
+  <app-tool-link-panel [hidden]="panelManager.subPanel.isHidden(PointerMode.LINK)" id="linkPanel"></app-tool-link-panel>
+  <app-tool-shape-panel [hidden]="panelManager.subPanel.isHidden(PointerMode.SHAPE)" id="shapePanel"></app-tool-shape-panel>
+  <!--<app-debuging-pannel [paperProject]="whiteboardPaperProject"></app-debuging-pannel>-->
   <app-whiteboard-minimap [currentProject]="whiteboardPaperProject"></app-whiteboard-minimap>
   <app-project-supporter-pannel class="supporterPanel"></app-project-supporter-pannel>
+  <app-whiteboard-banner [wbTitle]="wbTitle" [connectedUserList]="connectedUserList"></app-whiteboard-banner>
 </div>

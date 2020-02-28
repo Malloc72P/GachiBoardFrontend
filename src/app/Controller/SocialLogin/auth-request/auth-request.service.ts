@@ -65,7 +65,9 @@ export class AuthRequestService {
     this.authEventEmitter.emit(
       new AuthEvent(AuthEventEnum.SIGN_OUT, this.userInfo)
     );
-    this.routerHelper.goToHomePage();
+
+    // this.routerHelper.goToHomePage();
+    this.routerHelper.redirectToHomePage();
   }
 
   //  현재 가지고 있는 토큰이 validate한지 검사함.

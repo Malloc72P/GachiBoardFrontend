@@ -1,8 +1,6 @@
 import {Component, ElementRef, Inject, Input, OnInit, QueryList, ViewChild, ViewChildren} from '@angular/core';
-import {MAT_DIALOG_DATA, MatAutocomplete, MatAutocompleteSelectedEvent, MatChipInputEvent, MatDialogRef} from '@angular/material';
 import {UserManagerService} from '../../../../Model/UserManager/user-manager.service';
 import {KanbanItemColorService} from '../../../../Model/Whiteboard/ProjectSupporter/Kanban/KanbanItemColorEnumManager/kanban-item-color.service';
-import {EditKanbanDialogData} from '../kanban-item-edit/kanban-item-edit.component';
 import {
   KanbanTagListManagerService,
   TagItem
@@ -15,6 +13,9 @@ import {KanbanItem} from '../../../../Model/Whiteboard/ProjectSupporter/Kanban/K
 import {COMMA, ENTER} from '@angular/cdk/keycodes';
 import {AreYouSurePanelService} from '../../../../Model/PopupManager/AreYouSurePanelManager/are-you-sure-panel.service';
 import {WsKanbanController} from '../../../../Controller/Controller-WebSocket/websocket-manager/KanbanWsController/ws-kanban.controller';
+import {MatAutocomplete, MatAutocompleteSelectedEvent} from '@angular/material/autocomplete';
+import {MatDialogRef} from '@angular/material/dialog';
+import {MatChipInputEvent} from '@angular/material/chips';
 
 @Component({
   selector: 'app-kanban-tag-management',
@@ -28,15 +29,15 @@ export class KanbanTagManagementComponent implements OnInit {
   errMsg = "";
   @ViewChildren('tagViewItem') tagViewList : QueryList<ElementRef>;
 
-  @ViewChild('tagInput', {static: false}) tagInput: ElementRef<HTMLInputElement>;
-  @ViewChild('auto', {static: false}) matAutocomplete: MatAutocomplete;
+  @ViewChild('tagInput') tagInput: ElementRef<HTMLInputElement>;
+  @ViewChild('auto') matAutocomplete: MatAutocomplete;
 
   separatorKeysCodes: number[] = [ENTER, COMMA];
 
   ngOnInit() {
   }
 
-  private static idGenerator = 0;
+  public static idGenerator = 0;
   id = 0;
   selectable = false;
   removable = true;
@@ -47,11 +48,11 @@ export class KanbanTagManagementComponent implements OnInit {
   filteredTags: Observable<TagItem[]>;
   constructor(
     public dialogRef: MatDialogRef<KanbanTagManagementComponent>,
-    private userManagerService:UserManagerService,
-    private colorService:KanbanItemColorService,
-    private tagMgrService:KanbanTagListManagerService,
-    private areYouSurePanelService:AreYouSurePanelService,
-    private animeManagerService:AnimeManagerService
+    public userManagerService:UserManagerService,
+    public colorService:KanbanItemColorService,
+    public tagMgrService:KanbanTagListManagerService,
+    public areYouSurePanelService:AreYouSurePanelService,
+    public animeManagerService:AnimeManagerService
   ) {
     this.id += KanbanTagManagementComponent.idGenerator++;
     this.tagFormControl = new FormControl();
@@ -125,7 +126,7 @@ export class KanbanTagManagementComponent implements OnInit {
     this.tagFormControl.setValue(title);
   }//selected
 
-  private _filter(value): TagItem[] {
+  public _filter(value): TagItem[] {
     if(value === undefined){
       return null;
     }

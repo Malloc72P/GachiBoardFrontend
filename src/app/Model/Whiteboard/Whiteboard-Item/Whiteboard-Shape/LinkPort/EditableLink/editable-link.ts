@@ -1,291 +1,390 @@
-
-import {LinkPort} from '../link-port';
-import {DrawingLayerManagerService} from '../../../../InfiniteCanvas/DrawingLayerManager/drawing-layer-manager.service';
-import {Editable} from '../../../InterfaceEditable/editable';
-import {EventEmitter} from '@angular/core';
-import {LinkEvent} from '../LinkEvent/link-event';
-import {LinkEventEnum} from '../LinkEvent/link-event-enum.enum';
-import {
-  LinkerColorEnum,
-  LinkerStrokeWidthLevelEnum
-} from '../../../../InfiniteCanvas/DrawingLayerManager/LinkModeManagerService/LinkMode/linker-mode-enum.enum';
-
 import * as paper from 'paper';
 // @ts-ignore
 import Path = paper.Path;
 // @ts-ignore
 import Point = paper.Point;
 // @ts-ignore
-import Circle = paper.Path.Circle;
+import Color = paper.Color;
+// @ts-ignore
+import Group = paper.Group;
 
-import {MouseButtonEventEnum} from '../../../../Pointer/MouseButtonEventEnum/mouse-button-event-enum.enum';
-import {LinkAdjustorPositionEnum} from './linkAdjustorPositionEnum/link-adjustor-position-enum.enum';
-import {HandlerOption, ItemAdjustor} from '../../../ItemAdjustor/item-adjustor';
-import {WhiteboardShape} from '../../whiteboard-shape';
-import {WhiteboardShapeDto} from '../../../../../../DTO/WhiteboardItemDto/WhiteboardShapeDto/whiteboard-shape-dto';
-import {GachiColorDto} from '../../../../../../DTO/WhiteboardItemDto/ColorDto/gachi-color-dto';
-import {EditableLinkDto} from '../../../../../../DTO/WhiteboardItemDto/WhiteboardShapeDto/LinkPortDto/EditableLinkDto/editable-link-dto';
-import {WhiteboardItemType} from '../../../../../Helper/data-type-enum/data-type.enum';
+import {EditableLinkCapTypes} from "./editable-link-types.enum";
+import {WhiteboardItemType} from "../../../../../Helper/data-type-enum/data-type.enum";
+import {LinkPort} from "../link-port";
+import {WhiteboardItem} from "../../../whiteboard-item";
+import {DrawingLayerManagerService} from "../../../../InfiniteCanvas/DrawingLayerManager/drawing-layer-manager.service";
+import {ItemLifeCycleEnum, ItemLifeCycleEvent} from "../../../WhiteboardItemLifeCycle/WhiteboardItemLifeCycle";
+import {LinkHandlerPositions} from "./link-handler-positions";
+import {LinkHandler} from "./LinkHandler/link-handler";
+import {WhiteboardShape} from "../../whiteboard-shape";
+import {Subscription} from "rxjs";
+import {EditableLinkDto} from "../../../../../../DTO/WhiteboardItemDto/WhiteboardShapeDto/LinkPortDto/EditableLinkDto/editable-link-dto";
+import {LinkPortDto} from "../../../../../../DTO/WhiteboardItemDto/WhiteboardShapeDto/LinkPortDto/link-port-dto";
+import {GachiPointDto} from "../../../../../../DTO/WhiteboardItemDto/PointDto/gachi-point-dto";
+import {GachiColorDto} from "../../../../../../DTO/WhiteboardItemDto/ColorDto/gachi-color-dto";
 
-export abstract class EditableLink implements Editable{
-  private _id;
-  private _type;
-  private _linkObject:Path;
-  private _tempLinkPath:Path;
-  private _fromLinkPort:LinkPort;
-  private _toLinkPort:LinkPort;
-  private _linkHeadSize;
+export class EditableLink extends WhiteboardItem {
+  private _toLinkPort: LinkPort;     // DTO 전송시 to, from Link Port 가 있으면 linkLine 은 null
+  private _fromLinkPort: LinkPort;   // 반대로 to, from Link Port 가 없으면 linkLine 을 DTO 에 실어 보냄
+  private _linkHeadType: EditableLinkCapTypes;
+  private _linkTailType: EditableLinkCapTypes;
+  private _capSize = 4;
 
-  private _isSelected = false;
+  // private linkColor: Color;      // 실제로는 getter 와 setter 로 Path 오브젝트에 직접 접근할 예정
+  // private linkWidth: number;     // DTO 도 마찬가지로 사용할 예정
+  // private isDashed: boolean;
 
-  private _startPoint:Point;
-  private _endPoint:Point;
+  private cursorDownPoint: Point;
+  private linkLine: Path;
+  private linkHead: Path;
+  private linkTail: Path;
+  private _linkHandlers: Map<LinkHandlerPositions, LinkHandler>;
+  private toLinkPortLifeCycle: Subscription;
+  private fromLinkPortLifeCycle: Subscription;
 
-  private _midPoints:Array<Point>;
+  constructor(
+    id: number,
+    item: Group,
+    linkHeadType: EditableLinkCapTypes,
+    linkTailType: EditableLinkCapTypes,
+    layerService: DrawingLayerManagerService,
+    toLinkPort?: LinkPort,
+    fromLinkPort?: LinkPort,
+  ) {
+    super(id, WhiteboardItemType.EDITABLE_LINK, item.children[0], layerService);
+    this.group.addChildren(item.children);
+    this.linkLine = this.group.children[0] as Path;
+    this.linkHead = this.group.children[1] as Path;
+    this.linkTail = this.group.children[2] as Path;
 
-  private _layerService:DrawingLayerManagerService;
+    this.initLinkHandler();
+    this.toLinkPort = toLinkPort ? toLinkPort : undefined;
+    this.fromLinkPort = fromLinkPort ? fromLinkPort : undefined;
+    this.linkHeadType = linkHeadType;
+    this.linkTailType = linkTailType;
 
-  private _fromLinkEventEmitter:EventEmitter<any>;
-  private _toLinkEventEmitter:EventEmitter<any>;
+    this.setLifeCycleEvent();
 
-  private _strokeColor;
-  private _strokeWidth;
-  private _fillColor;
-  private _isDashed;
-  private _dashLength = 0;
-
-  protected static readonly DEFAULT_DASH_LENGTH = 5;
-
-  protected linkAdjustors:Map<any, Circle>;
-
-  protected constructor(type, fromLinkPort: LinkPort, strokeColor?, strokeWidth?, fillColor?, isDashed?) {
-    strokeColor   = (strokeColor) ? (strokeColor) : (LinkerColorEnum.BLACK);
-    strokeWidth   = (strokeWidth) ? (strokeWidth) : (LinkerStrokeWidthLevelEnum.LEVEL_1);
-    fillColor     = (fillColor)   ? (fillColor)   : (LinkerColorEnum.BLACK);
-    isDashed      = (isDashed)    ? (isDashed)     : (false);
-
-    this._type = type;
-
-    this.linkAdjustors = new Map<any, Circle>();
-
-    this.strokeColor  = strokeColor;
-    this.strokeWidth  = strokeWidth;
-    this.fillColor    = fillColor;
-    this._isDashed    = isDashed;
-
-    if(isDashed){
-      this._dashLength = this.strokeWidth + EditableLink.DEFAULT_DASH_LENGTH;
-    }
-
-    this.fromLinkPort = fromLinkPort;
-    this.setFromLinkEventEmitter();
-
-    this.layerService = this.fromLinkPort.owner.layerService;
-
-    this.linkObject = this.createLinkObject();
-    this.bindEventHandler(this.linkObject);
+    this.localEmitCreate();
+    this.globalEmitCreate();
   }
-  protected createLinkObject(){
-    return new Path({
-      strokeColor: this.strokeColor,
-      strokeWidth: this.strokeWidth,
-      fillColor: this.fillColor,
-      strokeCap: 'round',
-      strokeJoin: 'round',
-      dashArray: [this._dashLength, this._dashLength]
+
+  public initLink(startPoint: Point) {
+    this.cursorDownPoint = startPoint;
+  }
+
+  public drawLink(point: Point, handle?: LinkHandlerPositions) {
+    let hitItem: WhiteboardItem = this.layerService.getHittedItem(point, null, true);
+
+    switch (handle) {
+      case LinkHandlerPositions.END_OF_LINK:
+        if(hitItem instanceof WhiteboardShape) {
+          if(!!this._fromLinkPort) {
+            if(hitItem.id !== this._fromLinkPort.owner.id) {
+              this.toLinkPort = hitItem.linkPortMap.get(hitItem.getClosestLinkPort(point));
+            } else {
+              this.endPoint = point;
+              this.toLinkPort = undefined;
+            }
+          } else {
+            this.toLinkPort = hitItem.linkPortMap.get(hitItem.getClosestLinkPort(point));
+          }
+        } else {
+          this.endPoint = point;
+          this.toLinkPort = undefined;
+        }
+        break;
+      case LinkHandlerPositions.ENTRY_OF_LINK:
+        if(hitItem instanceof WhiteboardShape ) {
+          if(!!this._toLinkPort) {
+            if(hitItem.id !== this._toLinkPort.owner.id) {
+              this.fromLinkPort = hitItem.linkPortMap.get(hitItem.getClosestLinkPort(point));
+            } else {
+              this.entryPoint = point;
+              this.fromLinkPort = undefined;
+            }
+          } else {
+            this.fromLinkPort = hitItem.linkPortMap.get(hitItem.getClosestLinkPort(point));
+          }
+        } else {
+          this.entryPoint = point;
+          this.fromLinkPort = undefined;
+        }
+      break;
+    }
+    this.drawCaps();
+  }
+
+  public enableHandlers() {
+    this._linkHandlers.forEach(value => {
+      value.enable();
     });
   }
-  protected bindEventHandler(newPath){
-
-    newPath.onMouseDown = (event)=>{
-    };
-    newPath.onMouseUp = (event) =>{
-      console.log("EditableLink >> onMouseUp >> this : ",this);
-      switch (event.event.button) {
-        case MouseButtonEventEnum.LEFT_CLICK:
-          this._isSelected = true;
-          this.fromLinkEventEmitter.emit(new LinkEvent(LinkEventEnum.LINK_CLICKED, this));
-          break;
-        case MouseButtonEventEnum.RIGHT_CLICK:
-          break;
-      }//switch
-    }
-  }
-  protected activateAdjustMode(){
-
-  }
-  protected deactivateAdjustMode(){
-
-  }
-
-  // ####  임시링크 메서드
-  public abstract initTempLink(downPoint);
-  public abstract drawTempLink(draggedPoint);
-  // #### 링크 위치 재조정
-  public abstract refreshLink();
-  // #### 실제 링크 메서드
-  public abstract linkToWbShape(upPoint)  : EditableLink;
-  public abstract manuallyLinkToWbShape(toWbShape:WhiteboardShape, toLinkPortDirection) : EditableLink;
-
-  protected onLinkEstablished(){
-    let adjustorCircle = new Circle( this.linkObject.lastSegment.point, HandlerOption.circleRadius );
-    // @ts-ignore
-    adjustorCircle.fillColor = HandlerOption.fillColor;
-    // @ts-ignore
-    adjustorCircle.strokeColor = HandlerOption.strokeColor;
-
-    adjustorCircle.visible = false;
-
-    let prevIsSelected = this._isSelected;
-    adjustorCircle.onFrame = (event)=>{
-      if(this.linkObject.lastSegment){
-        if(prevIsSelected !== this._isSelected){
-          adjustorCircle.visible = this._isSelected;
-          prevIsSelected = this._isSelected;
-        }
-        if(this._isSelected){
-          adjustorCircle.position = this.linkObject.lastSegment.point;
-          adjustorCircle.bringToFront();
-        }
-
-      }
-    };
-    adjustorCircle.onMouseDown = (event)=>{
-      console.log("EditableLink >> onMouseDown >> 진입함");
-      this.hideLinkObject();
-      this.initTempLink(event.point);
-      //this.linkObject.lastSegment.point = event.point;
-    };
-    adjustorCircle.onMouseDrag = (event)=>{
-      console.log("EditableLink >> onMouseDrag >> 진입함");
-      this.drawTempLink(event.point);
-      //this.linkObject.lastSegment.point = event.point;
-    };
-    adjustorCircle.onMouseUp = (event)=>{
-      console.log("EditableLink >> onMouseUp >> 진입함");
-      this.destroyTempLink();
-      //####
-      let point = event.point;
-      let hitWbShape:WhiteboardShape = this.layerService.getHittedItem(point) as WhiteboardShape;
-      if(hitWbShape && hitWbShape.id !== this.fromLinkPort.owner.id && hitWbShape.linkPortMap){
-        console.log("EditableLink >> onMouseUp >> hitWbShape");
-
-        let toLinkPort = hitWbShape.linkPortMap.get(hitWbShape.getClosestLinkPort(point));
-
-        if(toLinkPort === this.toLinkPort){
-          this.showLinkObject();
-          return;
-        }
-
-        this.toLinkPort = toLinkPort;
-        this.setToLinkEventEmitter();
-      }
-      else {
-        console.log("EditableLink >> onMouseUp >> hit failed");
-      }
-      this.showLinkObject();
-    };
-    this.linkAdjustors.set(LinkAdjustorPositionEnum.END_OF_LINK, adjustorCircle);
-    /*this.id = this.layerService.getWbId();
-    this.layerService.addWbLink(this);*/
-  }
-
-  // #### 링크 삭제 메서드
-  public destroyTempLink(){
-    if(this.tempLinkPath){
-      this.tempLinkPath.remove();
-    }
-  }
-  public destroyItem(){
-    if(this.linkObject){
-      this.linkObject.remove();
-    }
-    if(this.linkAdjustors){
-      this.linkAdjustors.forEach((value, key, map)=>{
-        value.remove();
-      });
-    }
-    this.layerService.deleteWbLink(this);
-  }
-  public hideLinkObject(){
-    this.linkObject.visible = false;
-  }
-  public showLinkObject(){
-    this.linkObject.visible = true;
-  }
-  // ####
-
-  // ####이벤트 발생기 핸들러
-  protected setFromLinkEventEmitter(){
-    this.fromLinkEventEmitter = this.fromLinkPort.linkEventEmitter;
-    this.fromLinkEventEmitter.subscribe((data:LinkEvent)=>{
-      this.setLinkEventHandler(data);
+  public disableHandlers() {
+    this._linkHandlers.forEach(value => {
+      value.disable();
     });
   }
-  protected setToLinkEventEmitter(){
-    this.toLinkEventEmitter = this.toLinkPort.linkEventEmitter;
-    this.toLinkEventEmitter.subscribe((data:LinkEvent)=>{
-      this.setLinkEventHandler(data);
-    });
-  }
-  private setLinkEventHandler(data:LinkEvent){
-    switch (data.action) {
-      case LinkEventEnum.WB_ITEM_DESTROYED:
-        this.wbItemDestroyEventHandler(data);
-        break;
-      case LinkEventEnum.WB_ITEM_SELECTED:
-        //this.wbItemSelectEventHandler(data);
-        break;
-      case LinkEventEnum.WB_ITEM_DESELECTED:
-        this.wbItemDeselectEventHandler(data);
-        break;
-    }
-  }
-  private wbItemDestroyEventHandler(data:LinkEvent){
-    this.fromLinkEventEmitter.emit(new LinkEvent(LinkEventEnum.LINK_DESTROYED, this));
-    this.destroyItem();
-  }
-  private wbItemSelectEventHandler(data:LinkEvent){
-    this._isSelected = true;
-  }
-  private wbItemDeselectEventHandler(data:LinkEvent){
-    this._isSelected = false;
-  }
-  // ####
 
-  exportToDto(): EditableLinkDto {
+  public destroyItem() {
+    super.destroyItem();
+    this.removeToLinkFromOwner();
+    this.removeFromLinkFromOwner();
+    this._linkHandlers.forEach(value => {
+      value.destroy();
+    });
+    this.linkHead.remove();
+    this.linkTail.remove();
+    this.linkLine.remove();
+
+    this.globalLifeCycleEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.DESTROY));
+  }
+  public destroyItemAndNoEmit() {
+    // super.destroyItem();
+    this.removeToLinkFromOwner();
+    this.removeFromLinkFromOwner();
+    this._linkHandlers.forEach(value => {
+      value.destroy();
+    });
+    this.linkHead.remove();
+    this.linkTail.remove();
+    this.linkLine.remove();
+    this.destroyBlind();
+  }
+
+  public exportToDto(): EditableLinkDto {
+    let wbItemDto = super.exportToDto();
+
     return new EditableLinkDto(
-      this.id,
-      this.type,
-      this.fromLinkPort.owner.id,
-      this.fromLinkPort.direction,
-      this.toLinkPort.owner.id,
-      this.toLinkPort.direction,
-      this.isDashed,
-      this.dashLength,
-      GachiColorDto.createColor(this.linkObject.strokeColor),
-      this.linkObject.strokeWidth,
-      GachiColorDto.createColor(this.linkObject.fillColor),
-      null,
-    );
+      wbItemDto,
+      this.toLinkPort ? new LinkPortDto(this.toLinkPort.direction, this.toLinkPort.owner.id) : undefined,
+      new GachiPointDto(this.toPoint.x, this.toPoint.y),
+      this.fromLinkPort ? new LinkPortDto(this.fromLinkPort.direction, this.fromLinkPort.owner.id) : undefined,
+      new GachiPointDto(this.fromPoint.x, this.fromPoint.y),
+      this.linkHeadType,
+      this.linkTailType,
+      this.capSize,
+      GachiColorDto.createColor(this.linkColor),
+      this.linkWidth,
+      this.isDashed
+      )
+  }
+
+  public update(dto: EditableLinkDto) {
+    super.update(dto);
+
+    this.toLinkPort = this.getLinkPort(dto.toLinkPort);
+    if(!this.toLinkPort) {
+      this.endPoint = GachiPointDto.getPaperPoint(dto.toPoint);
+    }
+
+    this.fromLinkPort = this.getLinkPort(dto.fromLinkPort);
+    if(!this.fromLinkPort) {
+      this.entryPoint = GachiPointDto.getPaperPoint(dto.fromPoint);
+    }
+
+    this.linkHeadType = dto.linkHeadType;
+    this.linkTailType = dto.linkTailType;
+    this.capSize = dto.capSize;
+    this.linkColor = GachiColorDto.getPaperColor(dto.linkColor);
+    this.linkWidth = dto.linkWidth;
+    this.isDashed = dto.isDashed;
+  }
+
+  private getLinkPort(dto: LinkPortDto) {
+    if(!dto) {
+      return undefined;
+    }
+
+    for(let wbItem of this.layerService.whiteboardItemArray) {
+      if(wbItem.id === dto.ownerWbItemId && wbItem instanceof WhiteboardShape) {
+        return wbItem.linkPortMap.get(dto.direction);
+      }
+    }
+    return undefined;
+  }
+
+  private subscribeToLinkPortOwnerLifeCycle(): Subscription {
+    if(!!this.toLinkPortLifeCycle) {
+      this.toLinkPortLifeCycle.unsubscribe();
+    }
+    return this.toLinkPort.owner.localLifeCycleEmitter.subscribe((event: ItemLifeCycleEvent) => {
+      switch (event.action) {
+        case ItemLifeCycleEnum.MOVED:
+        case ItemLifeCycleEnum.RESIZED:
+          this.endPoint = this.toLinkPort.calcLinkPortPosition();
+          break;
+      }
+    });
+  }
+
+  private subscribeFromLinkPortOwnerLifeCycle(): Subscription {
+    if(!!this.fromLinkPortLifeCycle) {
+      this.fromLinkPortLifeCycle.unsubscribe();
+    }
+    return this.fromLinkPort.owner.localLifeCycleEmitter.subscribe((event: ItemLifeCycleEvent) => {
+      switch (event.action) {
+        case ItemLifeCycleEnum.DESTROY:
+          this.destroyItem();
+          break;
+        case ItemLifeCycleEnum.MOVED:
+        case ItemLifeCycleEnum.RESIZED:
+          this.entryPoint = this.fromLinkPort.calcLinkPortPosition();
+          break;
+      }
+    });
+  }
+
+  private setLifeCycleEvent() {
+    this.localLifeCycleEmitter.subscribe((event: ItemLifeCycleEvent) => {
+      switch (event.action) {
+        case ItemLifeCycleEnum.MOVED:
+        case ItemLifeCycleEnum.RESIZED:
+          this.refreshLink();
+          break;
+        case ItemLifeCycleEnum.DESELECTED:
+          this.disableHandlers();
+          break;
+      }
+    });
+  }
+
+  private initLinkHandler() {
+    this._linkHandlers = new Map<LinkHandlerPositions, LinkHandler>();
+    this._linkHandlers.set(LinkHandlerPositions.END_OF_LINK, new LinkHandler(this, LinkHandlerPositions.END_OF_LINK, 'skyblue'));
+    this._linkHandlers.set(LinkHandlerPositions.ENTRY_OF_LINK, new LinkHandler(this, LinkHandlerPositions.ENTRY_OF_LINK, 'skyblue'));
+  }
+
+  private drawCaps() {
+    this.drawCap(true);
+    this.drawCap(false);
+  }
+  private drawCap(isHead?: boolean) {
+    // Head or Tail Init for Reusable
+    let type: EditableLinkCapTypes = isHead ? this._linkHeadType : this._linkTailType;
+    let firstPoint: Point = isHead ? this.linkLine.firstSegment.point : this.linkLine.lastSegment.point;
+    let lastPoint: Point = isHead ? this.linkLine.lastSegment.point : this.linkLine.firstSegment.point;
+    let cap: Path = isHead ? this.linkHead : this.linkTail;
+
+    switch (type) {
+      case EditableLinkCapTypes.ARROW:
+        let vector: Point = firstPoint.subtract(lastPoint);
+        let wingVector: Point = vector.normalize(this.linkWidth * this._capSize);
+        let leftWing: Point = lastPoint.add(wingVector.rotate(35, null));
+        let rightWing: Point = lastPoint.add(wingVector.rotate(-35, null));
+
+        cap.removeSegments();
+        cap.add(leftWing);
+        cap.add(lastPoint);
+        cap.add(rightWing);
+        break;
+      case EditableLinkCapTypes.NONE:
+        cap.removeSegments();
+        break;
+    }
+  }
+
+  public refreshLink() {
+    console.log("EditableLink >> refreshLink >> 진입함");
+    if(!!this._toLinkPort) {
+      this.endPoint = this._toLinkPort.calcLinkPortPosition();
+    }
+    if(!!this._fromLinkPort) {
+      this.entryPoint = this._fromLinkPort.calcLinkPortPosition();
+    }
+  }
+
+  private removeToLinkFromOwner() {
+    if(!!this.toLinkPort) {
+      for(let index = 0; index < this.toLinkPort.fromLinkList.length; index++) {
+        if(this.toLinkPort.fromLinkList[index].id === this.id) {
+          this.toLinkPort.fromLinkList.splice(index, 1);
+          this.toLinkPort = undefined;
+          break;
+        }
+      }
+    }
+  }
+
+  private removeFromLinkFromOwner() {
+    if(!!this.fromLinkPort) {
+      for(let index = 0; index < this.fromLinkPort.fromLinkList.length; index++) {
+        if(this.fromLinkPort.fromLinkList[index].id === this.id) {
+          this.fromLinkPort.fromLinkList.splice(index, 1);
+          this.fromLinkPort = undefined;
+          break;
+        }
+      }
+    }
+  }
+
+  // ######### Static Method #########
+  public static createLinkLine(fromPoint: Point, toPoint: Point, linkColor: Color, linkWidth: number, isDashed: boolean): Path {
+    return new Path.Line({
+      from: fromPoint, to: toPoint,
+      strokeColor: linkColor, strokeWidth: linkWidth,
+      strokeCap: 'round', strokeJoin: 'round',
+      dashArray: isDashed ? [linkWidth * 2, linkWidth * 2] : undefined
+    });
+  }
+
+  public static createCap(linkColor: Color, linkWidth: number): Path {
+    return new Path({
+      strokeColor: linkColor,
+      strokeWidth: linkWidth,
+      strokeCap: 'round', strokeJoin: 'round',
+    });
   }
 
 
-  get linkObject(): paper.Path {
-    return this._linkObject;
+  get linkColor(): Color {
+    return this.linkLine.strokeColor;
   }
 
-  set linkObject(value: paper.Path) {
-    this._linkObject = value;
+  set linkColor(value: Color) {
+    if(!!this.linkHead) {
+      this.linkHead.strokeColor = value;
+    }
+    if(!!this.linkTail) {
+      this.linkTail.strokeColor = value;
+    }
+    this.linkLine.strokeColor = value;
   }
 
-
-  get fromLinkPort(): LinkPort {
-    return this._fromLinkPort;
+  get linkWidth(): number {
+    return this.linkLine.strokeWidth;
   }
 
-  set fromLinkPort(value: LinkPort) {
-    this._fromLinkPort = value;
+  set linkWidth(value: number) {
+    if(!!this.linkHead) {
+      this.linkHead.strokeWidth = value;
+    }
+    if(!!this.linkTail) {
+      this.linkTail.strokeWidth = value;
+    }
+    this.linkLine.strokeWidth = value;
+    this.drawCaps();
+  }
+
+  set isDashed(value: boolean) {
+    if(value) {
+      this.linkLine.dashArray = [this.linkLine.strokeWidth * 2, this.linkLine.strokeWidth * 2];
+    } else {
+      this.linkLine.dashArray = undefined;
+    }
+  }
+
+  get isDashed(): boolean {
+    return !!this.linkLine.dashArray.length;
+  }
+
+  get capSize(): number {
+    return this._capSize;
+  }
+
+  set capSize(value: number) {
+    this._capSize = value;
+    this.drawCaps();
   }
 
   get toLinkPort(): LinkPort {
@@ -293,137 +392,80 @@ export abstract class EditableLink implements Editable{
   }
 
   set toLinkPort(value: LinkPort) {
-    this._toLinkPort = value;
+    if(!!value) {
+      // 이전 링크포트에서 링크 제거
+      this.removeToLinkFromOwner();
+      this._toLinkPort = value;
+      value.fromLinkList.push(this);
+      this.endPoint = value.calcLinkPortPosition();
+      this.toLinkPortLifeCycle = this.subscribeToLinkPortOwnerLifeCycle();
+    } else {
+      if(!!this.toLinkPortLifeCycle) {
+        this.toLinkPortLifeCycle.unsubscribe();
+      }
+      this._toLinkPort = value;
+    }
   }
 
-  get linkHeadSize() {
-    return this._linkHeadSize;
+  set endPoint(value: Point) {
+    this.linkLine.lastSegment.point = value;
+    this.linkHandlers.get(LinkHandlerPositions.END_OF_LINK).moveTo(value);
+    this.drawCaps();
   }
 
-  set linkHeadSize(value) {
-    this._linkHeadSize = value;
+  get fromLinkPort(): LinkPort {
+    return this._fromLinkPort;
   }
 
-  get startPoint(): paper.Point {
-    return this._startPoint;
+  set fromLinkPort(value: LinkPort) {
+    if(!!value) {
+      this.removeFromLinkFromOwner();
+
+      this._fromLinkPort = value;
+      value.fromLinkList.push(this);
+      this.entryPoint = value.calcLinkPortPosition();
+      this.fromLinkPortLifeCycle = this.subscribeFromLinkPortOwnerLifeCycle();
+    } else {
+      if(!!this.fromLinkPortLifeCycle) {
+        this.fromLinkPortLifeCycle.unsubscribe();
+      }
+      this._fromLinkPort = value;
+    }
   }
 
-  set startPoint(value: paper.Point) {
-    this._startPoint = value;
+  set entryPoint(value: Point) {
+    this.linkLine.firstSegment.point = value;
+    this.linkHandlers.get(LinkHandlerPositions.ENTRY_OF_LINK).moveTo(value);
+    this.drawCaps();
   }
 
-  get endPoint(): paper.Point {
-    return this._endPoint;
+  get linkHeadType(): EditableLinkCapTypes {
+    return this._linkHeadType;
   }
 
-  set endPoint(value: paper.Point) {
-    this._endPoint = value;
+  set linkHeadType(value: EditableLinkCapTypes) {
+    this._linkHeadType = value;
+    this.drawCap(true);
   }
 
-  get midPoints(): Array<paper.Point> {
-    return this._midPoints;
+  get linkTailType(): EditableLinkCapTypes {
+    return this._linkTailType;
   }
 
-  set midPoints(value: Array<paper.Point>) {
-    this._midPoints = value;
+  set linkTailType(value: EditableLinkCapTypes) {
+    this._linkTailType = value;
+    this.drawCap(false);
   }
 
-  get layerService(): DrawingLayerManagerService {
-    return this._layerService;
+  get linkHandlers(): Map<LinkHandlerPositions, LinkHandler> {
+    return this._linkHandlers;
   }
 
-  set layerService(value: DrawingLayerManagerService) {
-    this._layerService = value;
+  get toPoint(): Point {
+    return this.linkLine.lastSegment.point;
   }
 
-  get tempLinkPath(): paper.Path {
-    return this._tempLinkPath;
-  }
-
-  set tempLinkPath(value: paper.Path) {
-    this._tempLinkPath = value;
-  }
-
-
-
-
-  get fromLinkEventEmitter(): EventEmitter<any> {
-    return this._fromLinkEventEmitter;
-  }
-
-  set fromLinkEventEmitter(value: EventEmitter<any>) {
-    this._fromLinkEventEmitter = value;
-  }
-
-  get toLinkEventEmitter(): EventEmitter<any> {
-    return this._toLinkEventEmitter;
-  }
-
-  set toLinkEventEmitter(value: EventEmitter<any>) {
-    this._toLinkEventEmitter = value;
-  }
-
-  get strokeColor() {
-    return this._strokeColor;
-  }
-
-  set strokeColor(value) {
-    this._strokeColor = value;
-  }
-
-  get strokeWidth() {
-    return this._strokeWidth;
-  }
-
-  set strokeWidth(value) {
-    this._strokeWidth = value;
-  }
-
-  get fillColor() {
-    return this._fillColor;
-  }
-
-  set fillColor(value) {
-    this._fillColor = value;
-  }
-
-  get isDashed() {
-    return this._isDashed;
-  }
-
-  set isDashed(value) {
-    this._isDashed = value;
-  }
-
-  get dashLength(): number {
-    return this._dashLength;
-  }
-
-  set dashLength(value: number) {
-    this._dashLength = value;
-  }
-
-  get id() {
-    return this._id;
-  }
-
-  set id(value) {
-    this._id = value;
-  }
-
-  get isSelected(): boolean {
-    return this._isSelected;
-  }
-
-  set isSelected(value: boolean) {
-    this._isSelected = value;
-  }
-
-  get type() {
-    return this._type;
-  }
-
-  set type(value) {
-    this._type = value;
+  get fromPoint(): Point {
+    return this.linkLine.firstSegment.point;
   }
 }

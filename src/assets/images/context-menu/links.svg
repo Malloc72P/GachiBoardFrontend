@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+  <defs>
+    <path d="M19 10A9 9 0 11.999 9.999 9 9 0 0119 10z" id="a"/>
+    <path d="M15 10H3" id="b"/>
+    <path d="M16.58 10.7l-5.66-5.65" id="c"/>
+    <path d="M16.58 9.3l-5.66 5.65" id="d"/>
+    <path d="M17 10H3" id="e"/>
+    <path d="M5 10H3" id="f"/>
+    <path d="M17 10h-2" id="g"/>
+    <path d="M7.94 10h-2" id="h"/>
+    <path d="M10.89 10h-2" id="i"/>
+    <path d="M13.97 10h-2" id="j"/>
+  </defs>
+  <g id="ARROW">
+    <use href="#b" fill-opacity="0" stroke="#000" stroke-width="2"/>
+    <use href="#c" fill-opacity="0" stroke="#000" stroke-width="2"/>
+    <use href="#d" fill-opacity="0" stroke="#000" stroke-width="2"/>
+  </g>
+  <g id="NONE">
+    <use href="#e" fill-opacity="0" stroke="#000" stroke-width="2"/>
+  </g>
+  <g id="DASHED">
+    <use href="#f" fill-opacity="0" stroke="#000" stroke-width="2"/>
+    <use href="#g" fill-opacity="0" stroke="#000" stroke-width="2"/>
+    <use href="#h" fill-opacity="0" stroke="#000" stroke-width="2"/>
+    <use href="#i" fill-opacity="0" stroke="#000" stroke-width="2"/>
+    <use href="#j" fill-opacity="0" stroke="#000" stroke-width="2"/>
+  </g>
+  <g id="selected">
+    <use href="#a" fill-opacity="0" stroke="#4252ff" stroke-width="2"/>
+  </g>
+</svg>

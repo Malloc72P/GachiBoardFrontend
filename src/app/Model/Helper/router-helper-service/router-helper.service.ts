@@ -10,9 +10,6 @@ export class RouterHelperService {
     private router: Router
   ) { }
 
-  goToWhiteboard(){
-    this.goToTarget("whiteboard");
-  }
   goToLoginPage(){
     this.goToTarget("login");
   }
@@ -22,8 +19,17 @@ export class RouterHelperService {
   goToHomePage(){
     this.goToTarget("homepage");
   }
+  redirectToHomePage(){
+    document.location.href = "/homepage";
+  }
   goToProjectPage(projectId){
     this.router.navigate(["project", {projectId:projectId}]);
+  }
+  goToWhiteboardPage(projectId, wbSessionId){
+    //this.router.navigate(["whiteboard", {wbSessionId:wbSessionId}]);
+    console.log("RouterHelperService >> goToWhiteboardPage >> projectId : ",projectId);
+    console.log("RouterHelperService >> goToWhiteboardPage >> wbSessionId : ",wbSessionId);
+    document.location.href = "/whiteboard?"+"projectId="+projectId+"&"+"wbSessionId="+wbSessionId;
   }
   private goToTarget(target){
     this.router.navigate([target]);

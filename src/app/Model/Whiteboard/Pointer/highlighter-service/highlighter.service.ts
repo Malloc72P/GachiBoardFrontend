@@ -24,44 +24,11 @@ export class HighlighterService {
     this.currentProject = project;
   }
 
-  public setColor(color: paper.Color) {
-    this.strokeColor = color;
-  }
-  public setWidth(width: number) {
-    this.strokeWidth = width * this.strokeWidthStep;
-  }
   public createPath(event) {
-    let point: paper.Point;
-
-    if(event instanceof MouseEvent) {
-      point = new paper.Point(event.x, event.y);
-    } else if (event instanceof TouchEvent) {
-      point = new paper.Point(event.touches[0].clientX, event.touches[0].clientY);
-    } else {
-      return;
-    }
-
-    point = this.posCalcService.advConvertNgToPaper(point);
-    this.newPath =  new paper.Path({
-      segments: [new paper.Point(point.x, point.y)],
-      strokeColor: this.strokeColor,
-      strokeWidth: this.strokeWidth,
-      strokeCap: 'round',
-      strokeJoin: 'round',
-    });
+    this.createHighlightStroke(event.point);
   }
   public drawPath(event) {
-    let point: paper.Point;
-
-    if(event instanceof MouseEvent) {
-      point = new paper.Point(event.x, event.y);
-    } else if (event instanceof TouchEvent) {
-      point = new paper.Point(event.touches[0].clientX, event.touches[0].clientY);
-    } else {
-      return;
-    }
-    point = this.posCalcService.advConvertNgToPaper(point);
-    this.newPath.add(new paper.Point(point.x, point.y));
+    this.newPath.add(event.point);
   }
   public endPath() {
     if(this.newPath != null) {
@@ -70,5 +37,22 @@ export class HighlighterService {
       this.layerService.addToDrawingLayer(this.newPath, WhiteboardItemType.HIGHLIGHT_STROKE);
       this.newPath = null;
     }
+  }
+
+  private createHighlightStroke(point) {
+    this.newPath =  new paper.Path({
+      segments: [new paper.Point(point.x, point.y)],
+      strokeColor: this.strokeColor,
+      strokeWidth: this.strokeWidth,
+      strokeCap: 'round',
+      strokeJoin: 'round',
+    });
+  }
+
+  set setColor(color: paper.Color) {
+    this.strokeColor = color;
+  }
+  set setWidth(width: number) {
+    this.strokeWidth = width * this.strokeWidthStep;
   }
 }

@@ -11,7 +11,7 @@ import {UserManagerService} from '../../../../../Model/UserManager/user-manager.
 export class KanbanCardComponent implements OnInit {
   @Input() kanbanItemDto:KanbanItemDto;
   constructor(
-    private userManagerService:UserManagerService
+    public userManagerService:UserManagerService
   ) { }
 
   ngOnInit() {

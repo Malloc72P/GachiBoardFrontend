@@ -1,7 +1,3 @@
-import {ItemGroup} from '../item-group';
-import {PositionCalcService} from '../../../PositionCalc/position-calc.service';
-import {EventEmitter} from '@angular/core';
-
 import * as paper from 'paper';
 // @ts-ignore
 import Path = paper.Path;
@@ -19,6 +15,8 @@ import PointText = paper.PointText;
 import Group = paper.Group;
 // @ts-ignore
 import Rectangle = paper.Rectangle;
+
+import {ItemGroup} from '../item-group';
 import {Editable} from '../../InterfaceEditable/editable';
 import {WhiteboardItemType} from '../../../../Helper/data-type-enum/data-type.enum';
 import {WhiteboardItem} from '../../whiteboard-item';
@@ -28,7 +26,9 @@ import {EditableItemGroupDto} from '../../../../../DTO/WhiteboardItemDto/ItemGro
 export class EditableItemGroup extends ItemGroup implements Editable{
   constructor(id, layerService) {
     super(id, WhiteboardItemType.EDITABLE_GROUP, null, layerService);
-    this.notifyItemCreation();
+
+    this.localEmitCreate();
+    this.globalEmitCreate();
   }
 
   public addItem(wbItem:WhiteboardItem){
@@ -47,7 +47,17 @@ export class EditableItemGroup extends ItemGroup implements Editable{
       value.parentEdtGroup = null;
     });
 
-    this.lifeCycleEventEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.DESTROY));
+    this.localEmitDestroy();
+    this.globalEmitDestroy();
+  }
+  public destroyItemAndNoEmit() {
+    this.coreItem.remove();
+
+    this.wbItemGroup.forEach((value, index, array)=>{
+      value.isGrouped = false;
+      value.parentEdtGroup = null;
+    });
+    this.destroyBlind();
   }
 
   public pushAllChildIntoGSG(){
@@ -60,4 +70,7 @@ export class EditableItemGroup extends ItemGroup implements Editable{
     return super.exportToDto() as EditableItemGroupDto;
   }
 
+  public update(dto: EditableItemGroupDto) {
+    super.update(dto);
+  }
 }

@@ -1,5 +1,6 @@
 export enum WebsocketPacketActionEnum {
   CREATE,
+  CREATE_MULTIPLE,
   CREATE_TAG,
   READ,
   UPDATE,
@@ -10,7 +11,10 @@ export enum WebsocketPacketActionEnum {
   UNLOCK,
   ACK,
   NAK,
+  JOIN,
   SPECIAL,
+  OCCUPIED,
+  NOT_OCCUPIED
 }
 
 export enum WebsocketPacketScopeEnum {

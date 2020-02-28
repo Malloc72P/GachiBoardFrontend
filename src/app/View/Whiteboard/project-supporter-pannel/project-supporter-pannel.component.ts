@@ -1,6 +1,4 @@
 import {Component, ElementRef, OnInit, Renderer2, ViewChild} from '@angular/core';
-import {PointerMode, PointerModeEnumService} from '../../../Model/Whiteboard/Pointer/pointer-mode-enum-service/pointer-mode-enum.service';
-import {PointerModeManagerService} from '../../../Model/Whiteboard/Pointer/pointer-mode-manager-service/pointer-mode-manager.service';
 import {
   ProjectSupporterEnumService,
   SupportMode
@@ -9,9 +7,10 @@ import {PopoverPanel} from '../CommonClass/popover-panel/popover-panel';
 import {PositionCalcService} from '../../../Model/Whiteboard/PositionCalc/position-calc.service';
 import {PopupManagerService} from '../../../Model/PopupManager/popup-manager.service';
 import {KanbanComponent} from '../../NormalPages/kanban/kanban.component';
-import {MatDialog} from '@angular/material';
 import {ImportFileService} from "../../../Model/Whiteboard/ImportFile/import-file.service";
 import {CursorTrackerService} from "../../../Model/Whiteboard/CursorTracker/cursor-tracker-service/cursor-tracker.service";
+import {DrawingLayerManagerService} from "../../../Model/Whiteboard/InfiniteCanvas/DrawingLayerManager/drawing-layer-manager.service";
+import {MatDialog} from '@angular/material/dialog';
 
 @Component({
   selector: 'app-project-supporter-pannel',
@@ -19,20 +18,21 @@ import {CursorTrackerService} from "../../../Model/Whiteboard/CursorTracker/curs
   styleUrls: ['./project-supporter-pannel.component.css',  '../../NormalPages/popup-pannel-commons.css']
 })
 export class ProjectSupporterPannelComponent extends PopoverPanel  implements OnInit {
-  @ViewChild('fileInputMultiple', {static: false}) fileInputMultiple: ElementRef;
-  @ViewChild('fileInput', {static: false}) fileInput: ElementRef;
+  @ViewChild('fileInputMultiple') fileInputMultiple: ElementRef;
+  @ViewChild('fileInput') fileInput: ElementRef;
   projectSupporterEnumService: ProjectSupporterEnumService;
   isHovered;
-  private prevPopup = null;
+  public prevPopup = null;
   constructor(
     projectSupporterEnumService: ProjectSupporterEnumService,
     posCalcService :PositionCalcService,
-    private renderer2:Renderer2,
-    private popupManagerService:PopupManagerService,
+    public renderer2:Renderer2,
+    public popupManagerService:PopupManagerService,
     public dialog: MatDialog,
-    private positionCalcService:PositionCalcService,
-    private importFileService: ImportFileService,
-    private cursorTrackerService: CursorTrackerService,
+    public positionCalcService:PositionCalcService,
+    public importFileService: ImportFileService,
+    public cursorTrackerService: CursorTrackerService,
+    public layerService: DrawingLayerManagerService,
   ) {
     super(projectSupporterEnumService);
     this.projectSupporterEnumService = projectSupporterEnumService;
@@ -95,6 +95,12 @@ export class ProjectSupporterPannelComponent extends PopoverPanel  implements On
       case SupportMode.EXPORT:
         break;
       case SupportMode.TEXT_CHAT:
+        this.layerService.drawingLayer.children.forEach(value => {
+          console.log("Children ID :", value.id, ", Children Object : ", value);
+        });
+        this.layerService.whiteboardItemArray.forEach(value => {
+          console.log("WBItem ID :", value.id, ", Paper ID :", value.group.id,"WBItem Object : ", value);
+        });
         break;
       case SupportMode.CURSOR_TRACKER:
         if(this.cursorTrackerService.isActivate) {

@@ -7,19 +7,29 @@ import Color = paper.Color;
 import {EventEmitter, Injectable} from '@angular/core';
 import {Cursor} from "./cursor/cursor";
 import {PositionCalcService} from "../../PositionCalc/position-calc.service";
+import {WebsocketManagerService} from '../../../../Controller/Controller-WebSocket/websocket-manager/websocket-manager.service';
+import {DrawingLayerManagerService} from '../../InfiniteCanvas/DrawingLayerManager/drawing-layer-manager.service';
+import {GachiColorList} from '../../../../DTO/WhiteboardItemDto/ColorDto/gachi-color-dto';
+import {GachiPointDto} from '../../../../DTO/WhiteboardItemDto/PointDto/gachi-point-dto';
 
 @Injectable({
   providedIn: 'root'
 })
 export class CursorTrackerService {
-  private userArray = new Map<string, Position>();
+  public userCursorMap = new Map<string, Position>();
   private _isActivate = false;
   private _currentCursorPosition = new SimplePoint(0, 0);
   private zoomEventEmitter: EventEmitter<any>;
 
+  public readonly MAXIMUM_COLOR_NUMBER = 10;
+
   constructor(
     private positionCalcService: PositionCalcService,
-  ) { }
+    private websocketManagerService: WebsocketManagerService,
+    private layerManagerService: DrawingLayerManagerService,
+  ) {
+
+  }
 
   public initializeCursorTrackerService(zoomEventEmitter) {
     this.zoomEventEmitter = zoomEventEmitter;
@@ -32,50 +42,56 @@ export class CursorTrackerService {
 
   public off() {
     this._isActivate = false;
-    this.userArray.forEach((value, key) => {
+    this.userCursorMap.forEach((value, key) => {
       this.deleteUser(key);
     });
   }
 
-  // userArray 가 갖고 있는 포지션 정보로 커서 아이템의 위치를 이동함
+  // userCursorMap 가 갖고 있는 포지션 정보로 커서 아이템의 위치를 이동함
   public refreshPoint() {
     if(!this._isActivate) {
       return;
     }
-    this.userArray.forEach(value => {
+    this.userCursorMap.forEach(value => {
       value.cursor.moveTo(value.position);
     });
   }
 
-  public addUser(userName: string, firstPosition: Point, userColor: Color) {
+  public addUser(idToken: string, firstPosition: Point, userColor: Color) {
     let cursor = this.drawCursor(userColor);
-    cursor.setName(userName);
+    cursor.setName(this.websocketManagerService.getUserInfoByIdToken(idToken).userName);
 
-    this.userArray.set(userName, new Position(firstPosition, cursor));
+    this.userCursorMap.set(idToken, new Position(cursor));
   }
 
-  public deleteUser(userName: string) {
-    this.userArray.get(userName).cursor.remove();
-    if(!this.userArray.delete(userName)) {
+  public deleteUser(idToken: string) {
+    this.userCursorMap.get(idToken)?.cursor.remove();
+    if(!this.userCursorMap.delete(idToken)) {
       console.log("CursorTrackerService >> deleteUser >> Array delete failed");
     }
   }
 
-  public updateUser(userName: string, position: Point) {
+  public updateUser(idToken: string, position: GachiPointDto) {
     if(!this._isActivate) {
       return;
     }
+    //console.log("CursorTrackerService >> updateUser >> position : ",position);
     // 정보가 없는 유저가 업데이트를 요청하면 Array 에 추가
-    // TODO : 유저 정보의 유저색상을 가져올 수 있는 함수를 Color.random() 대신 사용
-    if(!this.userArray.has(userName)) {
-      this.addUser(userName, position, Color.random());
+    if(!this.userCursorMap.has(idToken)) {
+      let targetIndex = this.websocketManagerService.getUserIndexByIdToken(idToken);
+      let userColor = GachiColorList.getColor(targetIndex);
+      this.addUser(idToken, new Point(position.x, position.y), new Color(userColor));
     }
     // 업데이트
-    this.userArray.get(userName).position = position;
+    let foundCursor = this.userCursorMap.get(idToken);
+    foundCursor.position = new Point(position.x, position.y);
+    // console.log("CursorTrackerService >> updateUser >> foundCursor : ",foundCursor);
   }
 
   private drawCursor(color: Color): Cursor {
-    return new Cursor(color, this.zoomEventEmitter);
+    let newCursor = new Cursor(color, this.zoomEventEmitter);
+    this.layerManagerService.drawingLayer.addChild(newCursor.getPaperInstance());
+    return newCursor;
   }
 
   // ################## Getter & Setter ###################
@@ -106,8 +122,8 @@ class Position {
   private _position: Point;
   private readonly _cursor: Cursor;
 
-  constructor(position: Point, cursor: Cursor) {
-    this._position = position;
+  constructor(cursor: Cursor) {
+    this._position = new Point(0, 0);
     this._cursor = cursor;
   }
 

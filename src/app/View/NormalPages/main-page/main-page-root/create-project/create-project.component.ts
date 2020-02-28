@@ -1,12 +1,10 @@
 import {Component, ElementRef, Inject, OnInit, ViewChild} from '@angular/core';
 import {KanbanGroup} from '../../../../../Model/Whiteboard/ProjectSupporter/Kanban/KanbanGroup/kanban-group';
 import {FormControl, FormGroup, Validators} from '@angular/forms';
-import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material';
 import {ProjectDto} from '../../../../../DTO/ProjectDto/project-dto';
 import {AuthRequestService} from '../../../../../Controller/SocialLogin/auth-request/auth-request.service';
-import {ParticipantDto} from '../../../../../DTO/ProjectDto/ParticipantDto/participant-dto';
-import {AuthorityLevel} from '../../../../../DTO/ProjectDto/ParticipantDto/authority-level.enum';
 import {ProjectRequesterService} from '../../../../../Controller/Project/project-requester.service';
+import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
 
 export class CreateProjectComponentData{
   kanbanGroup:KanbanGroup;
@@ -20,14 +18,14 @@ export class CreateProjectComponentData{
     './../../../gachi-panel.css']
 })
 export class CreateProjectComponent implements OnInit {
-  @ViewChild('projectCreateForm', {static: false}) formEl: ElementRef<HTMLFormElement>;
+  @ViewChild('projectCreateForm') formEl: ElementRef<HTMLFormElement>;
 
   projectFormGroup:FormGroup;
 
   constructor(
-    private dialogRef: MatDialogRef<CreateProjectComponentData>,
-    private authRequestService:AuthRequestService,
-    private projectRequesterService:ProjectRequesterService,
+    public dialogRef: MatDialogRef<CreateProjectComponentData>,
+    public authRequestService:AuthRequestService,
+    public projectRequesterService:ProjectRequesterService,
 
     @Inject(MAT_DIALOG_DATA) public data: CreateProjectComponentData
   ) {

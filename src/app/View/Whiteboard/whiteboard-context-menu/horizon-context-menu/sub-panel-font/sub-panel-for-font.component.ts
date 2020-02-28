@@ -1,14 +1,13 @@
 import * as paper from 'paper';
-// @ts-ignore
-import Color = paper.Color;
 
-import {Component, Input, OnInit} from '@angular/core';
-import {subPanelStatus} from "../../../../../Model/Whiteboard/ContextMenu/horizon-context-menu-service/sub-panel-status";
+import {Component, OnInit} from '@angular/core';
 import {HorizonContextMenuActions} from "../../../../../Model/Whiteboard/ContextMenu/horizon-context-menu-service/horizon-context-menu.enum";
 import {HorizonContextMenuService} from "../../../../../Model/Whiteboard/ContextMenu/horizon-context-menu-service/horizon-context-menu.service";
 import {FormBuilder, FormGroup, Validators} from "@angular/forms";
 import {MatButtonToggleChange} from "@angular/material/button-toggle";
 import {EditableShape} from "../../../../../Model/Whiteboard/Whiteboard-Item/Whiteboard-Shape/EditableShape/editable-shape";
+// @ts-ignore
+import Color = paper.Color;
 
 @Component({
   selector: 'app-sub-panel-for-font',
@@ -20,41 +19,64 @@ import {EditableShape} from "../../../../../Model/Whiteboard/Whiteboard-Item/Whi
 })
 export class SubPanelForFontComponent implements OnInit {
   // TODO : 유저 데이터에 있을 컬러를 colors 로 지정해주면 댐 -- 전역에서 사용하는 user-color
-  private colors = [
+  public colors = [
     new Color(0, 0, 0),
     new Color(255, 0, 0),
     new Color(0, 255, 0),
     new Color(0, 0, 255),
   ];
-  private colorPickerPicked;
-  private fontStyle: FormGroup;
 
-  private minSize = 10;
-  private maxSize = 100;
+  // TODO : WebFont 넣어주면 댐
+  public fontFamilyList = [
+    "sans-serif",
+    "monospace",
+  ];
+  public colorPickerPicked;
+  public fontStyle: FormGroup;
+
+  public minSize = 10;
+  public maxSize = 100;
 
   constructor(
-    private menu: HorizonContextMenuService,
-    private formBuilder: FormBuilder,
+    public menu: HorizonContextMenuService,
+    public formBuilder: FormBuilder,
   ) {
     this.fontStyle = formBuilder.group({
-      family: "Hi",
+      family: this.fontFamilyList[0],
       size: [10, [Validators.min(10), Validators.max(100)]]
     });
   }
 
   ngOnInit() {
+
+  }
+
+  // ############# Font Family ##############
+
+  public onChangeFontFamily() {
+    this.menu.item.textStyle.fontFamily = this.fontStyle.value.family;
+  }
+
+  get fontFamily(): string {
+    if(this.menu.item instanceof EditableShape) {
+      return this.menu.item.textStyle.fontFamily;
+    } else {
+      return "sans-serif";
+    }
   }
 
   // ############## Font Size ###############
 
-  private onChangeFontSize() {
+  public onChangeFontSize() {
     let changedSize = this.fontStyle.value.size;
 
     if(!(changedSize >= this.minSize && changedSize <= this.maxSize)) {
       return;
     }
-
-    this.menu.item.textStyle.fontSize = this.fontStyle.value.size;
+    if(this.menu.item.textStyle.fontSize !== this.fontStyle.value.size) {
+      this.menu.item.textStyle.fontSize = this.fontStyle.value.size;
+      this.menu.item.isModified = true;
+    }
   }
 
   get fontSize(): string {
@@ -67,10 +89,15 @@ export class SubPanelForFontComponent implements OnInit {
 
   // ############# Font Weight ##############
 
-  private onChangeFontWeight(event: MatButtonToggleChange) {
-    this.menu.item.textStyle.isBold = event.value.includes("bold");
-    this.menu.item.textStyle.isItalic = event.value.includes("italic");
-
+  public onChangeFontWeight(event: MatButtonToggleChange) {
+    if(this.menu.item.textStyle.isBold !== event.value.includes("bold")) {
+      this.menu.item.textStyle.isBold = event.value.includes("bold");
+      this.menu.item.isModified = true;
+    }
+    if(this.menu.item.textStyle.isItalic !== event.value.includes("italic")) {
+      this.menu.item.textStyle.isItalic = event.value.includes("italic");
+      this.menu.item.isModified = true;
+    }
   }
 
   get isBold(): boolean {
@@ -89,23 +116,26 @@ export class SubPanelForFontComponent implements OnInit {
 
   // ################ Color #################
 
-  private colorToHTMLRGB(index: number) {
-    return this.colors[index].toCSS(false);
+  public colorToHTMLRGB(index: number) {
+    return this.colors[index].toCSS(true);
   }
 
-  private onColorPickerClicked(index: number) {
-    this.menu.item.textStyle.fontColor = this.colors[index].toCSS(false);
+  public onColorPickerClicked(index: number) {
+    if(this.menu.item.textStyle.fontColor !== this.colors[index].toCSS(true)) {
+      this.menu.item.textStyle.fontColor = this.colors[index].toCSS(true);
+      this.menu.item.isModified = true;
+    }
   }
 
-  private onAddColorClicked() {
+  public onAddColorClicked() {
     let color = new Color(this.colorPickerPicked);
     this.colors.push(color);
     this.onColorPickerClicked(this.colors.length - 1);
   }
 
-  private colorSelectedToHTML(index: number) {
+  public colorSelectedToHTML(index: number) {
     if(this.menu.item instanceof EditableShape) {
-      if(this.colors[index].equals(this.menu.item.editText.fillColor)) {
+      if(this.colors[index].toCSS(true) === this.menu.item.textStyle.fontColor) {
         return "selected";
       } else {
         return;
@@ -121,8 +151,8 @@ export class SubPanelForFontComponent implements OnInit {
     return this.menu.centerTop;
   }
 
-  get isHiddenSubPanel(): subPanelStatus {
-    return this.menu.subPanelHidden;
+  get hidden(): boolean {
+    return this.menu.subPanelManager.isHidden(HorizonContextMenuActions.FONT_STYLE);
   }
 
   get horizonContextMenuActions() {

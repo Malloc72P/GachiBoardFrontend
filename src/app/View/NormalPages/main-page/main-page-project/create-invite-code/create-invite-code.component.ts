@@ -1,10 +1,11 @@
 import {Component, Inject, OnInit, ViewChild} from '@angular/core';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {ProjectDto} from '../../../../../DTO/ProjectDto/project-dto';
-import {MAT_DIALOG_DATA, MatDialogRef, MatSlider, MatStepper} from '@angular/material';
 import {AuthRequestService} from '../../../../../Controller/SocialLogin/auth-request/auth-request.service';
 import {ProjectRequesterService} from '../../../../../Controller/Project/project-requester.service';
 import {HttpHelper} from '../../../../../Model/Helper/http-helper/http-helper';
+import {MatStepper} from '@angular/material/stepper';
+import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
 
 export class CreateInviteCodeComponentData{
   projectDto:ProjectDto;
@@ -22,20 +23,20 @@ export class CreateInviteCodeComponentData{
   './../../../gachi-font.css','./../../../gachi-panel.css']
 })
 export class CreateInviteCodeComponent implements OnInit {
-  @ViewChild('stepper', {static: false}) stepper: MatStepper;
-  @ViewChild('remainSlider', {static: false}) remainSlider;
+  @ViewChild('stepper') stepper: MatStepper;
+  @ViewChild('remainSlider') remainSlider;
   inviteCodeFormGroup:FormGroup;
   finishFormGroup:FormGroup;
 
-  private projectDto:ProjectDto;
-  private inviteCode = "";
-  private inviteUrl = "";
+  public projectDto:ProjectDto;
+  public inviteCode = "";
+  public inviteUrl = "";
 
   constructor(
-    private dialogRef: MatDialogRef<CreateInviteCodeComponentData>,
-    private authRequestService:AuthRequestService,
-    private projectRequesterService:ProjectRequesterService,
-    private _formBuilder: FormBuilder,
+    public dialogRef: MatDialogRef<CreateInviteCodeComponentData>,
+    public authRequestService:AuthRequestService,
+    public projectRequesterService:ProjectRequesterService,
+    public _formBuilder: FormBuilder,
     @Inject(MAT_DIALOG_DATA) public data: CreateInviteCodeComponentData
   ) {
     this.projectDto = data.projectDto;

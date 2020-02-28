@@ -4,7 +4,7 @@ import {
   GachiSidebarEventEnum
 } from '../../../Model/NormalPagesManager/gachi-sidebar-manager/GachiSidebarEvent/GachiSidebarEvent';
 import {GachiSidebarManagerService} from '../../../Model/NormalPagesManager/gachi-sidebar-manager/gachi-sidebar-manager.service';
-import {MatSidenav} from '@angular/material';
+import {MatSidenav} from '@angular/material/sidenav';
 
 @Component({
   selector: 'app-home-page',
@@ -14,7 +14,7 @@ import {MatSidenav} from '@angular/material';
 export class HomePageComponent implements OnInit {
   @ViewChild('drawer', {static: true}) rightSidebar:MatSidenav;
 
-  constructor(private sidebarManagerService:GachiSidebarManagerService) { }
+  constructor(public sidebarManagerService:GachiSidebarManagerService) { }
 
   ngOnInit() {
     this.sidebarManagerService.sidebarEventEmitter

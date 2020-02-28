@@ -1,7 +1,8 @@
 import {WhiteboardItem} from '../../../Whiteboard-Item/whiteboard-item';
+import {SelectEventEnum} from "../SelectEventEnum/select-event.enum";
 
 export class SelectEvent {
-  private _action;
+  private _action: SelectEventEnum;
   private _invokerWbItem:WhiteboardItem;
   constructor(action, invoker:WhiteboardItem) {
     this.action = action;

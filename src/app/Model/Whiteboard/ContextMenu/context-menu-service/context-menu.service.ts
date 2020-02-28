@@ -1,11 +1,11 @@
+import * as paper from 'paper';
+// @ts-ignore
+import Point = paper.Point;
+
 import { Injectable } from '@angular/core';
 import {MatMenu, MatMenuTrigger} from "@angular/material/menu";
 import {PositionCalcService} from "../../PositionCalc/position-calc.service";
 import {DrawingLayerManagerService} from "../../InfiniteCanvas/DrawingLayerManager/drawing-layer-manager.service";
-
-import * as paper from 'paper';
-// @ts-ignore
-import Point = paper.Point;
 import {
   ContextMenu, GroupContextMenu,
   RasterContextMenu,
@@ -17,12 +17,9 @@ import {WhiteboardItem} from '../../Whiteboard-Item/whiteboard-item';
 import {EditableRaster} from '../../Whiteboard-Item/Whiteboard-Shape/editable-raster/editable-raster';
 import {ItemGroup} from '../../Whiteboard-Item/ItemGroup/item-group';
 import {EditTextManagementService} from '../../EditTextManagement/edit-text-management.service';
-import {PointerModeEvent} from '../../Pointer/PointerModeEvent/pointer-mode-event';
 import {PointerMode} from '../../Pointer/pointer-mode-enum-service/pointer-mode-enum.service';
 import {PointerModeManagerService} from '../../Pointer/pointer-mode-manager-service/pointer-mode-manager.service';
-import {WhiteboardItemType} from '../../../Helper/data-type-enum/data-type.enum';
-import {EditableItemGroup} from '../../Whiteboard-Item/ItemGroup/EditableItemGroup/editable-item-group';
-import {DebugingService} from '../../../Helper/DebugingHelper/debuging.service';
+import {CursorTrackerService} from "../../CursorTracker/cursor-tracker-service/cursor-tracker.service";
 
 @Injectable({
   providedIn: 'root'
@@ -40,7 +37,7 @@ export class ContextMenuService {
     private layerService: DrawingLayerManagerService,
     private editTextManagementService: EditTextManagementService,
     private pointerModeManagerService: PointerModeManagerService,
-    private debugingService:DebugingService
+    private cursorTrackerService: CursorTrackerService,
   ) { }
 
   public initializeContextMenuService(contextMenu: MatMenu, contextMenuTrigger: MatMenuTrigger) {
@@ -165,7 +162,7 @@ export class ContextMenuService {
         gsg.doCopy();
         break;
       case GroupContextMenu.PASTE:
-        gsg.doPaste(new Point(this.debugingService.cursorX, this.debugingService.cursorY));
+        gsg.doPaste(this.cursorTrackerService.itsMe);
         break;
       default:
         break;

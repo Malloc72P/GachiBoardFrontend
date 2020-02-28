@@ -46,18 +46,18 @@ export abstract class EditableRaster extends WhiteboardShape {
 
   notifyItemCreation() {
     console.log("EditableRaster >> notifyItemCreation >> 진입함");
-    this.lifeCycleEventEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.CREATE));
+    this.globalLifeCycleEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.CREATE));
   }
 
   notifyItemModified() {
     console.log("EditableRaster >> notifyItemModified >> 진입함");
-    this.lifeCycleEventEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.MODIFY));
+    this.globalLifeCycleEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.MODIFY));
     /*this.notifyOwnerChangeEventToLinkPort();*/
   }
 
   refreshItem() {
     console.log("EditableRaster >> refreshItem >> 진입함");
-    this.lifeCycleEventEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.MODIFY));
+    this.globalLifeCycleEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.MODIFY));
     /*this.notifyOwnerChangeEventToLinkPort();*/
   }
 
@@ -66,14 +66,25 @@ export abstract class EditableRaster extends WhiteboardShape {
     console.log("EditableRaster >> destroyItem >> 진입함");
     this.coreItem.remove();
     this.group.remove();
-    this.lifeCycleEventEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.DESTROY));
+    this.globalLifeCycleEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.DESTROY));
+  }
+  destroyItemAndNoEmit() {
+    // super.destroyItem();
+    console.log("EditableRaster >> destroyItem >> 진입함");
+    this.coreItem.remove();
+    this.group.remove();
+    this.destroyBlind();
   }
 
   exportToDto(): EditableRasterDto {
     let editableRasterDto:EditableRasterDto =  super.exportToDto() as EditableRasterDto;
     editableRasterDto.imageBlob = this.imageBlob;
-    return editableRasterDto;
 
+    return editableRasterDto;
+  }
+
+  public update(dto: EditableRasterDto) {
+    super.update(dto);
   }
 
 

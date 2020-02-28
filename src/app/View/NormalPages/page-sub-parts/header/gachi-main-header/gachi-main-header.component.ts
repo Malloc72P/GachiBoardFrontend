@@ -10,10 +10,10 @@ import {AuthEvent} from '../../../../../Controller/SocialLogin/auth-request/Auth
   styleUrls: ['./gachi-main-header.component.css', './../../../gachi-font.css']
 })
 export class GachiMainHeaderComponent implements OnInit {
-  private isToggled = true;
+  public isToggled = true;
   @Input() userName;
   constructor(
-    private sidebarManagerService:GachiSidebarManagerService,
+    public sidebarManagerService:GachiSidebarManagerService,
   ) {
 
   }

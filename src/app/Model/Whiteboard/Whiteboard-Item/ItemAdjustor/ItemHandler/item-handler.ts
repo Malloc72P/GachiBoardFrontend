@@ -22,7 +22,6 @@ export abstract class ItemHandler {
     this.guideLine = guideLine;
     this.handlerDirection = handlerDirection;
     this.initHandlerObject(handlerOption, handlerFillColor);
-    this.bindHandlerCallback();
   }
 
   protected initHandlerObject(handlerOption, handlerFillColor){
@@ -41,39 +40,6 @@ export abstract class ItemHandler {
     this.handlerCircleObject.data.struct = this;
   }
 
-  protected bindHandlerCallback(){
-    this.handlerCircleObject.onMouseDown = (event)=>{
-      if(!this.owner.checkEditable()){
-        return;
-      }
-      this.onMouseDown(event);
-    };
-    this.handlerCircleObject.onMouseDrag = (event)=>{
-      if(!this.owner.checkEditable()){
-        return;
-      }
-      this.onMouseDrag(event);
-    };
-    this.handlerCircleObject.onMouseUp = (event)=>{
-      if(!this.owner.checkEditable()){
-        return;
-      }
-      this.onMouseUp(event);
-    };
-    this.handlerCircleObject.onMouseEnter = () => {
-      if(!this.owner.checkEditable()){
-        return;
-      }
-      this.onMouseEnter();
-    };
-    this.handlerCircleObject.onMouseLeave = () => {
-      if(!this.owner.checkEditable()){
-        return;
-      }
-      this.onMouseLeave();
-    };
-  }
-
   public refreshPosition(){
     this.handlerCircleObject.position = this.getHandlerPosition(this.handlerDirection);
   }
@@ -81,8 +47,6 @@ export abstract class ItemHandler {
   public abstract onMouseDown(event);
   public abstract onMouseDrag(event);
   public abstract onMouseUp(event);
-  public abstract onMouseEnter();
-  public abstract onMouseLeave();
 
   protected getHandlerPosition(handlerDirection){
     let bounds = this.guideLine.bounds;

@@ -74,23 +74,18 @@ export class ShapeService {
     if(this.handlePath) {
       this.handlePath.remove();
     }
-    let points: Points;
-    points = this.initEvent(event);
 
-    this.createHandleRectangle(points.point);
-    this.createDrawMinBoundRectangle(points.point);
+    this.createHandleRectangle(event.point);
+    this.createDrawMinBoundRectangle(event.point);
 
-    this.fromPoint = points.point;
+    this.fromPoint = event.point;
   }
 
   public drawPath(event) {
-    let points: Points;
-    points = this.initEvent(event);
-
     // 시작 지점부터 가로, 세로가 minSize * 2인 크기 밖으로 넘어가지 않으면 도형 그리지 않음.
     // 결과적으로 클릭하고 조금만 드래그되어도 도형이 생성되는 문제 제어
     if(this.toolState === 'normal') {
-      if(!this.minDrawBound.contains(points.point)) {
+      if(!this.minDrawBound.contains(event.point)) {
         this.toolState = 'draw';
       }
     }
@@ -99,29 +94,19 @@ export class ShapeService {
     }
 
     if(!this.isCreated){
-      this.createSelectedShape(points.point);
+      this.createSelectedShape(event.point);
       this.isCreated = true;
     }
 
-    const width = this.fromPoint.x - points.point.x;
-    if(width < this.minSize && width >= 0) {
-      points.point.x = this.fromPoint.x - this.minSize;
-    } else if (width > -this.minSize && width < 0) {
-      points.point.x = this.fromPoint.x + this.minSize;
-    }
-    const height = this.fromPoint.y - points.point.y;
-    if(height < this.minSize && height >= 0) {
-      points.point.y = this.fromPoint.y - this.minSize;
-    } else if (height > -this.minSize && height < 0) {
-      points.point.y = this.fromPoint.y + this.minSize;
+    let point = event.point.clone();
+
+    this.calcMinSize(point);
+
+    if(event.event.shiftKey) {
+      PointCalculator.forSquare(this.fromPoint, point);
     }
 
-
-    if(event.shiftKey) {
-      PointCalculator.forSquare(this.fromPoint, points.point);
-    }
-
-    let bound = new paper.Rectangle(this.fromPoint, points.point);
+    let bound = new paper.Rectangle(this.fromPoint, point);
     this.handlePath.bounds = bound;
 
     if(this._shapeStyle === ShapeStyle.ROUND_RECTANGLE) {
@@ -136,36 +121,22 @@ export class ShapeService {
     if(this.newPath == null) {
       return;
     }
-    let points = this.initEvent(event);
 
     if(this.handlePath) {
       this.handlePath.remove();
     }
 
-    // if(this.fromPoint.equals(points.point)) {
-      if(Date.now() - this.lastClickTime < 300) {
-        let selectedItem = this.layerService.getHittedItem(points.point);
-        if(!selectedItem){
-          //오류 발생한 경우임. 있어야 할 아이템이 LayerService의 WhiteboardItemArray에 없는 경우 발생
-        }
-        let editableShape:EditableShape = selectedItem as EditableShape;
-
-        if( editableShape.editText != null) {
-          //this.textEditStart(editableShape.editText);
-        }
-      }
+    // let whiteboardItem = this.layerService.getWhiteboardItem(this.newPath);
+    // if(whiteboardItem){
+    //   whiteboardItem.notifyItemModified();
     // }
-    this.lastClickTime = Date.now();
-
-    let whiteboardItem = this.layerService.getWhiteboardItem(this.newPath);
-    if(whiteboardItem){
-      whiteboardItem.notifyItemModified();
-    }
 
     this.isCreated = false;
     this.minDrawBound.remove();
     this.toolState = 'normal';
+    this.createShapeItem();
   }
+
   private createShapeItem(){
     //#1 PointText 생성
     let newTextStyle = new TextStyle();
@@ -250,7 +221,7 @@ export class ShapeService {
       default:
         break;
     }
-    this.createShapeItem();
+    // this.createShapeItem();
   }
 
   private createRectangle(point: paper.Point) {
@@ -302,7 +273,7 @@ export class ShapeService {
     this.newPath.strokeColor = this._strokeColor;
     this.newPath.fillColor = this._fillColor;
     this.newPath.strokeWidth = this._strokeWidth;
-    this.createShapeItem();
+    // this.createShapeItem();
   }
 
   private createHandleRectangle(point: paper.Point) {
@@ -327,6 +298,24 @@ export class ShapeService {
   private onClickOutsidePanel(event, element, item) {
     if(element.contains(event.target)) {
       //this.textEditEnd(item);
+    }
+  }
+
+  private calcMinSize(point: Point) {
+    const width = this.fromPoint.x - point.x;
+
+    if(width < this.minSize && width >= 0) {
+      point.x = this.fromPoint.x - this.minSize;
+    } else if (width > -this.minSize && width < 0) {
+      point.x = this.fromPoint.x + this.minSize;
+    }
+
+    const height = this.fromPoint.y - point.y;
+
+    if(height < this.minSize && height >= 0) {
+      point.y = this.fromPoint.y - this.minSize;
+    } else if (height > -this.minSize && height < 0) {
+      point.y = this.fromPoint.y + this.minSize;
     }
   }
 

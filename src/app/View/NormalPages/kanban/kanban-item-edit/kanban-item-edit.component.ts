@@ -1,5 +1,4 @@
 import {Component, Inject, OnInit} from '@angular/core';
-import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material';
 import {UserManagerService} from '../../../../Model/UserManager/user-manager.service';
 import {FormControl, Validators} from '@angular/forms';
 import {
@@ -8,6 +7,7 @@ import {
 import {KanbanItem} from '../../../../Model/Whiteboard/ProjectSupporter/Kanban/KanbanItem/kanban-item';
 import {KanbanGroup} from '../../../../Model/Whiteboard/ProjectSupporter/Kanban/KanbanGroup/kanban-group';
 import {WsKanbanController} from '../../../../Controller/Controller-WebSocket/websocket-manager/KanbanWsController/ws-kanban.controller';
+import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
 
 export class EditKanbanDialogData {
   kanbanItem:KanbanItem;
@@ -29,8 +29,8 @@ export class KanbanItemEditComponent implements OnInit {
   selected = 0;
   constructor(
     public dialogRef: MatDialogRef<KanbanItemEditComponent>,
-    private userManagerService:UserManagerService,
-    private colorService:KanbanItemColorService,
+    public userManagerService:UserManagerService,
+    public colorService:KanbanItemColorService,
     @Inject(MAT_DIALOG_DATA) public data: EditKanbanDialogData) {
     this.kanbanItem = data.kanbanItem;
     this.kanbanGroup = data.kanbanGroup;

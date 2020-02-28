@@ -5,6 +5,7 @@ import {WebsocketPacketDto} from '../../../../DTO/WebsocketPacketDto/WebsocketPa
 import {WebsocketPacketActionEnum} from '../../../../DTO/WebsocketPacketDto/WebsocketPacketActionEnum';
 import {ProjectDto} from '../../../../DTO/ProjectDto/project-dto';
 import {WebsocketEvent, WebsocketEventEnum} from '../WebsocketEvent/WebsocketEvent';
+import {Observable} from 'rxjs';
 
 export class WsProjectController {
   private socket:Socket;
@@ -32,14 +33,42 @@ export class WsProjectController {
     };
     this.socket.emit(HttpHelper.websocketApi.project.joinProject.event,param);
   }
+  waitJoinProject(idToken, accessToken, project_id){
+    return new Observable<any>((subscriber)=>{
+      console.warn("WsProjectController >> joinProject >> 진입함");
+      let param = {
+        idToken : idToken,
+        accessToken : accessToken,
+        project_id : project_id,
+      };
+      this.socket.emit(HttpHelper.websocketApi.project.joinProject.event,param);
+
+      this.socket.once(HttpHelper.websocketApi.project.joinProject.event,
+        (wsPacket:WebsocketPacketDto)=>{
+          console.log("WsProjectController >>  >> wsPacket : ",wsPacket);
+          switch (wsPacket.action) {
+            case WebsocketPacketActionEnum.ACK:
+              this.websocketManager.currentProjectDto = wsPacket.dataDto as ProjectDto;
+              subscriber.next(this.websocketManager.currentProjectDto);
+              break;
+            case WebsocketPacketActionEnum.NAK:
+              break;
+          }
+        });
+    });
+
+  }
 
   private onParticipantJoin(){
     console.warn("WsProjectController >> onParticipantJoin >> 진입함");
     this.socket.on(HttpHelper.websocketApi.project.joinProject.event,
       (wsPacket:WebsocketPacketDto)=>{
       console.log("WsProjectController >>  >> wsPacket : ",wsPacket);
+      let updatedProjectDto:ProjectDto = wsPacket.dataDto as ProjectDto;
       switch (wsPacket.action) {
         case WebsocketPacketActionEnum.SPECIAL:
+          console.log("WsProjectController >> onParticipantJoin >> SPECIAL >> wsPacket : ",wsPacket);
+          this.websocketManager.currentProjectDto.participantList = updatedProjectDto.participantList;
           break;
         case WebsocketPacketActionEnum.ACK:
           this.websocketManager.currentProjectDto = wsPacket.dataDto as ProjectDto;

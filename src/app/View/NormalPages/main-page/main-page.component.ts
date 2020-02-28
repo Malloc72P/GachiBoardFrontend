@@ -8,7 +8,7 @@ import {
   GachiSidebarEventEnum
 } from '../../../Model/NormalPagesManager/gachi-sidebar-manager/GachiSidebarEvent/GachiSidebarEvent';
 import {UserDTO} from '../../../DTO/user-dto';
-import {MatSidenav} from '@angular/material';
+import {MatSidenav} from '@angular/material/sidenav';
 
 @Component({
   selector: 'app-main-page',
@@ -18,12 +18,12 @@ import {MatSidenav} from '@angular/material';
 export class MainPageComponent implements OnInit {
   @ViewChild('mainLeftDrawer', {static: true}) mainLeftDrawer;
   @ViewChild('drawer', {static: true}) rightSidebar:MatSidenav;
-  private userName = "";
-  private userDto = new UserDTO();
+  public userName = "";
+  public userDto = new UserDTO();
   constructor(
-    private authRequestService:AuthRequestService,
-    private routerHelperService:RouterHelperService,
-    private sidebarManagerService:GachiSidebarManagerService
+    public authRequestService:AuthRequestService,
+    public routerHelperService:RouterHelperService,
+    public sidebarManagerService:GachiSidebarManagerService
   ) {
 
   }

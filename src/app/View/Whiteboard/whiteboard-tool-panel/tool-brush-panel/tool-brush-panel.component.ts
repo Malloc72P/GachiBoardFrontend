@@ -14,11 +14,11 @@ import {PointerMode} from '../../../../Model/Whiteboard/Pointer/pointer-mode-enu
 })
 
 export class ToolBrushPanelComponent implements OnInit {
-  private strokeWidth: number;
-  private colorPickerPicked: string;
+  public strokeWidth: number;
+  public colorPickerPicked: string;
 
-  private strokeColorIndex: number = 0;
-  private colors = [
+  public strokeColorIndex: number = 0;
+  public colors = [
     new Color(0, 0, 0),
     new Color(255, 0, 0),
     new Color(0, 255, 0),
@@ -26,15 +26,15 @@ export class ToolBrushPanelComponent implements OnInit {
   ];
 
   constructor(
-    private pointerModeManagerService: PointerModeManagerService,
-    private panelManger: PanelManagerService
+    public pointerModeManagerService: PointerModeManagerService,
+    public panelManger: PanelManagerService
   ) { }
 
   ngOnInit() {
   }
 
   onStrokeWidthChanged() {
-    this.pointerModeManagerService.brushService.setWidth(this.strokeWidth);
+    this.pointerModeManagerService.brushService.setWidth = this.strokeWidth;
   }
   colorToHTMLRGB(index: number) {
     return this.colors[index].toCSS(false);
@@ -48,7 +48,7 @@ export class ToolBrushPanelComponent implements OnInit {
   }
   onColorPickerClicked(index: number) {
     this.strokeColorIndex = index;
-    this.pointerModeManagerService.brushService.setColor(this.colors[index]);
+    this.pointerModeManagerService.brushService.setColor = this.colors[index];
     this.panelManger.toolIconColor[PointerMode.DRAW] = this.colors[index].toCSS(false);
   }
   onAddColorClicked() {

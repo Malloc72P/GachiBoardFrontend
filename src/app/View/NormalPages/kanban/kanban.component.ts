@@ -1,7 +1,6 @@
 import {Component, Inject, OnDestroy, OnInit} from '@angular/core';
 import {PopupManagerService} from '../../../Model/PopupManager/popup-manager.service';
 import {CdkDragDrop, moveItemInArray, transferArrayItem} from '@angular/cdk/drag-drop';
-import {MAT_DIALOG_DATA, MatDialog, MatDialogRef} from '@angular/material';
 import {
   KanbanTagListManagerService,
   TagItem
@@ -22,6 +21,7 @@ import {KanbanEvent, KanbanEventEnum} from '../../../Model/Whiteboard/ProjectSup
 import {WebsocketManagerService} from '../../../Controller/Controller-WebSocket/websocket-manager/websocket-manager.service';
 import {KanbanDataDto} from '../../../DTO/ProjectDto/KanbanDataDto/kanban-data-dto';
 import {Subscription} from 'rxjs';
+import {MAT_DIALOG_DATA, MatDialog, MatDialogRef} from '@angular/material/dialog';
 
 export class KanbanComponentData {
   projectDto:ProjectDto;
@@ -45,17 +45,17 @@ export class KanbanComponent implements OnInit, OnDestroy {
 
   kanbanGroupWrapper:Array<KanbanGroup>;
 
-  private projectDto:ProjectDto = new ProjectDto();
+  public projectDto:ProjectDto = new ProjectDto();
 
   constructor(
-    private popupManagerService:PopupManagerService,
+    public popupManagerService:PopupManagerService,
     public dialogRef: MatDialogRef<KanbanComponent>,
-    private tagListMgrService:KanbanTagListManagerService,
-    private userManagerService:UserManagerService,
-    private htmlHelperService:HtmlHelperService,
+    public tagListMgrService:KanbanTagListManagerService,
+    public userManagerService:UserManagerService,
+    public htmlHelperService:HtmlHelperService,
     public dialog: MatDialog,
-    private kanbanEventManager:KanbanEventManagerService,
-    private websocketManagerService:WebsocketManagerService,
+    public kanbanEventManager:KanbanEventManagerService,
+    public websocketManagerService:WebsocketManagerService,
     @Inject(MAT_DIALOG_DATA) public data: KanbanComponentData,
   ) {
     this.kanbanGroupWrapper = new Array<KanbanGroup>();
@@ -66,7 +66,7 @@ export class KanbanComponent implements OnInit, OnDestroy {
       this.initComponent(kanbanData);
     });
   }
-  private initFlag = false;
+  public initFlag = false;
   initComponent(kanbanData:KanbanDataDto){
     if (!this.initFlag) {
       this.projectDto.kanbanData = kanbanData;
@@ -103,7 +103,7 @@ export class KanbanComponent implements OnInit, OnDestroy {
     }
   }
 
-  private subscription:Subscription;
+  public subscription:Subscription;
   subscribeEventEmitter(){
     this.subscription = this.kanbanEventManager.kanbanEventEmitter.subscribe((kanbanEvent:KanbanEvent)=>{
       switch (kanbanEvent.action) {
@@ -493,12 +493,12 @@ export class KanbanComponent implements OnInit, OnDestroy {
 
   getProfileImg(idToken){
     if(idToken){
-      return this.userManagerService.getUserDataByIdToken(idToken).profileImg;
+      return this.websocketManagerService.getUserInfoByIdToken(idToken).profileImg;
     }
   }
   getUserName(idToken){
     if(idToken) {
-      return this.userManagerService.getUserDataByIdToken(idToken).userName;
+      return this.websocketManagerService.getUserInfoByIdToken(idToken).userName;
     }
   }
   checkEditorIsAnotherUser(idToken){

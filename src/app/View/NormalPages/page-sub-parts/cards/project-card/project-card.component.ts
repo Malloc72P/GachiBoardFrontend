@@ -9,20 +9,20 @@ import {ProjectDto} from '../../../../../DTO/ProjectDto/project-dto';
   styleUrls: ['./project-card.component.css', './../../../gachi-font.css']
 })
 export class ProjectCardComponent implements OnInit, AfterViewInit {
-  @ViewChild('projectCard', {static: false}) projectCard;
+  @ViewChild('projectCard') projectCard;
   @Input() projectDto:ProjectDto;
   @Input()marginValue = '0px';
 
-  private isHovering = false;
+  public isHovering = false;
 
-  private projectCardEl:HTMLElement;
+  public projectCardEl:HTMLElement;
 
-  private m = [4][4];
+  public m = [4][4];
 
   constructor(
-    private renderer: Renderer2,
-    private htmlHelperService:HtmlHelperService,
-    private routerHelperService:RouterHelperService
+    public renderer: Renderer2,
+    public htmlHelperService:HtmlHelperService,
+    public routerHelperService:RouterHelperService
   ) { }
 
   ngOnInit() {

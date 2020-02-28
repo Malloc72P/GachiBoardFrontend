@@ -1,4 +1,3 @@
-
 import * as paper from 'paper';
 // @ts-ignore
 import Path = paper.Path;
@@ -10,95 +9,91 @@ import Item = paper.Item;
 import Segment = paper.Segment;
 // @ts-ignore
 import Color = paper.Color;
+
 import {WhiteboardItem} from '../whiteboard-item';
-import {EventEmitter} from '@angular/core';
 import {ItemLifeCycleEnum, ItemLifeCycleEvent} from '../WhiteboardItemLifeCycle/WhiteboardItemLifeCycle';
 import {Editable} from '../InterfaceEditable/editable';
-import {WhiteboardItemDto} from '../../../../DTO/WhiteboardItemDto/whiteboard-item-dto';
 import {EditableStrokeDto} from '../../../../DTO/WhiteboardItemDto/EditableStrokeDto/editable-stroke-dto';
-import {GachiPointDto} from '../../../../DTO/WhiteboardItemDto/PointDto/gachi-point-dto';
 import {GachiColorDto} from '../../../../DTO/WhiteboardItemDto/ColorDto/gachi-color-dto';
+import {GachiSegmentDto} from "../../../../DTO/WhiteboardItemDto/SegmentDto/gachi-segment-dto";
+import {GachiPointDto} from "../../../../DTO/WhiteboardItemDto/PointDto/gachi-point-dto";
 
 export abstract class EditableStroke extends WhiteboardItem implements Editable{
-  private _segments: Array<Segment>;
-  private _strokeWidth: number;
-  private _strokeColor: Color;
-
-  protected constructor(id, type, path:Path, layerService) {
+  protected constructor(id, type, path: Path, layerService) {
     super(id, type, path, layerService);
 
     this.disableLinkHandler = true;
 
-    this.segments = path.segments;
-    this.strokeWidth = path.strokeWidth;
-    this.strokeColor = path.strokeColor;
-
-    this.notifyItemCreation();
+    this.localEmitCreate();
+    this.globalEmitCreate();
   }
 
-  public notifyItemModified() {
-    console.log("EditableStroke >> notifyItemModified >> 진입함");
-    this.lifeCycleEventEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.MODIFY));
-  }
-
-  public notifyItemCreation() {
-    console.log("EditableStroke >> createItem >> 진입함");
-    this.lifeCycleEventEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.CREATE));
-  }
-
-  public refreshItem() {
-    console.log("EditableStroke >> refreshItem >> 진입함");
-    this.lifeCycleEventEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.MODIFY));
-  }
   public destroyItem() {
     super.destroyItem();
+    this.coreItem.remove();
+    this.group.remove();
+  }
+  public destroyItemAndNoEmit() {
+    // super.destroyItem();
     console.log("EditableStroke >> destroyItem >> 진입함");
     this.coreItem.remove();
     this.group.remove();
-    this.lifeCycleEventEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.DESTROY));
+    this.destroyBlind();
   }
 
   public exportToDto(): EditableStrokeDto {
     let editableStrokeDto:EditableStrokeDto =  super.exportToDto() as EditableStrokeDto;
 
     //strokeColor 추출
-    let strokeObject:Path = this.coreItem as Path;
-    editableStrokeDto.strokeColor = GachiColorDto.createColor(strokeObject.strokeColor);
+    editableStrokeDto.strokeColor = GachiColorDto.createColor(this.strokeColor);
 
     //strokeSegments 추출
-    editableStrokeDto.segments = new Array<GachiPointDto>();
-    for(let i = strokeObject.segments.length-1 ; i >= 0; i--){
+    editableStrokeDto.segments = new Array<GachiSegmentDto>();
+    for(let i = this.segments.length - 1 ; i >= 0; i--){
       editableStrokeDto.segments
-        .push(new GachiPointDto(strokeObject.segments[i].point.x, strokeObject.segments[i].point.y))
+        .push(new GachiSegmentDto(this.segments[i]));
     }
 
     //strokeWidth 추출
-    editableStrokeDto.strokeWidth = strokeObject.strokeWidth;
+    editableStrokeDto.strokeWidth = this.strokeWidth;
 
     return editableStrokeDto;
   }
 
-  get segments(): Array<Segment> {
-    return this._segments;
+  public update(dto: EditableStrokeDto) {
+    super.update(dto);
+
+    this.segments.splice(0, this.segments.length);
+    dto.segments.forEach(value => {
+      this.segments.push(new Segment(
+        GachiPointDto.getPaperPoint(value.point),
+        GachiPointDto.getPaperPoint(value.handleIn),
+        GachiPointDto.getPaperPoint(value.handleOut)
+      ))
+    });
+
+    this.strokeWidth = dto.strokeWidth;
+    this.strokeColor = GachiColorDto.getPaperColor(dto.strokeColor);
   }
 
-  set segments(value: Array<Segment>) {
-    this._segments = value;
+  get segments(): Array<Segment> {
+    let path = this.coreItem as Path;
+    return path.segments;
   }
 
   get strokeWidth(): number {
-    return this._strokeWidth;
+    return this.coreItem.strokeWidth;
   }
 
   set strokeWidth(value: number) {
-    this._strokeWidth = value;
+    this.coreItem.strokeWidth = value;
   }
 
   get strokeColor(): Color {
-    return this._strokeColor;
+    return this.coreItem.strokeColor;
   }
 
   set strokeColor(value: Color) {
-    this._strokeColor = value;
+    this.coreItem.strokeColor = value;
   }
 }

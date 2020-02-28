@@ -20,7 +20,6 @@ export class BrushService {
   private strokeWidth = 1;
   private newPath: paper.Path;
   private currentProject: paper.Project;
-  private newSimpleStroke;
 
   constructor(
     private posCalcService: PositionCalcService,
@@ -31,49 +30,17 @@ export class BrushService {
     this.currentProject = project;
   }
 
-  public setColor(color: paper.Color) {
-    this.strokeColor = color;
-  }
-  public setWidth(width: number) {
-    this.strokeWidth = width;
-  }
   public createPath(event) {
-    let point: paper.Point;
-
-    if(event instanceof MouseEvent) {
-      point = new Point(event.x, event.y);
-    } else if (event instanceof TouchEvent) {
-      point = new Point(event.touches[0].clientX, event.touches[0].clientY);
-    } else {
-      return;
-    }
-    point = this.posCalcService.advConvertNgToPaper(point);
-
-    this.newPath =  new paper.Path({
-      segments: [new Point(point.x, point.y)],
-      strokeColor: this.strokeColor,
-      strokeWidth: this.strokeWidth,
-      strokeCap: 'round',
-      strokeJoin: 'round',
-    });
+    this.createSimpleStroke(event.point);
   }
+
   public drawPath(event) {
-    let point: Point;
-
-    if(event instanceof MouseEvent) {
-      point = new Point(event.x, event.y);
-    } else if (event instanceof TouchEvent) {
-      point = new Point(event.touches[0].clientX, event.touches[0].clientY);
-    } else {
-      return;
-    }
-    point = this.posCalcService.advConvertNgToPaper(point);
-    this.newPath.add(new Point(point.x, point.y));
+    this.newPath.add(event.point);
   }
+
   public endPath() {
-    if(this.newPath != null) {
-      //this.newPath.simplify(1);
-      this.newPath.smooth({ type: 'catmull-rom', factor: 0.5 });
+    if(!!this.newPath) {
+      this.newPath.simplify(5);
 
       //addToDrawingLayer를 이용하여 아이템 append
       this.layerService.addToDrawingLayer(this.newPath, WhiteboardItemType.SIMPLE_STROKE);
@@ -82,5 +49,20 @@ export class BrushService {
     }
   }
 
+  private createSimpleStroke(point) {
+    this.newPath =  new paper.Path({
+      segments: [new Point(point.x, point.y)],
+      strokeColor: this.strokeColor,
+      strokeWidth: this.strokeWidth,
+      strokeCap: 'round',
+      strokeJoin: 'round',
+    });
+  }
 
+  set setColor(color: paper.Color) {
+    this.strokeColor = color;
+  }
+  set setWidth(width: number) {
+    this.strokeWidth = width;
+  }
 }

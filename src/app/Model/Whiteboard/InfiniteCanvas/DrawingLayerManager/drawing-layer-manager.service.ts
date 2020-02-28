@@ -20,24 +20,21 @@ import Point = paper.Point;
 // @ts-ignore
 import Project = paper.Project;
 
+// @ts-ignore
+import Rectangle = paper.Rectangle;
+
 import {TextStyle} from '../../Pointer/shape-service/text-style';
 import {PositionCalcService} from '../../PositionCalc/position-calc.service';
 import {
   ItemLifeCycleEnum,
   ItemLifeCycleEvent,
-  LinkItemLifeCycleEvent
 } from '../../Whiteboard-Item/WhiteboardItemLifeCycle/WhiteboardItemLifeCycle';
 import {SimpleRaster} from '../../Whiteboard-Item/Whiteboard-Shape/editable-raster/SimpleRaster/simple-raster';
-import {ZoomControlService} from '../ZoomControl/zoom-control.service';
 import {GlobalSelectedGroup} from '../../Whiteboard-Item/ItemGroup/GlobalSelectedGroup/global-selected-group';
 import {PointerModeEvent} from '../../Pointer/PointerModeEvent/pointer-mode-event';
 import {PointerMode} from '../../Pointer/pointer-mode-enum-service/pointer-mode-enum.service';
-import {SelectModeEnum} from './SelectModeEnum/select-mode-enum.enum';
-import {SelectEvent} from './SelectEvent/select-event';
-import {SelectEventEnum} from './SelectEventEnum/select-event.enum';
 import {InfiniteCanvasService} from '../infinite-canvas.service';
 import {ItemGroup} from '../../Whiteboard-Item/ItemGroup/item-group';
-import {PointerModeManagerService} from '../../Pointer/pointer-mode-manager-service/pointer-mode-manager.service';
 import {LinkPort} from '../../Whiteboard-Item/Whiteboard-Shape/LinkPort/link-port';
 import {EditableShape} from '../../Whiteboard-Item/Whiteboard-Shape/EditableShape/editable-shape';
 import {ContextMenuService} from "../../ContextMenu/context-menu-service/context-menu.service";
@@ -48,6 +45,21 @@ import {EditableItemGroup} from '../../Whiteboard-Item/ItemGroup/EditableItemGro
 import {HorizonContextMenuService} from "../../ContextMenu/horizon-context-menu-service/horizon-context-menu.service";
 import {WorkHistoryManager} from './WorkHistoryManager/work-history-manager';
 import {CursorChangeService} from "../../Pointer/cursor-change-service/cursor-change.service";
+import {ItemHandler} from "../../Whiteboard-Item/ItemAdjustor/ItemHandler/item-handler";
+import {WhiteboardShape} from "../../Whiteboard-Item/Whiteboard-Shape/whiteboard-shape";
+import {LinkHandler} from "../../Whiteboard-Item/Whiteboard-Shape/LinkPort/EditableLink/LinkHandler/link-handler";
+import {WsWhiteboardController} from '../../../../Controller/Controller-WebSocket/websocket-manager/WhiteboardWsController/ws-whiteboard.controller';
+import {WbItemEventManagerService} from '../../../../Controller/Controller-WebSocket/websocket-manager/WhiteboardWsController/wb-item-event-manager.service';
+import {
+  WbItemEvent,
+  WbItemEventEnum
+} from '../../../../Controller/Controller-WebSocket/websocket-manager/WhiteboardWsController/wb-item-event/wb-item-event';
+import {WhiteboardItemFactory} from '../WhiteboardItemFactory/whiteboard-item-factory';
+import {WbItemFactoryResult} from '../WhiteboardItemFactory/WbItemFactoryResult/wb-item-factory-result';
+import {MinimapSyncService} from '../MinimapSync/minimap-sync.service';
+import {WhiteboardItemDto} from '../../../../DTO/WhiteboardItemDto/whiteboard-item-dto';
+import {WebsocketPacketDto} from '../../../../DTO/WebsocketPacketDto/WebsocketPacketDto';
+import {WebsocketManagerService} from '../../../../Controller/Controller-WebSocket/websocket-manager/websocket-manager.service';
 
 
 @Injectable({
@@ -55,7 +67,7 @@ import {CursorChangeService} from "../../Pointer/cursor-change-service/cursor-ch
 })
 export class DrawingLayerManagerService {
   private _drawingLayer:Layer;
-  private currentProject:Project;
+  private _currentProject:Project;
   private _contextMenu: ContextMenuService;
 
   private _currentLinkerMode:LinkerMode;
@@ -73,23 +85,28 @@ export class DrawingLayerManagerService {
   private _idGenerator = 0;
   private _linkIdGenerator = 0;
 
+  private hitOption = { segments: true, stroke: true, fill: true, tolerance: 15 };
 
-  @Output() wbItemLifeCycleEventEmitter:EventEmitter<any> = new EventEmitter<any>();
+  @Output() globalLifeCycleEmitter:EventEmitter<any>  = new EventEmitter<any>();
   @Output() pointerModeEventEmitter:EventEmitter<any> = new EventEmitter<any>();
-  @Output() selectModeEventEmitter:EventEmitter<any> = new EventEmitter<any>();
-  @Output() linkModeEventEmitter:EventEmitter<any> = new EventEmitter<any>();
+  @Output() selectModeEventEmitter:EventEmitter<any>  = new EventEmitter<any>();
+  @Output() linkModeEventEmitter:EventEmitter<any>    = new EventEmitter<any>();
 
   constructor(
     private _posCalcService:PositionCalcService,
     private _infiniteCanvasService:InfiniteCanvasService,
     private _horizonContextMenuService: HorizonContextMenuService,
     private _cursorChangeService: CursorChangeService,
+    private wbItemEventManagerService: WbItemEventManagerService,
+    private minimapSyncService: MinimapSyncService,
+    private websocketManagerService: WebsocketManagerService,
   ) {
     this._whiteboardItemArray = new Array<WhiteboardItem>();
     this._editableLinkArray = new Array<EditableLink>();
 
     //### 1 화이트보드 아이템 라이프사이클 이벤트
     this.initLifeCycleHandler();
+    this.initWbItemWsEventHandler();
     //### 2 포인터 모드 이벤트
     this.initPointerHandler();
     //### 3 링커 모드 이벤트
@@ -97,9 +114,9 @@ export class DrawingLayerManagerService {
   }
 
   initializeDrawingLayerService(paperProject, contextMenuService: ContextMenuService){
-    this.currentProject = paperProject;
+    this._currentProject = paperProject;
     this._contextMenu = contextMenuService;
-    this.currentProject.layers.forEach((value, index, array)=>{
+    this._currentProject.layers.forEach((value, index, array)=>{
       if(value.data.type === DataType.DRAWING_CANVAS){
         this.drawingLayer = value;
       }
@@ -108,54 +125,12 @@ export class DrawingLayerManagerService {
 
     // horizon Context Menu 초기화
     this.horizonContextMenuService.initializeHorizonContextMenuService(this.globalSelectedGroup);
-
-    //#### 이걸로 화이트보드 배경 선택시 현재 선택된 그룹을 해제함
-    this.currentProject.view.onMouseDown = (event)=>{
-      if(this.isEditingText){
-        console.log("DrawingLayerManagerService >> onMouseDown >> isEditingText 진입함");
-        this.endEditText();
-        this.horizonContextMenuService.close();
-        return;
-      }
-      if(this.globalSelectedGroup.getNumberOfChild() > 0){
-        let hitItem = this.getHittedItem(event.point);
-        if(!hitItem){
-          if(!this.checkHittedItemIsHandler(event.point)){
-            this.globalSelectedGroup.extractAllFromSelection();
-            return;
-          }
-        }
-      }else{
-        return;
-      }
-
-      // let point = this.initPoint(event.event);
-      // this.initFromPoint(point);
-      // if(event.event instanceof TouchEvent) {
-      //   this.longTouchTimer = setTimeout(this.onLongTouch, 500, event.event, this.contextMenu);
-      // }
-    };
-    // this.currentProject.view.onMouseDrag = (event) => {
-    //   // TODO : Canvas Mover 에서 드래그 이벤트 발생 안함
-    //   if(event.event instanceof TouchEvent) {
-    //     if(this.calcTolerance(this.initPoint(event.event))){
-    //       clearTimeout(this.longTouchTimer);
-    //     }
-    //   }
-    // };
-    // this.currentProject.view.onMouseUp = (event) => {
-    //   if(event.event instanceof TouchEvent) {
-    //     clearTimeout(this.longTouchTimer);
-    //   }
-    // };
   }
 
   public addWbLink(editableLink:EditableLink){
-    console.log("DrawingLayerManagerService >> addWbLink >> 진입함 : ",editableLink.id);
     this.editableLinkArray.push(editableLink);
   }
   public deleteWbLink(editableLink:EditableLink){
-    console.log("DrawingLayerManagerService >> deleteWbLink >> 진입함 : ",editableLink.id);
     let deleteIdx = this.editableLinkArray.indexOf(editableLink);
     if(deleteIdx > -1){
       this.editableLinkArray.splice(deleteIdx, 1);
@@ -164,7 +139,6 @@ export class DrawingLayerManagerService {
 
   private initPointerHandler(){
     this.pointerModeEventEmitter.subscribe((data:PointerModeEvent)=>{
-      console.log("DrawingLayerManagerService >> pointerModeEventEmitter >> data : ",PointerMode[data.currentMode]);
       this.currentPointerMode = data.currentMode;
       if(this.globalSelectedGroup){
         this.globalSelectedGroup.extractAllFromSelection();
@@ -172,55 +146,128 @@ export class DrawingLayerManagerService {
     });
 
   }
+  /* *************************************************** */
+  /* Whiteboard Item Lifecycle Handler START */
+  /* *************************************************** */
+
+  private initWbItemWsEventHandler(){
+    this.wbItemEventManagerService.wsWbItemEventEmitter
+      .subscribe((recvWbItemEvent:WbItemEvent)=>{
+      if(!recvWbItemEvent){
+        return;
+      }
+      switch (recvWbItemEvent.action) {
+        case WbItemEventEnum.CREATE:
+          WhiteboardItemFactory.buildWbItems(recvWbItemEvent.data, this.whiteboardItemArray)
+            .subscribe((res:WbItemFactoryResult)=>{
+              res.newWbItem.group.opacity = 1;
+              res.newWbItem.coreItem.opacity = 1;
+            });
+          break;
+        case WbItemEventEnum.CREATE_MULTIPLE:
+          let wbItemDtos:Array<WhiteboardItemDto> = recvWbItemEvent.additionalData as Array<WhiteboardItemDto>;
+          for(let wbItemDto of wbItemDtos){
+            WhiteboardItemFactory.buildWbItems(wbItemDto, this.whiteboardItemArray)
+              .subscribe((res:WbItemFactoryResult)=>{
+                res.newWbItem.group.opacity = 1;
+                res.newWbItem.coreItem.opacity = 1;
+              });
+          }
+          break;
+        case WbItemEventEnum.DELETE:
+          let delItem = this.findItemById(recvWbItemEvent.data.id);
+          if(delItem){
+            this.deleteItemFromWbArray(delItem.id);
+            delItem.destroyItemAndNoEmit();
+          }
+          break;
+        case WbItemEventEnum.OCCUPIED:
+          let occupiedItem = this.findItemById(recvWbItemEvent.data.id);
+          let wsPacketDto:WebsocketPacketDto = recvWbItemEvent.additionalData;
+          if (occupiedItem) {
+            occupiedItem.onOccupied(this.websocketManagerService.getUserInfoByIdToken(wsPacketDto.senderIdToken).userName);
+          }
+          break;
+        case WbItemEventEnum.NOT_OCCUPIED:
+          let notOccupiedItem = this.findItemById(recvWbItemEvent.data.id);
+          if (notOccupiedItem) {
+            notOccupiedItem.onNotOccupied();
+          }
+          break;
+        case WbItemEventEnum.UPDATE:
+          let updateItem = this.findItemById(recvWbItemEvent.data.id);
+          updateItem.update(recvWbItemEvent.data);
+          break;
+        case WbItemEventEnum.READ:
+          break;
+        case WbItemEventEnum.LOCK:
+          break;
+        case WbItemEventEnum.UNLOCK:
+          break;
+      }
+      this.minimapSyncService.syncMinimap();
+    });
+  }
+
+
   private initLifeCycleHandler(){
-    WorkHistoryManager.initInstance(this.wbItemLifeCycleEventEmitter);
-    this.wbItemLifeCycleEventEmitter.subscribe((data:ItemLifeCycleEvent)=>{
+    WorkHistoryManager.initInstance(this.globalLifeCycleEmitter);
+    this.globalLifeCycleEmitter.subscribe((data:ItemLifeCycleEvent)=>{
       if(!data){
         return;
       }
+      if( (data.item instanceof EditableItemGroup) || (data.item instanceof GlobalSelectedGroup) ){
+        return;
+      }
+      let wsWbController = WsWhiteboardController.getInstance();
+      // TODO : 라이프 사이클 체크용 로그
       switch (data.action) {
         case ItemLifeCycleEnum.CREATE:
-          console.log("DrawingLayerManagerService >> wbItemLifeCycleEventEmitter >> CREATE");
           this.whiteboardItemArray.push(data.item);
-          if( !(data.item instanceof EditableItemGroup) ){
-            this.drawingLayer.addChild(data.item.group);
-          }
+          this.drawingLayer.addChild(data.item.group);
           break;
         case ItemLifeCycleEnum.MODIFY:
-          console.log("DrawingLayerManagerService >> wbItemLifeCycleEventEmitter >> MODIFY : ",data.item);
+          wsWbController.waitRequestUpdateWbItem(data.item.exportToDto()).subscribe(()=>{
+
+          });
           break;
         case ItemLifeCycleEnum.DESTROY:
-          console.log("DrawingLayerManagerService >> wbItemLifeCycleEventEmitter >> DESTROY");
-          let removeIdx = this.indexOfWhiteboardArray(data.id);
-          this.whiteboardItemArray.splice(removeIdx, 1);
+          wsWbController.waitRequestDeleteWbItem(data.item.exportToDto()).subscribe((ackPacket)=>{
+            this.deleteItemFromWbArray(data.id);
+          });
           break;
       }
     });
   }
+  deleteItemFromWbArray(id){
+    let removeIdx = this.indexOfWhiteboardArray(id);
+    this.whiteboardItemArray.splice(removeIdx, 1);
+  }
+  /* **************************************************** */
+  /* Whiteboard Item Lifecycle Handler END */
+  /* **************************************************** */
 
+
+
+
+
+  public getItemById( targetId ){
+    //let found = this.findItemById(paperId);
+    let found = null;
+    let children = this.whiteboardItemArray;
+
+    for(let i = 0 ; i < children.length; i++){
+      let currItem = children[i];
+      if(currItem.id === targetId ){
+        return currItem;
+      }
+    }
+    return found;
+  }
   private initLinkModeHandler(){
     this.linkModeEventEmitter.subscribe((data:LinkerModeChangeEvent)=>{
-      console.log("DrawingLayerManagerService >> linkModeEventEmitter >> data : ",data);
       this.currentLinkerMode = data.currentLinkerMode;
     });
-  }
-
-
-  private calcTolerance(point: Point) {
-    return this.fromPoint.getDistance(point) > 10;
-  }
-
-  private initFromPoint(point: Point) {
-    this.fromPoint = point;
-  }
-  private initPoint(event: MouseEvent | TouchEvent): Point {
-    let point: Point;
-    if(event instanceof MouseEvent) {
-      point = new Point(event.clientX, event.clientY);
-    } else {
-      point = new Point(event.touches[0].clientX, event.touches[0].clientY);
-    }
-    return point;
   }
 
   get drawingLayer(): paper.Layer {
@@ -247,12 +294,11 @@ export class DrawingLayerManagerService {
     return type === WhiteboardItemType.EDITABLE_GROUP;
   }
   private static isEditableLink(type){
-    return type === WhiteboardItemType.SIMPLE_ARROW_LINK
-      || type === WhiteboardItemType.SIMPLE_LINE_LINK
+    return type === WhiteboardItemType.EDITABLE_LINK;
   }
 
   public addToDrawingLayer(item, type, ...extras){
-    let newWhiteboardItem:WhiteboardItem = null;
+    let newWhiteboardItem: WhiteboardItem = null;
 
     //Stroke 형태인 경우
     if(DrawingLayerManagerService.isEditableStroke(type)){
@@ -300,28 +346,27 @@ export class DrawingLayerManagerService {
     }
     else if(DrawingLayerManagerService.isEditableGroup(type)){
       newWhiteboardItem = new EditableItemGroup(this.getWbId(),this);
+    } else if(DrawingLayerManagerService.isEditableLink(type)) {
+      // extras[0] : linkHeadType, extras[1] : linkTailType
+      // extras[2] : toLinkPort, extras[2] : fromLinkPort
+      newWhiteboardItem = new EditableLink(this.getWbId(), item, extras[0], extras[1], this, extras[2], extras[3]);
     }
-    return newWhiteboardItem
+    if (newWhiteboardItem) {
+      let wsWbController = WsWhiteboardController.getInstance();
+      wsWbController.waitRequestCreateWbItem(newWhiteboardItem.exportToDto())
+        .subscribe((packetDto) => {
+          newWhiteboardItem.id = packetDto.dataDto.id;
+        });
+    }
+    return newWhiteboardItem;
   }
-  public isSelecting(){
+
+  get isSelecting(): boolean {
     return this.globalSelectedGroup.getNumberOfChild() > 0;
   }
 
 
   //##### 화이트보드 아이템을 찾는 메서드 #######
-  public getItemById( targetId ){
-    //let found = this.findItemById(paperId);
-    let found = null;
-    let children = this.whiteboardItemArray;
-
-    for(let i = 0 ; i < children.length; i++){
-      let currItem = children[i];
-      if(currItem.id === targetId ){
-        return currItem;
-      }
-    }
-    return found;
-  }
   public indexOfWhiteboardArray(id){
     let children = this.whiteboardItemArray;
     for(let i = 0 ; i < children.length; i++){
@@ -332,65 +377,137 @@ export class DrawingLayerManagerService {
   }
 
   private findItemById(id){
-    let children = this.drawingLayer.children;
-    for(let i = children.length - 1; i >= 0; i--){
-      let value = children[i];
-      let found = this.itemFinder_recursion(value, id);
-      if(found){
-        return found;
+    for(let wbItem of this.whiteboardItemArray){
+      if(wbItem.id === id){
+        return wbItem
       }
     }
     return null;
   }
-  private itemFinder_recursion(node, id){
-    if(!node){
-      return;
-    }
-    if(node.id === id){
-      return node;
-    }
-    if(node.children){
-      for(let i = node.children.length - 1 ; i >= 0; i--){
-        let tempNode = this.itemFinder_recursion(node.children[i], id);
-        if(tempNode){
-          return tempNode;
+
+  public getHittedItemHandler(point): ItemHandler {
+    return this.findInItemHandlers(point);
+  }
+
+  public getHittedLinkPort(point): LinkPort {
+    return this.findInLinkPorts(point);
+  }
+
+  public getHittedItem(point, tolerance?: number, excludeEditableLink?: boolean): WhiteboardItem {
+    return this.findInWhiteboardItems(point, tolerance, excludeEditableLink);
+  }
+
+  public getHittedLinkHandler(point): LinkHandler {
+    return this.findInLinkHandlers(point);
+  }
+
+  private findInItemHandlers(point): ItemHandler {
+    if(this.isSelecting) {
+      if(!this.globalSelectedGroup.myItemAdjustor) {
+        return null;
+      }
+      let handles = this.globalSelectedGroup.myItemAdjustor.sizeHandlers;
+      for(let [key, handle] of handles) {
+        if(handle.handlerCircleObject.hitTest(point, this.hitOption)) {
+          return handle;
         }
       }
-    }else{
+    } else {
       return null;
     }
   }
 
-  public getWhiteboardItem( item ) : WhiteboardItem{
-    let tgt;
-    if(item instanceof Group){
-      tgt = item
-    }else{
-      tgt = item.parent;
+  private findInLinkHandlers(point): LinkHandler {
+    if(this.isSelecting) {
+      if(this.globalSelectedGroup.wbItemGroup[0] instanceof EditableLink && this.globalSelectedGroup.getNumberOfChild() === 1) {
+        let linkItem = this.globalSelectedGroup.wbItemGroup[0] as EditableLink;
+        for(let [key, handle] of linkItem.linkHandlers) {
+          if(handle.coreItem.hitTest(point, this.hitOption)) {
+            return handle;
+          }
+        }
+      } else {
+        return null;
+      }
     }
-    return tgt.data.struct;
   }
 
-  public getHittedItem(point) : WhiteboardItem{
-    let hitOption = { segments: true, stroke: true, fill: true, tolerance: 15 };
-    let children = this.whiteboardItemArray;
-    for(let i = children.length - 1 ; i >= 0; i-- ){
-      let value = children[i];
-
-      if(value.group.hitTest(point, hitOption)){
-        return value;
+  private findInLinkPorts(point): LinkPort {
+    if(this.isSelecting) {
+      if(this.globalSelectedGroup.getNumberOfChild() === 1) {
+        let wbItem = this.globalSelectedGroup.wbItemGroup[0];
+        if(wbItem instanceof WhiteboardShape) {
+          let portMap = wbItem.linkPortMap;
+          for(let [key, port] of portMap) {
+            if(port.handlerCircleObject.hitTest(point, this.hitOption)) {
+              return port;
+            }
+          }
+        }
       }
-      //그룹의 선택영역일 수 도 있으므로, 그룹 영역검사
+    }
+    return null;
+  }
+
+  private findInWhiteboardItems(point, tolerance?: number, excludeEditableLink?: boolean): WhiteboardItem {
+    let whiteboardItems = this.whiteboardItemArray;
+
+    for(let i = whiteboardItems.length - 1 ; i >= 0; i-- ){
+      let value = whiteboardItems[i];
+
+      // GSG면 건너뜀
+      if(value instanceof GlobalSelectedGroup) {
+        continue;
+      }
+      // ItemGroup도 건너뜀
       if(value instanceof ItemGroup){
-        if(value.backgroundRect.contains(point)){
-          return value;
+        continue;
+      }
+
+      if(excludeEditableLink) {
+        if(value instanceof EditableLink) {
+          continue;
         }
       }
 
+      if(value.isOccupied){
+        //다른 유저에 의해 선점된 아이템이면 건너뜀
+        continue;
+      }
+
+      let hitOption: { fill: boolean, segments: boolean, stroke: boolean, tolerance: number };
+
+      if(!!tolerance) {
+        hitOption = {
+          fill: this.hitOption.fill,
+          segments: this.hitOption.segments,
+          stroke: this.hitOption.stroke,
+          tolerance: tolerance
+        }
+      } else {
+        hitOption = this.hitOption;
+      }
+      if(value.group.hitTest(point, hitOption)){
+        if(value.isGrouped) {
+          return value.parentEdtGroup;
+        }
+        return value;
+      }
     }
     //못찾은 경우 null값 리턴
 
     return null;
+  }
+
+  public isHitGSG(point): boolean {
+    let hitOption = { segments: true, stroke: true, fill: true, tolerance: 15 };
+    if(!!this.globalSelectedGroup.bound) {
+      return !!this.globalSelectedGroup.bound.hitTest(point, hitOption);
+    } else if (this.globalSelectedGroup.wbItemGroup[0] instanceof EditableLink) {
+      return !!this.globalSelectedGroup.wbItemGroup[0].coreItem.hitTest(point, hitOption);
+    } else {
+      return false;
+    }
   }
   private checkHittedItemIsHandler(point){
     //아직 링크 핸들러만 체크함
@@ -411,39 +528,24 @@ export class DrawingLayerManagerService {
   private editTextShape;
 
   public startEditText() {
-    this.isEditingText = true;
-    let pointTextItem;
     let editableShape:EditableShape = this.globalSelectedGroup.wbItemGroup[0] as EditableShape;
-    if(this.globalSelectedGroup.getNumberOfChild() === 1){
-      if(editableShape instanceof EditableShape){
-        pointTextItem = editableShape.editText;
-        this.globalSelectedGroup.extractAllFromGroup();
-      }else{
-        return;
-      }
-    }
-    editableShape.isEditing = true;
-    let htmlTextEditorWrapper: HTMLElement;
-    let htmlTextEditorElement: HTMLElement;
-    let htmlCanvasElement: HTMLElement;
-
+    let pointTextItem = editableShape.editText;
+    let htmlTextEditorWrapper = document.getElementById("textEditorWrapper");
+    let htmlTextEditorElement = document.getElementById("textEditor");
     let padding = 5;
 
-    htmlTextEditorWrapper = document.getElementById("textEditorWrapper");
-    htmlTextEditorElement = document.getElementById("textEditor");
-    htmlCanvasElement = document.getElementById("cv1");
+    this.isEditingText = true;
+    editableShape.isEditing = true;
 
-    // 기존 텍스트 제거
-
+    // 기존 텍스트 숨김
     pointTextItem.sendToBack();
 
     // EditText bound 계산
-    let bound = editableShape.coreItem.bounds;
 
-    let htmlEditorPoint = this.posCalcService.advConvertPaperToNg(new Point(editableShape.group.bounds.topLeft.x, editableShape.group.bounds.topLeft.y));
+    let htmlEditorPoint = this.posCalcService.advConvertPaperToNg(editableShape.topLeft.clone());
 
-    let edtWidth = this.posCalcService.advConvertLengthPaperToNg(bound.width);
-    let edtHeight = this.posCalcService.advConvertLengthPaperToNg(bound.height);
+    let edtWidth = this.posCalcService.advConvertLengthPaperToNg(editableShape.width);
+    let edtHeight = this.posCalcService.advConvertLengthPaperToNg(editableShape.height);
 
     // EditText HTML Element 스타일 설정
     this.setWrapperStyle(htmlTextEditorWrapper, htmlEditorPoint, edtWidth, edtHeight, padding);
@@ -451,31 +553,12 @@ export class DrawingLayerManagerService {
     this.setEditorStyle(htmlTextEditorElement, edtWidth, padding, editableShape.textStyle);
 
     // 숨겨져있던 Editable 영역 표시
-    window.setTimeout(() => {
-      htmlTextEditorElement.focus();
-    }, 0);
+    window.setTimeout(() => { htmlTextEditorElement.focus(); }, 0);
 
     //rawText를 넣으면 태그 문자열이 노출됨 <div>사쿠라</div>세이버  이런식으로 출력됨
     htmlTextEditorElement.innerText = editableShape.textContent;
     this.editTextShape = editableShape;
   }
-
-  private setWrapperStyle(element, point, width, height, padding) {
-    element.style.left = point.x + "px";
-    element.style.top = point.y  + "px";
-    element.style.width = width - padding * 2 + "px";
-    element.style.height = height - padding * 2 + "px";
-  }
-
-  private setEditorStyle(element, width, padding, style) {
-    element.style.width = width - padding * 2 + "px";
-    element.style.color = style.fontColor;
-    element.style.fontFamily = style.fontFamily;
-    element.style.fontSize = style.fontSize + "px";
-    element.style.fontWeight = style.isBold ? "bold" : "normal";
-    element.style.fontStyle = style.isItalic ? "italic" : "";
-  }
-
   //#####################
 
   public endEditText() {
@@ -495,14 +578,30 @@ export class DrawingLayerManagerService {
     htmlTextEditorElement = document.getElementById("textEditor");
     htmlCanvasElement = document.getElementById("cv1");
 
-
-
-
-    //에디트 텍스트 값 변경 >>> rawTextContent만 수정하고 refreshItem을 호출하면 알아서 content수정하고 크기조절하고 다 해줌
     editableShape.rawTextContent = htmlTextEditorElement.innerHTML;
-    editableShape.refreshItem();
 
     htmlTextEditorElement.innerText = "";
+  }
+
+  private setWrapperStyle(element, point, width, height, padding) {
+    element.style.left = point.x + "px";
+    element.style.top = point.y  + "px";
+    element.style.width = width - padding * 2 + "px";
+    element.style.height = height - padding * 2 + "px";
+  }
+
+  private setEditorStyle(element, width, padding, style) {
+    element.style.width = width - padding * 2 + "px";
+    this.setEditorTextStyle(style);
+  }
+
+  public setEditorTextStyle(style) {
+    let element = document.getElementById("textEditor");
+    element.style.color = style.fontColor;
+    element.style.fontFamily = style.fontFamily;
+    element.style.fontSize = style.fontSize + "px";
+    element.style.fontWeight = style.isBold ? "bold" : "normal";
+    element.style.fontStyle = style.isItalic ? "italic" : "";
   }
   //########
 
@@ -533,12 +632,6 @@ export class DrawingLayerManagerService {
       }
     }
     this.globalSelectedGroup.extractAllFromSelection();
-  }
-
-  // #################### on Event Method #####################
-
-  private onLongTouch(event: TouchEvent, contextMenu: ContextMenuService) {
-    contextMenu.openMenu(event);
   }
 
   //########## Getter & Setter ##########
@@ -608,7 +701,8 @@ export class DrawingLayerManagerService {
   }
 
   public getWbId(){
-    return this._idGenerator++;
+    // return this._idGenerator++;
+    return -1;
   }
 
 
@@ -634,6 +728,11 @@ export class DrawingLayerManagerService {
 
   get cursorChanger(): CursorChangeService {
     return this._cursorChangeService;
+  }
+
+
+  get currentProject(): Project {
+    return this._currentProject;
   }
 
 //#####################################

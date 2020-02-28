@@ -18,14 +18,15 @@ export class UserOverlayCardComponent implements OnInit, AfterViewInit,OnChanges
   @Input()enableDropShadow = true;
   @Input()dropShadowColor = 'black';
   @Input()enableSpashAnime = false;
+  @Input()enableUserName = true;
 
-  @ViewChild('overlayEl', {static: false}) userOverlay;
+  @ViewChild('overlayEl') userOverlay;
 
-  private userOverlayEl;
+  public userOverlayEl;
 
   constructor(
-    private renderer: Renderer2,
-    private animeManagerService:AnimeManagerService
+    public renderer: Renderer2,
+    public animeManagerService:AnimeManagerService
   ) { }
 
   ngOnInit() {
@@ -55,7 +56,6 @@ export class UserOverlayCardComponent implements OnInit, AfterViewInit,OnChanges
       this.renderer.setStyle( this.userOverlayEl, "transform", `translate( 0px,  0px)` );
     },10);
   }
-
 
 
 }

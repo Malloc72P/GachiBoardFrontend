@@ -11,8 +11,8 @@ export class GachiHeaderComponent implements OnInit {
   @Input() headerMode;
 
   constructor(
-    private routerHelperService:RouterHelperService,
-    private authRequestService:AuthRequestService,
+    public routerHelperService:RouterHelperService,
+    public authRequestService:AuthRequestService,
   ) { }
 
   ngOnInit() {

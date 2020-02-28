@@ -1,3 +1,5 @@
+import ServerSetting from './ServerSetting.json';
+
 class ApiRequest {
   constructor(url, requestType){
     this.uri = url;
@@ -31,18 +33,24 @@ export enum WebSocketTypeEnum {
   RELOCATE,
   LOCK,
   UNLOCK,
+  JOIN,
+  OCCUPIED,
+  NOT_OCCUPIED
+}
+export enum SpecialAction {
+  PASTE_COMPLETE,
+  RELOCATE_PASTE_COMPLETE
 }
 
 export class HttpHelper {
   //TODO 이런거 json으로 뽑을 수 있으면 뽑아야 함.
-  private static readonly ngDomainName        =   "http://skynet765.iptime.org";
-  private static readonly ngPort              =   ":44172";
-  private static readonly apiServerDomainName =   "http://skynet765.iptime.org";
-  private static readonly apiServerPort       =   ":44174";
-
+  private static readonly ngDomainName        =   ServerSetting.deploy_ngDomainngDomain;
+  private static readonly ngPort              =   ServerSetting.deploy_ngPortngPort;
+  private static readonly apiServerDomainName =   ServerSetting.deploy_apiDomain;
+  private static readonly apiServerPort       =   ServerSetting.deploy_apiPort;
   // private static readonly apiServerPort       =   ":5858";
-  private static readonly contentType         =   'application/json; charset=utf-8';
-  private static readonly tokenType           =   'bearer ';
+  private static readonly contentType         =   ServerSetting.contentType;
+  private static readonly tokenType           =   ServerSetting.tokenType;
 
   public static readonly ngUrl   =   HttpHelper.ngDomainName + HttpHelper.ngPort;
   public static readonly apiUrl  =   HttpHelper.apiServerDomainName + HttpHelper.apiServerPort;
@@ -111,6 +119,67 @@ export class HttpHelper {
       ),
       read : new WebSocketRequest(
         "kanban_read", WebSocketTypeEnum.READ
+      ),
+    },
+    whiteboardSession : {
+      read : new WebSocketRequest(
+        "wbSession_read", WebSocketTypeEnum.READ
+      ),
+      create : new WebSocketRequest(
+        "wbSession_create", WebSocketTypeEnum.CREATE
+      ),
+      update : new WebSocketRequest(
+        "wbSession_update", WebSocketTypeEnum.UPDATE
+      ),
+      delete : new WebSocketRequest(
+        "wbSession_delete", WebSocketTypeEnum.DELETE
+      ),
+      lock : new WebSocketRequest(
+        "wbSession_lock", WebSocketTypeEnum.LOCK
+      ),
+      unlock : new WebSocketRequest(
+        "wbSession_unlock", WebSocketTypeEnum.UNLOCK
+      ),
+      join : new WebSocketRequest(
+        "wbSession_join",WebSocketTypeEnum.JOIN
+      ),
+      create_cursor : new WebSocketRequest(
+        "wbSession_create_cursor", WebSocketTypeEnum.CREATE
+      ),
+      update_cursor : new WebSocketRequest(
+        "wbSession_update_cursor", WebSocketTypeEnum.UPDATE
+      ),
+      remove_cursor : new WebSocketRequest(
+        "wbSession_remove_cursor", WebSocketTypeEnum.DELETE
+      ),
+    },
+    whiteboardItem : {
+      read : new WebSocketRequest(
+        "wbItem_read", WebSocketTypeEnum.READ
+      ),
+      create : new WebSocketRequest(
+        "wbItem_create", WebSocketTypeEnum.CREATE
+      ),
+      create_multiple : new WebSocketRequest(
+        "wbItem_create_multiple", WebSocketTypeEnum.CREATE
+      ),
+      update : new WebSocketRequest(
+        "wbItem_update", WebSocketTypeEnum.UPDATE
+      ),
+      delete : new WebSocketRequest(
+        "wbItem_delete", WebSocketTypeEnum.DELETE
+      ),
+      lock : new WebSocketRequest(
+        "wbItem_lock", WebSocketTypeEnum.LOCK
+      ),
+      unlock : new WebSocketRequest(
+        "wbItem_unlock", WebSocketTypeEnum.UNLOCK
+      ),
+      occupied : new WebSocketRequest(
+        "wbItem_lock", WebSocketTypeEnum.OCCUPIED
+      ),
+      notOccupied : new WebSocketRequest(
+        "wbItem_unlock", WebSocketTypeEnum.NOT_OCCUPIED
       ),
     }
   };

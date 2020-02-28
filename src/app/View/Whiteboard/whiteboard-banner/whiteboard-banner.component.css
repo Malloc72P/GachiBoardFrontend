@@ -1,0 +1,32 @@
+.banner-outer-wrapper{
+  position: absolute;
+  top:  12px;
+  left: 8px;
+}
+.banner-card{
+  padding: 4px 8px;
+}
+.banner-card-header{
+  display: flex;
+  flex-flow: row;
+  flex-wrap: wrap;
+}
+.banner-title-icon{
+  line-height: 42px;
+}
+.banner-title{
+  padding: 0;
+  margin: 0;
+  line-height: 46px;
+}
+.banner-menu-btn{
+  padding: 0px 9px;
+  min-width: 24px;
+}
+.wb-user-wrapper{
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-40%) translateX(110%);
+
+}

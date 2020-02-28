@@ -7,6 +7,12 @@ import Group = paper.Group;
 import Color = paper.Color;
 // @ts-ignore
 import Point = paper.Point;
+// @ts-ignore
+import Rectangle = paper.Path.Rectangle;
+// @ts-ignore
+import TextItem = paper.TextItem;
+// @ts-ignore
+import PointText = paper.PointText;
 
 import {EventEmitter} from '@angular/core';
 import {ItemAdjustor} from './ItemAdjustor/item-adjustor';
@@ -15,27 +21,30 @@ import {PointerMode} from '../Pointer/pointer-mode-enum-service/pointer-mode-enu
 import {SelectEvent} from '../InfiniteCanvas/DrawingLayerManager/SelectEvent/select-event';
 import {SelectEventEnum} from '../InfiniteCanvas/DrawingLayerManager/SelectEventEnum/select-event.enum';
 import {SelectModeEnum} from '../InfiniteCanvas/DrawingLayerManager/SelectModeEnum/select-mode-enum.enum';
-import {MouseButtonEventEnum} from '../Pointer/MouseButtonEventEnum/mouse-button-event-enum.enum';
 import {EditableItemGroup} from './ItemGroup/EditableItemGroup/editable-item-group';
 import {WhiteboardItemDto} from '../../../DTO/WhiteboardItemDto/whiteboard-item-dto';
 import {GachiPointDto} from '../../../DTO/WhiteboardItemDto/PointDto/gachi-point-dto';
+import {ItemLifeCycleEnum, ItemLifeCycleEvent} from "./WhiteboardItemLifeCycle/WhiteboardItemLifeCycle";
+import {WhiteboardItemType} from '../../Helper/data-type-enum/data-type.enum';
 
 export abstract class WhiteboardItem {
-
-  protected _id;
+  protected _id: number;
   protected _type;
   protected _group:Group;
   protected _topLeft: Point;
-  protected _coreItem:Item;
-  protected _isSelected;
-  protected _myItemAdjustor:ItemAdjustor;
+  protected _coreItem: Item;
+  protected _isSelected: boolean;
+  protected _isLocked: boolean;
+  protected _myItemAdjustor: ItemAdjustor;
 
   private _isGrouped = false;
+  private _isModified: boolean = false;
   private _parentEdtGroup:EditableItemGroup = null;
 
   private _disableLinkHandler;
   private _longTouchTimer;
-  private fromPoint: Point;
+
+  private downPoint: Point;
 
   private _layerService:DrawingLayerManagerService;
 
@@ -43,8 +52,11 @@ export abstract class WhiteboardItem {
   protected _prevPoint = new Point(0,0);
   protected _selectMode;
 
-  protected _lifeCycleEventEmitter:EventEmitter<any>;
-  protected _zoomEventEmitter:EventEmitter<any>;
+  public isOccupied = false;
+
+  protected _globalLifeCycleEmitter: EventEmitter<any>;
+  protected _localLifeCycleEmitter = new EventEmitter<any>();
+  protected _zoomEventEmitter: EventEmitter<any>;
   protected constructor(id, type, item, layerService){
     this.id = id;
     this.isSelected = false;
@@ -63,63 +75,22 @@ export abstract class WhiteboardItem {
 
     this.layerService = layerService;
 
-    this.lifeCycleEventEmitter = this.layerService.wbItemLifeCycleEventEmitter;
+    this.globalLifeCycleEmitter = this.layerService.globalLifeCycleEmitter;
     this.zoomEventEmitter = this.layerService.infiniteCanvasService.zoomEventEmitter;
 
-    this.layerService.selectModeEventEmitter.subscribe((data:SelectEvent)=>{
+    this.layerService.selectModeEventEmitter.subscribe((data: SelectEvent)=>{
       this.onSelectEvent(data);
     });
-    this.setCallback();
 
+    // TODO : 로컬 라이프사이클 체크용 로그
+    // this._localLifeCycleEmitter.subscribe((event: ItemLifeCycleEvent) => {
+    //   console.log("LocalLifeCycle >> ", event.item.constructor.name, " ", event.item.id, " : ", ItemLifeCycleEnum[event.action]);
+    // });
   }
   protected activateShadowEffect(){
     this.coreItem.shadowColor = new Color(0,0,0);
     this.coreItem.shadowBlur = 8;
     this.coreItem.shadowOffset = new Point(1,1);
-  }
-  protected setCallback() {
-    this.group.onMouseDown = (event) => {
-      if(this.isMouseEvent(event)){
-        if(!this.checkEditable()){
-          return;
-        }
-        //#### 마우스 이벤트 인 경우
-        switch (event.event.button) {
-          case MouseButtonEventEnum.LEFT_CLICK:
-            this.onPointerDownForEdit(event);
-            break;
-          case MouseButtonEventEnum.RIGHT_CLICK:
-            this.onPointerDownForContextMenu(event);
-            break;
-        }//switch
-
-      }//if
-      else{//#### 터치 이벤트 인 경우
-        //TODO 여기서 롱터치 여부를 구분해야 함
-        let point = this.initPoint(event.event);
-        this.initFromPoint(point);
-        this.longTouchTimer = setTimeout(this.onLongTouch, 500, event.event, this.layerService);
-        if(this.checkEditable()){
-          this.onPointerDownForEdit(event);
-        }
-      }
-    };
-    this.group.onMouseDrag = (event) => {
-      if(this.isTouchEvent(event)) {
-        if(this.calcTolerance(this.initPoint(event.event))){
-          clearTimeout(this.longTouchTimer); // 움직이면 롱터치 아님, 톨러런스 5
-        }
-      }
-    };
-    this.group.onMouseUp = (event) =>{
-      if(this.isTouchEvent(event)) {
-        clearTimeout(this.longTouchTimer); // 터치가 롱터치 반응 시간 안에 떼지면 롱터치 아님
-      }
-      if(!this.checkEditable()){
-        return;
-      }
-      this.setSingleSelectMode();
-    }
   }
   protected isMouseEvent(event){
     return event.event instanceof MouseEvent;
@@ -155,16 +126,12 @@ export abstract class WhiteboardItem {
     }
   }
 
-  private onLongTouch(event, layerService: DrawingLayerManagerService) {
-    layerService.contextMenu.openMenu(event);
-  }
-
   private calcTolerance(point: Point) {
-    return this.fromPoint.getDistance(point) > 10;
+    return this.downPoint.getDistance(point) > 10;
   }
 
-  private initFromPoint(point: Point) {
-    this.fromPoint = point;
+  private initDownPoint(point: Point) {
+    this.downPoint = point;
   }
   private initPoint(event: MouseEvent | TouchEvent): Point {
     let point: Point;
@@ -174,6 +141,88 @@ export abstract class WhiteboardItem {
       point = new Point(event.touches[0].clientX, event.touches[0].clientY);
     }
     return point;
+  }
+
+  protected blindGroup;
+  onOccupied(occupierName){
+    console.log("WhiteboardItem >> onOccupied >> 진입함");
+    // let blindRect:Rectangle = new Rectangle(this.group.bounds);
+    if(!this.isOccupied){
+      this.isOccupied = true;
+
+      this.blindGroup = new Group();
+
+      let blindRect = new Rectangle({
+        from: this.group.bounds.topLeft,
+        to: this.group.bounds.bottomRight,
+      });
+      blindRect.name = "blind-main";
+      // @ts-ignore
+      blindRect.fillColor = "black";
+      // @ts-ignore
+      blindRect.opacity = 0.3;
+
+      let blindText = new PointText(this.group.bounds.bottomRight);
+      // @ts-ignore
+      blindText.fillColor = "white";
+      blindText.fontWeight = "bold";
+      blindText.content = occupierName + " 님이 수정중";
+      blindText.bounds.topRight = this.group.bounds.bottomRight;
+      blindText.name = "blind-text";
+
+      let blindTextBg = new Rectangle({
+        from: blindText.bounds.topLeft,
+        to: blindText.bounds.bottomRight,
+      });
+      // @ts-ignore
+      blindTextBg.fillColor = "black";
+      blindTextBg.name = "blind-text-bg";
+      // @ts-ignore
+      blindTextBg.opacity = 0.5;
+      blindTextBg.bounds.topLeft = blindText.bounds.topLeft;
+
+      blindText.bringToFront();
+
+      this.blindGroup.addChild(blindRect);
+      this.blindGroup.addChild(blindTextBg);
+      this.blindGroup.addChild(blindText);
+
+    }
+  }
+  updateBlindGroup(){
+    if(!this.blindGroup){
+      return;
+    }
+    let blindRect;
+    let blindText;
+    let blindTextBg;
+    for(let i = 0 ; i < this.blindGroup.children.length; i++){
+      let currItem = this.blindGroup.children[i];
+      console.log("WhiteboardItem >> updateBlindGroup >> currItem : ",currItem);
+      console.log("WhiteboardItem >> updateBlindGroup >> currItem : ",currItem.name);
+      if (currItem.name === 'blind-main') {
+        blindRect = currItem;
+      } else if (currItem.name === 'blind-text-bg') {
+        blindTextBg = currItem;
+      } else if (currItem.name === 'blind-text') {
+        blindText = currItem;
+      }
+    }
+    console.log("WhiteboardItem >> updateBlindGroup >> blindRect : ",blindRect);
+    console.log("WhiteboardItem >> updateBlindGroup >> blindText : ",blindText);
+    console.log("WhiteboardItem >> updateBlindGroup >> blindTextBg : ",blindTextBg);
+    blindRect.bounds = this.group.bounds;
+    blindText.bounds.topRight = this.group.bounds.bottomRight;
+    blindTextBg.bounds.topLeft = blindText.bounds.topLeft;
+  }
+  onNotOccupied(){
+    if(this.isOccupied){
+      this.isOccupied = false;
+      if(this.blindGroup){
+        this.blindGroup.removeChildren();
+        this.blindGroup.remove();
+      }
+    }
   }
 
   protected calcCurrentDistance(event){
@@ -221,14 +270,26 @@ export abstract class WhiteboardItem {
     }
   }
 
+  public update(dto: WhiteboardItemDto) {
+    this.group.position = GachiPointDto.getPaperPoint(dto.center);
+    this.isGrouped = dto.isGrouped;
+    this.parentEdtGroup = dto.parentEdtGroupId;
+    if(this.blindGroup){
+      this.updateBlindGroup();
+    }
+  }
 
-
-  public abstract notifyItemCreation();
-  public abstract notifyItemModified();
-  public abstract refreshItem();
   public destroyItem(){
     if(this.isGrouped && this.parentEdtGroup){
       this.parentEdtGroup.destroyItem();
+    }
+    this.localEmitDestroy();
+    this.globalEmitDestroy();
+  }
+  public abstract destroyItemAndNoEmit();
+  destroyBlind(){//여기서 말하는 블라인드는, 다른 유저가 선점했을때 ...님이 수정중 이라고 뜨는 그 회색음영의 개체를 말함
+    if(this.blindGroup){
+      this.blindGroup.remove();
     }
   }
 
@@ -241,17 +302,19 @@ export abstract class WhiteboardItem {
     return currentPointerMode === PointerMode.POINTER || currentPointerMode === PointerMode.LASSO_SELECTOR
             || PointerMode.DRAW || PointerMode.ERASER || PointerMode.HIGHLIGHTER || PointerMode.SHAPE;
   }
-  checkMovable(){
-    let currentPointerMode = this.layerService.currentPointerMode;
-    return currentPointerMode === PointerMode.POINTER || currentPointerMode === PointerMode.LASSO_SELECTOR;
-  }
 
   public activateSelectedMode(){
     if(!this.isSelected){
       this.isSelected = true;
       this.myItemAdjustor = new ItemAdjustor(this);
     }
+    if(this.isLocked) {
+      this.myItemAdjustor.disable();
+    } else {
+      this.myItemAdjustor.enable();
+    }
   }
+
   public deactivateSelectedMode(){
     if(this.isSelected){
       this.isSelected = false;
@@ -284,6 +347,73 @@ export abstract class WhiteboardItem {
     return wbItemDto;
   }
 
+  // ################ LifeCycle Emit Method #################
+
+  public localEmitCreate() {
+    this.localLifeCycleEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.CREATE));
+  }
+  public globalEmitCreate() {
+    this.globalLifeCycleEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.CREATE));
+  }
+
+  public localEmitModify() {
+    this.localLifeCycleEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.MODIFY));
+  }
+  public globalEmitModify() {
+    this.globalLifeCycleEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.MODIFY));
+  }
+
+  public localEmitDestroy() {
+    this.localLifeCycleEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.DESTROY));
+  }
+  public globalEmitDestroy() {
+    this.globalLifeCycleEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.DESTROY));
+  }
+
+  public localEmitMoved() {
+    this.localLifeCycleEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.MOVED));
+  }
+  public globalEmitMoved() {
+    this.globalLifeCycleEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.MOVED));
+  }
+
+  public localEmitResized() {
+    this.localLifeCycleEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.RESIZED));
+  }
+  public globalEmitResized() {
+    this.globalLifeCycleEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.RESIZED));
+  }
+
+  public localEmitSelected() {
+    this.localLifeCycleEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.SELECTED));
+  }
+  public globalEmitSelected() {
+    this.globalLifeCycleEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.SELECTED));
+  }
+
+  public localEmitDeselected() {
+    this.localLifeCycleEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.DESELECTED));
+  }
+  public globalEmitDeselected() {
+    this.globalLifeCycleEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.DESELECTED));
+  }
+
+  public localEmitLocked() {
+    this.localLifeCycleEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.LOCKED));
+  }
+  public globalEmitLocked() {
+    this.globalLifeCycleEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.LOCKED));
+  }
+
+  public localEmitUnlocked() {
+    this.localLifeCycleEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.UNLOCKED));
+  }
+  public globalEmitUnlocked() {
+    this.globalLifeCycleEmitter.emit(new ItemLifeCycleEvent(this.id, this, ItemLifeCycleEnum.UNLOCKED));
+  }
+
+  // ################ Getter & Setter #################
+
   get coreItem(): paper.Item {
     return this._coreItem;
   }
@@ -292,12 +422,12 @@ export abstract class WhiteboardItem {
     this._coreItem = value;
   }
 
-  get lifeCycleEventEmitter(): EventEmitter<any> {
-    return this._lifeCycleEventEmitter;
+  get globalLifeCycleEmitter(): EventEmitter<any> {
+    return this._globalLifeCycleEmitter;
   }
 
-  set lifeCycleEventEmitter(value: EventEmitter<any>) {
-    this._lifeCycleEventEmitter = value;
+  set globalLifeCycleEmitter(value: EventEmitter<any>) {
+    this._globalLifeCycleEmitter = value;
   }
 
   get id() {
@@ -309,11 +439,11 @@ export abstract class WhiteboardItem {
   }
 
   get topLeft(): paper.Point {
-    return this._topLeft;
+    return this.coreItem.bounds.topLeft;
   }
 
   set topLeft(value: paper.Point) {
-    this._topLeft = value;
+    this.coreItem.bounds.topLeft = value;
   }
 
   get group() {
@@ -356,11 +486,11 @@ export abstract class WhiteboardItem {
     this._zoomEventEmitter = value;
   }
 
-  get isSelected() {
+  get isSelected(): boolean {
     return this._isSelected;
   }
 
-  set isSelected(value) {
+  set isSelected(value: boolean) {
     this._isSelected = value;
   }
   get layerService(): DrawingLayerManagerService {
@@ -418,5 +548,38 @@ export abstract class WhiteboardItem {
 
   set parentEdtGroup(value: EditableItemGroup) {
     this._parentEdtGroup = value;
+  }
+
+  get localLifeCycleEmitter(): EventEmitter<any> {
+    return this._localLifeCycleEmitter;
+  }
+
+  get isLocked(): boolean {
+    return this._isLocked;
+  }
+
+  set isLocked(value: boolean) {
+    if(this.isGrouped) {
+      this.parentEdtGroup.isLocked = value;
+    }
+
+    this._isLocked = value;
+  }
+
+  get isMovable(): boolean {
+    if(!this.isLocked) {
+      if (this.layerService.currentPointerMode === PointerMode.POINTER || this.layerService.currentPointerMode === PointerMode.LASSO_SELECTOR) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  get isModified(): boolean {
+    return this._isModified;
+  }
+
+  set isModified(value: boolean) {
+    this._isModified = value;
   }
 }

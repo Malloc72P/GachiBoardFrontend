@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import {MatDialog} from '@angular/material';
 import {AreYouSurePanelComponent} from '../../../View/Commons/are-you-sure-panel/are-you-sure-panel.component';
+import {MatDialog} from '@angular/material/dialog';
 
 @Injectable({
   providedIn: 'root'

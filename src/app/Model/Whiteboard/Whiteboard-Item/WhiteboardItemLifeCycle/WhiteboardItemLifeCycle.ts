@@ -26,5 +26,13 @@ export class LinkItemLifeCycleEvent {
 export enum ItemLifeCycleEnum {
   CREATE,
   MODIFY,
-  DESTROY
+  DESTROY,
+  MOVED,
+  RESIZED,
+  SELECTED,
+  DESELECTED,
+  SELECT_CHANGED,
+  LINK_CHANGED,
+  LOCKED,
+  UNLOCKED,
 }

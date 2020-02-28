@@ -3,17 +3,23 @@
   display: inline-block;
   transition: 0.2s;
   min-width: 38px;
-  min-height: 60px;
+  min-height: 38px;
   opacity: 1;
 }
 .wb-card-participant-img{
   width: 64px;
   height: 64px;
   border-radius: 50%;
+  user-select: none;
+  background-repeat: no-repeat;
 }
 .wb-card-participant-name-wrapper{
   text-align: center;
   background: #7F7F7F;
   padding: 2px 6px;
   border-radius: 4px;
+  width: 42px;
+}
+.banner-user-btn{
+  cursor: pointer;
 }

@@ -1,12 +1,10 @@
-import {WhiteboardShape} from '../whiteboard-shape';
-import {LinkPortDirectionEnum} from './LinkPortDirectionEnum/link-port-direction-enum.enum';
-
 import * as paper from 'paper';
 // @ts-ignore
 import Point = paper.Point;
 // @ts-ignore
 import Circle = paper.Path.Circle;
 
+import {LinkPortDirectionEnum} from './LinkPortDirectionEnum/link-port-direction-enum.enum';
 import {PositionCalcService} from '../../../PositionCalc/position-calc.service';
 import {HandlerOption} from '../../ItemAdjustor/item-adjustor';
 import {ZoomEvent} from '../../../InfiniteCanvas/ZoomControl/ZoomEvent/zoom-event';
@@ -16,14 +14,13 @@ import {EventEmitter} from '@angular/core';
 import {LinkEvent} from './LinkEvent/link-event';
 import {LinkEventEnum} from './LinkEvent/link-event-enum.enum';
 import {EditableLink} from './EditableLink/editable-link';
-import {LinkerModeEnum} from '../../../InfiniteCanvas/DrawingLayerManager/LinkModeManagerService/LinkMode/linker-mode-enum.enum';
-import {SimpleLineLink} from './EditableLink/SimpleLineLink/simple-line-link';
-import {SimpleArrowLink} from './EditableLink/SimpleArrowLink/simple-arrow-link';
 import {LinkPortDto} from '../../../../../DTO/WhiteboardItemDto/WhiteboardShapeDto/LinkPortDto/link-port-dto';
-import {EditableLinkDto} from '../../../../../DTO/WhiteboardItemDto/WhiteboardShapeDto/LinkPortDto/EditableLinkDto/editable-link-dto';
+import {ItemLifeCycleEnum, ItemLifeCycleEvent} from "../../WhiteboardItemLifeCycle/WhiteboardItemLifeCycle";
+import {LinkService} from "../../../Pointer/link-service/link.service";
+import {Subscription} from "rxjs";
 
 export class LinkPort {
-  private _owner:WhiteboardShape;
+  private _owner;
   private _direction;
 
   private _fromLinkList:Array<EditableLink>;
@@ -31,6 +28,7 @@ export class LinkPort {
 
   private _posCalcService:PositionCalcService;
   private _layerService:DrawingLayerManagerService;
+  private linkService: LinkService;
 
   private _handlerCircleObject:Circle;
 
@@ -42,7 +40,10 @@ export class LinkPort {
 
   private _linkEventEmitter:EventEmitter<any>;
 
-  private tempLink:EditableLink;
+  private tempLink;
+
+  private ownerLifeCycleSubscription: Subscription;
+  private zoomChangeSubscription: Subscription;
 
   constructor(owner, direction){
     this.owner = owner;
@@ -50,154 +51,75 @@ export class LinkPort {
     this.posCalcService = this.owner.layerService.posCalcService;
     this.layerService = this.owner.layerService;
 
-    this.initHandlerCircle();
-    this.initZoomHandler();
-
-    this.setLinkEventHandler();
-
     this.fromLinkList = new Array<EditableLink>();
     this.toLinkList = new Array<EditableLink>();
+  }
 
-    this.setMouseCallback();
+  private createHandlerCircle() {
+    if(!!this._handlerCircleObject) {
+      this._handlerCircleObject.remove();
+    }
+    let handlerPosition = this.calcLinkPortPosition();
+    let zoomFactor = this.posCalcService.getZoomState();
+
+    this._handlerCircleObject = new Circle({
+      center: handlerPosition.clone(),
+      radius: HandlerOption.circleRadius / zoomFactor,
+      strokeWidth: HandlerOption.strokeWidth / zoomFactor,
+      fillColor: LinkPort.HANDLER_FILL_COLOR,
+      strokeColor: HandlerOption.strokeColor,
+    });
+    this.handlerCircleObject.data.struct = this;
+    this.spreadHandler();
   }
-  public emitWbItemDeselected(){
-    this.linkEventEmitter.emit(new LinkEvent(LinkEventEnum.WB_ITEM_DESELECTED, this));
-  }
-  private setLinkEventHandler(){
-    this.linkEventEmitter = new EventEmitter<any>();
-    this.linkEventEmitter.subscribe((data:LinkEvent)=>{
-      if(data.action === LinkEventEnum.LINK_DESTROYED){
-        console.log("LinkPort >> linkEventEmitter >> data : ",data.invokerItem);
-        this.owner.notifyItemModified();
-      }
-      else if(data.action === LinkEventEnum.LINK_CLICKED){
-        if(!this.owner.isSelected){
-          this.layerService.globalSelectedGroup.isLinkSelected = true;
-          this.layerService.globalSelectedGroup.insertOneIntoSelection(this.owner);
-          this.linkEventEmitter.emit(new LinkEvent(LinkEventEnum.WB_ITEM_SELECTED, this));
-        }
+
+  public enable() {
+    this.createHandlerCircle();
+    this.ownerLifeCycleSubscription = this.owner.localLifeCycleEmitter.subscribe((event: ItemLifeCycleEvent) => {
+      switch (event.action) {
+        case ItemLifeCycleEnum.CREATE:
+        case ItemLifeCycleEnum.MOVED:
+        case ItemLifeCycleEnum.RESIZED:
+          this.handlerCircleObject.position = this.calcLinkPortPosition();
+          this.handlerCircleObject.bringToFront();
+          this.spreadHandler();
+          break;
       }
     });
+    this.zoomChangeSubscription = this.owner.zoomEventEmitter.subscribe((zoomEvent: ZoomEvent) => {
+      switch (zoomEvent.action) {
+        case ZoomEventEnum.ZOOM_CHANGED:
+          this.refreshForZoomChange(zoomEvent.zoomFactor);
+          break;
+        case ZoomEventEnum.ZOOM_IN:
+          break;
+        case ZoomEventEnum.ZOOM_OUT:
+          break;
+        default:
+          break;
+      }
+    })
   }
-  private refreshAllLink(){
-    if(this.fromLinkList){
-      this.fromLinkList.forEach((value, index, array)=>{
-        value.refreshLink();
-      })
+  public disable(){
+    if(!!this.ownerLifeCycleSubscription) {
+      this.ownerLifeCycleSubscription.unsubscribe();
+    }
+    if(!!this.zoomChangeSubscription) {
+      this.zoomChangeSubscription.unsubscribe();
+    }
+    if(!!this._handlerCircleObject) {
+      this._handlerCircleObject.remove();
     }
   }
-  private initZoomHandler(){
-    this.owner.zoomEventEmitter.subscribe((zoomEvent:ZoomEvent)=>{
-      this.onZoomChange(zoomEvent);
-    });
 
-  }
-  private initHandlerCircle(){
-    let handlerPosition = this.calcLinkPortPosition();
-    let handlerOption = HandlerOption;
-    let zoomFactor = this.posCalcService.getZoomState();
-    this.handlerCircleObject = new Circle(
-      new Point(handlerPosition.x, handlerPosition.y),
-      handlerOption.circleRadius / zoomFactor
-    );
-    this.handlerCircleObject.strokeWidth = handlerOption.strokeWidth / zoomFactor;
-    // @ts-ignore
-    this.handlerCircleObject.style.fillColor = LinkPort.HANDLER_FILL_COLOR;
-    // @ts-ignore
-    this.handlerCircleObject.strokeColor = handlerOption.strokeColor;
-
-    this.handlerCircleObject.data.struct = this;
-
-    this.spreadHandler();
-    let prevPosition = this.owner.group.position;
-    this.handlerCircleObject.onFrame = (event)=>{
-      let currPosition = this.owner.group.position;
-      if(prevPosition.x !== currPosition.x || prevPosition.y !== currPosition.y){
-        this.handlerCircleObject.position = this.calcLinkPortPosition();
-        this.spreadHandler();
-      }
-      if((event.count % 5) === 0){
-        this.handlerCircleObject.bringToFront();
-        if(this.owner.isSelected === true){
-          if(this.owner.layerService.globalSelectedGroup.getNumberOfChild() === 1){
-            this.enable();
-          }
-          else this.disable();
-        }
-        else this.disable();
-      }
-    };
-  }
-
-  private setMouseCallback(){
-    this.handlerCircleObject.onMouseDown = (event)=>{
-      let currentLinkerMode = this.layerService.currentLinkerMode;
-
-      let strokeWidth = currentLinkerMode.strokeWidth;
-      let strokeColor = currentLinkerMode.strokeColor;
-      let fillColor   = currentLinkerMode.fillColor;
-
-      //this.owner.myItemAdjustor.hide;
-
-      switch (currentLinkerMode.mode) {
-        case LinkerModeEnum.SIMPLE_lINE_lINK :
-          this.tempLink = new SimpleLineLink(this, strokeColor,strokeWidth,fillColor);
-          break;
-        case LinkerModeEnum.SIMPLE_DASHED_lINE_lINK :
-          this.tempLink = new SimpleLineLink(this, strokeColor,strokeWidth,fillColor,true);
-          break;
-        case LinkerModeEnum.SIMPLE_DASHED_ARROW_lINK :
-          this.tempLink = new SimpleArrowLink(this, strokeColor,strokeWidth,fillColor,true);
-          break;
-        case LinkerModeEnum.SIMPLE_ARROW_LINK :
-          this.tempLink = new SimpleArrowLink(this, strokeColor,strokeWidth,fillColor);
-          break;
-      }
-      this.tempLink.initTempLink(event.point);
-    };
-    this.handlerCircleObject.onMouseDrag = (event)=>{
-      this.tempLink.drawTempLink(event.point);
-    };
-    this.handlerCircleObject.onMouseUp = (event)=>{
-      let point = event.point;
-
-      let newLink = this.tempLink.linkToWbShape(point);
-      if(newLink){
-        this.addLink(newLink);
-      }
-      else{
-        if (this.tempLink) {
-          this.tempLink.destroyItem();
-          delete this.tempLink;
-        }
-      }
-    };
-  }
-
-  public addLink(newLink){
-    this.fromLinkList.splice(this.fromLinkList.length, 0, newLink);
-    let toLinkList = newLink.toLinkPort.toLinkList;
-    toLinkList.splice(toLinkList.length, 0, newLink);
-    this.owner.notifyItemModified();
-    newLink.id = this.layerService.getWbId();
-    this.layerService.addWbLink(newLink);
-    newLink.toLinkPort.owner.notifyItemModified();
-  }
-
-  private enable(){
-    this.handlerCircleObject.visible = true;
-  }
-  private disable(){
-    this.handlerCircleObject.visible = false;
-  }
-
-  public destroyPortAndLink(){
+  public destroyLink(){
     for(let i = 0 ; i < this.fromLinkList.length; i++){
       this.fromLinkList[i].destroyItem();
     }
-    this.linkEventEmitter.emit(new LinkEvent(LinkEventEnum.WB_ITEM_DESTROYED, this.owner));
 
-    this.handlerCircleObject.remove();
+    if(this.handlerCircleObject){
+      this.handlerCircleObject.remove();
+    }
 
     if(this.tempLinkEntryCircle){
       this.tempLinkEntryCircle.remove();
@@ -207,52 +129,23 @@ export class LinkPort {
     }
   }
 
-  private onZoomChange(zoomEvent:ZoomEvent){
-    switch (zoomEvent.action) {
-      case ZoomEventEnum.ZOOM_CHANGED:
-        this.refreshForZoomChange();
-        break;
-      case ZoomEventEnum.ZOOM_IN:
-        break;
-      case ZoomEventEnum.ZOOM_OUT:
-        break;
-      default:
-        break;
+  private refreshForZoomChange(zoomFactor: number){
+    if(!this._handlerCircleObject) {
+      return;
     }
-  }
-  public getSelectedLinkIdx(){
-    let children = this.fromLinkList;
-    for (let i = 0; i < children.length; i++) {
-      if(children[i].isSelected){
-        return i;
-      }
-    }
-    return -1;
-  }
-  public removeLinkById(id){
-    this.fromLinkList.splice(id, 1);
-  }
-
-  private refreshForZoomChange(){
-    let zoomFactor = this.owner.layerService.posCalcService.getZoomState();
-    LinkPort.reflectZoomFactorToHandler(this, zoomFactor);
-  }
-
-  private static reflectZoomFactorToHandler(value, zoomFactor){
     const diameter = HandlerOption.circleRadius / zoomFactor * 2;
-    const center = value.handlerCircleObject.position;
-    const topLeft = value.handlerCircleObject.bounds.topLeft;
+    const center = this._handlerCircleObject.position;
+    const topLeft = this._handlerCircleObject.bounds.topLeft;
 
-    value.handlerCircleObject.strokeWidth = HandlerOption.strokeWidth / zoomFactor;
-    value.handlerCircleObject.bounds = new paper.Rectangle(topLeft, new paper.Size(diameter, diameter));
-    if(value instanceof LinkPort){
-      value.spreadHandler();
-    }
-    value.handlerCircleObject.position = center;
+    this._handlerCircleObject.strokeWidth = HandlerOption.strokeWidth / zoomFactor;
+    this._handlerCircleObject.bounds = new paper.Rectangle(topLeft, new paper.Size(diameter, diameter));
+    this._handlerCircleObject.position = center;
+
+    this.spreadHandler();
   }
 
 
-  public calcLinkPortPosition(){
+  public calcLinkPortPosition(): Point{
     let group = this.owner.group.bounds;
     switch (this.direction) {
       case LinkPortDirectionEnum.TOP:
@@ -274,55 +167,42 @@ export class LinkPort {
 
   public spreadHandler() {
     let zoomFactor = this.owner.layerService.posCalcService.getZoomState();
+    let margin = LinkPort.HANDLER_MARGIN / zoomFactor;
+
     switch (this.direction) {
       case LinkPortDirectionEnum.TOP:
         this.handlerCircleObject.position = this.posCalcService.movePointTop(
-          this.handlerCircleObject.position,
-          LinkPort.HANDLER_MARGIN / zoomFactor
+          this.owner.coreItem.bounds.topCenter, margin
         );
         return;
       case LinkPortDirectionEnum.BOTTOM:
         this.handlerCircleObject.position = this.posCalcService.movePointBottom(
-          this.handlerCircleObject.position,
-          LinkPort.HANDLER_MARGIN / zoomFactor
+          this.owner.coreItem.bounds.bottomCenter, margin
         );
         return;
       case LinkPortDirectionEnum.LEFT:
         this.handlerCircleObject.position = this.posCalcService.movePointLeft(
-          this.handlerCircleObject.position,
-          LinkPort.HANDLER_MARGIN / zoomFactor
+          this.owner.coreItem.bounds.leftCenter, margin
         );
         return;
       case LinkPortDirectionEnum.RIGHT:
         this.handlerCircleObject.position = this.posCalcService.movePointRight(
-          this.handlerCircleObject.position,
-          LinkPort.HANDLER_MARGIN / zoomFactor
+          this.owner.coreItem.bounds.rightCenter, margin
         );
         return;
       case LinkPortDirectionEnum.CENTER_TOP:
         this.handlerCircleObject.position = this.posCalcService.movePointTop(
-          this.handlerCircleObject.position,
-          LinkPort.HANDLER_MARGIN / zoomFactor
+          this.owner.coreItem.bounds.topCenter, margin
         );
         return;
       case LinkPortDirectionEnum.BOTTOM_LEFT:
-        this.handlerCircleObject.position = this.posCalcService.movePointLeft(
-          this.handlerCircleObject.position,
-          LinkPort.HANDLER_MARGIN / zoomFactor
-        );
         this.handlerCircleObject.position = this.posCalcService.movePointBottom(
-          this.handlerCircleObject.position,
-          LinkPort.HANDLER_MARGIN / zoomFactor
+          this.posCalcService.movePointLeft(this.owner.coreItem.bounds.bottomLeft, margin), margin
         );
         return;
       case LinkPortDirectionEnum.BOTTOM_RIGHT:
-        this.handlerCircleObject.position = this.posCalcService.movePointRight(
-          this.handlerCircleObject.position,
-          LinkPort.HANDLER_MARGIN / zoomFactor
-        );
         this.handlerCircleObject.position = this.posCalcService.movePointBottom(
-          this.handlerCircleObject.position,
-          LinkPort.HANDLER_MARGIN / zoomFactor
+          this.posCalcService.movePointRight(this.owner.coreItem.bounds.bottomRight, margin), margin
         );
         return;
     }
@@ -370,27 +250,14 @@ export class LinkPort {
       this.tempLinkExitCircle.remove();
       this.tempLinkExitCircle = null;
     }
-    this.tempLink.tempLinkPath.onFrame = ()=>{};
   }
 
   exportToDto(): LinkPortDto {
-    let fromLinkDtoList = new Array<EditableLinkDto>();
-    let toLinkDtoList = new Array<EditableLinkDto>();
-
-    this.fromLinkList.forEach((value, index, array)=>{
-      fromLinkDtoList.push(value.exportToDto());
-    });
-    this.toLinkList.forEach((value, index, array)=>{
-      toLinkDtoList.push(value.exportToDto());
-    });
     return new LinkPortDto(
       this.direction,
       this.owner.id,
-      fromLinkDtoList,
-      toLinkDtoList
     );
   }
-
 
   get posCalcService(): PositionCalcService {
     return this._posCalcService;

@@ -1,5 +1,5 @@
 <div id="horizonContextMenu-Line" class="context-menu-wrapper"
-     [hidden]="isHiddenSubPanel.isHidden(horizonContextMenuActions.FONT_STYLE)"
+     [hidden]="hidden"
      [style.left]="centerTop.x + 'px'"
      [style.top]="centerTop.y + 47 + 'px'">
   <mat-card class="sub-panel-wrapper">
@@ -7,9 +7,8 @@
       <div class="font-family-wrapper">
         <mat-form-field class="fit">
           <mat-label>Style</mat-label>
-          <mat-select formControlName="family">
-            <mat-option value="hi">Hi</mat-option>
-            <mat-option value="hello">Hello</mat-option>
+          <mat-select formControlName="family" [value]="fontFamily" (selectionChange)="onChangeFontFamily()">
+            <mat-option *ngFor="let font of fontFamilyList" [value]="font">{{font}}</mat-option>
           </mat-select>
         </mat-form-field>
       </div>
@@ -33,7 +32,7 @@
         </mat-button-toggle-group>
       </div>
     </form>
-    <div class="font-color-wrapper">
+    <div class="circle-selector-wrapper">
       <div *ngFor="let color of colors; index as i" class="selector {{colorSelectedToHTML(i)}}"
            [style.background-color]="colorToHTMLRGB(i)"
            (click)="onColorPickerClicked(i)">
