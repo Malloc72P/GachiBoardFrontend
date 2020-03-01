@@ -187,6 +187,8 @@ export abstract class WhiteboardItem {
       this.blindGroup.addChild(blindTextBg);
       this.blindGroup.addChild(blindText);
 
+      this.layerService.globalSelectedGroup.extractOneFromGroup(this);
+      this.blindGroup.bringToFront();
     }
   }
   updateBlindGroup(){

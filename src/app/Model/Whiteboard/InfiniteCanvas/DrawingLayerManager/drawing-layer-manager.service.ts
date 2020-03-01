@@ -185,6 +185,7 @@ export class DrawingLayerManagerService {
           let occupiedItem = this.findItemById(recvWbItemEvent.data.id);
           let wsPacketDto:WebsocketPacketDto = recvWbItemEvent.additionalData;
           if (occupiedItem) {
+            console.log("DrawingLayerManagerService >> WbItemEventEnum.OCCUPIED >> occupiedItem : ",occupiedItem);
             occupiedItem.onOccupied(this.websocketManagerService.getUserInfoByIdToken(wsPacketDto.senderIdToken).userName);
           }
           break;

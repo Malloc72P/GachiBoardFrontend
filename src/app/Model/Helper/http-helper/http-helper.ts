@@ -176,10 +176,10 @@ export class HttpHelper {
         "wbItem_unlock", WebSocketTypeEnum.UNLOCK
       ),
       occupied : new WebSocketRequest(
-        "wbItem_lock", WebSocketTypeEnum.OCCUPIED
+        "wbItem_occupied", WebSocketTypeEnum.OCCUPIED
       ),
       notOccupied : new WebSocketRequest(
-        "wbItem_unlock", WebSocketTypeEnum.NOT_OCCUPIED
+        "wbItem_unOccupied", WebSocketTypeEnum.NOT_OCCUPIED
       ),
     }
   };

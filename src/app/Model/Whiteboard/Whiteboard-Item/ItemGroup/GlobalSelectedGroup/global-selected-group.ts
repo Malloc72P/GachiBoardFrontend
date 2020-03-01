@@ -20,6 +20,8 @@ import {ItemLifeCycleEnum, ItemLifeCycleEvent} from "../../WhiteboardItemLifeCyc
 import Item = paper.Item;
 // @ts-ignore
 import Path = paper.Path;
+import {WbItemPacketDto} from '../../../../../DTO/WhiteboardItemDto/WbItemPacketDto/WbItemPacketDto';
+import {ParticipantDto} from '../../../../../DTO/ProjectDto/ParticipantDto/participant-dto';
 
 export class GlobalSelectedGroup extends ItemGroup {
   private static globalSelectedGroup: GlobalSelectedGroup;
@@ -49,12 +51,18 @@ export class GlobalSelectedGroup extends ItemGroup {
           wsWbController.waitRequestOccupyWbItem(gsgEvent.wbItem.exportToDto())
             .subscribe(()=>{
 
+            },(errorParam:WebsocketPacketDto)=>{
+              console.log("GlobalSelectedGroup >> SELECTED >> errorParam >> gsgEvent.wbItem : ",gsgEvent.wbItem);
+              this.extractOneFromGroup(gsgEvent.wbItem);
+              let recvWbItemDto:WbItemPacketDto = errorParam.additionalData as WbItemPacketDto;
+              let occupierInfo:ParticipantDto = wsWbController.getUserNameWithIdToken(recvWbItemDto.occupiedBy);
+              gsgEvent.wbItem.onOccupied(occupierInfo.userName);
             });
           break;
         case GsgSelectEventEnum.DESELECTED:
           console.log(`GlobalSelectedGroup >> DESELECTED >> [ ${gsgEvent.wbItem.id} ] >> 진입함`);
           wsWbController.waitRequestNotOccupyWbItem(gsgEvent.wbItem.exportToDto())
-            .subscribe(()=>{
+            .subscribe((error)=>{
 
             });
           break;
