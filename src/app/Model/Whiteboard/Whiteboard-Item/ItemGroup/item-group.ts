@@ -49,6 +49,7 @@ export class ItemGroup extends WhiteboardItem {
   //### Mouse Event 콜백
   protected setCallback() {}
   public onMouseDown(event){
+    console.log("ItemGroup >> onMouseDown >> 진입함");
     if(!this.isMovable){
       return;
     }
@@ -139,7 +140,9 @@ export class ItemGroup extends WhiteboardItem {
       });
       this.localEmitModify();
       this.isMoved = false;
+      return true;
     }
+    return false;
   }
 
   public resizeEnd() {

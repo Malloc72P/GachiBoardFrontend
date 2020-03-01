@@ -24,28 +24,6 @@
           <button mat-raised-button
                   (click)="debugingService.logChildren()">Children</button>
           <table class="debugTable" style="background-color: blue; color: white;">
-            <tr><td>NG Window Bound</td></tr>
-            <tr>
-              <td>X : </td>
-              <td>{{posCalcService.getBottomRightPositionOfBrowser().x.toFixed()}}</td>
-            </tr>
-            <tr>
-              <td>Y : </td>
-              <td>{{posCalcService.getBottomRightPositionOfBrowser().y.toFixed()}}</td>
-            </tr>
-          </table>
-          <table class="debugTable" style="background-color: blue; color: white;">
-            <tr><td>NG Window Center</td></tr>
-            <tr>
-              <td>X : </td>
-              <td>{{(posCalcService.getBottomRightPositionOfBrowser().x/2).toFixed()}}</td>
-            </tr>
-            <tr>
-              <td>Y : </td>
-              <td>{{(posCalcService.getBottomRightPositionOfBrowser().y/2).toFixed()}}</td>
-            </tr>
-          </table>
-          <table class="debugTable" style="background-color: blue; color: white;">
             <tr><td>NG Mouse Position</td></tr>
             <tr>
               <td>X : </td>
@@ -67,6 +45,21 @@
               <td>{{debugingService.ngTouchCursorY.toFixed()}}</td>
             </tr>
           </table>
+
+          <table class="debugTable" style="background-color: darkred; color: white;">
+            <tr><td>Undo Stack</td></tr>
+            <tr *ngFor="let currData of undoStack; index as i">
+              <td *ngIf="currData.wbItemDtoArray[0]">{{getNameOfHistoryEnum(currData.action)}} [{{currData.wbItemDtoArray[0].id}}]</td>
+            </tr>
+          </table>
+
+          <table class="debugTable" style="background-color: black; color: white;">
+            <tr><td>Redo Stack</td></tr>
+            <tr *ngFor="let currData of redoStack; index as i">
+              <td *ngIf="currData.wbItemDtoArray[0]">{{getNameOfHistoryEnum(currData.action)}} [{{currData.wbItemDtoArray[0].id}}]</td>
+            </tr>
+          </table>
+
         </div>
 
       </mat-expansion-panel>
@@ -121,41 +114,6 @@
               <td>{{debugingService.cursorY.toFixed()}}</td>
             </tr>
           </table>
-          <table class="debugTable" style="background-color: orange;">
-            <tr><td>Paper View</td></tr>
-            <tr>
-              <td>X : </td>
-              <td>{{paperProject.view.center.x.toFixed()}}</td>
-            </tr>
-            <tr>
-              <td>Y : </td>
-              <td>{{paperProject.view.center.y.toFixed()}}</td>
-            </tr>
-          </table>
-          <table class="debugTable" style="background-color: orange;">
-            <tr><td>Paper View Bound-TopLeft</td></tr>
-            <tr>
-              <td>X : </td>
-              <td>{{paperProject.view.bounds.topLeft.x.toFixed()}}</td>
-            </tr>
-            <tr>
-              <td>Y : </td>
-              <td>{{paperProject.view.bounds.topLeft.y.toFixed()}}</td>
-            </tr>
-          </table>
-<!--
-          <table class="debugTable" style="background-color: orange;">
-            <tr><td>Paper View Bound Size</td></tr>
-            <tr>
-              <td>X : </td>
-              <td>{{ (posCalcService.getBottomRightPositionOfBrowser().x / posCalcService.getZoomState()).toFixed()}}</td>
-            </tr>
-            <tr>
-              <td>Y : </td>
-              <td>{{ posCalcService.getBottomRightPositionOfBrowser().y / (posCalcService.getZoomState()).toFixed()}}</td>
-            </tr>
-          </table>
--->
         </div>
 
       </mat-expansion-panel>

@@ -25,6 +25,7 @@ export class SizeHandler extends ItemHandler  {
 
   public onMouseDown(event) {
     this.initSizingDataBeforeResizing();
+    // this.owner.layerService.globalSelectedGroup.saveCurrentItemState();
   }
 
   public onMouseDrag(event) {

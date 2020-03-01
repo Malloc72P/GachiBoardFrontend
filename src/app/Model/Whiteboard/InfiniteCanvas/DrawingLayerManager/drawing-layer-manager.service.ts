@@ -9,45 +9,28 @@ import {EditableRectangle} from '../../Whiteboard-Item/Whiteboard-Shape/Editable
 import {EditableCircle} from '../../Whiteboard-Item/Whiteboard-Shape/EditableShape/EditableCircle/editable-circle';
 import {EditableTriangle} from '../../Whiteboard-Item/Whiteboard-Shape/EditableShape/EditableTriangle/editable-triangle';
 import {EditableCard} from '../../Whiteboard-Item/Whiteboard-Shape/EditableShape/EditableCard/editable-card';
-// @ts-ignore
-import Layer = paper.Layer;
-// @ts-ignore
-import Group = paper.Group;
-// @ts-ignore
-import PointText = paper.PointText;
-// @ts-ignore
-import Point = paper.Point;
-// @ts-ignore
-import Project = paper.Project;
-
-// @ts-ignore
-import Rectangle = paper.Rectangle;
 
 import {TextStyle} from '../../Pointer/shape-service/text-style';
 import {PositionCalcService} from '../../PositionCalc/position-calc.service';
-import {
-  ItemLifeCycleEnum,
-  ItemLifeCycleEvent,
-} from '../../Whiteboard-Item/WhiteboardItemLifeCycle/WhiteboardItemLifeCycle';
+import {ItemLifeCycleEnum, ItemLifeCycleEvent,} from '../../Whiteboard-Item/WhiteboardItemLifeCycle/WhiteboardItemLifeCycle';
 import {SimpleRaster} from '../../Whiteboard-Item/Whiteboard-Shape/editable-raster/SimpleRaster/simple-raster';
 import {GlobalSelectedGroup} from '../../Whiteboard-Item/ItemGroup/GlobalSelectedGroup/global-selected-group';
 import {PointerModeEvent} from '../../Pointer/PointerModeEvent/pointer-mode-event';
-import {PointerMode} from '../../Pointer/pointer-mode-enum-service/pointer-mode-enum.service';
 import {InfiniteCanvasService} from '../infinite-canvas.service';
 import {ItemGroup} from '../../Whiteboard-Item/ItemGroup/item-group';
 import {LinkPort} from '../../Whiteboard-Item/Whiteboard-Shape/LinkPort/link-port';
 import {EditableShape} from '../../Whiteboard-Item/Whiteboard-Shape/EditableShape/editable-shape';
-import {ContextMenuService} from "../../ContextMenu/context-menu-service/context-menu.service";
+import {ContextMenuService} from '../../ContextMenu/context-menu-service/context-menu.service';
 import {EditableLink} from '../../Whiteboard-Item/Whiteboard-Shape/LinkPort/EditableLink/editable-link';
 import {LinkerModeChangeEvent} from './LinkModeManagerService/LinkerModeChangeEvent/linker-mode-change-event';
 import {LinkerMode} from './LinkModeManagerService/LinkMode/linker-mode';
 import {EditableItemGroup} from '../../Whiteboard-Item/ItemGroup/EditableItemGroup/editable-item-group';
-import {HorizonContextMenuService} from "../../ContextMenu/horizon-context-menu-service/horizon-context-menu.service";
+import {HorizonContextMenuService} from '../../ContextMenu/horizon-context-menu-service/horizon-context-menu.service';
 import {WorkHistoryManager} from './WorkHistoryManager/work-history-manager';
-import {CursorChangeService} from "../../Pointer/cursor-change-service/cursor-change.service";
-import {ItemHandler} from "../../Whiteboard-Item/ItemAdjustor/ItemHandler/item-handler";
-import {WhiteboardShape} from "../../Whiteboard-Item/Whiteboard-Shape/whiteboard-shape";
-import {LinkHandler} from "../../Whiteboard-Item/Whiteboard-Shape/LinkPort/EditableLink/LinkHandler/link-handler";
+import {CursorChangeService} from '../../Pointer/cursor-change-service/cursor-change.service';
+import {ItemHandler} from '../../Whiteboard-Item/ItemAdjustor/ItemHandler/item-handler';
+import {WhiteboardShape} from '../../Whiteboard-Item/Whiteboard-Shape/whiteboard-shape';
+import {LinkHandler} from '../../Whiteboard-Item/Whiteboard-Shape/LinkPort/EditableLink/LinkHandler/link-handler';
 import {WsWhiteboardController} from '../../../../Controller/Controller-WebSocket/websocket-manager/WhiteboardWsController/ws-whiteboard.controller';
 import {WbItemEventManagerService} from '../../../../Controller/Controller-WebSocket/websocket-manager/WhiteboardWsController/wb-item-event-manager.service';
 import {
@@ -60,6 +43,16 @@ import {MinimapSyncService} from '../MinimapSync/minimap-sync.service';
 import {WhiteboardItemDto} from '../../../../DTO/WhiteboardItemDto/whiteboard-item-dto';
 import {WebsocketPacketDto} from '../../../../DTO/WebsocketPacketDto/WebsocketPacketDto';
 import {WebsocketManagerService} from '../../../../Controller/Controller-WebSocket/websocket-manager/websocket-manager.service';
+import {WbItemWork} from './WorkHistoryManager/WbItemWork/wb-item-work';
+// @ts-ignore
+import Layer = paper.Layer;
+// @ts-ignore
+import PointText = paper.PointText;
+// @ts-ignore
+import Point = paper.Point;
+// @ts-ignore
+import Project = paper.Project;
+import {EditableShapeDto} from '../../../../DTO/WhiteboardItemDto/WhiteboardShapeDto/EditableShapeDto/editable-shape-dto';
 
 
 @Injectable({
@@ -212,7 +205,7 @@ export class DrawingLayerManagerService {
 
 
   private initLifeCycleHandler(){
-    WorkHistoryManager.initInstance(this.globalLifeCycleEmitter);
+    WorkHistoryManager.initInstance(this);
     this.globalLifeCycleEmitter.subscribe((data:ItemLifeCycleEvent)=>{
       if(!data){
         return;
@@ -221,6 +214,7 @@ export class DrawingLayerManagerService {
         return;
       }
       let wsWbController = WsWhiteboardController.getInstance();
+      let workHistoryManager = WorkHistoryManager.getInstance();
       // TODO : 라이프 사이클 체크용 로그
       switch (data.action) {
         case ItemLifeCycleEnum.CREATE:
@@ -229,12 +223,13 @@ export class DrawingLayerManagerService {
           break;
         case ItemLifeCycleEnum.MODIFY:
           wsWbController.waitRequestUpdateWbItem(data.item.exportToDto()).subscribe(()=>{
-
+            /*workHistoryManager.pushIntoStack(new WbItemWork(ItemLifeCycleEnum.MODIFY, data.item.exportToDto()));*/
           });
           break;
         case ItemLifeCycleEnum.DESTROY:
           wsWbController.waitRequestDeleteWbItem(data.item.exportToDto()).subscribe((ackPacket)=>{
             this.deleteItemFromWbArray(data.id);
+            /*workHistoryManager.pushIntoStack(new WbItemWork(ItemLifeCycleEnum.DESTROY, data.item.exportToDto()));*/
           });
           break;
       }
@@ -357,6 +352,8 @@ export class DrawingLayerManagerService {
       wsWbController.waitRequestCreateWbItem(newWhiteboardItem.exportToDto())
         .subscribe((packetDto) => {
           newWhiteboardItem.id = packetDto.dataDto.id;
+          let workHistoryManager = WorkHistoryManager.getInstance();
+          workHistoryManager.pushIntoStack(new WbItemWork(ItemLifeCycleEnum.CREATE, newWhiteboardItem.exportToDto()));
         });
     }
     return newWhiteboardItem;
@@ -377,7 +374,7 @@ export class DrawingLayerManagerService {
     }
   }
 
-  private findItemById(id){
+  public findItemById(id){
     for(let wbItem of this.whiteboardItemArray){
       if(wbItem.id === id){
         return wbItem
@@ -528,8 +525,16 @@ export class DrawingLayerManagerService {
   private _isEditingText = false;
   private editTextShape;
 
+
+  private prevTextShape:EditableShape = null;
+  private prevTextShapeDto:EditableShapeDto = null;
+
   public startEditText() {
     let editableShape:EditableShape = this.globalSelectedGroup.wbItemGroup[0] as EditableShape;
+
+    this.prevTextShapeDto = editableShape.exportToDto();
+    this.prevTextShape = editableShape;
+
     let pointTextItem = editableShape.editText;
     let htmlTextEditorWrapper = document.getElementById("textEditorWrapper");
     let htmlTextEditorElement = document.getElementById("textEditor");
@@ -582,6 +587,15 @@ export class DrawingLayerManagerService {
     editableShape.rawTextContent = htmlTextEditorElement.innerHTML;
 
     htmlTextEditorElement.innerText = "";
+
+    let workHistoryManager = WorkHistoryManager.getInstance();
+    let wbItemWork = new WbItemWork(ItemLifeCycleEnum.MODIFY, this.prevTextShapeDto);
+    workHistoryManager.pushIntoStack(wbItemWork);
+
+    this.prevTextShape.globalEmitModify();
+
+    this.prevTextShape = null;
+    this.prevTextShapeDto = null;
   }
 
   private setWrapperStyle(element, point, width, height, padding) {

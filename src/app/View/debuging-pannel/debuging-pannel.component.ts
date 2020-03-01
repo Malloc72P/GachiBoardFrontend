@@ -14,6 +14,9 @@ import Size = paper.Size;
 // @ts-ignore
 import Path = paper.Path;
 import {DebugingService} from "../../Model/Helper/DebugingHelper/debuging.service";
+import {WorkHistoryManager} from '../../Model/Whiteboard/InfiniteCanvas/DrawingLayerManager/WorkHistoryManager/work-history-manager';
+import {WbItemWork} from '../../Model/Whiteboard/InfiniteCanvas/DrawingLayerManager/WorkHistoryManager/WbItemWork/wb-item-work';
+import {ItemLifeCycleEnum} from '../../Model/Whiteboard/Whiteboard-Item/WhiteboardItemLifeCycle/WhiteboardItemLifeCycle';
 @Component({
   selector: 'app-debuging-pannel',
   templateUrl: './debuging-pannel.component.html',
@@ -29,7 +32,17 @@ export class DebugingPannelComponent implements OnInit {
     public debugingService         : DebugingService,
   ) { }
 
+  public undoStack:Array<WbItemWork> = new Array<WbItemWork>();
+  public redoStack:Array<WbItemWork> = new Array<WbItemWork>();
   ngOnInit() {
+    let workHistoryManager = WorkHistoryManager.getInstance();
+
+    this.undoStack = workHistoryManager.undoStack;
+    this.redoStack = workHistoryManager.redoStack;
+  }
+
+  getNameOfHistoryEnum(workAction:ItemLifeCycleEnum){
+    return ItemLifeCycleEnum[workAction] + " [" + workAction + "]";
   }
 
 

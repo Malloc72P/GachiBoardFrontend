@@ -4,8 +4,6 @@ import {ItemGroup} from '../item-group';
 import {WhiteboardItemType} from '../../../../Helper/data-type-enum/data-type.enum';
 import {SelectModeEnum} from '../../../InfiniteCanvas/DrawingLayerManager/SelectModeEnum/select-mode-enum.enum';
 import {WhiteboardItem} from '../../whiteboard-item';
-import {SelectEvent} from '../../../InfiniteCanvas/DrawingLayerManager/SelectEvent/select-event';
-import {SelectEventEnum} from '../../../InfiniteCanvas/DrawingLayerManager/SelectEventEnum/select-event.enum';
 import {WhiteboardShape} from '../../Whiteboard-Shape/whiteboard-shape';
 import {WhiteboardItemDto} from '../../../../../DTO/WhiteboardItemDto/whiteboard-item-dto';
 import {WhiteboardItemFactory} from '../../../InfiniteCanvas/WhiteboardItemFactory/whiteboard-item-factory';
@@ -15,13 +13,15 @@ import {WsWhiteboardController} from '../../../../../Controller/Controller-WebSo
 import {WebsocketPacketDto} from '../../../../../DTO/WebsocketPacketDto/WebsocketPacketDto';
 import {EventEmitter} from '@angular/core';
 import {GsgSelectEvent, GsgSelectEventEnum} from './GsgSelectEvent/GsgSelectEvent';
-import {ItemLifeCycleEnum, ItemLifeCycleEvent} from "../../WhiteboardItemLifeCycle/WhiteboardItemLifeCycle";
+import {ItemLifeCycleEnum, ItemLifeCycleEvent} from '../../WhiteboardItemLifeCycle/WhiteboardItemLifeCycle';
+import {WbItemPacketDto} from '../../../../../DTO/WhiteboardItemDto/WbItemPacketDto/WbItemPacketDto';
+import {ParticipantDto} from '../../../../../DTO/ProjectDto/ParticipantDto/participant-dto';
+import {WorkHistoryManager} from '../../../InfiniteCanvas/DrawingLayerManager/WorkHistoryManager/work-history-manager';
+import {WbItemWork} from '../../../InfiniteCanvas/DrawingLayerManager/WorkHistoryManager/WbItemWork/wb-item-work';
 // @ts-ignore
 import Item = paper.Item;
 // @ts-ignore
 import Path = paper.Path;
-import {WbItemPacketDto} from '../../../../../DTO/WhiteboardItemDto/WbItemPacketDto/WbItemPacketDto';
-import {ParticipantDto} from '../../../../../DTO/ProjectDto/ParticipantDto/participant-dto';
 
 export class GlobalSelectedGroup extends ItemGroup {
   private static globalSelectedGroup: GlobalSelectedGroup;
@@ -71,6 +71,52 @@ export class GlobalSelectedGroup extends ItemGroup {
     this.setLifeCycleEvent();
     this.localEmitCreate();
     this.globalEmitCreate();
+
+  }
+
+  moveEnd() {
+    let isMoved = super.moveEnd();
+    if (isMoved) {
+      this.pushGsgWorkIntoWorkHistroy(ItemLifeCycleEnum.MODIFY);
+    }
+    return true;
+  }
+  resizeEnd() {
+    super.resizeEnd();
+    this.pushGsgWorkIntoWorkHistroy(ItemLifeCycleEnum.MODIFY);
+  }
+
+
+  public prevItemState:Array<WhiteboardItemDto> = new Array<WhiteboardItemDto>();
+  saveCurrentItemState(){
+    console.log("GlobalSelectedGroup >> saveCurrentItemState >> 진입함");
+    this.prevItemState = new Array<WhiteboardItemDto>();
+
+    for(let wbItem of this.wbItemGroup){
+      this.prevItemState.push(wbItem.exportToDto());
+    }
+
+  }
+
+  pushGsgWorkIntoWorkHistroy(action:ItemLifeCycleEnum){
+    console.log("GlobalSelectedGroup >> pushGsgWorkIntoWorkHistroy >> prevItemState : ",this.prevItemState);
+    if(this.prevItemState.length <= 0){
+      return;
+    }
+    let workHistoryManager = WorkHistoryManager.getInstance();
+    let wbItemWork;
+    switch (action) {
+      case ItemLifeCycleEnum.MODIFY:
+        wbItemWork = new WbItemWork(ItemLifeCycleEnum.MODIFY, this.prevItemState[0]);
+        break;
+      case ItemLifeCycleEnum.DESTROY:
+        wbItemWork = new WbItemWork(ItemLifeCycleEnum.DESTROY, this.prevItemState[0]);
+        break;
+    }
+
+    wbItemWork.wbItemDtoArray = this.prevItemState;
+    workHistoryManager.pushIntoStack(wbItemWork);
+    this.saveCurrentItemState();
   }
 
   public static getInstance(id, layerService) {
@@ -133,8 +179,6 @@ export class GlobalSelectedGroup extends ItemGroup {
         for (let i = 0; i < data.length; i++) {
           this.insertOneIntoSelection(data[i]);
         }
-        this.wbItemGroup.forEach(value => {
-        });
 
         let wsWbController = WsWhiteboardController.getInstance();
         let wbItemDtoArray:Array<WhiteboardItemDto> = new Array<WhiteboardItemDto>();
@@ -142,7 +186,6 @@ export class GlobalSelectedGroup extends ItemGroup {
         for (let i = 0; i < data.length; i++) {
           let newWbItem = data[i];
           wbItemDtoArray.push(newWbItem.exportToDto());
-
         }
         wsWbController.waitRequestCreateMultipleWbItem(wbItemDtoArray)
           .subscribe((wsPacketDto:WebsocketPacketDto)=>{
@@ -160,6 +203,10 @@ export class GlobalSelectedGroup extends ItemGroup {
               wsWbController.waitRequestUpdateWbItem(newWbItem.exportToDto())
                 .subscribe(()=>{});
             }
+            let workHistoryManager = WorkHistoryManager.getInstance();
+            let copyWorkHistory = new WbItemWork(ItemLifeCycleEnum.COPIED, recvWbItemDtoArray[0]);
+            copyWorkHistory.wbItemDtoArray = recvWbItemDtoArray;
+            workHistoryManager.pushIntoStack(copyWorkHistory);
           })
       });
     }
@@ -220,6 +267,7 @@ export class GlobalSelectedGroup extends ItemGroup {
     this.resetMyItemAdjustor();
     this.layerService.horizonContextMenuService.open();
     //this.emitSelected();
+    this.saveCurrentItemState();
     this.gsgSelectorEventEmitter.emit(new GsgSelectEvent(GsgSelectEventEnum.SELECTED, wbItem));
   }
 
@@ -275,6 +323,7 @@ export class GlobalSelectedGroup extends ItemGroup {
     this.isLinkSelected = false;
     this.extractAllFromGroup();
     this.isLocked = false;
+    this.saveCurrentItemState();
   }
 
   public removeOneFromGroup(wbItem) {
@@ -284,11 +333,19 @@ export class GlobalSelectedGroup extends ItemGroup {
     } else {
       this.layerService.horizonContextMenuService.close();
     }
+    this.saveCurrentItemState();
     this.gsgSelectorEventEmitter.emit(new GsgSelectEvent(GsgSelectEventEnum.DESELECTED, wbItem));
   }
 
+  extractOneFromGroup(wbItem: WhiteboardItem) {
+    super.extractOneFromGroup(wbItem);
+    this.saveCurrentItemState();
+  }
+
   destroyItem() {
+    this.pushGsgWorkIntoWorkHistroy(ItemLifeCycleEnum.DESTROY);
     this.destroyAllFromGroup();
+
   }
   destroyItemAndNoEmit() {
     // this.destroyAllFromGroup();

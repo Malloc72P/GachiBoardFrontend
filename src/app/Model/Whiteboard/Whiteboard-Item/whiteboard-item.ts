@@ -210,6 +210,10 @@ export abstract class WhiteboardItem {
         blindText = currItem;
       }
     }
+
+    if( !blindText || !blindRect || !blindTextBg ){
+      return;
+    }
     console.log("WhiteboardItem >> updateBlindGroup >> blindRect : ",blindRect);
     console.log("WhiteboardItem >> updateBlindGroup >> blindText : ",blindText);
     console.log("WhiteboardItem >> updateBlindGroup >> blindTextBg : ",blindTextBg);

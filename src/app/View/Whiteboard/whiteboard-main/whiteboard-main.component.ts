@@ -376,32 +376,16 @@ export class WhiteboardMainComponent implements OnInit,OnDestroy {
           break;
         case "KeyG":
           this.layerService.groupSelectedItems();
-          //TODO 좌표 얻는 출처를 상현이의 커밋쪽을 기준으로 수정해야 함.
           break;
         case "KeyZ":
-          let workData = workHistoryManager.undoTask();
-          if(workData){
-            console.log("\n\n");
-            console.log("WhiteboardMainComponent >> keydownHandler >> currentOperation : ",ItemLifeCycleEnum[workData.action]);
-            console.log("WhiteboardMainComponent >> keydownHandler >> workData : ",workData.wbItemDto);
-            console.log("\n\n");
-          }else {
-            console.log("WhiteboardMainComponent >> keydownHandler >> undo 할 태스크 없음");
-          }
+          workHistoryManager.undoTask();
+
           break;
       }
     }
     else if(event.ctrlKey && event.shiftKey){//Ctrl + Shift
       if (event.code === "KeyZ") {
-        let workData = workHistoryManager.redoTask();
-        if (workData) {
-          console.log('\n\n');
-          console.log('WhiteboardMainComponent >> keydownHandler >> currentOperation : ', ItemLifeCycleEnum[workData.action]);
-          console.log('WhiteboardMainComponent >> keydownHandler >> workData : ', workData.wbItemDto);
-          console.log("\n\n");
-        }else {
-          console.log("WhiteboardMainComponent >> keydownHandler >> redo 할 태스크 없음");
-        }
+        workHistoryManager.redoTask();
       }
 
     }
