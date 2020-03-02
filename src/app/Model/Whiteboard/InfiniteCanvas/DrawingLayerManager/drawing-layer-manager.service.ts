@@ -243,8 +243,12 @@ export class DrawingLayerManagerService {
     });
   }
   deleteItemFromWbArray(id){
+    console.log("DrawingLayerManagerService >> deleteItemFromWbArray >> id : ",id);
     let removeIdx = this.indexOfWhiteboardArray(id);
-    this.whiteboardItemArray.splice(removeIdx, 1);
+    console.log("DrawingLayerManagerService >> deleteItemFromWbArray >> removeIdx : ",removeIdx);
+    if(removeIdx !== -1){
+      this.whiteboardItemArray.splice(removeIdx, 1);
+    }
   }
   /* **************************************************** */
   /* Whiteboard Item Lifecycle Handler END */
@@ -379,6 +383,7 @@ export class DrawingLayerManagerService {
         return i
       }
     }
+    return -1;
   }
 
   public findItemById(id){

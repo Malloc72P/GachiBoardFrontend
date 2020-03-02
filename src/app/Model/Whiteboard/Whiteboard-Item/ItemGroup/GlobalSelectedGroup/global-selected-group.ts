@@ -22,6 +22,7 @@ import {WbItemWork} from '../../../InfiniteCanvas/DrawingLayerManager/WorkHistor
 import Item = paper.Item;
 // @ts-ignore
 import Path = paper.Path;
+import {WhiteboardShapeDto} from '../../../../../DTO/WhiteboardItemDto/WhiteboardShapeDto/whiteboard-shape-dto';
 
 export class GlobalSelectedGroup extends ItemGroup {
   private static globalSelectedGroup: GlobalSelectedGroup;
@@ -47,12 +48,12 @@ export class GlobalSelectedGroup extends ItemGroup {
 
       switch (gsgEvent.action) {
         case GsgSelectEventEnum.SELECTED:
-          console.log(`GlobalSelectedGroup >> SELECTED >> [ ${gsgEvent.wbItem.id} ] >> 진입함`);
+
           wsWbController.waitRequestOccupyWbItem(gsgEvent.wbItem.exportToDto())
             .subscribe(()=>{
 
             },(errorParam:WebsocketPacketDto)=>{
-              console.log("GlobalSelectedGroup >> SELECTED >> errorParam >> gsgEvent.wbItem : ",gsgEvent.wbItem);
+
               this.extractOneFromGroup(gsgEvent.wbItem);
               let recvWbItemDto:WbItemPacketDto = errorParam.additionalData as WbItemPacketDto;
               let occupierInfo:ParticipantDto = wsWbController.getUserNameWithIdToken(recvWbItemDto.occupiedBy);
@@ -60,7 +61,7 @@ export class GlobalSelectedGroup extends ItemGroup {
             });
           break;
         case GsgSelectEventEnum.DESELECTED:
-          console.log(`GlobalSelectedGroup >> DESELECTED >> [ ${gsgEvent.wbItem.id} ] >> 진입함`);
+
           wsWbController.waitRequestNotOccupyWbItem(gsgEvent.wbItem.exportToDto())
             .subscribe((error)=>{
 
@@ -89,7 +90,7 @@ export class GlobalSelectedGroup extends ItemGroup {
 
   public prevItemState:Array<WhiteboardItemDto> = new Array<WhiteboardItemDto>();
   saveCurrentItemState(){
-    console.log("GlobalSelectedGroup >> saveCurrentItemState >> 진입함");
+
     this.prevItemState = new Array<WhiteboardItemDto>();
 
     for(let wbItem of this.wbItemGroup){
@@ -99,7 +100,7 @@ export class GlobalSelectedGroup extends ItemGroup {
   }
 
   pushGsgWorkIntoWorkHistroy(action:ItemLifeCycleEnum){
-    console.log("GlobalSelectedGroup >> pushGsgWorkIntoWorkHistroy >> prevItemState : ",this.prevItemState);
+
     if(this.prevItemState.length <= 0){
       return;
     }
@@ -111,12 +112,35 @@ export class GlobalSelectedGroup extends ItemGroup {
         break;
       case ItemLifeCycleEnum.DESTROY:
         wbItemWork = new WbItemWork(ItemLifeCycleEnum.DESTROY, this.prevItemState[0]);
+
+        for(let wbItem of this.wbItemGroup){
+          if(wbItem instanceof WhiteboardShape){
+            let edtLinkList:Array<EditableLink> = wbItem.extractAllLinkAsDto();
+            for(let edtLink of edtLinkList){
+                this.prevItemState.push(edtLink.exportToDto());
+            }
+          }
+        }
+
         break;
     }
 
     wbItemWork.wbItemDtoArray = this.prevItemState;
     workHistoryManager.pushIntoStack(wbItemWork);
     this.saveCurrentItemState();
+  }
+
+  isWhiteboardShapeDto(wbItemDto:WhiteboardItemDto){
+    let switchFlag:WhiteboardItemType = wbItemDto.type;
+    switch (switchFlag) {
+      case WhiteboardItemType.EDITABLE_RECTANGLE:
+      case WhiteboardItemType.EDITABLE_CIRCLE:
+      case WhiteboardItemType.EDITABLE_TRIANGLE:
+      case WhiteboardItemType.EDITABLE_CARD:
+      case WhiteboardItemType.SIMPLE_RASTER:
+        return true;
+      default : return false;
+    }
   }
 
   public static getInstance(id, layerService) {
@@ -155,7 +179,7 @@ export class GlobalSelectedGroup extends ItemGroup {
   }
 
   public waitForCloneOperation() :Observable<any>{
-    console.log("GlobalSelectedGroup >> pasteSelectedWbItems >> 진입함");
+
     return new Observable<any>((observer)=>{
       WhiteboardItemFactory.cloneWbItems(this.copiedDtoArray).subscribe((copiedItems:Array<WhiteboardItem>)=>{
         this.extractAllFromSelection();
@@ -174,8 +198,8 @@ export class GlobalSelectedGroup extends ItemGroup {
   public doPaste(newPosition){
     if(this.copiedDtoArray.length > 0){
       this.waitForCloneOperation().subscribe((data:Array<WhiteboardItem>)=>{
-        console.log("GlobalSelectedGroup >> subscribe finally pasted >> 진입함");
-        console.log("GlobalSelectedGroup >>  >> newPosition : ",newPosition);
+
+
         for (let i = 0; i < data.length; i++) {
           this.insertOneIntoSelection(data[i]);
         }

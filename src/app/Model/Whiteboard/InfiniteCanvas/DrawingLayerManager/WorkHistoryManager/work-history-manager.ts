@@ -7,17 +7,19 @@ import {WhiteboardItemDto} from '../../../../../DTO/WhiteboardItemDto/whiteboard
 import {WsWhiteboardController} from '../../../../../Controller/Controller-WebSocket/websocket-manager/WhiteboardWsController/ws-whiteboard.controller';
 import {WhiteboardItem} from '../../../Whiteboard-Item/whiteboard-item';
 import {WebsocketPacketDto} from '../../../../../DTO/WebsocketPacketDto/WebsocketPacketDto';
+import {WhiteboardItemType} from '../../../../Helper/data-type-enum/data-type.enum';
+import {EditableLinkDto} from '../../../../../DTO/WhiteboardItemDto/WhiteboardShapeDto/LinkPortDto/EditableLinkDto/editable-link-dto';
+import {EditableLink} from '../../../Whiteboard-Item/Whiteboard-Shape/LinkPort/EditableLink/editable-link';
+import {WhiteboardShape} from '../../../Whiteboard-Item/Whiteboard-Shape/whiteboard-shape';
 
 export class WorkHistoryManager {
 
-  //lce2 = WbItem Life Cycle Event Emitter
   private lce2:EventEmitter<any>;
   private layerService:DrawingLayerManagerService;
   private static myInstance:WorkHistoryManager = null;
 
   public isProcessing = false;
 
-  //public dataCurrentArray: Array<WbItemWork> = [];
 
   public undoStack: Array<WbItemWork> = [];
   public redoStack: Array<WbItemWork> = [];
@@ -49,7 +51,10 @@ export class WorkHistoryManager {
 
     if(poppedTask){
       this.doAction(poppedTask).then(()=>{
+        console.log("WorkHistoryManager >> redoTask >> process completed\n\n");
         this.isProcessing = false;
+      }).catch((e)=>{
+        console.log("WorkHistoryManager >> redoTask >> e : ",e);
       });
     }else {
       this.isProcessing = false;
@@ -73,6 +78,7 @@ export class WorkHistoryManager {
 
     if(poppedTask){
       this.doAction(poppedTask).then(()=>{
+        console.log("WorkHistoryManager >> undoTask >> process completed\n\n\n\n");
         this.isProcessing = false;
       });
     }else {
@@ -197,6 +203,8 @@ export class WorkHistoryManager {
             .subscribe((wsPacketDto:WebsocketPacketDto)=>{
               let recvWbItemDtoArray:Array<WhiteboardItemDto> = wsPacketDto.dataDto as Array<WhiteboardItemDto>;
 
+              let createdWbItemMap:Map<any,any> = new Map<any, any>();
+
               for (let i = 0; i < copiedItems.length; i++) {
                 let originKey = originWbItemDtoArray[i].id;
                 let newKey = recvWbItemDtoArray[i].id;
@@ -205,9 +213,7 @@ export class WorkHistoryManager {
                 newWbItem.id = newKey;
                 newWbItem.group.opacity = 1;
                 newWbItem.coreItem.opacity = 1;
-
-                console.log("WorkHistoryManager >> buildItem >> originKey : ",originKey);
-                console.log("WorkHistoryManager >>  >> newKey : ",newKey);
+                createdWbItemMap.set(newWbItem.id, newWbItem);
 
                 for(let task of this.undoStack){
                   for(let wbItemDto of task.wbItemDtoArray){
@@ -224,6 +230,43 @@ export class WorkHistoryManager {
                   }
                 }
 
+              }
+              for(let i = 0 ; i < originWbItemDtoArray.length; i++){
+                let currOriginWbItemDto = originWbItemDtoArray[i];
+                if(currOriginWbItemDto.type === WhiteboardItemType.EDITABLE_LINK){
+                  let edtLinkItemDto:EditableLinkDto = currOriginWbItemDto as EditableLinkDto;
+                  console.log("WorkHistoryManager >> buildItem >> edtLinkItemDto : ",edtLinkItemDto);
+                  let edtLinkItem:EditableLink = createdWbItemMap.get(edtLinkItemDto.id);
+                  if(edtLinkItem){
+                    console.log("WorkHistoryManager >> buildItem >> edtLinkItem : ",edtLinkItem);
+                    //TODO EditableLink의 fromLinkPort와 toLinkPort를 수정하지 않아서 발생하는 문제.
+                    //아이디를 제대로 최신화 시켜주는 로직을 짜던가, 아님 이것도 수정하는 스파게티 하나 더 만들던가 할 것.
+                    //1. dto엔 from이 있는데 item엔 없는 경우
+                    if(edtLinkItemDto.fromLinkPort && !edtLinkItem.fromLinkPort){
+                      let foundWbShape:WhiteboardShape = this.layerService.findItemById(edtLinkItemDto.fromLinkPort.ownerWbItemId) as WhiteboardShape;
+                      let foundLinkPort;
+                      if(foundWbShape){
+                        foundLinkPort = foundWbShape.linkPortMap.get(edtLinkItemDto.fromLinkPort.direction);
+                      }
+
+                      if (foundLinkPort) {
+                        edtLinkItem.fromLinkPort = foundLinkPort;
+                      }
+                    }
+                    //2. dto엔 to가 있는데 item엔 없는 경우
+                    if(edtLinkItemDto.toLinkPort && !edtLinkItem.toLinkPort){
+                      let foundWbShape:WhiteboardShape = this.layerService.findItemById(edtLinkItemDto.toLinkPort.ownerWbItemId) as WhiteboardShape;
+
+                      let foundLinkPort;
+                      if (foundWbShape) {
+                        foundLinkPort = foundWbShape.linkPortMap.get(edtLinkItemDto.toLinkPort.direction);
+                      }
+                      if(foundLinkPort){
+                        edtLinkItem.toLinkPort = foundLinkPort;
+                      }
+                    }
+                  }
+                }
               }
               resolve(recvWbItemDtoArray);
             });
