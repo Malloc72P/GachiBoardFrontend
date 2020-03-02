@@ -23,7 +23,7 @@
                   (click)="debugingService.logDrawingLayer()">DrawingLayer</button>
           <button mat-raised-button
                   (click)="debugingService.logChildren()">Children</button>
-          <table class="debugTable" style="background-color: blue; color: white;">
+<!--          <table class="debugTable" style="background-color: blue; color: white;">
             <tr><td>NG Mouse Position</td></tr>
             <tr>
               <td>X : </td>
@@ -44,19 +44,28 @@
               <td>Y : </td>
               <td>{{debugingService.ngTouchCursorY.toFixed()}}</td>
             </tr>
+          </table>-->
+
+          <table *ngIf="workHistoryManager"
+            class="debugTable" style="background-color: darkred; color: white;">
+            <tr>
+              <td>is Processing : </td>
+              <td>{{workHistoryManager.isProcessing}}</td>
+            </tr>
+
           </table>
 
           <table class="debugTable" style="background-color: darkred; color: white;">
             <tr><td>Undo Stack</td></tr>
             <tr *ngFor="let currData of undoStack; index as i">
-              <td *ngIf="currData.wbItemDtoArray[0]">{{getNameOfHistoryEnum(currData.action)}} [{{currData.wbItemDtoArray[0].id}}]</td>
+              <td *ngIf="currData.wbItemDtoArray[0]">[{{currData.id}}] : {{getNameOfHistoryEnum(currData.action)}} [{{currData.wbItemDtoArray[0].id}}]</td>
             </tr>
           </table>
 
           <table class="debugTable" style="background-color: black; color: white;">
             <tr><td>Redo Stack</td></tr>
             <tr *ngFor="let currData of redoStack; index as i">
-              <td *ngIf="currData.wbItemDtoArray[0]">{{getNameOfHistoryEnum(currData.action)}} [{{currData.wbItemDtoArray[0].id}}]</td>
+              <td *ngIf="currData.wbItemDtoArray[0]">[{{currData.id}}] : {{getNameOfHistoryEnum(currData.action)}} [{{currData.wbItemDtoArray[0].id}}]</td>
             </tr>
           </table>
 
@@ -102,7 +111,7 @@
         </mat-expansion-panel-header>
 
         <!--   Content   -->
-        <div>
+<!--        <div>
           <table class="debugTable" style="background-color: orange;">
             <tr><td>Paper Position</td></tr>
             <tr>
@@ -114,7 +123,7 @@
               <td>{{debugingService.cursorY.toFixed()}}</td>
             </tr>
           </table>
-        </div>
+        </div>-->
 
       </mat-expansion-panel>
     </mat-accordion >

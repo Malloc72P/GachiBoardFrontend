@@ -34,11 +34,14 @@ export class DebugingPannelComponent implements OnInit {
 
   public undoStack:Array<WbItemWork> = new Array<WbItemWork>();
   public redoStack:Array<WbItemWork> = new Array<WbItemWork>();
-  ngOnInit() {
-    let workHistoryManager = WorkHistoryManager.getInstance();
 
-    this.undoStack = workHistoryManager.undoStack;
-    this.redoStack = workHistoryManager.redoStack;
+
+  public workHistoryManager:WorkHistoryManager = null;
+  ngOnInit() {
+    this.workHistoryManager = WorkHistoryManager.getInstance();
+
+    this.undoStack = this.workHistoryManager.undoStack;
+    this.redoStack = this.workHistoryManager.redoStack;
   }
 
   getNameOfHistoryEnum(workAction:ItemLifeCycleEnum){

@@ -2,10 +2,14 @@ import {ItemLifeCycleEnum} from '../../../../Whiteboard-Item/WhiteboardItemLifeC
 import {WhiteboardItemDto} from '../../../../../../DTO/WhiteboardItemDto/whiteboard-item-dto';
 
 export class WbItemWork {
+  public id;
+  private static idGen = 0;
   public action:ItemLifeCycleEnum;
   public wbItemDtoArray:Array<WhiteboardItemDto>;
 
   constructor(action: ItemLifeCycleEnum, wbItem?:WhiteboardItemDto) {
+    this.id = WbItemWork.idGen;
+    WbItemWork.idGen++;
     this.action = action;
     this.wbItemDtoArray = new Array<WhiteboardItemDto>();
 

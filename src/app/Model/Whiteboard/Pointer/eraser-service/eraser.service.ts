@@ -9,6 +9,9 @@ import * as paper from 'paper';
 // @ts-ignore
 import Item = paper.Item;
 import {EditableLink} from "../../Whiteboard-Item/Whiteboard-Shape/LinkPort/EditableLink/editable-link";
+import {WbItemWork} from '../../InfiniteCanvas/DrawingLayerManager/WorkHistoryManager/WbItemWork/wb-item-work';
+import {ItemLifeCycleEnum} from '../../Whiteboard-Item/WhiteboardItemLifeCycle/WhiteboardItemLifeCycle';
+import {WorkHistoryManager} from '../../InfiniteCanvas/DrawingLayerManager/WorkHistoryManager/work-history-manager';
 
 @Injectable({
   providedIn: 'root'
@@ -55,7 +58,12 @@ export class EraserService {
     let foundItem: WhiteboardItem | EditableLink = this.layerService.getHittedItem(point, this.strokeWidth / 2);
     if(foundItem) {
       if(this.itemChecker(foundItem)) {
+        let wbItemWork = new WbItemWork(ItemLifeCycleEnum.DESTROY, foundItem.exportToDto());
+
         foundItem.destroyItem();
+
+        let workHistoryManager = WorkHistoryManager.getInstance();
+        workHistoryManager.pushIntoStack(wbItemWork);
       }
     }
   }

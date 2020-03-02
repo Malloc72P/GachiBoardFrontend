@@ -149,6 +149,9 @@ export class DrawingLayerManagerService {
       if(!recvWbItemEvent){
         return;
       }
+
+      let workHistoryManager = WorkHistoryManager.getInstance();
+
       switch (recvWbItemEvent.action) {
         case WbItemEventEnum.CREATE:
           WhiteboardItemFactory.buildWbItems(recvWbItemEvent.data, this.whiteboardItemArray)
@@ -172,6 +175,7 @@ export class DrawingLayerManagerService {
           if(delItem){
             this.deleteItemFromWbArray(delItem.id);
             delItem.destroyItemAndNoEmit();
+            workHistoryManager.removeTask(recvWbItemEvent.data.id);
           }
           break;
         case WbItemEventEnum.OCCUPIED:
@@ -190,7 +194,10 @@ export class DrawingLayerManagerService {
           break;
         case WbItemEventEnum.UPDATE:
           let updateItem = this.findItemById(recvWbItemEvent.data.id);
-          updateItem.update(recvWbItemEvent.data);
+          if(updateItem){
+            updateItem.update(recvWbItemEvent.data);
+            workHistoryManager.removeTask(recvWbItemEvent.data.id);
+          }
           break;
         case WbItemEventEnum.READ:
           break;
