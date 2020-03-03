@@ -130,16 +130,19 @@ export class GlobalSelectedGroup extends ItemGroup {
     this.saveCurrentItemState();
   }
 
-  isWhiteboardShapeDto(wbItemDto:WhiteboardItemDto){
-    let switchFlag:WhiteboardItemType = wbItemDto.type;
-    switch (switchFlag) {
-      case WhiteboardItemType.EDITABLE_RECTANGLE:
-      case WhiteboardItemType.EDITABLE_CIRCLE:
-      case WhiteboardItemType.EDITABLE_TRIANGLE:
-      case WhiteboardItemType.EDITABLE_CARD:
-      case WhiteboardItemType.SIMPLE_RASTER:
-        return true;
-      default : return false;
+  refreshGsg(){
+    if(this.layerService.globalSelectedGroup.getNumberOfChild() > 0){
+      let prevItemList:Array<WhiteboardItem> = new Array<WhiteboardItem>();
+
+      for(let wbItem of this.wbItemGroup) {
+        prevItemList.push(wbItem);
+      }
+
+      this.layerService.globalSelectedGroup.extractAllFromSelection();
+
+      for(let wbItem of prevItemList) {
+        this.layerService.globalSelectedGroup.insertOneIntoSelection(wbItem);
+      }
     }
   }
 

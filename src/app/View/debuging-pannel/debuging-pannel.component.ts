@@ -24,6 +24,9 @@ import {ItemLifeCycleEnum} from '../../Model/Whiteboard/Whiteboard-Item/Whiteboa
 })
 export class DebugingPannelComponent implements OnInit {
   @Input() paperProject;
+
+  private testMap:Map<any, Array<any>> = new Map<any, Array<any>>();
+
   constructor(
     public pointerModeManager      : PointerModeManagerService,
     public infiniteCanvasService   : InfiniteCanvasService,
@@ -46,6 +49,19 @@ export class DebugingPannelComponent implements OnInit {
 
   getNameOfHistoryEnum(workAction:ItemLifeCycleEnum){
     return ItemLifeCycleEnum[workAction] + " [" + workAction + "]";
+  }
+
+  setMap(){
+    if (!this.testMap.has(1)) {
+      this.testMap.set( 1, new Array<any>() );
+    }
+    this.testMap.get(1).push(Math.random());
+  }
+
+  showMap(){
+    console.log("\n\n===============\n");
+    console.log("DebugingPannelComponent >> showMap >> idMap : ",this.workHistoryManager.idMap);
+    console.log("\n===============\n\n");
   }
 
 

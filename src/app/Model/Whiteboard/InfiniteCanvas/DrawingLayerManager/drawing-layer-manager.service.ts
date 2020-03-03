@@ -91,7 +91,7 @@ export class DrawingLayerManagerService {
     private _horizonContextMenuService: HorizonContextMenuService,
     private _cursorChangeService: CursorChangeService,
     private wbItemEventManagerService: WbItemEventManagerService,
-    private minimapSyncService: MinimapSyncService,
+    public  minimapSyncService: MinimapSyncService,
     private websocketManagerService: WebsocketManagerService,
   ) {
     this._whiteboardItemArray = new Array<WhiteboardItem>();

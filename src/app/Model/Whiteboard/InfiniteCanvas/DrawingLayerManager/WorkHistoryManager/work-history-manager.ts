@@ -11,6 +11,7 @@ import {WhiteboardItemType} from '../../../../Helper/data-type-enum/data-type.en
 import {EditableLinkDto} from '../../../../../DTO/WhiteboardItemDto/WhiteboardShapeDto/LinkPortDto/EditableLinkDto/editable-link-dto';
 import {EditableLink} from '../../../Whiteboard-Item/Whiteboard-Shape/LinkPort/EditableLink/editable-link';
 import {WhiteboardShape} from '../../../Whiteboard-Item/Whiteboard-Shape/whiteboard-shape';
+import {LinkPortDto} from '../../../../../DTO/WhiteboardItemDto/WhiteboardShapeDto/LinkPortDto/link-port-dto';
 
 export class WorkHistoryManager {
 
@@ -27,7 +28,6 @@ export class WorkHistoryManager {
   undoLimit: number = 35;
 
   private constructor(layerService:DrawingLayerManagerService){
-    console.log("WorkHistoryManager >> constructor >> 진입함");
     this.lce2 = layerService.globalLifeCycleEmitter;
     this.layerService = layerService;
   }
@@ -51,10 +51,8 @@ export class WorkHistoryManager {
 
     if(poppedTask){
       this.doAction(poppedTask).then(()=>{
-        console.log("WorkHistoryManager >> redoTask >> process completed\n\n");
         this.isProcessing = false;
       }).catch((e)=>{
-        console.log("WorkHistoryManager >> redoTask >> e : ",e);
       });
     }else {
       this.isProcessing = false;
@@ -78,7 +76,6 @@ export class WorkHistoryManager {
 
     if(poppedTask){
       this.doAction(poppedTask).then(()=>{
-        console.log("WorkHistoryManager >> undoTask >> process completed\n\n\n\n");
         this.isProcessing = false;
       });
     }else {
@@ -86,7 +83,6 @@ export class WorkHistoryManager {
     }
   }
   verifyTask(wbItemWork:WbItemWork){
-    console.log("WorkHistoryManager >> verifyTask >> 진입함");
     if(!wbItemWork){
       return false;
     }
@@ -95,7 +91,6 @@ export class WorkHistoryManager {
       case ItemLifeCycleEnum.MODIFY:
         for(let wbItemDto of wbItemWork.wbItemDtoArray){
           if(!this.layerService.findItemById(wbItemDto.id)){
-            console.log("WorkHistoryManager >> verifyTask >> invalid wbItem : ",wbItemDto);
             return false;
           }
         }
@@ -103,7 +98,6 @@ export class WorkHistoryManager {
     return true;
   }
   private removeTaskByTaskObject(willBeDeletedTask:WbItemWork){
-    console.log("WorkHistoryManager >> removeTaskByTaskObject >> willBeDeletedTask : ",willBeDeletedTask);
 
     for (let i = 0; i < this.redoStack.length; i++) {
       let currTask = this.redoStack[i];
@@ -152,28 +146,24 @@ export class WorkHistoryManager {
   async doAction(currentAction:WbItemWork) :Promise<any>{
     return new Promise<any>((resolve, reject)=>{
 
-      console.log("WorkHistoryManager >> doUndoAction >> currentAction : ",currentAction);
-
       switch (currentAction.action) {
         case ItemLifeCycleEnum.CREATE:
           this.destroyItem(currentAction.wbItemDtoArray).then(()=>{
+            this.layerService.minimapSyncService.syncMinimap();
             resolve();
           });
           break;
         case ItemLifeCycleEnum.MODIFY:
           //해당 WbItemWork의 DTO대로 update 수행
           this.updateItem(currentAction.wbItemDtoArray).then(()=>{
+            this.layerService.minimapSyncService.syncMinimap();
+            this.layerService.globalSelectedGroup.refreshGsg();
             resolve();
           });
           break;
         case ItemLifeCycleEnum.DESTROY:
-          this.buildItem(currentAction.wbItemDtoArray).then((recvWbItemDtoArray)=>{
-            console.log("WorkHistoryManager >> buildItem >> promise return >> recvWbItemDtoArray : ",recvWbItemDtoArray);
-            // currentAction.wbItemDtoArray = recvWbItemDtoArray;
-            currentAction.wbItemDtoArray.splice(0, currentAction.wbItemDtoArray.length);
-            for(let recvWbItemDto of recvWbItemDtoArray){
-              currentAction.wbItemDtoArray.push(recvWbItemDto);
-            }
+          this.buildItem(currentAction.wbItemDtoArray).then(()=>{
+            this.layerService.minimapSyncService.syncMinimap();
             resolve();
           });
           break;
@@ -196,7 +186,21 @@ export class WorkHistoryManager {
 
           for (let i = 0; i < copiedItems.length; i++) {
             let newWbItem = copiedItems[i];
+            let newWbItemDto = newWbItem.exportToDto();
+
+            let originWbItemDto = originWbItemDtoArray[i];
+
+            if(newWbItem.type === WhiteboardItemType.EDITABLE_LINK
+              && originWbItemDto.type  === WhiteboardItemType.EDITABLE_LINK){
+              let newWbLinkDto:EditableLinkDto = newWbItemDto as EditableLinkDto;
+              let originWbLinkDto:EditableLinkDto = originWbItemDto as EditableLinkDto;
+
+
+              newWbLinkDto.fromLinkPort = originWbLinkDto.fromLinkPort;
+              newWbLinkDto.toLinkPort = originWbLinkDto.toLinkPort;
+            }
             copiedItemDtoArray.push(newWbItem.exportToDto());
+
           }
 
           wsWbController.waitRequestCreateMultipleWbItem(copiedItemDtoArray)
@@ -214,33 +218,16 @@ export class WorkHistoryManager {
                 newWbItem.group.opacity = 1;
                 newWbItem.coreItem.opacity = 1;
                 createdWbItemMap.set(newWbItem.id, newWbItem);
-
-                for(let task of this.undoStack){
-                  for(let wbItemDto of task.wbItemDtoArray){
-                    if(wbItemDto.id === originKey){
-                      wbItemDto.id = newKey;
-                    }
-                  }
-                }
-                for(let task of this.redoStack){
-                  for(let wbItemDto of task.wbItemDtoArray){
-                    if(wbItemDto.id === originKey){
-                      wbItemDto.id = newKey;
-                    }
-                  }
-                }
+                this.updateIdMap(originKey, newKey);
 
               }
               for(let i = 0 ; i < originWbItemDtoArray.length; i++){
                 let currOriginWbItemDto = originWbItemDtoArray[i];
                 if(currOriginWbItemDto.type === WhiteboardItemType.EDITABLE_LINK){
                   let edtLinkItemDto:EditableLinkDto = currOriginWbItemDto as EditableLinkDto;
-                  console.log("WorkHistoryManager >> buildItem >> edtLinkItemDto : ",edtLinkItemDto);
                   let edtLinkItem:EditableLink = createdWbItemMap.get(edtLinkItemDto.id);
                   if(edtLinkItem){
-                    console.log("WorkHistoryManager >> buildItem >> edtLinkItem : ",edtLinkItem);
-                    //TODO EditableLink의 fromLinkPort와 toLinkPort를 수정하지 않아서 발생하는 문제.
-                    //아이디를 제대로 최신화 시켜주는 로직을 짜던가, 아님 이것도 수정하는 스파게티 하나 더 만들던가 할 것.
+
                     //1. dto엔 from이 있는데 item엔 없는 경우
                     if(edtLinkItemDto.fromLinkPort && !edtLinkItem.fromLinkPort){
                       let foundWbShape:WhiteboardShape = this.layerService.findItemById(edtLinkItemDto.fromLinkPort.ownerWbItemId) as WhiteboardShape;
@@ -268,7 +255,15 @@ export class WorkHistoryManager {
                   }
                 }
               }
-              resolve(recvWbItemDtoArray);
+              let resolveCounter = copiedItems.length;
+              for(let copiedItem of copiedItems){
+                wsWbController.waitRequestUpdateWbItem(copiedItem.exportToDto()).subscribe(()=>{
+                  resolveCounter--;
+                  if(resolveCounter === 0){
+                    resolve();
+                  }
+                })
+              }
             });
         });
     });
@@ -306,9 +301,75 @@ export class WorkHistoryManager {
     });
   }
 
+  public idMap:Map<any, Array<any>> = new Map<any, Array<any>>();
+
+  addIdIntoIdMap(wbItemWork:WbItemWork){
+    for(let currWbItemDto of wbItemWork.wbItemDtoArray){
+      this.addIdProcess(currWbItemDto);
+
+      if(currWbItemDto.type === WhiteboardItemType.EDITABLE_LINK){
+        let linkDto:EditableLinkDto = currWbItemDto as EditableLinkDto;
+        if(linkDto.fromLinkPort){
+          this.addIdProcess(linkDto.fromLinkPort);
+        }
+        if(linkDto.toLinkPort){
+          this.addIdProcess(linkDto.toLinkPort);
+        }
+      }
+    }
+  }
+  updateIdMap(oldId, newId){
+    if (this.idMap.has(oldId)) {
+      let valueOfIdMap = this.idMap.get(oldId);
+      for(let currValue of valueOfIdMap){
+
+        if(currValue instanceof WhiteboardItemDto){
+          if (currValue.type === WhiteboardItemType.EDITABLE_LINK) {
+            let edtLinkDto:EditableLinkDto = currValue as EditableLinkDto;
+            if(edtLinkDto.id === oldId){
+              edtLinkDto.id = newId;
+            }else if(edtLinkDto.fromLinkPort && edtLinkDto.fromLinkPort.ownerWbItemId === oldId){
+              edtLinkDto.fromLinkPort.ownerWbItemId = newId;
+            }else if (edtLinkDto.toLinkPort && edtLinkDto.toLinkPort.ownerWbItemId === oldId){
+              edtLinkDto.toLinkPort.ownerWbItemId = newId;
+            }
+          }
+          else{
+            currValue.id = newId;
+          }
+        }
+
+      }
+      this.idMap.set(newId, valueOfIdMap);
+      this.idMap.delete(oldId);
+    }
+  }
+  addIdProcess(itemDto){
+    this.pushIdIntoIdMap(itemDto.id, itemDto);
+
+    if(itemDto.type === WhiteboardItemType.EDITABLE_LINK){
+      let linkItemDto:EditableLinkDto = itemDto as EditableLinkDto;
+      if(linkItemDto.fromLinkPort){
+        this.pushIdIntoIdMap(linkItemDto.fromLinkPort.ownerWbItemId, itemDto);
+      }
+      if(linkItemDto.toLinkPort){
+        this.pushIdIntoIdMap(linkItemDto.toLinkPort.ownerWbItemId, itemDto);
+      }
+    }
+  }
+  private pushIdIntoIdMap(id, itemDto){
+    if (!this.idMap.has(id)) {
+      this.idMap.set(id, new Array<any>());
+    }
+
+    let idMapValue = this.idMap.get(id);
+    idMapValue.push(itemDto);
+  }
+
   public pushIntoStack(wbItemWork:WbItemWork){
     this.redoStack.splice(0, this.redoStack.length);
     this.undoStack.push(wbItemWork);
+    this.addIdIntoIdMap(wbItemWork);
   }
   private undo(){
     let poppedTask:WbItemWork = this.undoStack.pop();
@@ -318,6 +379,7 @@ export class WorkHistoryManager {
     }
     let duplicatedTask = poppedTask.clone();
     this.redoStack.push(this.revertTask(duplicatedTask));
+    this.addIdIntoIdMap(duplicatedTask);
     return poppedTask;
   }
 
@@ -329,6 +391,7 @@ export class WorkHistoryManager {
     }
     let duplicatedTask = poppedTask.clone();
     this.undoStack.push(this.revertTask(duplicatedTask));
+    this.addIdIntoIdMap(duplicatedTask);
     return poppedTask;
   }
 
@@ -356,7 +419,6 @@ export class WorkHistoryManager {
 
   // ##### Initialize #####
   public static initInstance(layerService:DrawingLayerManagerService){
-    console.log("WorkHistoryManager >> initInstance >> 진입함");
     if(!WorkHistoryManager.myInstance){
       WorkHistoryManager.myInstance = new WorkHistoryManager(layerService);
     }

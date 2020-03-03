@@ -9,6 +9,8 @@ import {WbItemEvent, WbItemEventEnum} from './wb-item-event/wb-item-event';
 import {WhiteboardItemDto} from '../../../../DTO/WhiteboardItemDto/whiteboard-item-dto';
 import {WhiteboardItem} from '../../../../Model/Whiteboard/Whiteboard-Item/whiteboard-item';
 import {ItemLifeCycleEnum} from '../../../../Model/Whiteboard/Whiteboard-Item/WhiteboardItemLifeCycle/WhiteboardItemLifeCycle';
+import {WhiteboardItemType} from '../../../../Model/Helper/data-type-enum/data-type.enum';
+import {SimpleRasterDto} from '../../../../DTO/WhiteboardItemDto/WhiteboardShapeDto/EditableRasterDto/SimpleRasterDto/simple-raster-dto';
 
 export class WsWhiteboardController {
   private socket:Socket;
@@ -111,11 +113,11 @@ export class WsWhiteboardController {
       });
   }
   /* **************************************************** */
-  /* Request Create Multiple WbItem END */
+  /* Request Create WbItem END */
   /* **************************************************** */
 
   /* *************************************************** */
-  /* Request Create START */
+  /* Request Create Multiple START */
   /* *************************************************** */
   waitRequestCreateMultipleWbItem( wbItemDtos:Array<WhiteboardItemDto> ){
 
@@ -125,6 +127,8 @@ export class WsWhiteboardController {
 
       let packetDto = this.websocketManager.createWbSessionScopePacket(wbItemDtos,WebsocketPacketActionEnum.CREATE_MULTIPLE);
       packetDto.wsPacketSeq = this.websocketManager.wsPacketSeq;
+
+      console.log("WsWhiteboardController >> testing >> packetDto : ",packetDto);
 
       this.socket.emit(HttpHelper.websocketApi.whiteboardItem.create_multiple.event, packetDto);
 
@@ -169,6 +173,12 @@ export class WsWhiteboardController {
   waitRequestUpdateWbItem( wbItemDto:WhiteboardItemDto){
     //this.websocketManager.uiService.spin$.next(true);
     return new Observable<any>((subscriber)=>{
+
+      if(wbItemDto.type === WhiteboardItemType.SIMPLE_RASTER){
+        let simpleRasterDto:SimpleRasterDto = wbItemDto as SimpleRasterDto;
+        simpleRasterDto.imageBlob = null;
+      }
+
       let packetDto = this.websocketManager.createWbSessionScopePacket(wbItemDto,WebsocketPacketActionEnum.UPDATE);
       packetDto.wsPacketSeq = this.websocketManager.wsPacketSeq;
 
@@ -220,6 +230,7 @@ export class WsWhiteboardController {
     //this.websocketManager.uiService.spin$.next(true);
 
     return new Observable<any>((subscriber)=>{
+
 
       let packetDto = this.websocketManager.createWbSessionScopePacket(wbItemDto,WebsocketPacketActionEnum.DELETE);
       packetDto.wsPacketSeq = this.websocketManager.wsPacketSeq;
@@ -368,6 +379,11 @@ export class WsWhiteboardController {
 
     return new Observable<any>((subscriber)=>{
 
+      if(wbItemDto.type === WhiteboardItemType.SIMPLE_RASTER){
+        let simpleRasterDto:SimpleRasterDto = wbItemDto as SimpleRasterDto;
+        simpleRasterDto.imageBlob = null;
+      }
+
       let packetDto = this.websocketManager.createWbSessionScopePacket(wbItemDto,WebsocketPacketActionEnum.OCCUPIED);
       packetDto.wsPacketSeq = this.websocketManager.wsPacketSeq;
 
@@ -416,6 +432,11 @@ export class WsWhiteboardController {
     //this.websocketManager.uiService.spin$.next(true);
 
     return new Observable<any>((subscriber)=>{
+
+      if(wbItemDto.type === WhiteboardItemType.SIMPLE_RASTER){
+        let simpleRasterDto:SimpleRasterDto = wbItemDto as SimpleRasterDto;
+        simpleRasterDto.imageBlob = null;
+      }
 
       let packetDto = this.websocketManager.createWbSessionScopePacket(wbItemDto,WebsocketPacketActionEnum.NOT_OCCUPIED);
       packetDto.wsPacketSeq = this.websocketManager.wsPacketSeq;
