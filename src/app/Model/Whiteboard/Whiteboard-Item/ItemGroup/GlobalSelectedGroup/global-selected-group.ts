@@ -49,11 +49,12 @@ export class GlobalSelectedGroup extends ItemGroup {
       switch (gsgEvent.action) {
         case GsgSelectEventEnum.SELECTED:
 
+          // this.applyZIndexToSelection();
+
           wsWbController.waitRequestOccupyWbItem(gsgEvent.wbItem.exportToDto())
             .subscribe(()=>{
 
             },(errorParam:WebsocketPacketDto)=>{
-
               this.extractOneFromGroup(gsgEvent.wbItem);
               let recvWbItemDto:WbItemPacketDto = errorParam.additionalData as WbItemPacketDto;
               let occupierInfo:ParticipantDto = wsWbController.getUserNameWithIdToken(recvWbItemDto.occupiedBy);
@@ -61,10 +62,8 @@ export class GlobalSelectedGroup extends ItemGroup {
             });
           break;
         case GsgSelectEventEnum.DESELECTED:
-
           wsWbController.waitRequestNotOccupyWbItem(gsgEvent.wbItem.exportToDto())
             .subscribe((error)=>{
-
             });
           break;
       }
@@ -79,12 +78,26 @@ export class GlobalSelectedGroup extends ItemGroup {
     let isMoved = super.moveEnd();
     if (isMoved) {
       this.pushGsgWorkIntoWorkHistroy(ItemLifeCycleEnum.MODIFY);
+      // this.applyZIndexToSelection();
     }
     return true;
   }
   resizeEnd() {
     super.resizeEnd();
     this.pushGsgWorkIntoWorkHistroy(ItemLifeCycleEnum.MODIFY);
+  }
+
+  applyZIndexToSelection(wbItemGroup?:Array<WhiteboardItem>){
+
+    if (!wbItemGroup) {
+      this.wbItemGroup.forEach((value, index, array) => {
+        this.layerService.applyZIndex(value);
+      });
+    }else{
+      wbItemGroup.forEach((value, index, array) => {
+        this.layerService.applyZIndex(value);
+      });
+    }
   }
 
 
@@ -220,6 +233,7 @@ export class GlobalSelectedGroup extends ItemGroup {
             for (let i = 0; i < data.length; i++) {
               let newWbItem = data[i];
               newWbItem.id = recvWbItemDtoArray[i].id;
+              newWbItem.zIndex = recvWbItemDtoArray[i].zIndex;
               newWbItem.group.opacity = 1;
               newWbItem.coreItem.opacity = 1;
               this.insertOneIntoSelection(newWbItem);
@@ -343,6 +357,10 @@ export class GlobalSelectedGroup extends ItemGroup {
   }
 
   public extractAllFromSelection() {
+    let prevWbItemGroup:Array<WhiteboardItem> = new Array<WhiteboardItem>();
+    for(let prevWbItem of this.wbItemGroup){
+      prevWbItemGroup.push(prevWbItem);
+    }
     this.layerService.horizonContextMenuService.close();
     for(let i = 0 ; i < this.wbItemGroup.length; i++){
       this.gsgSelectorEventEmitter.emit(new GsgSelectEvent(GsgSelectEventEnum.DESELECTED, this.wbItemGroup[i]));
@@ -351,6 +369,9 @@ export class GlobalSelectedGroup extends ItemGroup {
     this.extractAllFromGroup();
     this.isLocked = false;
     this.saveCurrentItemState();
+
+    this.applyZIndexToSelection(prevWbItemGroup);
+
   }
 
   public removeOneFromGroup(wbItem) {
@@ -379,9 +400,12 @@ export class GlobalSelectedGroup extends ItemGroup {
     this.destroyBlind();
   }
 
-  exportToDto() {
-    console.warn("GlobalSelectedGroup >> exportToDto >> GSG는 DTO로 추출할 수 없음!!!");
-    return null;
+  exportSelectionToDto() {
+    let dtoList:Array<WhiteboardItemDto> = new Array<WhiteboardItemDto>();
+    for(let wbItem of this.wbItemGroup){
+      dtoList.push(wbItem.exportToDto());
+    }
+    return dtoList;
   }
 
   get isLocked(): boolean {

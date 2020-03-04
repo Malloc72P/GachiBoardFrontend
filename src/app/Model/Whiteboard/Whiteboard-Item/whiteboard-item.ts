@@ -37,6 +37,8 @@ export abstract class WhiteboardItem {
   protected _isLocked: boolean;
   protected _myItemAdjustor: ItemAdjustor;
 
+  private _zIndex;
+
   private _isGrouped = false;
   private _isModified: boolean = false;
   private _parentEdtGroup:EditableItemGroup = null;
@@ -220,6 +222,7 @@ export abstract class WhiteboardItem {
     blindRect.bounds = this.group.bounds;
     blindText.bounds.topRight = this.group.bounds.bottomRight;
     blindTextBg.bounds.topLeft = blindText.bounds.topLeft;
+    this.blindGroup.bringToFront();
   }
   onNotOccupied(){
     if(this.isOccupied){
@@ -280,6 +283,7 @@ export abstract class WhiteboardItem {
     this.group.position = GachiPointDto.getPaperPoint(dto.center);
     this.isGrouped = dto.isGrouped;
     this.parentEdtGroup = dto.parentEdtGroupId;
+    this.zIndex = dto.zIndex;
     if(this.blindGroup){
       this.updateBlindGroup();
     }
@@ -348,7 +352,8 @@ export abstract class WhiteboardItem {
       this.type,
       gachiCenterPoint,
       this.isGrouped,
-      parentEdtGroupId
+      parentEdtGroupId,
+      this.zIndex
     );
     return wbItemDto;
   }
@@ -587,5 +592,13 @@ export abstract class WhiteboardItem {
 
   set isModified(value: boolean) {
     this._isModified = value;
+  }
+
+  get zIndex() {
+    return this._zIndex;
+  }
+
+  set zIndex(value) {
+    this._zIndex = value;
   }
 }

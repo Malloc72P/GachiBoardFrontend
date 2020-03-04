@@ -17,13 +17,20 @@ import {DebugingService} from "../../Model/Helper/DebugingHelper/debuging.servic
 import {WorkHistoryManager} from '../../Model/Whiteboard/InfiniteCanvas/DrawingLayerManager/WorkHistoryManager/work-history-manager';
 import {WbItemWork} from '../../Model/Whiteboard/InfiniteCanvas/DrawingLayerManager/WorkHistoryManager/WbItemWork/wb-item-work';
 import {ItemLifeCycleEnum} from '../../Model/Whiteboard/Whiteboard-Item/WhiteboardItemLifeCycle/WhiteboardItemLifeCycle';
+import {DrawingLayerManagerService} from '../../Model/Whiteboard/InfiniteCanvas/DrawingLayerManager/drawing-layer-manager.service';
+import {WhiteboardItem} from '../../Model/Whiteboard/Whiteboard-Item/whiteboard-item';
+import {WhiteboardItemType} from '../../Model/Helper/data-type-enum/data-type.enum';
 @Component({
   selector: 'app-debuging-pannel',
   templateUrl: './debuging-pannel.component.html',
-  styleUrls: ['./debuging-pannel.component.css']
+  styleUrls: ['./debuging-pannel.component.css', '../NormalPages/gachi-font.css']
 })
 export class DebugingPannelComponent implements OnInit {
   @Input() paperProject;
+
+  private readonly SMALL_DEBUGGER_WIDTH = 250;
+  private readonly LARGE_DEBUGGER_WIDTH = 600;
+  debuggerWidth = this.LARGE_DEBUGGER_WIDTH;
 
   private testMap:Map<any, Array<any>> = new Map<any, Array<any>>();
 
@@ -33,6 +40,7 @@ export class DebugingPannelComponent implements OnInit {
     public posCalcService          : PositionCalcService,
     public zoomControlService      : ZoomControlService,
     public debugingService         : DebugingService,
+    public layerService         : DrawingLayerManagerService,
   ) { }
 
   public undoStack:Array<WbItemWork> = new Array<WbItemWork>();
@@ -62,6 +70,35 @@ export class DebugingPannelComponent implements OnInit {
     console.log("\n\n===============\n");
     console.log("DebugingPannelComponent >> showMap >> idMap : ",this.workHistoryManager.idMap);
     console.log("\n===============\n\n");
+  }
+
+  private testArr:Array<any> = new Array<any>();
+  doSortingTest(){
+    this.testArr.splice(0, this.testArr.length);
+
+    this.testArr.push(Math.random()*100);
+    this.testArr.push(Math.random()*100);
+    this.testArr.push(Math.random()*100);
+    this.testArr.push(Math.random()*100);
+    this.testArr.push(Math.random()*100);
+
+    this.testArr.sort((prev, next)=>{
+      if(prev < next){
+        return -1;
+      }else return 1;
+    })
+
+
+  }
+
+  changeDebuggerSize(){
+    if(this.debuggerWidth === this.SMALL_DEBUGGER_WIDTH){
+      this.debuggerWidth = this.LARGE_DEBUGGER_WIDTH;
+    }else this.debuggerWidth = this.SMALL_DEBUGGER_WIDTH;
+  }
+
+  getWbItemTypeName(typeNumber:WhiteboardItemType){
+    return WhiteboardItemType[typeNumber];
   }
 
 

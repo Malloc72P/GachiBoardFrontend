@@ -1,6 +1,8 @@
 <div class="testPanel">
 
-  <mat-card class="debugTableWrapper" cdkDrag>
+  <mat-card class="debugTableWrapper"
+            [ngStyle]="{'width' : debuggerWidth + 'px'}"
+            cdkDrag>
     <div class="example-handle" cdkDragHandle>
       <svg width="24px" fill="currentColor" viewBox="0 0 24 24">
         <path d="M10 9h4V6h3l-5-5-5 5h3v3zm-1 1H6V7l-5 5 5 5v-3h3v-4zm14 2l-5-5v3h-3v4h3v3l5-5zm-9 3h-4v3H7l5 5 5-5h-3v-3z"></path>
@@ -26,6 +28,13 @@
           <hr>
           <button mat-raised-button
                   (click)="showMap()">show Id Map</button>
+          <hr>
+          <button mat-raised-button
+                  (click)="doSortingTest()">Do Sorting Test</button>
+          <hr>
+          <button mat-raised-button
+                  (click)="changeDebuggerSize()">Change Debugger Size</button>
+          <hr>
 <!--          <table class="debugTable" style="background-color: blue; color: white;">
             <tr><td>NG Mouse Position</td></tr>
             <tr>
@@ -49,6 +58,14 @@
             </tr>
           </table>-->
 
+          <table class="debugTable" style="background-color: black; color: white;">
+            <tr><td>Sort Test</td></tr>
+            <tr *ngFor="let testItem of testArr; index as i">
+              <td>{{testItem}}</td>
+            </tr>
+          </table>
+          <br>
+
           <table *ngIf="workHistoryManager"
             class="debugTable" style="background-color: darkred; color: white;">
             <tr>
@@ -57,6 +74,7 @@
             </tr>
 
           </table>
+          <br>
 
           <table class="debugTable" style="background-color: darkred; color: white;">
             <tr><td>Undo Stack</td></tr>
@@ -64,6 +82,7 @@
               <td *ngIf="currData.wbItemDtoArray[0]">[{{currData.id}}] : {{getNameOfHistoryEnum(currData.action)}} [{{currData.wbItemDtoArray[0].id}}]</td>
             </tr>
           </table>
+          <br>
 
           <table class="debugTable" style="background-color: black; color: white;">
             <tr><td>Redo Stack</td></tr>
@@ -71,6 +90,7 @@
               <td *ngIf="currData.wbItemDtoArray[0]">[{{currData.id}}] : {{getNameOfHistoryEnum(currData.action)}} [{{currData.wbItemDtoArray[0].id}}]</td>
             </tr>
           </table>
+          <br>
 
         </div>
 
@@ -127,6 +147,28 @@
             </tr>
           </table>
         </div>-->
+        <div>
+          <h3>Whiteboard Item Array</h3>
+          <table class="debugTable" style="background-color: orange;">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>TYPE</th>
+                <th>PAPER-IDX</th>
+                <th>GACHI-IDX</th>
+              </tr>
+            </thead>
+            <tbody style="text-align: center">
+              <tr *ngFor="let wbItem of layerService.whiteboardItemArray"
+                  style="background-color: black; margin-bottom: 6px; color: white; padding: 5px;">
+                <td>[ {{wbItem.id}} ]</td>
+                <td>{{getWbItemTypeName(wbItem.type)}}</td>
+                <td>{{wbItem.group.index}}</td>
+                <td>{{wbItem.zIndex}}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
 
       </mat-expansion-panel>
     </mat-accordion >

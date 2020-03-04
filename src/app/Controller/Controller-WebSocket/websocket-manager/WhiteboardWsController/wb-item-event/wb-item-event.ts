@@ -16,6 +16,7 @@ export enum WbItemEventEnum {
   CREATE_MULTIPLE,
   DELETE,
   UPDATE,
+  UPDATE_ZIndex,
   READ,
   LOCK,
   UNLOCK,

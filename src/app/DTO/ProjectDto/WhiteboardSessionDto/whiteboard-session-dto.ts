@@ -10,6 +10,9 @@ export class WhiteboardSessionDto {
   public wbItemArray:Array<WbItemPacketDto>;
   public connectedUsers:Array<string>;
 
+  public zIndexMinimum;
+  public zIndexMaximum;
+
   constructor(id?, wbTitle?, createdBy?, recentlyModifiedBy?, startDate?: Date) {
     this._id = id;
     this.title = wbTitle;
@@ -17,5 +20,8 @@ export class WhiteboardSessionDto {
     this.recentlyModifiedBy = recentlyModifiedBy;
     this.startDate = startDate;
     this.wbItemArray = new Array<WbItemPacketDto>();
+
+    this.zIndexMinimum = 0;
+    this.zIndexMaximum = 0;
   }
 }

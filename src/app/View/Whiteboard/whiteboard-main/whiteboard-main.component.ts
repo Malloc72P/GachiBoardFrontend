@@ -149,6 +149,10 @@ export class WhiteboardMainComponent implements OnInit,OnDestroy {
                     .subscribe((factoryRes:WbItemFactoryResult)=>{
                       factoryRes.newWbItem.group.opacity = 1;
                       factoryRes.newWbItem.coreItem.opacity = 1;
+                      factoryRes.newWbItem.zIndex =  recvWbItemPacket.wbItemDto.zIndex;
+
+                      this.layerService.applyZIndex(factoryRes.newWbItem);
+
                       this.minimapSyncService.syncMinimap();
                     });
                 }

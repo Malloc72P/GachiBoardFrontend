@@ -53,6 +53,7 @@ import Point = paper.Point;
 // @ts-ignore
 import Project = paper.Project;
 import {EditableShapeDto} from '../../../../DTO/WhiteboardItemDto/WhiteboardShapeDto/EditableShapeDto/editable-shape-dto';
+import {WbItemPacketDto} from '../../../../DTO/WhiteboardItemDto/WbItemPacketDto/WbItemPacketDto';
 
 
 @Injectable({
@@ -158,6 +159,7 @@ export class DrawingLayerManagerService {
             .subscribe((res:WbItemFactoryResult)=>{
               res.newWbItem.group.opacity = 1;
               res.newWbItem.coreItem.opacity = 1;
+              res.newWbItem.zIndex = recvWbItemEvent.data.zIndex;
             });
           break;
         case WbItemEventEnum.CREATE_MULTIPLE:
@@ -198,6 +200,11 @@ export class DrawingLayerManagerService {
             updateItem.update(recvWbItemEvent.data);
             workHistoryManager.removeTask(recvWbItemEvent.data.id);
           }
+          break;
+        case WbItemEventEnum.UPDATE_ZIndex:
+          console.log("DrawingLayerManagerService >> UPDATE_ZIndex >> recvWbItemEvent : ",recvWbItemEvent);
+          this.updateZIndex(recvWbItemEvent.additionalData);
+
           break;
         case WbItemEventEnum.READ:
           break;
@@ -363,6 +370,7 @@ export class DrawingLayerManagerService {
       wsWbController.waitRequestCreateWbItem(newWhiteboardItem.exportToDto())
         .subscribe((packetDto) => {
           newWhiteboardItem.id = packetDto.dataDto.id;
+          newWhiteboardItem.zIndex = packetDto.dataDto.zIndex;
           let workHistoryManager = WorkHistoryManager.getInstance();
           workHistoryManager.pushIntoStack(new WbItemWork(ItemLifeCycleEnum.CREATE, newWhiteboardItem.exportToDto()));
         });
@@ -660,6 +668,70 @@ export class DrawingLayerManagerService {
     }
     this.globalSelectedGroup.extractAllFromSelection();
   }
+
+  public applyZIndex(touchedWbItem:WhiteboardItem){
+    let intersectedWbItemList:Array<WhiteboardItem>;
+
+    intersectedWbItemList = this.getIntersectedList(touchedWbItem);
+    intersectedWbItemList.sort((prevWbItem, currWbItem)=>{
+      if(prevWbItem.zIndex < currWbItem.zIndex){
+        return -1;
+      }else return 1;
+    });
+
+    for(let currItem of intersectedWbItemList){
+      currItem.group.bringToFront();
+    }
+
+  }
+
+  getIntersectedList(entryItem:WhiteboardItem){
+    let intersectedWbItemMap:Map<any, WhiteboardItem> = new Map<any, WhiteboardItem>();
+    let returnValue:Array<WhiteboardItem> = new Array<WhiteboardItem>();
+
+    this.visitIntersectedWbItem(entryItem, intersectedWbItemMap, returnValue);
+
+    console.log("DrawingLayerManagerService >> getIntersectedList >> returnValue : ",returnValue);
+    return returnValue;
+  }
+  visitIntersectedWbItem(visitedWbItem:WhiteboardItem, intersectedWbItemMap:Map<any, WhiteboardItem>, returnValue:Array<WhiteboardItem>){
+    //현재 아이템 방문
+    returnValue.push(visitedWbItem);
+    let newIntersectedItemList:Array<WhiteboardItem> = new Array<WhiteboardItem>();
+    for (let i = 0; i < this.whiteboardItemArray.length; i++) {
+      let currWbItem = this.whiteboardItemArray[i];
+      if(visitedWbItem.group.intersects(currWbItem.group)){
+        //붙어있음. 맵에 넣는 작업 수행
+        if (!intersectedWbItemMap.has(currWbItem.id)) {
+          intersectedWbItemMap.set(currWbItem.id, currWbItem);
+          newIntersectedItemList.push(currWbItem);
+        }
+      }
+    }
+
+    //새로 찾은 Intersected 아이템 순회하면서 재귀호출
+    for(let newIntersectedItem of newIntersectedItemList){
+      this.visitIntersectedWbItem(newIntersectedItem, intersectedWbItemMap, returnValue);
+    }
+    return returnValue;
+  }
+
+  updateZIndex(recvWbPacketList:Array<WbItemPacketDto>){
+    if(!recvWbPacketList){
+      return;
+    }
+    for(let recvWbPacket of recvWbPacketList){
+      let foundItem:WhiteboardItem = this.findItemById(recvWbPacket._id);
+      if(foundItem){
+        foundItem.zIndex = recvWbPacket.wbItemDto.zIndex;
+        this.applyZIndex(foundItem);
+        if(foundItem.isOccupied){
+          foundItem.updateBlindGroup();
+        }
+      }
+    }
+  }
+
 
   //########## Getter & Setter ##########
 

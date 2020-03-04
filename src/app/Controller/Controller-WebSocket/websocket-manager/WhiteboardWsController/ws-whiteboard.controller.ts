@@ -1,5 +1,5 @@
 import {Socket} from 'ngx-socket-io';
-import {HttpHelper} from '../../../../Model/Helper/http-helper/http-helper';
+import {HttpHelper, Z_INDEX_ACTION} from '../../../../Model/Helper/http-helper/http-helper';
 import {WebsocketManagerService} from '../websocket-manager.service';
 import {WebsocketPacketActionEnum} from '../../../../DTO/WebsocketPacketDto/WebsocketPacketActionEnum';
 import {WebsocketPacketDto} from '../../../../DTO/WebsocketPacketDto/WebsocketPacketDto';
@@ -29,6 +29,7 @@ export class WsWhiteboardController {
     this.onMultipleWbItemCreated();
     this.onWbItemOccupied();
     this.onWbItemNotOccupied();
+    this.onWbItemUpdateZIndexd();
   }
 
 
@@ -220,6 +221,59 @@ export class WsWhiteboardController {
   }
   /* **************************************************** */
   /* Request Update END */
+  /* **************************************************** */
+
+  /* *************************************************** */
+  /* Request UpdateZIndex START */
+  /* *************************************************** */
+  waitRequestUpdateZIndexWbItem( wbItemDtos:Array<WhiteboardItemDto>, zIndexAction:Z_INDEX_ACTION){
+    //this.websocketManager.uiService.spin$.next(true);
+    return new Observable<any>((subscriber)=>{
+
+      for(let wbItemDto of wbItemDtos) {
+        if (wbItemDto.type === WhiteboardItemType.SIMPLE_RASTER) {
+          let simpleRasterDto: SimpleRasterDto = wbItemDto as SimpleRasterDto;
+          simpleRasterDto.imageBlob = null;
+        }
+      }
+
+      let packetDto = this.websocketManager.createWbSessionScopePacket(wbItemDtos,WebsocketPacketActionEnum.UPDATE);
+      packetDto.wsPacketSeq = this.websocketManager.wsPacketSeq;
+      packetDto.additionalData = zIndexAction;
+
+      this.socket.emit(HttpHelper.websocketApi.whiteboardItem.updateZIndex.event, packetDto);
+
+      //#### 요청 완료
+
+      this.socket.once(HttpHelper.websocketApi.whiteboardItem.updateZIndex.event,
+        (wsPacketDto:WebsocketPacketDto)=>{
+          //this.websocketManager.uiService.spin$.next(false);
+          switch (wsPacketDto.action) {
+            case WebsocketPacketActionEnum.ACK:
+              console.log("WsWhiteboardController >> waitRequestUpdateZIndexWbItem >> wsPacketDto : ",wsPacketDto);
+              subscriber.next(wsPacketDto);
+              break;
+            case WebsocketPacketActionEnum.NAK:
+              subscriber.error(wsPacketDto);
+              break;
+          }
+        })
+    });
+  }
+
+  private onWbItemUpdateZIndexd(){
+    this.socket.on(HttpHelper.websocketApi.whiteboardItem.updateZIndex.event,
+      (wsPacketDto:WebsocketPacketDto)=>{
+        if (wsPacketDto.action === WebsocketPacketActionEnum.UPDATE) {
+          console.log("WsWhiteboardController >> onWbItemUpdated >> wsPacketDto : ",wsPacketDto);
+
+          this.websocketManager.wbItemEventManagerService.wsWbItemEventEmitter.emit(
+            new WbItemEvent(WbItemEventEnum.UPDATE_ZIndex,null, wsPacketDto.additionalData));
+        }
+      });
+  }
+  /* **************************************************** */
+  /* Request UpdateZIndex END */
   /* **************************************************** */
 
   /* *************************************************** */

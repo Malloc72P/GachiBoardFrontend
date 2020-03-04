@@ -215,6 +215,7 @@ export class WorkHistoryManager {
 
                 let newWbItem = copiedItems[i];
                 newWbItem.id = newKey;
+                newWbItem.zIndex = recvWbItemDtoArray[i].zIndex;
                 newWbItem.group.opacity = 1;
                 newWbItem.coreItem.opacity = 1;
                 createdWbItemMap.set(newWbItem.id, newWbItem);
