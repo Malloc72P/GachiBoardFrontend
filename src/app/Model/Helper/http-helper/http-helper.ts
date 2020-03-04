@@ -49,10 +49,10 @@ export enum SpecialAction {
 
 export class HttpHelper {
   //TODO 이런거 json으로 뽑을 수 있으면 뽑아야 함.
-  private static readonly ngDomainName        =   ServerSetting.deploy_ngDomainngDomain;
-  private static readonly ngPort              =   ServerSetting.deploy_ngPortngPort;
-  private static readonly apiServerDomainName =   ServerSetting.deploy_apiDomain;
-  private static readonly apiServerPort       =   ServerSetting.deploy_apiPort;
+  private static readonly ngDomainName        =   "http://skynet765.iptime.org";
+  private static readonly ngPort              =   ":44172";
+  private static readonly apiServerDomainName =   "http://skynet765.iptime.org";
+  private static readonly apiServerPort       =   ":44174";
   // private static readonly apiServerPort       =   ":5858";
   private static readonly contentType         =   ServerSetting.contentType;
   private static readonly tokenType           =   ServerSetting.tokenType;
