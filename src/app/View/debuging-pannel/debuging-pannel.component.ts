@@ -72,7 +72,7 @@ export class DebugingPannelComponent implements OnInit {
     console.log("\n===============\n\n");
   }
 
-  private testArr:Array<any> = new Array<any>();
+  public testArr:Array<any> = new Array<any>();
   doSortingTest(){
     this.testArr.splice(0, this.testArr.length);
 
