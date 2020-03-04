@@ -4,8 +4,6 @@ import {ItemGroup} from '../item-group';
 import {WhiteboardItemType} from '../../../../Helper/data-type-enum/data-type.enum';
 import {SelectModeEnum} from '../../../InfiniteCanvas/DrawingLayerManager/SelectModeEnum/select-mode-enum.enum';
 import {WhiteboardItem} from '../../whiteboard-item';
-import {SelectEvent} from '../../../InfiniteCanvas/DrawingLayerManager/SelectEvent/select-event';
-import {SelectEventEnum} from '../../../InfiniteCanvas/DrawingLayerManager/SelectEventEnum/select-event.enum';
 import {WhiteboardShape} from '../../Whiteboard-Shape/whiteboard-shape';
 import {WhiteboardItemDto} from '../../../../../DTO/WhiteboardItemDto/whiteboard-item-dto';
 import {WhiteboardItemFactory} from '../../../InfiniteCanvas/WhiteboardItemFactory/whiteboard-item-factory';
@@ -15,11 +13,16 @@ import {WsWhiteboardController} from '../../../../../Controller/Controller-WebSo
 import {WebsocketPacketDto} from '../../../../../DTO/WebsocketPacketDto/WebsocketPacketDto';
 import {EventEmitter} from '@angular/core';
 import {GsgSelectEvent, GsgSelectEventEnum} from './GsgSelectEvent/GsgSelectEvent';
-import {ItemLifeCycleEnum, ItemLifeCycleEvent} from "../../WhiteboardItemLifeCycle/WhiteboardItemLifeCycle";
+import {ItemLifeCycleEnum, ItemLifeCycleEvent} from '../../WhiteboardItemLifeCycle/WhiteboardItemLifeCycle';
+import {WbItemPacketDto} from '../../../../../DTO/WhiteboardItemDto/WbItemPacketDto/WbItemPacketDto';
+import {ParticipantDto} from '../../../../../DTO/ProjectDto/ParticipantDto/participant-dto';
+import {WorkHistoryManager} from '../../../InfiniteCanvas/DrawingLayerManager/WorkHistoryManager/work-history-manager';
+import {WbItemWork} from '../../../InfiniteCanvas/DrawingLayerManager/WorkHistoryManager/WbItemWork/wb-item-work';
 // @ts-ignore
 import Item = paper.Item;
 // @ts-ignore
 import Path = paper.Path;
+import {WhiteboardShapeDto} from '../../../../../DTO/WhiteboardItemDto/WhiteboardShapeDto/whiteboard-shape-dto';
 
 export class GlobalSelectedGroup extends ItemGroup {
   private static globalSelectedGroup: GlobalSelectedGroup;
@@ -45,17 +48,22 @@ export class GlobalSelectedGroup extends ItemGroup {
 
       switch (gsgEvent.action) {
         case GsgSelectEventEnum.SELECTED:
-          console.log(`GlobalSelectedGroup >> SELECTED >> [ ${gsgEvent.wbItem.id} ] >> 진입함`);
+
+          // this.applyZIndexToSelection();
+
           wsWbController.waitRequestOccupyWbItem(gsgEvent.wbItem.exportToDto())
             .subscribe(()=>{
 
+            },(errorParam:WebsocketPacketDto)=>{
+              this.extractOneFromGroup(gsgEvent.wbItem);
+              let recvWbItemDto:WbItemPacketDto = errorParam.additionalData as WbItemPacketDto;
+              let occupierInfo:ParticipantDto = wsWbController.getUserNameWithIdToken(recvWbItemDto.occupiedBy);
+              gsgEvent.wbItem.onOccupied(occupierInfo.userName);
             });
           break;
         case GsgSelectEventEnum.DESELECTED:
-          console.log(`GlobalSelectedGroup >> DESELECTED >> [ ${gsgEvent.wbItem.id} ] >> 진입함`);
           wsWbController.waitRequestNotOccupyWbItem(gsgEvent.wbItem.exportToDto())
-            .subscribe(()=>{
-
+            .subscribe((error)=>{
             });
           break;
       }
@@ -63,6 +71,92 @@ export class GlobalSelectedGroup extends ItemGroup {
     this.setLifeCycleEvent();
     this.localEmitCreate();
     this.globalEmitCreate();
+
+  }
+
+  moveEnd() {
+    let isMoved = super.moveEnd();
+    if (isMoved) {
+      this.pushGsgWorkIntoWorkHistroy(ItemLifeCycleEnum.MODIFY);
+      // this.applyZIndexToSelection();
+    }
+    return true;
+  }
+  resizeEnd() {
+    super.resizeEnd();
+    this.pushGsgWorkIntoWorkHistroy(ItemLifeCycleEnum.MODIFY);
+  }
+
+  applyZIndexToSelection(wbItemGroup?:Array<WhiteboardItem>){
+
+    if (!wbItemGroup) {
+      this.wbItemGroup.forEach((value, index, array) => {
+        this.layerService.applyZIndex(value);
+      });
+    }else{
+      wbItemGroup.forEach((value, index, array) => {
+        this.layerService.applyZIndex(value);
+      });
+    }
+  }
+
+
+  public prevItemState:Array<WhiteboardItemDto> = new Array<WhiteboardItemDto>();
+  saveCurrentItemState(){
+
+    this.prevItemState = new Array<WhiteboardItemDto>();
+
+    for(let wbItem of this.wbItemGroup){
+      this.prevItemState.push(wbItem.exportToDto());
+    }
+
+  }
+
+  pushGsgWorkIntoWorkHistroy(action:ItemLifeCycleEnum){
+
+    if(this.prevItemState.length <= 0){
+      return;
+    }
+    let workHistoryManager = WorkHistoryManager.getInstance();
+    let wbItemWork;
+    switch (action) {
+      case ItemLifeCycleEnum.MODIFY:
+        wbItemWork = new WbItemWork(ItemLifeCycleEnum.MODIFY, this.prevItemState[0]);
+        break;
+      case ItemLifeCycleEnum.DESTROY:
+        wbItemWork = new WbItemWork(ItemLifeCycleEnum.DESTROY, this.prevItemState[0]);
+
+        for(let wbItem of this.wbItemGroup){
+          if(wbItem instanceof WhiteboardShape){
+            let edtLinkList:Array<EditableLink> = wbItem.extractAllLinkAsDto();
+            for(let edtLink of edtLinkList){
+                this.prevItemState.push(edtLink.exportToDto());
+            }
+          }
+        }
+
+        break;
+    }
+
+    wbItemWork.wbItemDtoArray = this.prevItemState;
+    workHistoryManager.pushIntoStack(wbItemWork);
+    this.saveCurrentItemState();
+  }
+
+  refreshGsg(){
+    if(this.layerService.globalSelectedGroup.getNumberOfChild() > 0){
+      let prevItemList:Array<WhiteboardItem> = new Array<WhiteboardItem>();
+
+      for(let wbItem of this.wbItemGroup) {
+        prevItemList.push(wbItem);
+      }
+
+      this.layerService.globalSelectedGroup.extractAllFromSelection();
+
+      for(let wbItem of prevItemList) {
+        this.layerService.globalSelectedGroup.insertOneIntoSelection(wbItem);
+      }
+    }
   }
 
   public static getInstance(id, layerService) {
@@ -101,7 +195,7 @@ export class GlobalSelectedGroup extends ItemGroup {
   }
 
   public waitForCloneOperation() :Observable<any>{
-    console.log("GlobalSelectedGroup >> pasteSelectedWbItems >> 진입함");
+
     return new Observable<any>((observer)=>{
       WhiteboardItemFactory.cloneWbItems(this.copiedDtoArray).subscribe((copiedItems:Array<WhiteboardItem>)=>{
         this.extractAllFromSelection();
@@ -120,13 +214,11 @@ export class GlobalSelectedGroup extends ItemGroup {
   public doPaste(newPosition){
     if(this.copiedDtoArray.length > 0){
       this.waitForCloneOperation().subscribe((data:Array<WhiteboardItem>)=>{
-        console.log("GlobalSelectedGroup >> subscribe finally pasted >> 진입함");
-        console.log("GlobalSelectedGroup >>  >> newPosition : ",newPosition);
+
+
         for (let i = 0; i < data.length; i++) {
           this.insertOneIntoSelection(data[i]);
         }
-        this.wbItemGroup.forEach(value => {
-        });
 
         let wsWbController = WsWhiteboardController.getInstance();
         let wbItemDtoArray:Array<WhiteboardItemDto> = new Array<WhiteboardItemDto>();
@@ -134,7 +226,6 @@ export class GlobalSelectedGroup extends ItemGroup {
         for (let i = 0; i < data.length; i++) {
           let newWbItem = data[i];
           wbItemDtoArray.push(newWbItem.exportToDto());
-
         }
         wsWbController.waitRequestCreateMultipleWbItem(wbItemDtoArray)
           .subscribe((wsPacketDto:WebsocketPacketDto)=>{
@@ -142,6 +233,7 @@ export class GlobalSelectedGroup extends ItemGroup {
             for (let i = 0; i < data.length; i++) {
               let newWbItem = data[i];
               newWbItem.id = recvWbItemDtoArray[i].id;
+              newWbItem.zIndex = recvWbItemDtoArray[i].zIndex;
               newWbItem.group.opacity = 1;
               newWbItem.coreItem.opacity = 1;
               this.insertOneIntoSelection(newWbItem);
@@ -152,6 +244,10 @@ export class GlobalSelectedGroup extends ItemGroup {
               wsWbController.waitRequestUpdateWbItem(newWbItem.exportToDto())
                 .subscribe(()=>{});
             }
+            let workHistoryManager = WorkHistoryManager.getInstance();
+            let copyWorkHistory = new WbItemWork(ItemLifeCycleEnum.COPIED, recvWbItemDtoArray[0]);
+            copyWorkHistory.wbItemDtoArray = recvWbItemDtoArray;
+            workHistoryManager.pushIntoStack(copyWorkHistory);
           })
       });
     }
@@ -212,6 +308,7 @@ export class GlobalSelectedGroup extends ItemGroup {
     this.resetMyItemAdjustor();
     this.layerService.horizonContextMenuService.open();
     //this.emitSelected();
+    this.saveCurrentItemState();
     this.gsgSelectorEventEmitter.emit(new GsgSelectEvent(GsgSelectEventEnum.SELECTED, wbItem));
   }
 
@@ -260,6 +357,10 @@ export class GlobalSelectedGroup extends ItemGroup {
   }
 
   public extractAllFromSelection() {
+    let prevWbItemGroup:Array<WhiteboardItem> = new Array<WhiteboardItem>();
+    for(let prevWbItem of this.wbItemGroup){
+      prevWbItemGroup.push(prevWbItem);
+    }
     this.layerService.horizonContextMenuService.close();
     for(let i = 0 ; i < this.wbItemGroup.length; i++){
       this.gsgSelectorEventEmitter.emit(new GsgSelectEvent(GsgSelectEventEnum.DESELECTED, this.wbItemGroup[i]));
@@ -267,6 +368,10 @@ export class GlobalSelectedGroup extends ItemGroup {
     this.isLinkSelected = false;
     this.extractAllFromGroup();
     this.isLocked = false;
+    this.saveCurrentItemState();
+
+    this.applyZIndexToSelection(prevWbItemGroup);
+
   }
 
   public removeOneFromGroup(wbItem) {
@@ -276,20 +381,31 @@ export class GlobalSelectedGroup extends ItemGroup {
     } else {
       this.layerService.horizonContextMenuService.close();
     }
+    this.saveCurrentItemState();
     this.gsgSelectorEventEmitter.emit(new GsgSelectEvent(GsgSelectEventEnum.DESELECTED, wbItem));
   }
 
+  extractOneFromGroup(wbItem: WhiteboardItem) {
+    super.extractOneFromGroup(wbItem);
+    this.saveCurrentItemState();
+  }
+
   destroyItem() {
+    this.pushGsgWorkIntoWorkHistroy(ItemLifeCycleEnum.DESTROY);
     this.destroyAllFromGroup();
+
   }
   destroyItemAndNoEmit() {
     // this.destroyAllFromGroup();
     this.destroyBlind();
   }
 
-  exportToDto() {
-    console.warn("GlobalSelectedGroup >> exportToDto >> GSG는 DTO로 추출할 수 없음!!!");
-    return null;
+  exportSelectionToDto() {
+    let dtoList:Array<WhiteboardItemDto> = new Array<WhiteboardItemDto>();
+    for(let wbItem of this.wbItemGroup){
+      dtoList.push(wbItem.exportToDto());
+    }
+    return dtoList;
   }
 
   get isLocked(): boolean {

@@ -11,6 +11,7 @@ import {GachiColorDto} from '../../../../DTO/WhiteboardItemDto/ColorDto/gachi-co
 import {LinkPortDto} from '../../../../DTO/WhiteboardItemDto/WhiteboardShapeDto/LinkPortDto/link-port-dto';
 import {WhiteboardItemDto} from "../../../../DTO/WhiteboardItemDto/whiteboard-item-dto";
 import {ItemLifeCycleEnum, ItemLifeCycleEvent} from "../WhiteboardItemLifeCycle/WhiteboardItemLifeCycle";
+import {EditableLink} from './LinkPort/EditableLink/editable-link';
 
 export class WhiteboardShape extends WhiteboardItem implements Editable{
   private _linkPortMap:Map<any,LinkPort>;
@@ -104,6 +105,21 @@ export class WhiteboardShape extends WhiteboardItem implements Editable{
     });
 
     return closestDirection;
+  }
+
+  public extractAllLinkAsDto() :Array<EditableLink>{
+    let edtLinkList:Array<EditableLink> = new Array<EditableLink>();
+
+    for(let [direction, linkPort] of this.linkPortMap){
+      for(let linkItem of linkPort.fromLinkList){
+        edtLinkList.push(linkItem);
+      }
+      for(let linkItem of linkPort.toLinkList){
+        edtLinkList.push(linkItem);
+      }
+    }
+
+    return edtLinkList;
   }
 
   destroyItem() {

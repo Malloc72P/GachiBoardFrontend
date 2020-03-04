@@ -133,6 +133,7 @@ export class NormalPointerService {
     // GSG의 영역으로 시작 (아이템 드래그)
     if(this.isHitGSG(event.point)) {
       this.action = NORMAL_POINTER_ACTIONS.DRAGGING_ITEM;
+      // this.layerService.globalSelectedGroup.saveCurrentItemState();
       return true;
     }
     // GSG 영역 밖에서 시작 (선택 해제)

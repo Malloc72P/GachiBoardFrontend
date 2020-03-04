@@ -2,26 +2,26 @@ import {ItemLifeCycleEnum} from '../../../../Whiteboard-Item/WhiteboardItemLifeC
 import {WhiteboardItemDto} from '../../../../../../DTO/WhiteboardItemDto/whiteboard-item-dto';
 
 export class WbItemWork {
-  private _action:ItemLifeCycleEnum;
-  private _wbItemDto:WhiteboardItemDto;
+  public id;
+  private static idGen = 0;
+  public action:ItemLifeCycleEnum;
+  public wbItemDtoArray:Array<WhiteboardItemDto>;
 
-  constructor(action: ItemLifeCycleEnum, wbItemDto: WhiteboardItemDto) {
-    this._action = action;
-    this._wbItemDto = wbItemDto;
-  }
-  get action(): ItemLifeCycleEnum {
-    return this._action;
-  }
+  constructor(action: ItemLifeCycleEnum, wbItem?:WhiteboardItemDto) {
+    this.id = WbItemWork.idGen;
+    WbItemWork.idGen++;
+    this.action = action;
+    this.wbItemDtoArray = new Array<WhiteboardItemDto>();
 
-  set action(value: ItemLifeCycleEnum) {
-    this._action = value;
-  }
-
-  get wbItemDto(): WhiteboardItemDto {
-    return this._wbItemDto;
+    if(wbItem){
+      this.wbItemDtoArray.push(wbItem);
+    }
   }
 
-  set wbItemDto(value: WhiteboardItemDto) {
-    this._wbItemDto = value;
+  clone() :WbItemWork{
+    let cloneItem:WbItemWork = new WbItemWork(this.action);
+    cloneItem.wbItemDtoArray = this.wbItemDtoArray;
+    return cloneItem;
   }
+
 }

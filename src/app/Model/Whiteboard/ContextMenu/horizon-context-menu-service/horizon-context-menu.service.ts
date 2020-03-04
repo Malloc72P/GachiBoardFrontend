@@ -82,6 +82,8 @@ export class HorizonContextMenuService {
   private checkModifiedItem() {
     if(!!this.item) {
       if(this.item.isModified) {
+        console.log("HorizonContextMenuService >> checkModifiedItem >> this.item.isModified >> 진입함");
+        this.globalSelectedGroup.pushGsgWorkIntoWorkHistroy(ItemLifeCycleEnum.MODIFY);
         this.item.localEmitModify();
         this.item.globalEmitModify();
         this.item.isModified = false;

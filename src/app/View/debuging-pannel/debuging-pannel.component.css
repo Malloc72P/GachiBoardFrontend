@@ -13,8 +13,11 @@
   position: fixed;
   right: 12px;
   top: 12px;
-  width: 250px;
   font-size: 11px;
+}
+
+th, td{
+  padding: 6px;
 }
 
 .example-handle {

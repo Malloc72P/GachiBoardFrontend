@@ -1,16 +1,16 @@
 import * as paper from 'paper';
-// @ts-ignore
-import Point = paper.Point;
 
-import { Injectable } from '@angular/core';
-import {MatMenu, MatMenuTrigger} from "@angular/material/menu";
-import {PositionCalcService} from "../../PositionCalc/position-calc.service";
-import {DrawingLayerManagerService} from "../../InfiniteCanvas/DrawingLayerManager/drawing-layer-manager.service";
+import {Injectable} from '@angular/core';
+import {MatMenu, MatMenuTrigger} from '@angular/material/menu';
+import {PositionCalcService} from '../../PositionCalc/position-calc.service';
+import {DrawingLayerManagerService} from '../../InfiniteCanvas/DrawingLayerManager/drawing-layer-manager.service';
 import {
-  ContextMenu, GroupContextMenu,
+  ContextMenu, EditableLinkContextMenu,
+  GroupContextMenu,
   RasterContextMenu,
-  ShapeContextMenu, StrokeContextMenu
-} from "../../../../View/Whiteboard/whiteboard-context-menu/context-menu.enum";
+  ShapeContextMenu,
+  StrokeContextMenu
+} from '../../../../View/Whiteboard/whiteboard-context-menu/context-menu.enum';
 import {EditableStroke} from '../../Whiteboard-Item/editable-stroke/editable-stroke';
 import {EditableShape} from '../../Whiteboard-Item/Whiteboard-Shape/EditableShape/editable-shape';
 import {WhiteboardItem} from '../../Whiteboard-Item/whiteboard-item';
@@ -19,7 +19,15 @@ import {ItemGroup} from '../../Whiteboard-Item/ItemGroup/item-group';
 import {EditTextManagementService} from '../../EditTextManagement/edit-text-management.service';
 import {PointerMode} from '../../Pointer/pointer-mode-enum-service/pointer-mode-enum.service';
 import {PointerModeManagerService} from '../../Pointer/pointer-mode-manager-service/pointer-mode-manager.service';
-import {CursorTrackerService} from "../../CursorTracker/cursor-tracker-service/cursor-tracker.service";
+import {CursorTrackerService} from '../../CursorTracker/cursor-tracker-service/cursor-tracker.service';
+import {WsWhiteboardController} from '../../../../Controller/Controller-WebSocket/websocket-manager/WhiteboardWsController/ws-whiteboard.controller';
+import {WhiteboardItemDto} from '../../../../DTO/WhiteboardItemDto/whiteboard-item-dto';
+import {Z_INDEX_ACTION} from '../../../Helper/http-helper/http-helper';
+// @ts-ignore
+import Point = paper.Point;
+import {WebsocketPacketDto} from '../../../../DTO/WebsocketPacketDto/WebsocketPacketDto';
+import {WbItemPacketDto} from '../../../../DTO/WhiteboardItemDto/WbItemPacketDto/WbItemPacketDto';
+import {EditableLink} from '../../Whiteboard-Item/Whiteboard-Shape/LinkPort/EditableLink/editable-link';
 
 @Injectable({
   providedIn: 'root'
@@ -68,6 +76,8 @@ export class ContextMenuService {
       this.setContextMenuToRaster();
     } else if(hitItem instanceof ItemGroup){
       this.setContextMenuToGroup();
+    } else if(hitItem instanceof EditableLink){
+      this.setContextMenuToEditableLink();
     }
     else {
       this.setContextMenuToDefault();
@@ -124,6 +134,14 @@ export class ContextMenuService {
       }
     }
   }
+  private setContextMenuToEditableLink() {
+    this._contextMenuItems.splice(0, this._contextMenuItems.length);
+    for (let key in EditableLinkContextMenu) {
+      if(EditableLinkContextMenu.hasOwnProperty(key)) {
+        this._contextMenuItems.push(EditableLinkContextMenu[key]);
+      }
+    }
+  }
 
   private setContextMenuToDefault() {
     this._contextMenuItems.splice(0, this._contextMenuItems.length);
@@ -136,6 +154,7 @@ export class ContextMenuService {
 
   public onClickContextMenu(menuItem: string) {
     let gsg = this.layerService.globalSelectedGroup;
+    let wsWbController = WsWhiteboardController.getInstance();
     switch (menuItem) {
       // item
       case ShapeContextMenu.DELETE:
@@ -163,6 +182,24 @@ export class ContextMenuService {
         break;
       case GroupContextMenu.PASTE:
         gsg.doPaste(this.cursorTrackerService.itsMe);
+        break;
+      case ShapeContextMenu.BRING_TO_FRONT:
+      case RasterContextMenu.BRING_TO_FRONT:
+      case StrokeContextMenu.BRING_TO_FRONT:
+        let bringToFrontDtoList:Array<WhiteboardItemDto> = gsg.exportSelectionToDto();
+        wsWbController.waitRequestUpdateZIndexWbItem(bringToFrontDtoList, Z_INDEX_ACTION.BRING_TO_FRONT)
+          .subscribe((wsPacketDto:WebsocketPacketDto)=>{
+            this.layerService.updateZIndex(wsPacketDto.additionalData);
+        });
+        break;
+      case ShapeContextMenu.SEND_TO_BACK:
+      case RasterContextMenu.SEND_TO_BACK:
+      case StrokeContextMenu.SEND_TO_BACK:
+        let sendToBackDtoList:Array<WhiteboardItemDto> = gsg.exportSelectionToDto();
+        wsWbController.waitRequestUpdateZIndexWbItem(sendToBackDtoList, Z_INDEX_ACTION.SEND_TO_BACK)
+          .subscribe((wsPacketDto:WebsocketPacketDto)=>{
+            this.layerService.updateZIndex(wsPacketDto.additionalData);
+        });
         break;
       default:
         break;

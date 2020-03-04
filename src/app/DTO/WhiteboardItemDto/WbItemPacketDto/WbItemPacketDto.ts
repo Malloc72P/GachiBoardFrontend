@@ -4,6 +4,7 @@ import {WhiteboardItemDto} from '../whiteboard-item-dto';
 export class WbItemPacketDto {
   public _id;
   public createdBy;
+  public occupiedBy;
   public lastModifier;
   public version:number;
   public touchHistory:Array<any>;

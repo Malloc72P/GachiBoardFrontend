@@ -35,7 +35,12 @@ export enum WebSocketTypeEnum {
   UNLOCK,
   JOIN,
   OCCUPIED,
-  NOT_OCCUPIED
+  NOT_OCCUPIED,
+  UPDATE_ZINDEX
+}
+export enum Z_INDEX_ACTION {
+  BRING_TO_FRONT,
+  SEND_TO_BACK
 }
 export enum SpecialAction {
   PASTE_COMPLETE,
@@ -176,11 +181,14 @@ export class HttpHelper {
         "wbItem_unlock", WebSocketTypeEnum.UNLOCK
       ),
       occupied : new WebSocketRequest(
-        "wbItem_lock", WebSocketTypeEnum.OCCUPIED
+        "wbItem_occupied", WebSocketTypeEnum.OCCUPIED
       ),
       notOccupied : new WebSocketRequest(
-        "wbItem_unlock", WebSocketTypeEnum.NOT_OCCUPIED
+        "wbItem_unOccupied", WebSocketTypeEnum.NOT_OCCUPIED
       ),
+      updateZIndex : new WebSocketRequest(
+        "wbItem_update_ZIndex", WebSocketTypeEnum.UPDATE_ZINDEX
+      )
     }
   };
 

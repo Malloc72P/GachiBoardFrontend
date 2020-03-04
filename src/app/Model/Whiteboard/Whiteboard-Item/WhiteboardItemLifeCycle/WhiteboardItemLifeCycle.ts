@@ -35,4 +35,5 @@ export enum ItemLifeCycleEnum {
   LINK_CHANGED,
   LOCKED,
   UNLOCKED,
+  COPIED,
 }
