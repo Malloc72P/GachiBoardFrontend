@@ -6,7 +6,7 @@ import {ZoomEvent} from "../../../../../InfiniteCanvas/ZoomControl/ZoomEvent/zoo
 import {ZoomEventEnum} from "../../../../../InfiniteCanvas/ZoomControl/ZoomEvent/zoom-event-enum.enum";
 import {Subscription} from "rxjs";
 import {LinkHandlerPositions} from "../link-handler-positions";
-import {ItemLifeCycleEvent} from "../../../../WhiteboardItemLifeCycle/WhiteboardItemLifeCycle";
+import {ItemLifeCycleEnum, ItemLifeCycleEvent} from '../../../../WhiteboardItemLifeCycle/WhiteboardItemLifeCycle';
 // @ts-ignore
 import Path = paper.Path;
 // @ts-ignore
@@ -17,6 +17,9 @@ import Rectangle = paper.Rectangle;
 import Size = paper.Size;
 // @ts-ignore
 import Point = paper.Point;
+import {WorkHistoryManager} from '../../../../../InfiniteCanvas/DrawingLayerManager/WorkHistoryManager/work-history-manager';
+import {WbItemWork} from '../../../../../InfiniteCanvas/DrawingLayerManager/WorkHistoryManager/WbItemWork/wb-item-work';
+import {EditableLinkDto} from '../../../../../../../DTO/WhiteboardItemDto/WhiteboardShapeDto/LinkPortDto/EditableLinkDto/editable-link-dto';
 
 export class LinkHandler {
   private readonly _owner: EditableLink;
@@ -57,7 +60,9 @@ export class LinkHandler {
     this.coreItem.remove();
   }
 
+  private prevLinkDto:EditableLinkDto;
   public onMouseDown(event) {
+    this.prevLinkDto = this.owner?.exportToDto();
   }
 
   public onMouseDrag(event) {
@@ -73,6 +78,12 @@ export class LinkHandler {
       this.owner.globalEmitModify();
       this.owner.layerService.globalSelectedGroup.globalEmitModify();
       this.isResized = false;
+
+      if (this.prevLinkDto) {
+        let workHistoryManager = WorkHistoryManager.getInstance();
+        let wbItemWork = new WbItemWork(ItemLifeCycleEnum.MODIFY, this.prevLinkDto);
+        workHistoryManager.pushIntoStack(wbItemWork);
+      }
     }
   }
 

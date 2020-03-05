@@ -207,50 +207,6 @@ export class LinkPort {
         return;
     }
   }
-  private animateEntryCircle(){
-    let entrySegment = this.tempLink.tempLinkPath.firstSegment;
-
-    this.tempLinkEntryCircle.onFrame = (event)=>{
-      this.tempLinkEntryCircle.bounds.width += 0.5;
-      this.tempLinkEntryCircle.bounds.height += 0.5;
-
-      if(this.tempLinkEntryCircle.opacity - 0.005 > 0){
-        this.tempLinkEntryCircle.opacity -= 0.005;
-      }
-      if(this.tempLinkEntryCircle.bounds.width > 30){
-        this.tempLinkEntryCircle.bounds.width = 3;
-        this.tempLinkEntryCircle.bounds.height = 3;
-        this.tempLinkEntryCircle.opacity = 0.4;
-      }
-    };
-  }
-  private animateExitCircle(){
-    let exitSegment = this.tempLink.tempLinkPath.lastSegment;
-
-    this.tempLinkExitCircle.onFrame = (event)=>{
-      this.tempLinkExitCircle.bounds.width += 1;
-      this.tempLinkExitCircle.bounds.height += 1;
-
-      if(this.tempLinkExitCircle.opacity - 0.005 > 0){
-        this.tempLinkExitCircle.opacity -= 0.005;
-      }
-      if(this.tempLinkExitCircle.bounds.width > 60){
-        this.tempLinkExitCircle.bounds.width = 3;
-        this.tempLinkExitCircle.bounds.height = 3;
-        this.tempLinkExitCircle.opacity = 0.4;
-      }
-    };
-  }
-  private onDeleteTempLink(){
-    if(this.tempLinkEntryCircle){
-      this.tempLinkEntryCircle.remove();
-      this.tempLinkEntryCircle = null;
-    }
-    if(this.tempLinkExitCircle){
-      this.tempLinkExitCircle.remove();
-      this.tempLinkExitCircle = null;
-    }
-  }
 
   exportToDto(): LinkPortDto {
     return new LinkPortDto(
