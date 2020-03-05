@@ -17,7 +17,6 @@ import Rectangle = paper.Rectangle;
 import Size = paper.Size;
 // @ts-ignore
 import Point = paper.Point;
-import {WorkHistoryManager} from '../../../../../InfiniteCanvas/DrawingLayerManager/WorkHistoryManager/work-history-manager';
 import {WbItemWork} from '../../../../../InfiniteCanvas/DrawingLayerManager/WorkHistoryManager/WbItemWork/wb-item-work';
 import {EditableLinkDto} from '../../../../../../../DTO/WhiteboardItemDto/WhiteboardShapeDto/LinkPortDto/EditableLinkDto/editable-link-dto';
 
@@ -80,9 +79,8 @@ export class LinkHandler {
       this.isResized = false;
 
       if (this.prevLinkDto) {
-        let workHistoryManager = WorkHistoryManager.getInstance();
         let wbItemWork = new WbItemWork(ItemLifeCycleEnum.MODIFY, this.prevLinkDto);
-        workHistoryManager.pushIntoStack(wbItemWork);
+        this.owner.layerService.getWorkHistoryManager().pushIntoStack(wbItemWork);
       }
     }
   }

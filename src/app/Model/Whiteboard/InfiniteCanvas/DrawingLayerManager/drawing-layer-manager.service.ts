@@ -735,6 +735,10 @@ export class DrawingLayerManagerService {
 
   //########## Getter & Setter ##########
 
+  public getWorkHistoryManager(){
+    return WorkHistoryManager.getInstance();
+  }
+
   get whiteboardItemArray(): Array<WhiteboardItem> {
     return this._whiteboardItemArray;
   }

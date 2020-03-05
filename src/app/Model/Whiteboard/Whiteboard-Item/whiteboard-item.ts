@@ -26,6 +26,7 @@ import {WhiteboardItemDto} from '../../../DTO/WhiteboardItemDto/whiteboard-item-
 import {GachiPointDto} from '../../../DTO/WhiteboardItemDto/PointDto/gachi-point-dto';
 import {ItemLifeCycleEnum, ItemLifeCycleEvent} from "./WhiteboardItemLifeCycle/WhiteboardItemLifeCycle";
 import {WhiteboardItemType} from '../../Helper/data-type-enum/data-type.enum';
+import {WorkHistoryManager} from '../InfiniteCanvas/DrawingLayerManager/WorkHistoryManager/work-history-manager';
 
 export abstract class WhiteboardItem {
   protected _id: number;
