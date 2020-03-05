@@ -290,11 +290,13 @@ export class ItemGroup extends WhiteboardItem {
 
   exportToDto(): ItemGroupDto {
     let itemGroupDto:ItemGroupDto = super.exportToDto() as ItemGroupDto;
-    itemGroupDto.wbItemIdGroup = new Array<number>();
-
+    itemGroupDto.wbItemIdGroup = new Array<any>();
+    console.log("\n\n==========================\n");
     for (let i = 0; i < this.wbItemGroup.length; i++) {
+      console.log("ItemGroup >> exportToDto >> wbItemGroup : ",this.wbItemGroup[i]);
       itemGroupDto.wbItemIdGroup.push(this.wbItemGroup[i].id);
     }
+    console.log("\n\n==========================\n\n\n");
 
     return itemGroupDto
   }

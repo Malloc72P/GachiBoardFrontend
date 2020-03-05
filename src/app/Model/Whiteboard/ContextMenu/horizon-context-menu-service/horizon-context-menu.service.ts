@@ -193,6 +193,7 @@ export class HorizonContextMenuService {
   }
 
   private instanceCheckEdtGroup(){
+    console.log("HorizonContextMenuService >> instanceCheckEdtGroup >> 진입함");
     let gsg = this.globalSelectedGroup;
     let edtGroupId = -1;
 
@@ -339,6 +340,8 @@ export class HorizonContextMenuService {
     if(this.item instanceof WhiteboardItem) {
       return this.item.coreItem;
     } else if(Array.isArray(this.item)) {
+      return this.globalSelectedGroup.group;
+    } else if(!this.item){
       return this.globalSelectedGroup.group;
     }
   }

@@ -224,7 +224,7 @@ export class DrawingLayerManagerService {
       if(!data){
         return;
       }
-      if( (data.item instanceof EditableItemGroup) || (data.item instanceof GlobalSelectedGroup) ){
+      if( data.item instanceof GlobalSelectedGroup ){
         return;
       }
       let wsWbController = WsWhiteboardController.getInstance();
@@ -233,7 +233,9 @@ export class DrawingLayerManagerService {
       switch (data.action) {
         case ItemLifeCycleEnum.CREATE:
           this.whiteboardItemArray.push(data.item);
-          this.drawingLayer.addChild(data.item.group);
+          if ( !(data.item instanceof EditableItemGroup) ) {
+            this.drawingLayer.addChild(data.item.group);
+          }
           break;
         case ItemLifeCycleEnum.MODIFY:
           wsWbController.waitRequestUpdateWbItem(data.item.exportToDto()).subscribe(()=>{
@@ -359,12 +361,19 @@ export class DrawingLayerManagerService {
       }
     }
     else if(DrawingLayerManagerService.isEditableGroup(type)){
-      newWhiteboardItem = new EditableItemGroup(this.getWbId(),this);
+      let newEdtGroup:EditableItemGroup = new EditableItemGroup(this.getWbId(),this);
+
+      this.globalSelectedGroup.wbItemGroup.forEach((value, index, array)=>{
+        newEdtGroup.addItem(value);
+      });
+
+      newWhiteboardItem = newEdtGroup;
     } else if(DrawingLayerManagerService.isEditableLink(type)) {
       // extras[0] : linkHeadType, extras[1] : linkTailType
       // extras[2] : toLinkPort, extras[2] : fromLinkPort
       newWhiteboardItem = new EditableLink(this.getWbId(), item, extras[0], extras[1], this, extras[2], extras[3]);
     }
+
     if (newWhiteboardItem) {
       let wsWbController = WsWhiteboardController.getInstance();
       wsWbController.waitRequestCreateWbItem(newWhiteboardItem.exportToDto())
@@ -649,11 +658,12 @@ export class DrawingLayerManagerService {
       }
     }
 
+
     let newEdtGroup:EditableItemGroup = this.addToDrawingLayer(null, WhiteboardItemType.EDITABLE_GROUP) as EditableItemGroup;
 
-    this.globalSelectedGroup.wbItemGroup.forEach((value, index, array)=>{
+    /*this.globalSelectedGroup.wbItemGroup.forEach((value, index, array)=>{
       newEdtGroup.addItem(value);
-    });
+    });*/
 
     this.globalSelectedGroup.extractAllFromSelection();
   }
@@ -691,7 +701,6 @@ export class DrawingLayerManagerService {
 
     this.visitIntersectedWbItem(entryItem, intersectedWbItemMap, returnValue);
 
-    console.log("DrawingLayerManagerService >> getIntersectedList >> returnValue : ",returnValue);
     return returnValue;
   }
   visitIntersectedWbItem(visitedWbItem:WhiteboardItem, intersectedWbItemMap:Map<any, WhiteboardItem>, returnValue:Array<WhiteboardItem>){

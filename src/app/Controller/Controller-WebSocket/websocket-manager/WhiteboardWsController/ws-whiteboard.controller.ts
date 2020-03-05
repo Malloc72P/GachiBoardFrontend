@@ -80,6 +80,8 @@ export class WsWhiteboardController {
       let packetDto = this.websocketManager.createWbSessionScopePacket(wbItemDto,WebsocketPacketActionEnum.CREATE);
       packetDto.wsPacketSeq = this.websocketManager.wsPacketSeq;
 
+      console.log("WsWhiteboardController >> waitRequestCreateWbItem >> packetDto : ",packetDto);
+
       this.socket.emit(HttpHelper.websocketApi.whiteboardItem.create.event, packetDto);
 
       //#### 요청 완료

@@ -363,7 +363,11 @@ export class GlobalSelectedGroup extends ItemGroup {
     }
     this.layerService.horizonContextMenuService.close();
     for(let i = 0 ; i < this.wbItemGroup.length; i++){
-      this.gsgSelectorEventEmitter.emit(new GsgSelectEvent(GsgSelectEventEnum.DESELECTED, this.wbItemGroup[i]));
+      let currItem:WhiteboardItem = this.wbItemGroup[i];
+      if(currItem.isGrouped && currItem.parentEdtGroup){
+        this.gsgSelectorEventEmitter.emit(new GsgSelectEvent(GsgSelectEventEnum.DESELECTED, currItem.parentEdtGroup));
+      }
+      this.gsgSelectorEventEmitter.emit(new GsgSelectEvent(GsgSelectEventEnum.DESELECTED, currItem));
     }
     this.isLinkSelected = false;
     this.extractAllFromGroup();

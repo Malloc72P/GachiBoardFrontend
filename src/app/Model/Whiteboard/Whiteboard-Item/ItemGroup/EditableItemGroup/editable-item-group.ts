@@ -14,7 +14,7 @@ import PointText = paper.PointText;
 // @ts-ignore
 import Group = paper.Group;
 // @ts-ignore
-import Rectangle = paper.Rectangle;
+import Rectangle = paper.Path.Rectangle;
 
 import {ItemGroup} from '../item-group';
 import {Editable} from '../../InterfaceEditable/editable';
@@ -26,6 +26,8 @@ import {EditableItemGroupDto} from '../../../../../DTO/WhiteboardItemDto/ItemGro
 export class EditableItemGroup extends ItemGroup implements Editable{
   constructor(id, layerService) {
     super(id, WhiteboardItemType.EDITABLE_GROUP, null, layerService);
+
+    this.group = new Group();
 
     this.localEmitCreate();
     this.globalEmitCreate();
@@ -72,5 +74,73 @@ export class EditableItemGroup extends ItemGroup implements Editable{
 
   public update(dto: EditableItemGroupDto) {
     super.update(dto);
+  }
+
+  onOccupied(occupierName) {
+    console.log("WhiteboardItem >> onOccupied >> 진입함");
+    // let blindRect:Rectangle = new Rectangle(this.group.bounds);
+    if(!this.isOccupied){
+      this.isOccupied = true;
+
+      for(let groupItem of this.wbItemGroup){
+        this.group.addChild(groupItem.group);
+      }
+
+      this.blindGroup = new Group();
+
+      let blindRect = new Rectangle({
+        from: this.group.bounds.topLeft,
+        to: this.group.bounds.bottomRight,
+      });
+      blindRect.name = "blind-main";
+      // @ts-ignore
+      blindRect.fillColor = "black";
+      // @ts-ignore
+      blindRect.opacity = 0.3;
+
+      let blindText = new PointText(this.group.bounds.bottomRight);
+      // @ts-ignore
+      blindText.fillColor = "white";
+      blindText.fontWeight = "bold";
+      blindText.content = occupierName + " 님이 수정중";
+      blindText.bounds.topRight = this.group.bounds.bottomRight;
+      blindText.name = "blind-text";
+
+      let blindTextBg = new Rectangle({
+        from: blindText.bounds.topLeft,
+        to: blindText.bounds.bottomRight,
+      });
+      // @ts-ignore
+      blindTextBg.fillColor = "black";
+      blindTextBg.name = "blind-text-bg";
+      // @ts-ignore
+      blindTextBg.opacity = 0.5;
+      // @ts-ignore
+      blindTextBg.bounds.topLeft = blindText.bounds.topLeft;
+
+      blindText.bringToFront();
+
+      this.blindGroup.addChild(blindRect);
+      this.blindGroup.addChild(blindTextBg);
+      this.blindGroup.addChild(blindText);
+
+      this.layerService.globalSelectedGroup.extractOneFromGroup(this);
+      this.blindGroup.bringToFront();
+    }
+
+  }
+  onNotOccupied() {
+    console.log("EditableItemGroup >> onNotOccupied >> 진입함");
+    if(this.isOccupied){
+      this.isOccupied = false;
+      if(this.blindGroup){
+        this.blindGroup.removeChildren();
+        this.blindGroup.remove();
+      }
+      for(let groupItem of this.wbItemGroup){
+        this.layerService.drawingLayer.addChild(groupItem.group);
+      }
+    }
+
   }
 }

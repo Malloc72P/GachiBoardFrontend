@@ -57,6 +57,8 @@ import {EditableLinkDto} from "../../../../DTO/WhiteboardItemDto/WhiteboardShape
 import {WhiteboardShape} from "../../Whiteboard-Item/Whiteboard-Shape/whiteboard-shape";
 import {GachiPointDto} from "../../../../DTO/WhiteboardItemDto/PointDto/gachi-point-dto";
 import {GachiTextStyleDto} from "../../../../DTO/WhiteboardItemDto/WhiteboardShapeDto/EditableShapeDto/GachiTextStyleDto/gachi-text-style-dto";
+import {EditableItemGroup} from '../../Whiteboard-Item/ItemGroup/EditableItemGroup/editable-item-group';
+import {EditableItemGroupDto} from '../../../../DTO/WhiteboardItemDto/ItemGroupDto/EditableItemGroupDto/editable-item-group-dto';
 
 
 enum BUILD_MODE {
@@ -218,6 +220,11 @@ export class WhiteboardItemFactory {
             observer.next(data);
           });
           break;
+        case WhiteboardItemType.EDITABLE_GROUP:
+          WhiteboardItemFactory.buildEditableGroup(wbId, wbItemDto as EditableItemGroupDto).subscribe((data)=>{
+            observer.next(data);
+          });
+          break;
       }//switch
     });
   }
@@ -308,6 +315,27 @@ export class WhiteboardItemFactory {
         newEdtRaster = new SimpleRaster(wbId, rasterObject, WhiteboardItemFactory.layerService);
         observer.next(newEdtRaster);
       };
+    });
+  }
+  private static buildEditableGroup(wbId, edtGroupDto:EditableItemGroupDto) :Observable<any> {
+    return new Observable((observer)=>{
+      let foundWbItemList:Array<WhiteboardItem> = new Array<WhiteboardItem>();
+      for(let currWbItem of this.layerService.whiteboardItemArray){
+        for(let edtGroupChild of edtGroupDto.wbItemIdGroup){
+          console.log("WhiteboardItemFactory >> buildEditableGroup >> edtGroupDto : ",edtGroupDto);
+          if(currWbItem.id === edtGroupChild){
+            foundWbItemList.push(currWbItem);
+          }
+        }
+      }
+      let newEdtGroup:EditableItemGroup = new EditableItemGroup(wbId, WhiteboardItemFactory.layerService);
+      for(let foundWbItem of foundWbItemList){
+        foundWbItem.isGrouped = true;
+        foundWbItem.parentEdtGroup = newEdtGroup;
+      }
+      newEdtGroup.wbItemGroup = foundWbItemList;
+
+      observer.next(newEdtGroup);
     });
   }
 
