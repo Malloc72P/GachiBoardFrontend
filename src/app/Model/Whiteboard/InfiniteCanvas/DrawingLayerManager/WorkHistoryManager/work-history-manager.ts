@@ -257,32 +257,36 @@ export class WorkHistoryManager {
                 }
               }
               let resolveCounter = copiedItems.length;
+              let copiedItemDtoList:Array<WhiteboardItemDto> = new Array<WhiteboardItemDto>();
+
               for(let copiedItem of copiedItems){
-                wsWbController.waitRequestUpdateWbItem(copiedItem.exportToDto()).subscribe(()=>{
-                  resolveCounter--;
-                  if(resolveCounter === 0){
-                    resolve();
-                  }
-                })
+                copiedItemDtoList.push(copiedItem.exportToDto());
               }
+
+              wsWbController.waitRequestUpdateMultipleWbItem(copiedItemDtoList).subscribe(()=>{
+                resolve();
+              });
+
             });
         });
     });
   }
   async updateItem(wbItemDtoArray:Array<WhiteboardItemDto>):Promise<any>{
     return new Promise<any>((resolve, reject)=>{
-      let wsWbController = WsWhiteboardController.getInstance();
-
-      for(let currDto of wbItemDtoArray){
+      let i = wbItemDtoArray.length;
+      while (i--) {
+        let currDto = wbItemDtoArray[i];
         let updateItem = this.layerService.findItemById(currDto.id);
         if(updateItem){
-          //this.layerService.deleteItemFromWbArray(delItem.id);
           updateItem.update(currDto);
-          wsWbController.waitRequestUpdateWbItem(currDto).subscribe(()=>{
-            resolve();
-          });
+        }else{
+          wbItemDtoArray.splice(i, 1);
         }
       }
+      let wsWbController = WsWhiteboardController.getInstance();
+      wsWbController.waitRequestUpdateMultipleWbItem(wbItemDtoArray).subscribe(()=>{
+        resolve();
+      });
     });
   }
   async destroyItem(wbItemDtoArray:Array<WhiteboardItemDto>):Promise<any>{

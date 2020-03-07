@@ -171,6 +171,9 @@ export class HttpHelper {
       update : new WebSocketRequest(
         "wbItem_update", WebSocketTypeEnum.UPDATE
       ),
+      update_multiple : new WebSocketRequest(
+        "wbItem_update_multiple", WebSocketTypeEnum.UPDATE
+      ),
       delete : new WebSocketRequest(
         "wbItem_delete", WebSocketTypeEnum.DELETE
       ),
