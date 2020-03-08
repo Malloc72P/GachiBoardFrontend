@@ -74,6 +74,7 @@ export abstract class EditableRaster extends WhiteboardShape {
     this.coreItem.remove();
     this.group.remove();
     this.destroyBlind();
+    this.localEmitDestroy();
   }
 
   exportToDto(): EditableRasterDto {

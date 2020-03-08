@@ -19,6 +19,7 @@ import Size = paper.Size;
 import Point = paper.Point;
 import {WbItemWork} from '../../../../../InfiniteCanvas/DrawingLayerManager/WorkHistoryManager/WbItemWork/wb-item-work';
 import {EditableLinkDto} from '../../../../../../../DTO/WhiteboardItemDto/WhiteboardShapeDto/LinkPortDto/EditableLinkDto/editable-link-dto';
+import {WsWhiteboardController} from '../../../../../../../Controller/Controller-WebSocket/websocket-manager/WhiteboardWsController/ws-whiteboard.controller';
 
 export class LinkHandler {
   private readonly _owner: EditableLink;
@@ -81,6 +82,11 @@ export class LinkHandler {
       if (this.prevLinkDto) {
         let wbItemWork = new WbItemWork(ItemLifeCycleEnum.MODIFY, this.prevLinkDto);
         this.owner.layerService.getWorkHistoryManager().pushIntoStack(wbItemWork);
+        let wsWbController = WsWhiteboardController.getInstance();
+        let updateList:Array<any> = new Array<any>();
+        updateList.push(this.owner.exportToDto());
+        wsWbController.waitRequestUpdateMultipleWbItem(updateList, this.owner.layerService.globalSelectedGroup.exportToGsgDto())
+          .subscribe(()=>{});
       }
     }
   }

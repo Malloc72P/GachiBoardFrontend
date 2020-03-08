@@ -39,6 +39,9 @@ export class WhiteboardShape extends WhiteboardItem implements Editable{
         case ItemLifeCycleEnum.DESELECTED:
           this.disableLinkPort();
           break;
+          case ItemLifeCycleEnum.DESTROY:
+            this.disableLinkPort();
+            break;
       }
     });
   }
@@ -139,6 +142,7 @@ export class WhiteboardShape extends WhiteboardItem implements Editable{
       })
     }
     this.destroyBlind();
+    this.localEmitDestroy();
   }
   exportToDto(): WhiteboardShapeDto {
     let wbShapeDto:WhiteboardShapeDto = super.exportToDto() as WhiteboardShapeDto;
@@ -153,7 +157,7 @@ export class WhiteboardShape extends WhiteboardItem implements Editable{
     wbShapeDto.borderColor = GachiColorDto.createColor(this.borderColor);
     wbShapeDto.borderWidth = this.borderWidth;
     wbShapeDto.fillColor = GachiColorDto.createColor(this.fillColor);
-    wbShapeDto.opacity = this.opacity;
+    wbShapeDto.opacity = 1;
     wbShapeDto.linkPortsDto = linkPortsDto;
 
     return wbShapeDto;

@@ -56,6 +56,8 @@ import {EditableShapeDto} from '../../../../DTO/WhiteboardItemDto/WhiteboardShap
 import {WbItemPacketDto} from '../../../../DTO/WhiteboardItemDto/WbItemPacketDto/WbItemPacketDto';
 import {ItemBlinderManagementService} from '../../OccupiedItemBlinder/item-blinder-management-service/item-blinder-management.service';
 import {GlobalSelectedGroupDto} from '../../../../DTO/WhiteboardItemDto/ItemGroupDto/GlobalSelectedGroupDto/GlobalSelectedGroupDto';
+import {UiService} from '../../../Helper/ui-service/ui.service';
+
 
 
 @Injectable({
@@ -96,7 +98,8 @@ export class DrawingLayerManagerService {
     private wbItemEventManagerService: WbItemEventManagerService,
     public  minimapSyncService: MinimapSyncService,
     private websocketManagerService: WebsocketManagerService,
-    private blinderManagementService:ItemBlinderManagementService
+    private blinderManagementService:ItemBlinderManagementService,
+    public uiService:UiService,
   ) {
     this._whiteboardItemArray = new Array<WhiteboardItem>();
     this._editableLinkArray = new Array<EditableLink>();
@@ -182,6 +185,18 @@ export class DrawingLayerManagerService {
             this.deleteItemFromWbArray(delItem.id);
             delItem.destroyItemAndNoEmit();
             workHistoryManager.removeTask(recvWbItemEvent.data.id);
+          }
+          break;
+        case WbItemEventEnum.DELETE_MULTIPLE:
+          let delItemList:Array<WhiteboardItemDto> = recvWbItemEvent.data as Array<WhiteboardItemDto>;
+          for(let currDelItem of delItemList){
+            let delItem = this.findItemById(currDelItem.id);
+            if(delItem){
+              this.blinderManagementService.onWbItemDestroy(delItem.id);
+              this.deleteItemFromWbArray(delItem.id);
+              delItem.destroyItemAndNoEmit();
+              workHistoryManager.removeTask(recvWbItemEvent.data.id);
+            }
           }
           break;
         case WbItemEventEnum.OCCUPIED:
@@ -337,6 +352,7 @@ export class DrawingLayerManagerService {
     }
     else if(DrawingLayerManagerService.isEditableRaster(type)){
       newWhiteboardItem = new SimpleRaster(this.getWbId(), item, this);
+      this.uiService.spin$.next(true);
     }
     else if(DrawingLayerManagerService.isEditableShape(type)){
       let editText:PointText      = extras[0];
@@ -381,6 +397,10 @@ export class DrawingLayerManagerService {
           newWhiteboardItem.zIndex = packetDto.dataDto.zIndex;
           let workHistoryManager = WorkHistoryManager.getInstance();
           workHistoryManager.pushIntoStack(new WbItemWork(ItemLifeCycleEnum.CREATE, newWhiteboardItem.exportToDto()));
+
+          if(newWhiteboardItem instanceof SimpleRaster){
+            this.uiService.spin$.next(false);
+          }
         });
     }
     return newWhiteboardItem;
@@ -690,8 +710,16 @@ export class DrawingLayerManagerService {
     this.globalSelectedGroup.extractAllFromSelection();
   }
 
-  public applyZIndex(touchedWbItem:WhiteboardItem){
-    let intersectedWbItemList:Array<WhiteboardItem>;
+  public applyZIndex(){
+    this.whiteboardItemArray.sort((prev, next)=>{
+      if(prev.zIndex < next.zIndex){
+        return -1;
+      }else return 1;
+    });
+    for (let i = 0; i < this.whiteboardItemArray.length; i++) {
+      this.drawingLayer.insertChild(i, this.whiteboardItemArray[i].group);
+    }
+/*    let intersectedWbItemList:Array<WhiteboardItem>;
 
     intersectedWbItemList = this.getIntersectedList(touchedWbItem);
     intersectedWbItemList.sort((prevWbItem, currWbItem)=>{
@@ -703,7 +731,7 @@ export class DrawingLayerManagerService {
     for(let currItem of intersectedWbItemList){
       currItem.group.bringToFront();
       currItem.isVisited = true;
-    }
+    }*/
 
   }
 
@@ -745,7 +773,7 @@ export class DrawingLayerManagerService {
       let foundItem:WhiteboardItem = this.findItemById(recvWbPacket._id);
       if(foundItem){
         foundItem.zIndex = recvWbPacket.wbItemDto.zIndex;
-        this.applyZIndex(foundItem);
+        this.applyZIndex();
         if(foundItem.isOccupied){
           foundItem.updateBlindGroup();
         }

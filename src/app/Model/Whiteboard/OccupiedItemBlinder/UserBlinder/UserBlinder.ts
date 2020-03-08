@@ -119,6 +119,11 @@ export class UserBlinder {
       }
     }
 
+    if(gsgDto.width === 0 || gsgDto.height === 0){
+      this.blindGroup.visible = false;
+      return;
+    }
+
     if(this.blindItemMap.size > 0){
       this.blindRect.bounds.width = gsgDto.width;
       this.blindRect.bounds.height = gsgDto.height;

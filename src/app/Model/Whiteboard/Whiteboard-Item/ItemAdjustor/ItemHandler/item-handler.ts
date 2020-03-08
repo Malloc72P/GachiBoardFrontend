@@ -32,6 +32,9 @@ export abstract class ItemHandler {
       new Point(handlerPosition.x, handlerPosition.y),
       handlerOption.circleRadius / zoomFactor
     );
+
+    this.handlerCircleObject.name = "ItemHandler";
+
     this.handlerCircleObject.strokeWidth = handlerOption.strokeWidth / zoomFactor;
 
     this.handlerCircleObject.style.fillColor = handlerFillColor;

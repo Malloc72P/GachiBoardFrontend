@@ -119,12 +119,14 @@ export class ItemAdjustor {
     this.itemGuideLine.strokeColor = new paper.Color('blue');
     this.itemGuideLine.dashArray = [HandlerOption.dashLength / zoomFactor,
       HandlerOption.dashLength / zoomFactor];
+    this.itemGuideLine.name = "GuideLine";
   }
 
   private initBackground() {
     this.background = new Path.Rectangle(this.owner.group.strokeBounds);
     this.background.fillColor = new paper.Color('skyblue');
     this.background.opacity = 0.2;
+    this.background.name = "BG";
   }
 
   private initHandlers(){

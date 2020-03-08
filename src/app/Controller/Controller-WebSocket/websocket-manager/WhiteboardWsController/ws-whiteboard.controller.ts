@@ -32,6 +32,7 @@ export class WsWhiteboardController {
     this.onWbItemNotOccupied();
     this.onWbItemUpdateZIndexd();
     this.onMultipleWbItemUpdated();
+    this.onMultipleWbItemDeleted();
   }
 
 
@@ -348,6 +349,11 @@ export class WsWhiteboardController {
 
     return new Observable<any>((subscriber)=>{
 
+      if (wbItemDto.type === WhiteboardItemType.SIMPLE_RASTER) {
+        let simpleRasterDto: SimpleRasterDto = wbItemDto as SimpleRasterDto;
+        simpleRasterDto.imageBlob = null;
+      }
+
 
       let packetDto = this.websocketManager.createWbSessionScopePacket(wbItemDto,WebsocketPacketActionEnum.DELETE);
       packetDto.wsPacketSeq = this.websocketManager.wsPacketSeq;
@@ -386,7 +392,74 @@ export class WsWhiteboardController {
       });
   }
   /* **************************************************** */
-  /* Request Delete END */
+  /* Request Delete Multiple END */
+  /* **************************************************** */
+
+  /* *************************************************** */
+  /* Request Delete START */
+  /* *************************************************** */
+  waitRequestDeleteMultipleWbItem( wbItemDtos:Array<WhiteboardItemDto> ){
+
+    //this.websocketManager.uiService.spin$.next(true);
+
+    return new Observable<any>((subscriber)=>{
+      let deleteList:Array<WhiteboardItemDto> = new Array<WhiteboardItemDto>();
+      for(let wbItemDto of wbItemDtos) {
+        deleteList.push(wbItemDto);
+      }
+      let idx = deleteList.length;
+      while (idx--){
+        let wbItemDto:WhiteboardItemDto = deleteList[idx];
+        if (wbItemDto.type === WhiteboardItemType.SIMPLE_RASTER) {
+          let simpleRasterDto: SimpleRasterDto = wbItemDto as SimpleRasterDto;
+          let newSimpleRasterDto:SimpleRasterDto = new SimpleRasterDto(simpleRasterDto.id, simpleRasterDto.type, simpleRasterDto.center, simpleRasterDto.isGrouped,
+            simpleRasterDto.parentEdtGroupId, simpleRasterDto.width, simpleRasterDto.height,
+            simpleRasterDto.borderColor, simpleRasterDto.borderWidth, simpleRasterDto.fillColor,
+            simpleRasterDto.opacity, simpleRasterDto.linkPortsDto, null);
+
+          deleteList.splice(idx, 1);
+          deleteList.splice(idx, 0, newSimpleRasterDto);
+        }
+      }
+
+      let packetDto = this.websocketManager.createWbSessionScopePacket(deleteList,WebsocketPacketActionEnum.DELETE);
+      packetDto.wsPacketSeq = this.websocketManager.wsPacketSeq;
+
+      this.socket.emit(HttpHelper.websocketApi.whiteboardItem.delete_multiple.event, packetDto);
+
+      //#### 요청 완료
+
+      this.socket.once(HttpHelper.websocketApi.whiteboardItem.delete_multiple.event,
+        (wsPacketDto:WebsocketPacketDto)=>{
+          //this.websocketManager.uiService.spin$.next(false);
+          switch (wsPacketDto.action) {
+            case WebsocketPacketActionEnum.ACK:
+              // console.log("WsWhiteboardController >> waitRequestDeleteWbItem >> wsPacketDto : ",wsPacketDto);
+              subscriber.next(wsPacketDto);
+              break;
+            case WebsocketPacketActionEnum.NAK:
+              subscriber.error(wsPacketDto);
+              break;
+          }
+        })
+    });
+  }
+
+  private onMultipleWbItemDeleted(){
+    this.socket.on(HttpHelper.websocketApi.whiteboardItem.delete_multiple.event,
+      (wsPacketDto:WebsocketPacketDto)=>{
+        if (wsPacketDto.action === WebsocketPacketActionEnum.DELETE) {
+          // console.log("WsWhiteboardController >> onWbItemDeleted >> wsPacketDto : ",wsPacketDto);
+
+          this.websocketManager.wbItemEventManagerService.wsWbItemEventEmitter.emit(
+            new WbItemEvent( WbItemEventEnum.DELETE_MULTIPLE, wsPacketDto.dataDto, wsPacketDto.additionalData)
+          );
+
+        }
+      });
+  }
+  /* **************************************************** */
+  /* Request Delete Multiple END */
   /* **************************************************** */
 
 

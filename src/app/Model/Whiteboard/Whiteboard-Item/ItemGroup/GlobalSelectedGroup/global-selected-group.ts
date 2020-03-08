@@ -92,21 +92,8 @@ export class GlobalSelectedGroup extends ItemGroup {
     this.requestUpdateOnSelectedItem();
   }
 
-  applyZIndexToSelection(wbItemGroup?:Array<WhiteboardItem>) :Promise<any>{
-    return new Promise<any>((resolve, reject)=>{
-      if (!wbItemGroup) {
-        this.wbItemGroup.forEach((value, index, array) => {
-          this.layerService.applyZIndex(value);
-        });
-      }else{
-        wbItemGroup.forEach((value, index, array) => {
-          this.layerService.applyZIndex(value);
-        });
-      }
-
-      resolve();
-
-    });
+  applyZIndexToSelection(){
+    this.layerService.applyZIndex();
   }
 
   requestUpdateOnSelectedItem(){
@@ -228,11 +215,11 @@ export class GlobalSelectedGroup extends ItemGroup {
   public doPaste(newPosition){
     if(this.copiedDtoArray.length > 0){
       this.waitForCloneOperation().subscribe((data:Array<WhiteboardItem>)=>{
+        this.layerService.uiService.spin$.next(true);
 
-
-        for (let i = 0; i < data.length; i++) {
-          this.insertOneIntoSelection(data[i]);
-        }
+        // for (let i = 0; i < data.length; i++) {
+        //   this.insertOneIntoSelection(data[i]);
+        // }
 
         let wsWbController = WsWhiteboardController.getInstance();
         let wbItemDtoArray:Array<WhiteboardItemDto> = new Array<WhiteboardItemDto>();
@@ -244,27 +231,43 @@ export class GlobalSelectedGroup extends ItemGroup {
         wsWbController.waitRequestCreateMultipleWbItem(wbItemDtoArray)
           .subscribe((wsPacketDto:WebsocketPacketDto)=>{
             let recvWbItemDtoArray:Array<WhiteboardItemDto> = wsPacketDto.dataDto as Array<WhiteboardItemDto>;
+            let cloneWbItemList:Array<WhiteboardItem> = new Array<WhiteboardItem>();
             for (let i = 0; i < data.length; i++) {
               let newWbItem = data[i];
               newWbItem.id = recvWbItemDtoArray[i].id;
               newWbItem.zIndex = recvWbItemDtoArray[i].zIndex;
-              newWbItem.group.opacity = 1;
-              newWbItem.coreItem.opacity = 1;
-              this.insertOneIntoSelection(newWbItem);
+              // newWbItem.group.opacity = 1;
+              // newWbItem.coreItem.opacity = 1;
+              cloneWbItemList.push(newWbItem);
+              // this.insertOneIntoSelection(newWbItem);
             }
-            this.relocateItemGroup(newPosition);
+            this.insertMultipleIntoSelection(cloneWbItemList).then(()=>{
+              this.relocateItemGroup(newPosition);
 
-            let updateDtoList:Array<any> = new Array<any>();
-            for (let i = 0; i < data.length; i++) {
-              let newWbItem = data[i];
-              updateDtoList.push(newWbItem.exportToDto());
-            }
+              let updateDtoList:Array<any> = new Array<any>();
+              for (let i = 0; i < data.length; i++) {
+                let newWbItem = data[i];
+                updateDtoList.push(newWbItem.exportToDto());
+              }
 
-            wsWbController.waitRequestUpdateMultipleWbItem(updateDtoList, this.exportToGsgDto()).subscribe(()=>{});
-            let workHistoryManager = WorkHistoryManager.getInstance();
-            let copyWorkHistory = new WbItemWork(ItemLifeCycleEnum.COPIED, recvWbItemDtoArray[0]);
-            copyWorkHistory.wbItemDtoArray = recvWbItemDtoArray;
-            workHistoryManager.pushIntoStack(copyWorkHistory);
+              wsWbController.waitRequestUpdateMultipleWbItem(updateDtoList, this.exportToGsgDto()).subscribe(()=>{
+                recvWbItemDtoArray.splice(0, recvWbItemDtoArray.length);
+
+                for(let cloneItem of cloneWbItemList){
+                  cloneItem.group.opacity = 1;
+                  cloneItem.coreItem.opacity = 1;
+                  recvWbItemDtoArray.push(cloneItem.exportToDto());
+                }
+                let workHistoryManager = WorkHistoryManager.getInstance();
+                let copyWorkHistory = new WbItemWork(ItemLifeCycleEnum.CREATE, recvWbItemDtoArray[0]);
+
+                copyWorkHistory.wbItemDtoArray = recvWbItemDtoArray;
+
+                workHistoryManager.pushIntoStack(copyWorkHistory);
+
+                this.layerService.uiService.spin$.next(false);
+              });
+            });
           })
       });
     }
@@ -328,41 +331,38 @@ export class GlobalSelectedGroup extends ItemGroup {
     this.saveCurrentItemState();
     this.gsgSelectorEventEmitter.emit(new GsgSelectEvent(GsgSelectEventEnum.SELECTED, wbItem));
   }
-  public insertMultipleIntoSelection(wbItemList: Array<WhiteboardItem>) {
-    console.log("GlobalSelectedGroup >> insertMultipleIntoSelection >> 진입함");
-    for(let wbItem of wbItemList){
-      if(this.checkLocking(wbItem)) {
-        return;
-      }
-      if(wbItem.groupedIdList.length > 0){
-        for(let currId of wbItem.groupedIdList){
-          let foundItem = this.layerService.findItemById(currId);
-          if(foundItem){
-            this.insertOneIntoGroup(foundItem);
+  public insertMultipleIntoSelection(wbItemList: Array<WhiteboardItem>) :Promise<any>{
+    return new Promise<any>((resolve, reject)=>{
+      console.log("GlobalSelectedGroup >> insertMultipleIntoSelection >> 진입함");
+      for(let wbItem of wbItemList){
+        if(this.checkLocking(wbItem)) {
+          return;
+        }
+        if(wbItem.groupedIdList.length > 0){
+          for(let currId of wbItem.groupedIdList){
+            let foundItem = this.layerService.findItemById(currId);
+            if(foundItem){
+              this.insertOneIntoGroup(foundItem);
+            }
           }
         }
+        this.insertOneIntoGroup(wbItem);
       }
-      this.insertOneIntoGroup(wbItem);
-    }
-    this.resetMyItemAdjustor();
-    this.layerService.horizonContextMenuService.open();
+      this.resetMyItemAdjustor();
+      this.layerService.horizonContextMenuService.open();
 
-    this.saveCurrentItemState();
-    let wsWbController = WsWhiteboardController.getInstance();
-    /*wsWbController.waitRequestOccupyWbItem(this.exportToGsgDto()).subscribe(()=>{
+      this.saveCurrentItemState();
+      let wsWbController = WsWhiteboardController.getInstance();
 
-    });*/
+      let gsgDto = this.exportToGsgDto();
 
-    let gsgDto = this.exportToGsgDto();
-    console.log("GlobalSelectedGroup >> insertMultipleIntoSelection >> gsgDto : ",gsgDto);
-
-    wsWbController.waitRequestOccupyWbItem(gsgDto)
-      .subscribe(()=>{
-
-      },(errorParam:WebsocketPacketDto)=>{
-        this.extractAllFromSelection();
-      });
-
+      wsWbController.waitRequestOccupyWbItem(gsgDto)
+        .subscribe(()=>{
+          resolve();
+        },(errorParam:WebsocketPacketDto)=>{
+          this.extractAllFromSelection();
+        });
+    });
   }
 
   private setLifeCycleEvent() {
@@ -428,9 +428,7 @@ export class GlobalSelectedGroup extends ItemGroup {
     this.isLocked = false;
     this.saveCurrentItemState();
 
-    this.applyZIndexToSelection(prevWbItemGroup).then(()=>{
-
-    });
+    this.applyZIndexToSelection();
 
   }
 
@@ -452,8 +450,19 @@ export class GlobalSelectedGroup extends ItemGroup {
 
   destroyItem() {
     this.pushGsgWorkIntoWorkHistroy(ItemLifeCycleEnum.DESTROY);
-    this.destroyAllFromGroup();
+    // this.destroyAllFromGroup();
+    let deleteList:Array<WhiteboardItemDto> = this.exportSelectionToDto();
+    let wsWbController = WsWhiteboardController.getInstance();
+    wsWbController.waitRequestDeleteMultipleWbItem(deleteList).subscribe(()=>{
+      for(let wbItem of this.wbItemGroup){
+        wbItem.destroyItemAndNoEmit();
+      }
 
+      this.wbItemGroup.splice(0, this.wbItemGroup.length);
+
+      this.layerService.horizonContextMenuService.close();
+      this.resetMyItemAdjustor();
+    });
   }
   destroyItemAndNoEmit() {
     // this.destroyAllFromGroup();

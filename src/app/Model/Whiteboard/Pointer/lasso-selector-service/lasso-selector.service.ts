@@ -107,7 +107,7 @@ export class LassoSelectorService {
       }
     }
     if (selection.length > 0) {
-      this.layerService.globalSelectedGroup.insertMultipleIntoSelection(selection);
+      this.layerService.globalSelectedGroup.insertMultipleIntoSelection(selection).then(()=>{});
     }
   }
 

@@ -177,6 +177,9 @@ export class HttpHelper {
       delete : new WebSocketRequest(
         "wbItem_delete", WebSocketTypeEnum.DELETE
       ),
+      delete_multiple : new WebSocketRequest(
+        "wbItem_delete_multiple", WebSocketTypeEnum.DELETE
+      ),
       lock : new WebSocketRequest(
         "wbItem_lock", WebSocketTypeEnum.LOCK
       ),

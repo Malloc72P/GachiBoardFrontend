@@ -65,6 +65,7 @@ export class HorizonContextMenuService {
   }
 
   public close() {
+    console.log("HorizonContextMenuService >> close >> 진입함");
     this._isHidden = true;
     this.checkModifiedItem();
     this.subPanelManager.hideAll();

@@ -140,17 +140,20 @@ export class WhiteboardMainComponent implements OnInit,OnDestroy {
                 this.wbTitle = wbSessionFullDto.title;
 
                 let recvWbItemPacketDtoList:Array<WbItemPacketDto> = wbSessionFullDto.wbItemArray as Array<WbItemPacketDto>;
-                console.log("WhiteboardMainComponent >> waitRequestGetWbItemList >> recvWbItemPacketDtoList : ",recvWbItemPacketDtoList);
-                for(let recvWbItemPacket of recvWbItemPacketDtoList){
+                for(let i = 0 ; i < recvWbItemPacketDtoList.length; i++){
+                  let recvWbItemPacket = recvWbItemPacketDtoList[i];
+                  let currIndex = i;
                   WhiteboardItemFactory.buildWbItems(recvWbItemPacket.wbItemDto, this.layerService.whiteboardItemArray)
                     .subscribe((factoryRes:WbItemFactoryResult)=>{
                       factoryRes.newWbItem.group.opacity = 1;
                       factoryRes.newWbItem.coreItem.opacity = 1;
                       factoryRes.newWbItem.zIndex =  recvWbItemPacket.wbItemDto.zIndex;
 
-                      this.layerService.applyZIndex(factoryRes.newWbItem);
-
-                      this.minimapSyncService.syncMinimap();
+                      if (currIndex === recvWbItemPacketDtoList.length - 1) {
+                        console.log("WhiteboardMainComponent >> 마지막 아이템 생성 >> 진입함");
+                        this.layerService.applyZIndex();
+                        this.minimapSyncService.syncMinimap();
+                      }
                     });
                 }
               });

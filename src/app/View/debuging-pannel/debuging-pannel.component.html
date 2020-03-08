@@ -211,6 +211,47 @@
       </mat-expansion-panel>
     </mat-accordion >
 
+    <mat-accordion *ngIf="layerService.drawingLayer">
+      <mat-expansion-panel>
+        <!--   Header   -->
+        <mat-expansion-panel-header>
+          <mat-panel-title>
+            Paper DrawingLayer
+          </mat-panel-title>
+        </mat-expansion-panel-header>
+
+        <!--   Content   -->
+        <h3>Paper Item Array</h3>
+        <table class="debugTable" style="background-color: orange;">
+          <thead>
+          <tr>
+            <!--<th>UID</th>-->
+            <th>ID</th>
+            <th>NAME</th>
+            <th>INDEX</th>
+            <th>visible</th>
+            <th>width</th>
+            <th>height</th>
+          </tr>
+          </thead>
+          <tbody style="text-align: center">
+          <tr *ngFor="let paperItem of layerService.drawingLayer.children"
+              style="background-color: black; margin-bottom: 6px; color: white; padding: 5px;">
+            <!--<td>{{userBlinder.userIdToken}}</td>-->
+            <td>{{paperItem.id}}</td>
+            <td>{{paperItem.name}}</td>
+            <td>{{paperItem.index}}</td>
+            <td>{{paperItem.visible}}</td>
+            <td>{{paperItem.bounds.width.toFixed(1)}}</td>
+            <td>{{paperItem.bounds.height.toFixed(1)}}</td>
+          </tr>
+          </tbody>
+        </table>
+
+      </mat-expansion-panel>
+    </mat-accordion >
+
+
   </mat-card>
 
 </div>
