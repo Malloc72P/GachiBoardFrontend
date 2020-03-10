@@ -4,7 +4,9 @@ import {AuthRequestService} from '../../../../Controller/SocialLogin/auth-reques
 import {transition, trigger, useAnimation} from '@angular/animations';
 import {bounce, bounceIn, bounceInLeft, fadeIn, flipInX, flipInY, jackInTheBox, jello, slideInDown, tada} from 'ng-animate';
 import {HtmlHelperService} from '../../../../Model/NormalPagesManager/HtmlHelperService/html-helper.service';
-
+export enum Provider {
+  Google, Kakao, Naver
+}
 @Component({
   selector: 'app-auth-page',
   templateUrl: './login-page.component.html',
@@ -19,6 +21,9 @@ import {HtmlHelperService} from '../../../../Model/NormalPagesManager/HtmlHelper
 })
 export class LoginPageComponent implements OnInit {
   fadeIn:any;
+  googleProvider:Provider = Provider.Google;
+  kakaoProvider:Provider = Provider.Kakao;
+  naverProvider:Provider = Provider.Naver;
 
   constructor(
     public apiRequester: AuthRequestService,
@@ -30,8 +35,19 @@ export class LoginPageComponent implements OnInit {
   }
 
   // Method to sign in with social account
-  signIn(platform: string): void {
-    HttpHelper.redirectTo(HttpHelper.api.authGoogle.uri);
+  signIn(platform: Provider): void {
+    switch (platform) {
+      case Provider.Google:
+        HttpHelper.redirectTo(HttpHelper.api.authGoogle.uri);
+        break;
+      case Provider.Kakao:
+        HttpHelper.redirectTo(HttpHelper.api.authKakao.uri);
+        break;
+      case Provider.Naver:
+        HttpHelper.redirectTo(HttpHelper.api.authNaver.uri);
+        break;
+
+    }
   }
 
   // Method to sign out

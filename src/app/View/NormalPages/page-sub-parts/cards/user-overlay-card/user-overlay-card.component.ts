@@ -26,7 +26,8 @@ export class UserOverlayCardComponent implements OnInit, AfterViewInit,OnChanges
 
   constructor(
     public renderer: Renderer2,
-    public animeManagerService:AnimeManagerService
+    public animeManagerService:AnimeManagerService,
+    public htmlHelper:HtmlHelperService,
   ) { }
 
   ngOnInit() {

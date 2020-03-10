@@ -67,6 +67,12 @@ export class HttpHelper {
     authGoogle : new ApiRequest(
       "/auth/google",   ApiRequestTypeEnum.REDIRECT
     ),
+    authKakao : new ApiRequest(
+      "/auth/kakao",   ApiRequestTypeEnum.REDIRECT
+    ),
+    authNaver : new ApiRequest(
+      "/auth/naver",   ApiRequestTypeEnum.REDIRECT
+    ),
     protected : new ApiRequest(
       "/auth/protected",     ApiRequestTypeEnum.POST
     ),

@@ -53,7 +53,7 @@ export class KanbanItemEditComponent implements OnInit {
     this.dialogRef.close();
   }
   onSubmit(){
-    this.kanbanItem.userInfo = this.userManagerService.getUserDataByName(
+    this.kanbanItem.userInfo = this.userManagerService.getUserDataByIdToken(
       this.userFormControl.value
     );
     this.kanbanItem.setColor(this.colorFormControl.value);

@@ -56,6 +56,7 @@ export class KanbanComponent implements OnInit, OnDestroy {
     public dialog: MatDialog,
     public kanbanEventManager:KanbanEventManagerService,
     public websocketManagerService:WebsocketManagerService,
+    public htmlHelper:HtmlHelperService,
     @Inject(MAT_DIALOG_DATA) public data: KanbanComponentData,
   ) {
     this.kanbanGroupWrapper = new Array<KanbanGroup>();

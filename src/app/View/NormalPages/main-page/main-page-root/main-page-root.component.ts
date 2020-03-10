@@ -30,7 +30,8 @@ export class MainPageRootComponent implements OnInit {
         .subscribe((data)=>{
           console.log("MainPageRootComponent >> projectRequesterService >> data : ",data);
           localStorage.removeItem("inviteCode");
-          this.routerHelperService.goToMainPage();
+          // this.routerHelperService.goToMainPage();
+          this.initPageData(data.result);
       })
     }
 
@@ -39,13 +40,17 @@ export class MainPageRootComponent implements OnInit {
     this.authRequestService.authEventEmitter.subscribe((authEvent:AuthEvent)=>{
       let userDto = authEvent.userInfo;
       console.log("MainPageRootComponent >> authEventEmitter >> userDto : ",userDto);
-      this.userDto = userDto;
-      console.log("MainPageRootComponent >>  >> this.userDto.participatingProjects : ",this.userDto.participatingProjects);
-      for(let i = 0 ; i < this.userDto.participatingProjects.length; i++){
-        let project = this.userDto.participatingProjects[i];
-        this.projectList.push(project);
-      }
+      this.initPageData(userDto);
     });
+  }
+
+  initPageData(userDto:UserDTO){
+    this.userDto = userDto;
+    this.projectList.splice(0, this.projectList.length);
+    for(let i = 0 ; i < this.userDto.participatingProjects.length; i++){
+      let project = this.userDto.participatingProjects[i];
+      this.projectList.push(project);
+    }
   }
 
   ngOnInit(){

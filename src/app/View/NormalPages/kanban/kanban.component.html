@@ -120,7 +120,7 @@
                   <span *ngIf="item.userInfo">
                     <img mat-card-image
                          class="kanban-item-manager-image"
-                         src="{{item.userInfo.profileImg}}"/>
+                         src="{{htmlHelper.verifyProfileImage(item.userInfo.profileImg)}}"/>
                     <mat-card-subtitle class="kanban-item-manager-name text-ellipsis">
                       {{item.userInfo.userName}}
                     </mat-card-subtitle>

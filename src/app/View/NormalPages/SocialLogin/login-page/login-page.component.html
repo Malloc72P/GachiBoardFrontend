@@ -16,16 +16,18 @@
         <div class="social-login-wrapper">
           <button mat-button
                   class="signin-btn"
-                  (click)="signIn('Google');">
+                  (click)="signIn(googleProvider);">
             <span class="signInBtn googleSignInBtn"></span>
           </button>
           <button mat-button
-                  class="signin-btn">
+                  class="signin-btn"
+                  (click)="signIn(naverProvider);">
             <span class="signInBtn naverSignInBtn"></span>
           </button>
 
           <button mat-button
-                  class="signin-btn">
+                  class="signin-btn"
+                  (click)="signIn(kakaoProvider);">
             <span class="signInBtn kakaoSignInBtn"></span>
           </button>
         </div>
