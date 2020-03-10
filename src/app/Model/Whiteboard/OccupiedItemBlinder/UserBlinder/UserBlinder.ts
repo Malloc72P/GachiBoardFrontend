@@ -16,11 +16,14 @@ import PointText = paper.PointText;
 import BoundsRectangle = paper.Rectangle;
 import {GlobalSelectedGroupDto} from '../../../../DTO/WhiteboardItemDto/ItemGroupDto/GlobalSelectedGroupDto/GlobalSelectedGroupDto';
 import {DrawingLayerManagerService} from '../../InfiniteCanvas/DrawingLayerManager/drawing-layer-manager.service';
+import {ZoomEvent} from '../../InfiniteCanvas/ZoomControl/ZoomEvent/zoom-event';
+import {ZoomEventEnum} from '../../InfiniteCanvas/ZoomControl/ZoomEvent/zoom-event-enum.enum';
 
 export class UserBlinder {
   public blindGroup;
 
   public blindRect;
+  public blindTextGroup;
   public blindText;
   public blindTextBg;
 
@@ -31,7 +34,10 @@ export class UserBlinder {
 
   public layerService:DrawingLayerManagerService;
 
-  constructor(userIdToken, userName, layerService){
+  public width;
+  public height;
+
+  constructor(userIdToken, userName, layerService, zoomEventEmitter){
     this.blindItemMap = new Map<any, WhiteboardItem>();
     this.userIdToken = userIdToken;
     this.userName = userName;
@@ -39,6 +45,7 @@ export class UserBlinder {
     this.layerService = layerService;
 
     this.blindGroup = new Group();
+    this.blindTextGroup = new Group();
 
     let blindRect = new Rectangle({
       from: new Point(0,0),
@@ -69,13 +76,23 @@ export class UserBlinder {
     blindTextBg.opacity = 0.5;
     blindTextBg.bounds.topLeft = blindText.bounds.topLeft;
 
+    this.width = blindText.bounds.width;
+    this.height = blindText.bounds.height;
+
     this.blindRect = blindRect;
     this.blindText = blindText;
     this.blindTextBg = blindTextBg;
 
+    this.blindTextGroup.addChild(blindTextBg);
+    this.blindTextGroup.addChild(blindText);
+
     this.blindGroup.addChild(blindRect);
-    this.blindGroup.addChild(blindTextBg);
-    this.blindGroup.addChild(blindText);
+    this.blindGroup.addChild(this.blindTextGroup);
+
+    zoomEventEmitter.subscribe((zoomEvent: ZoomEvent) => {
+      this.onZoomChanged(zoomEvent);
+    });
+
   }
 
   occupyUpdate(gsgDto:GlobalSelectedGroupDto){
@@ -100,8 +117,9 @@ export class UserBlinder {
 
       this.blindRect.bounds.topLeft = new Point( gsgDto.topLeft.x, gsgDto.topLeft.y );
 
-      this.blindText.bounds.topRight = this.blindRect.bounds.bottomRight;
-      this.blindTextBg.bounds.topLeft = this.blindText.bounds.topLeft;
+      this.blindTextGroup.bounds.topRight = this.blindRect.bounds.bottomRight;
+      // this.blindText.bounds.topRight = this.blindRect.bounds.bottomRight;
+      // this.blindTextBg.bounds.topLeft = this.blindText.bounds.topLeft;
       this.blindGroup.bringToFront();
       this.blindGroup.visible = true;
     }else{
@@ -130,8 +148,8 @@ export class UserBlinder {
 
       this.blindRect.bounds.topLeft = new Point( gsgDto.topLeft.x, gsgDto.topLeft.y );
 
-      this.blindText.bounds.topRight = this.blindRect.bounds.bottomRight;
-      this.blindTextBg.bounds.topLeft = this.blindText.bounds.topLeft;
+      this.blindTextGroup.bounds.topRight = this.blindRect.bounds.bottomRight;
+
       this.blindGroup.bringToFront();
       this.blindGroup.visible = true;
     }else{
@@ -143,5 +161,18 @@ export class UserBlinder {
       this.blindGroup.visible = false;
     }
   }
+
+  private onZoomChanged(zoomEvent: ZoomEvent) {
+    if (zoomEvent.action === ZoomEventEnum.ZOOM_CHANGED) {
+      this.refreshBlinderForZooming(zoomEvent.zoomFactor);
+    }
+  }
+
+  private refreshBlinderForZooming(factor: number) {
+    this.blindTextGroup.bounds.width = this.width / factor;
+    this.blindTextGroup.bounds.height = this.height / factor;
+    this.blindTextGroup.bounds.topRight = this.blindRect.bounds.bottomRight;
+  }
+
 
 }

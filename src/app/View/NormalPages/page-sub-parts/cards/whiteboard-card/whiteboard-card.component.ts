@@ -26,7 +26,7 @@ export class WhiteboardCardComponent implements OnInit, AfterViewInit {
   ngOnInit() {
   }
   ngAfterViewInit(): void {
-    this.animeManagerService.activateSplashAnime(this.wbCard.nativeElement);
+    // this.animeManagerService.activateSplashAnime(this.wbCard.nativeElement);
 
   }
   onWbCardClick(){

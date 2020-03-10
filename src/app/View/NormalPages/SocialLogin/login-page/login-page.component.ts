@@ -1,32 +1,28 @@
 import {Component, OnInit} from '@angular/core';
 import { HttpHelper } from '../../../../Model/Helper/http-helper/http-helper';
 import {AuthRequestService} from '../../../../Controller/SocialLogin/auth-request/auth-request.service';
+import {transition, trigger, useAnimation} from '@angular/animations';
+import {bounce, bounceIn, bounceInLeft, fadeIn, flipInX, flipInY, jackInTheBox, jello, slideInDown, tada} from 'ng-animate';
+import {HtmlHelperService} from '../../../../Model/NormalPagesManager/HtmlHelperService/html-helper.service';
 
 @Component({
   selector: 'app-auth-page',
   templateUrl: './login-page.component.html',
   styleUrls: [
     './login-page.component.css',
+    './../../gachi-font.css',
     "./login-page.component.scss"
-  ]
+  ],
+  animations: [trigger('fadeIn',
+    [transition('* => *', useAnimation(fadeIn,
+      {params : {timing : 1, delay : 0}}))])]
 })
 export class LoginPageComponent implements OnInit {
-  myStyle: object = {};
-  myParams: object = {};
-  width: number = 100;
-  height: number = 100;
-  public readonly particleColor = '#EF2938';
-  public readonly universalOpacity = 0.3;
-  public readonly particleOpacity = this.universalOpacity;
-  public readonly lineOpacity = this.universalOpacity;
-  public readonly repulseDistance = 150;
-  public readonly particleWidth = 8;
-  public readonly lineWidth = 2;
-  public readonly linkDistance = 300;
-  public readonly opacityMin = 1;
+  fadeIn:any;
 
   constructor(
-    public apiRequester: AuthRequestService
+    public apiRequester: AuthRequestService,
+    public htmlHelper:HtmlHelperService
   ) {
   }
 

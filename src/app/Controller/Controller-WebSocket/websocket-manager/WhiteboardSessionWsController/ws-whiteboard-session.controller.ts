@@ -23,6 +23,7 @@ export class WsWhiteboardSessionController {
     this.onPinged();
     this.onWbSessionJoined();
     this.onCursorDataUpdate();
+    this.onWbSessionDisconnected();
   }
 
 
@@ -73,7 +74,7 @@ export class WsWhiteboardSessionController {
   /* **************************************************** */
 
   /* *************************************************** */
-  /* Request Create START */
+  /* Request JOIN START */
   /* *************************************************** */
 
   waitRequestJoinWbSession( wbSessionDto:WhiteboardSessionDto ){
@@ -118,7 +119,26 @@ export class WsWhiteboardSessionController {
   }
 
   /* **************************************************** */
-  /* Request Create END */
+  /* Request JOIN END */
+  /* **************************************************** */
+
+  /* *************************************************** */
+  /* Request DISCONNECT START */
+  /* *************************************************** */
+
+  private onWbSessionDisconnected(){
+    this.socket.on(HttpHelper.websocketApi.whiteboardSession.disconnect.event,
+      (wsPacketDto:WebsocketPacketDto)=>{
+        if (wsPacketDto.action === WebsocketPacketActionEnum.DISCONNECT) {
+          console.log("WsWhiteboardSessionController >> onWbSessionDisconnected >> wsPacketDto : ",wsPacketDto);
+          this.websocketManager.wbSessionEventManagerService.wsWbSessionEventEmitter.emit(
+            new WbSessionEvent(WbSessionEventEnum.DISCONNECT, wsPacketDto.dataDto as WhiteboardSessionDto, wsPacketDto.additionalData));
+        }
+      });
+  }
+
+  /* **************************************************** */
+  /* Request DISCONNECT END */
   /* **************************************************** */
 
   /* *************************************************** */

@@ -12,6 +12,7 @@ export enum WebsocketPacketActionEnum {
   ACK,
   NAK,
   JOIN,
+  DISCONNECT,
   SPECIAL,
   OCCUPIED,
   NOT_OCCUPIED

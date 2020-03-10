@@ -3,6 +3,8 @@ import {GachiPointDto} from '../../../../DTO/WhiteboardItemDto/PointDto/gachi-po
 import {UserBlinder} from '../UserBlinder/UserBlinder';
 import {GlobalSelectedGroupDto} from '../../../../DTO/WhiteboardItemDto/ItemGroupDto/GlobalSelectedGroupDto/GlobalSelectedGroupDto';
 import {DrawingLayerManagerService} from '../../InfiniteCanvas/DrawingLayerManager/drawing-layer-manager.service';
+import {ZoomControlService} from '../../InfiniteCanvas/ZoomControl/zoom-control.service';
+import {InfiniteCanvasService} from '../../InfiniteCanvas/infinite-canvas.service';
 
 @Injectable({
   providedIn: 'root'
@@ -11,7 +13,9 @@ export class ItemBlinderManagementService {
   public userBinderMap:Map<any, UserBlinder>;
   private zoomEventEmitter: EventEmitter<any>;
   private layerService:DrawingLayerManagerService;
-  constructor() {
+  constructor(
+    private infiniteCanvasService:InfiniteCanvasService
+  ) {
     this.userBinderMap = new Map<any, UserBlinder>();
   }
 
@@ -22,13 +26,13 @@ export class ItemBlinderManagementService {
 
   public updateOccupiedData(gsgDto:GlobalSelectedGroupDto) {
     if(!this.userBinderMap.has(gsgDto.userIdToken)){
-      this.userBinderMap.set(gsgDto.userIdToken, new UserBlinder(gsgDto.userIdToken, gsgDto.userName, this.layerService));
+      this.userBinderMap.set(gsgDto.userIdToken, new UserBlinder(gsgDto.userIdToken, gsgDto.userName, this.layerService, this.infiniteCanvasService.zoomEventEmitter ));
     }
     this.userBinderMap.get(gsgDto.userIdToken).occupyUpdate(gsgDto);
   }
   public updateNotOccupiedData(gsgDto:GlobalSelectedGroupDto) {
     if(!this.userBinderMap.has(gsgDto.userIdToken)){
-      this.userBinderMap.set(gsgDto.userIdToken, new UserBlinder(gsgDto.userIdToken, gsgDto.userName, this.layerService));
+      this.userBinderMap.set(gsgDto.userIdToken, new UserBlinder(gsgDto.userIdToken, gsgDto.userName, this.layerService, this.infiniteCanvasService.zoomEventEmitter ));
     }
     this.userBinderMap.get(gsgDto.userIdToken).notOccupyUpdate(gsgDto);
   }

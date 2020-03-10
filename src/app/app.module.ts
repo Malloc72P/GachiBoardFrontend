@@ -284,7 +284,7 @@ const appRoutes: Routes = [
     MatStepperModule,
     MatBadgeModule,
     MatProgressSpinnerModule,
-    OverlayModule
+    OverlayModule,
   ],
   providers: [
     RouterHelperService,

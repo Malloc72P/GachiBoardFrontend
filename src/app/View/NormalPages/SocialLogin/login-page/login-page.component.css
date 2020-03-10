@@ -4,42 +4,114 @@
   top: 0;
   z-index: 0;
   width: 100%;
-  height: 100%;
-  background-image: url("/assets/images/background/signin/worldmap_normal.svg");
-  opacity: 0.3;
-  /*filter: blur(5px);*/
-  transform: scale(1.1);
-  /*background-image: url("/assets/images/background/signin/night.jpg");*/
+  min-height: 100%;
   background-repeat: no-repeat;
+  background-size: cover;
+  background-position: 50%;
+
+  /*background-image: url("/assets/images/sign/google/wb-wallpaper.jpeg");*/
+  /*background-image: url("/assets/images/sign/google/wb-wallpaper2.jpg");*/
+  /*background-image: url("/assets/images/sign/google/wb-wallpaper3.jpg");*/
+  /*background-image: url("/assets/images/sign/google/wb-kid.jpg");*/
+  /*background-image: url("/assets/images/sign/google/wb-wallpaper4.jpeg");*/
+  /*background-image: url("/assets/images/sign/google/arknight-2.jpg");*/
+  background-image: url("/assets/images/sign/google/simple4.jpg");
+  /*background-image: url("/assets/images/sign/google/wb.jpg");*/
+  /*background-image: url("/assets/images/sign/google/wb2.jpg");*/
+  /*background-image: url("/assets/images/sign/google/wb3.jpg");*/
+  /*filter: blur(3px);*/
+  /*opacity: 0.8;*/
 }
-.sign-card {
+.header-wrapper{
+  max-width: 1170px;
+  position: relative;
+  left: 50%;
+  transform: translateX(-50%);
   z-index: 2;
-  opacity: 0;
-  max-width: 400px;
-  margin-left: 50%;
-  margin-top: 4%;
-  left: -200px;
 }
-.sign-card:after {
-  content: '';
-  display: block;
-  clear: both;
+.social-login-wrapper{
+  margin-top: 50px;
+  margin-bottom: 50px;
+  text-align: left;
+  position: relative;
+  width: 250px;
+  left: 50%;
+  transform: translateX(-50%);
 }
-.sign-card-actions{
-  float: right;
-}
-.sign-header-image {
-  background-image: url("/assets/images/malloc.jfif");
+.signInBtn {
+  display: inline-block;
+  width: 247px;
+  height: 59px;
+  background-repeat: no-repeat;
   background-size: cover;
 }
 .googleSignInBtn {
-  display: inline-block;
-  width: 191px;
-  height: 46px;
-  background-image: url("/assets/images/sign/google/btn_signin_1x.png");
-  background-repeat: no-repeat;
+  background-image: url("/assets/images/sign/google/google.png");
 }
-.signin-btn-google{
+.naverSignInBtn {
+  background-image: url("/assets/images/sign/naver/naver.png");
+}
+.kakaoSignInBtn {
+  background-image: url("/assets/images/sign/kakao/kakao.png");
+}
+.signin-btn{
+  margin-bottom: 20px;
   padding: 0;
-  margin: 0;
 }
+
+.sign-card {
+  z-index: 2;
+  display: flex;
+  flex-flow: row;
+  position: relative;
+  width: 380px;
+
+  height: 480px;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+.panel-block{
+  height: 100%;
+  width: 100%;
+  display: inline-block;
+}
+.left-panel{
+  background-color: #36393F;
+  border-radius: 15px;
+  color: white;
+  box-shadow: 0px 16px 30px -5px rgba(0,0,0,0.75);
+}
+.below-border{
+  border-bottom: 2px solid white;
+  width: 40%;
+  /*
+  left: 50%;*/
+  position: relative;
+  /*transform: translateX(-50%);*/
+}
+.right-panel{
+  background-color: #1B213B;
+  border-top-right-radius: 15px;
+  border-bottom-right-radius: 15px;
+}
+.service-info-panel{
+  /*background-color: red;*/
+  position: relative;
+  height: 360px;
+  width: 65%;
+  text-align: left;
+  top: 40%;
+  left: 50%;
+  transform: translate(-50%,-50%);
+}
+.sign-in-panel{
+  background-color: grey;
+  position: relative;
+  height: 360px;
+  width: 65%;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%,-50%);
+}
+
