@@ -11,12 +11,13 @@ export class AreYouSurePanelService {
     private dialog: MatDialog
   ) { }
 
-  openAreYouSurePanel(msg1, msg2){
+  openAreYouSurePanel(msg1, msg2, isAlertMode = false){
     const dialogRef = this.dialog.open(AreYouSurePanelComponent, {
       width: '480px',
       data: {
         msg1: msg1,
-        msg2: msg2
+        msg2: msg2,
+        isAlertMode : isAlertMode
       }
     });
 

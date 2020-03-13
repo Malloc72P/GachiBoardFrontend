@@ -1,4 +1,4 @@
-<div >
+<div class="kanban-group-setting-wrapper scrollbar-warn">
   <mat-toolbar color="warn">
     <mat-toolbar-row>
         <span>
@@ -17,26 +17,21 @@
       </button>
     </mat-toolbar-row>
   </mat-toolbar>
-  <div class="item-edit-content">
+  <div class="kanban-item-edit-content">
 
 
-      <!--#### 칸반 그룹 Wrapper-->
+    <!--#### 칸반 그룹 Wrapper-->
     <mat-card-title>{{data.msg1}}</mat-card-title>
     <mat-card-subtitle style="color:red; font-weight: bolder;">
       <mat-icon>warning</mat-icon>
       {{data.msg2}}
     </mat-card-subtitle>
 
-      <!--#3 버튼-->
-      <mat-divider class="item-edit-divider"></mat-divider>
-
-      <div *ngIf="isAlertMode === false" class="item-edit-button-wrapper">
-        <button mat-button (click)="onNoClick()">No</button>
-        <button mat-button (click)="onYesClick()">Yes</button>
-      </div>
-
-    <div *ngIf="isAlertMode === true" class="item-edit-button-wrapper">
-      <button mat-button (click)="onYesClick()">Okay</button>
+    <!--#3 버튼-->
+    <mat-divider class="kanban-item-edit-divider"></mat-divider>
+    <div class="kanban-item-edit-button-wrapper">
+      <button mat-button (click)="onNoClick()">No</button>
+      <button mat-button (click)="onYesClick()">Yes</button>
     </div>
 
   </div>

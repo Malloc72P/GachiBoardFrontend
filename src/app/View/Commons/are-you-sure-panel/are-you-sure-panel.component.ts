@@ -4,6 +4,7 @@ import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
 class AreYouSureDialogData{
   msg1 : string;
   msg2 : string;
+  isAlertMode :boolean = false;
 }
 
 @Component({
@@ -12,12 +13,12 @@ class AreYouSureDialogData{
   styleUrls: ['./are-you-sure-panel.component.css']
 })
 export class AreYouSurePanelComponent implements OnInit {
-
+  isAlertMode = false;
   constructor(
     public dialogRef: MatDialogRef<AreYouSurePanelComponent>,
     @Inject(MAT_DIALOG_DATA) public data:AreYouSureDialogData
   ) {
-
+    this.isAlertMode = data.isAlertMode;
   }
 
 

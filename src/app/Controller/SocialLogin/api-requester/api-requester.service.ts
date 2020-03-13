@@ -33,4 +33,23 @@ export class ApiRequesterService {
       responseType: 'json'
     });
   }
+  public delete(url, params = null): Observable<any> {
+    return this.http.request("delete",this.baseUrl + url, {
+      headers: new HttpHeaders({
+        'Content-Type': HttpHelper.getContentType()
+      }),
+      body : params,
+      responseType: 'json',
+    });
+  }
+  public patch(url, params = null): Observable<any> {
+    return this.http.request("patch",this.baseUrl + url, {
+      headers: new HttpHeaders({
+        'Content-Type': HttpHelper.getContentType()
+      }),
+      body : params,
+      responseType: 'json',
+    });
+  }
+
 }

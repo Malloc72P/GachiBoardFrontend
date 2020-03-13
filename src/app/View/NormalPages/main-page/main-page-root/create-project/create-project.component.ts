@@ -26,7 +26,6 @@ export class CreateProjectComponent implements OnInit {
     public dialogRef: MatDialogRef<CreateProjectComponentData>,
     public authRequestService:AuthRequestService,
     public projectRequesterService:ProjectRequesterService,
-
     @Inject(MAT_DIALOG_DATA) public data: CreateProjectComponentData
   ) {
     this.projectFormGroup = new FormGroup({

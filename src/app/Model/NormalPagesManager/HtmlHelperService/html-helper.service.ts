@@ -47,6 +47,9 @@ export class HtmlHelperService {
   getKanbanGroupSettingPanelHeight(){
     return this.getHeightOfBrowser() - this.getHeightOfBrowser() * 0.2;
   }
+  getProjectEditPanelHeight(){
+    return this.getHeightOfBrowser() - this.getHeightOfBrowser() * 0.2;
+  }
   generateRand(min, max) {
     min = Math.ceil(min);
     max = Math.floor(max);

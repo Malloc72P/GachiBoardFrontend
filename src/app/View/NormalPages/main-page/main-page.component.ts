@@ -10,15 +10,15 @@ import {
 import {UserDTO} from '../../../DTO/user-dto';
 import {MatSidenav} from '@angular/material/sidenav';
 import {transition, trigger, useAnimation} from '@angular/animations';
-import {jackInTheBox} from 'ng-animate';
+import {fadeInLeft, jackInTheBox} from 'ng-animate';
 
 @Component({
   selector: 'app-main-page',
   templateUrl: './main-page.component.html',
   styleUrls: ['./main-page.component.css', './../gachi-font.css'],
   animations: [trigger('fadeIn',
-    [transition('* => *', useAnimation(jackInTheBox,
-      {params : {timing : 0.6, delay : 0}}))])]
+    [transition('* => *', useAnimation(fadeInLeft,
+      {params : {timing : 0.4, delay : 0}}))])]
 })
 export class MainPageComponent implements OnInit {
   fadeIn:any;

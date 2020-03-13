@@ -1,4 +1,4 @@
-import {Component, Input, OnInit} from '@angular/core';
+import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {CreateProjectComponent} from './create-project/create-project.component';
 import {ProjectDto} from '../../../../DTO/ProjectDto/project-dto';
 import {ProjectRequesterService} from '../../../../Controller/Project/project-requester.service';
@@ -8,6 +8,7 @@ import {AuthEvent} from '../../../../Controller/SocialLogin/auth-request/AuthEve
 import {WebsocketManagerService} from '../../../../Controller/Controller-WebSocket/websocket-manager/websocket-manager.service';
 import {RouterHelperService} from '../../../../Model/Helper/router-helper-service/router-helper.service';
 import {MatDialog} from '@angular/material/dialog';
+import {AreYouSurePanelService} from '../../../../Model/PopupManager/AreYouSurePanelManager/are-you-sure-panel.service';
 
 @Component({
   selector: 'app-main-page-root',
@@ -17,11 +18,14 @@ import {MatDialog} from '@angular/material/dialog';
 export class MainPageRootComponent implements OnInit {
   public projectList:Array<ProjectDto>;
   public userDto:UserDTO = new UserDTO();
+  @Output() userDtoEventEmitter:EventEmitter<any> = new EventEmitter<any>();
+
   constructor(
     public dialog: MatDialog,
     public projectRequesterService:ProjectRequesterService,
     public authRequestService:AuthRequestService,
     public routerHelperService:RouterHelperService,
+    public areYouSurePanelService:AreYouSurePanelService
   ) {
     let inviteCode = null;
     inviteCode = localStorage.getItem("inviteCode");
@@ -42,9 +46,14 @@ export class MainPageRootComponent implements OnInit {
       console.log("MainPageRootComponent >> authEventEmitter >> userDto : ",userDto);
       this.initPageData(userDto);
     });
+
+    this.userDtoEventEmitter.subscribe((userDto:UserDTO)=>{
+      this.initPageData(userDto);
+    });
   }
 
   initPageData(userDto:UserDTO){
+    console.log("MainPageRootComponent >> initPageData >> userDto : ",userDto);
     this.userDto = userDto;
     this.projectList.splice(0, this.projectList.length);
     for(let i = 0 ; i < this.userDto.participatingProjects.length; i++){

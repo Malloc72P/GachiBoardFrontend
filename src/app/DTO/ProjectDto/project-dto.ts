@@ -16,5 +16,4 @@ export class ProjectDto {
     this.participantList = new Array<ParticipantDto>();
     this.whiteboardSessionList = new Array<WhiteboardSessionDto>();
   }
-
 }

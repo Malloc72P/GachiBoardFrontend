@@ -116,6 +116,8 @@ import {MatBadgeModule} from '@angular/material/badge';
 import { CreateWbSessionComponent } from './View/NormalPages/main-page/main-page-project/create-wb-session/create-wb-session.component';
 import { ToolLinkPanelComponent } from './View/Whiteboard/whiteboard-tool-panel/tool-link-panel/tool-link-panel.component';
 import {WhiteboardBannerComponent} from './View/Whiteboard/whiteboard-banner/whiteboard-banner.component';
+import { EditProjectComponent } from './View/NormalPages/main-page/main-page-root/edit-project/edit-project.component';
+import { AlertPanelComponent } from './View/Commons/alert-panel/alert-panel.component';
 
 const config: SocketIoConfig = { url: HttpHelper.apiUrl, options: {} };
 
@@ -234,6 +236,8 @@ const appRoutes: Routes = [
     CreateWbSessionComponent,
     ToolLinkPanelComponent,
     WhiteboardBannerComponent,
+    EditProjectComponent,
+    AlertPanelComponent,
   ],
   entryComponents: [
     KanbanComponent,
@@ -244,6 +248,7 @@ const appRoutes: Routes = [
     AreYouSurePanelComponent,
     CreateProjectComponent,
     CreateInviteCodeComponent,
+    EditProjectComponent,
     MatSpinner
   ],
   imports: [

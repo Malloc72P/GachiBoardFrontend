@@ -7,6 +7,7 @@ import {GachiSidebarManagerService} from '../../../Model/NormalPagesManager/gach
 import {MatSidenav} from '@angular/material/sidenav';
 import {transition, trigger, useAnimation} from '@angular/animations';
 import {fadeIn} from 'ng-animate';
+import {RouterHelperService} from '../../../Model/Helper/router-helper-service/router-helper.service';
 
 @Component({
   selector: 'app-home-page',
@@ -20,7 +21,8 @@ export class HomePageComponent implements OnInit {
   fadeIn:any;
   @ViewChild('drawer', {static: true}) rightSidebar:MatSidenav;
 
-  constructor(public sidebarManagerService:GachiSidebarManagerService) { }
+  constructor(public sidebarManagerService:GachiSidebarManagerService,
+              public routerHelperService:RouterHelperService) { }
 
   ngOnInit() {
     this.sidebarManagerService.sidebarEventEmitter
@@ -30,6 +32,13 @@ export class HomePageComponent implements OnInit {
         }
       });
 
+  }
+
+  onJoinGachiBtnClick(){
+    let accessToken = localStorage.getItem('accessToken');
+    if(accessToken){
+      this.routerHelperService.goToMainPage();
+    }else this.routerHelperService.goToLoginPage();
   }
 
 }

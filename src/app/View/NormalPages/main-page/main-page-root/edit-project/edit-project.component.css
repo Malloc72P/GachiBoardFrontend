@@ -1,0 +1,9 @@
+.participant-profile-card{
+  margin-bottom: 30px;
+}
+.participant-profile-img{
+  background-size: cover;
+}
+.edit-project-wrapper{
+  overflow-y: auto;
+}

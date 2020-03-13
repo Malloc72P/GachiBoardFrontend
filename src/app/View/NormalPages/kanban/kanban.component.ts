@@ -22,6 +22,7 @@ import {WebsocketManagerService} from '../../../Controller/Controller-WebSocket/
 import {KanbanDataDto} from '../../../DTO/ProjectDto/KanbanDataDto/kanban-data-dto';
 import {Subscription} from 'rxjs';
 import {MAT_DIALOG_DATA, MatDialog, MatDialogRef} from '@angular/material/dialog';
+import {UiService} from '../../../Model/Helper/ui-service/ui.service';
 
 export class KanbanComponentData {
   projectDto:ProjectDto;

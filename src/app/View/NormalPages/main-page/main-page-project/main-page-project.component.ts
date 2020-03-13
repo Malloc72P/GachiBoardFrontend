@@ -32,6 +32,7 @@ import {
 import {WsWhiteboardSessionController} from '../../../../Controller/Controller-WebSocket/websocket-manager/WhiteboardSessionWsController/ws-whiteboard-session.controller';
 import {RouterHelperService} from '../../../../Model/Helper/router-helper-service/router-helper.service';
 import {CursorTrackerService} from '../../../../Model/Whiteboard/CursorTracker/cursor-tracker-service/cursor-tracker.service';
+import {UiService} from '../../../../Model/Helper/ui-service/ui.service';
 
 @Component({
   selector: 'app-main-page-project',
@@ -63,6 +64,7 @@ export class MainPageProjectComponent implements OnInit, OnDestroy {
     public userManagerService1:UserManagerService,
     public kanbanEventManager:KanbanEventManagerService,
     public wbSessionEventManagerService:WbSessionEventManagerService,
+    public uiService:UiService,
   ) {
     this.projectId = this.route.snapshot.paramMap.get('projectId');
 
@@ -158,6 +160,7 @@ export class MainPageProjectComponent implements OnInit, OnDestroy {
       subscriptionItem.unsubscribe();
     }
     this.websocketManagerService.resetSocket();
+    this.uiService.spin$.next(false);
   }
 
   public isRequestedJoin = false;
@@ -195,6 +198,7 @@ export class MainPageProjectComponent implements OnInit, OnDestroy {
     dialogRef.afterClosed().subscribe(result => {
       /*let wsKanbanController = WsKanbanController.getInstance();
       wsKanbanController.requestGetKanban();*/
+      console.log("MainPageProjectComponent >>  >> result : ",result);
       this.refreshInProgressGroup();
     });
   }

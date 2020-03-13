@@ -59,11 +59,11 @@ export class GachiColorList {
       case 3 :
         return "purple";
       case 4 :
-        return "cyan";
+        return "indigo";
       case 5 :
         return "azure";
       case 6 :
-        return "indigo";
+        return "orange";
     }
   }
 }

@@ -21,7 +21,7 @@ export enum ApiRequestTypeEnum {
   POST,
   PATCH,
   DELETE,
-  REDIRECT
+  REDIRECT,
 }
 export enum WebSocketTypeEnum {
   CREATE,
@@ -46,6 +46,10 @@ export enum Z_INDEX_ACTION {
 export enum SpecialAction {
   PASTE_COMPLETE,
   RELOCATE_PASTE_COMPLETE
+}
+export enum REST_RESPONSE{
+  ACK = 100,
+  NOT_AUTHORIZED = 400,
 }
 
 export class HttpHelper {
@@ -94,6 +98,12 @@ export class HttpHelper {
       ),
       invitation : new ApiRequest(
         "/invitation", ApiRequestTypeEnum.REDIRECT
+      ),
+      exit : new ApiRequest(
+        "/project", ApiRequestTypeEnum.DELETE
+      ),
+      patch : new ApiRequest(
+        "/project", ApiRequestTypeEnum.PATCH
       )
     }
   };
