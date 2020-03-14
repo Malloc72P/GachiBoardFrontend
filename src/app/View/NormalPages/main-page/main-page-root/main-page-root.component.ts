@@ -1,4 +1,4 @@
-import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
+import {Component, EventEmitter, Input, OnDestroy, OnInit, Output} from '@angular/core';
 import {CreateProjectComponent} from './create-project/create-project.component';
 import {ProjectDto} from '../../../../DTO/ProjectDto/project-dto';
 import {ProjectRequesterService} from '../../../../Controller/Project/project-requester.service';
@@ -9,16 +9,19 @@ import {WebsocketManagerService} from '../../../../Controller/Controller-WebSock
 import {RouterHelperService} from '../../../../Model/Helper/router-helper-service/router-helper.service';
 import {MatDialog} from '@angular/material/dialog';
 import {AreYouSurePanelService} from '../../../../Model/PopupManager/AreYouSurePanelManager/are-you-sure-panel.service';
+import {Subscription} from 'rxjs';
 
 @Component({
   selector: 'app-main-page-root',
   templateUrl: './main-page-root.component.html',
   styleUrls: ['./main-page-root.component.css', './../main-article-style.css', './../../gachi-font.css']
 })
-export class MainPageRootComponent implements OnInit {
+export class MainPageRootComponent implements OnInit, OnDestroy {
   public projectList:Array<ProjectDto>;
   public userDto:UserDTO = new UserDTO();
   @Output() userDtoEventEmitter:EventEmitter<any> = new EventEmitter<any>();
+
+  public subscriptionList:Array<Subscription> = new Array<Subscription>();
 
   constructor(
     public dialog: MatDialog,
@@ -30,26 +33,31 @@ export class MainPageRootComponent implements OnInit {
     let inviteCode = null;
     inviteCode = localStorage.getItem("inviteCode");
     if(inviteCode){
-      this.projectRequesterService.submitInviteCode(inviteCode)
+      let subscription = this.projectRequesterService.submitInviteCode(inviteCode)
         .subscribe((data)=>{
           console.log("MainPageRootComponent >> projectRequesterService >> data : ",data);
           localStorage.removeItem("inviteCode");
           // this.routerHelperService.goToMainPage();
           this.initPageData(data.result);
-      })
+          subscription.unsubscribe();
+      });
+      this.subscriptionList.push(subscription);
     }
 
     this.projectList = new Array<ProjectDto>();
     this.userDto = this.authRequestService.getUserInfo();
-    this.authRequestService.authEventEmitter.subscribe((authEvent:AuthEvent)=>{
+    let subscription = this.authRequestService.authEventEmitter.subscribe((authEvent:AuthEvent)=>{
       let userDto = authEvent.userInfo;
       console.log("MainPageRootComponent >> authEventEmitter >> userDto : ",userDto);
       this.initPageData(userDto);
+      subscription.unsubscribe();
     });
+    this.subscriptionList.push(subscription);
 
-    this.userDtoEventEmitter.subscribe((userDto:UserDTO)=>{
+    let subscription2 = this.userDtoEventEmitter.subscribe((userDto:UserDTO)=>{
       this.initPageData(userDto);
     });
+    this.subscriptionList.push(subscription2);
   }
 
   initPageData(userDto:UserDTO){
@@ -63,6 +71,11 @@ export class MainPageRootComponent implements OnInit {
   }
 
   ngOnInit(){
+  }
+  ngOnDestroy(): void {
+    for(let subscription of this.subscriptionList){
+      subscription.unsubscribe();
+    }
   }
 
   onProjectCreateButtonClick(){

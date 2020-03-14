@@ -71,6 +71,7 @@ export class WhiteboardMainComponent implements OnInit,OnDestroy {
 
   public connectedUserList:Array<string>;
   public wbTitle = "GachiBoard";
+  public wbSessionId = "";
 
 
   ngCursorTracker(event) {
@@ -132,12 +133,10 @@ export class WhiteboardMainComponent implements OnInit,OnDestroy {
                 console.log("WhiteboardMainComponent >>  >> wbSessionFullDto : ",wbSessionFullDto);
                 //#6. FullData획득시, 데이터에 있는 아이템을 전부 Layer서비스에 등록
 
-                wsWbSessionController.requestPingToWbSession().subscribe((data) => {
-                  //console.log("WhiteboardMainComponent >> ngOnInit >> data : ", data);
-                });
                 this.minimapSyncService.syncMinimap();
                 this.initCursorTrackerInstance(wbSessionFullDto, userDto);
                 this.wbTitle = wbSessionFullDto.title;
+                this.wbSessionId = wbSessionFullDto._id;
 
                 let recvWbItemPacketDtoList:Array<WbItemPacketDto> = wbSessionFullDto.wbItemArray as Array<WbItemPacketDto>;
                 for(let i = 0 ; i < recvWbItemPacketDtoList.length; i++){
@@ -200,8 +199,8 @@ export class WhiteboardMainComponent implements OnInit,OnDestroy {
 
     this.wbSessionSubscription = this.wbSessionEventManagerService.wsWbSessionEventEmitter.subscribe((wbSessionEvent:WbSessionEvent)=>{
       if(wbSessionEvent.action === WbSessionEventEnum.JOIN){
-
-        if (wbSessionEvent.additionalData) {
+        let recvWbSessionDto:WhiteboardSessionDto = wbSessionEvent.data as WhiteboardSessionDto;
+        if (recvWbSessionDto._id === this.wbSessionId && wbSessionEvent.additionalData) {
           //this.connectedUserList.push(wbSessionEvent.additionalData);
           this.pushToConnectedUserArray(wbSessionEvent.additionalData);
         }

@@ -6,6 +6,7 @@ import {HttpHelper} from '../../Model/Helper/http-helper/http-helper';
 import {ProjectDto} from '../../DTO/ProjectDto/project-dto';
 import {AuthRequestService} from '../SocialLogin/auth-request/auth-request.service';
 import {UiService} from '../../Model/Helper/ui-service/ui.service';
+import {RestPacketDto} from '../../DTO/RestPacketDto/RestPacketDto';
 
 @Injectable({
   providedIn: 'root'
@@ -95,6 +96,20 @@ export class ProjectRequesterService {
         });
     });
   }
+
+  getParticipantList(projectId) :Observable<any>{
+    return new Observable<any>((observer)=>{
+      this.apiRequester.get( HttpHelper.api.project.getParticipantList.uri,
+        {projectId : projectId} )
+        .subscribe((data:RestPacketDto)=>{
+          observer.next(data.data);
+        }, (error)=>{
+          console.log("ProjectRequesterService >> submitInviteCode >> error : ",error);
+          this.authRequestService.signOutProcess();
+        });
+    });
+  }
+
 
 
 

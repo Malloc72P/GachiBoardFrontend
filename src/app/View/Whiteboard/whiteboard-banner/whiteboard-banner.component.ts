@@ -22,6 +22,7 @@ import {Subscription} from 'rxjs';
 export class WhiteboardBannerComponent implements OnInit,OnDestroy {
   @Input()connectedUserList:Array<string>;
   @Input()wbTitle:string;
+  @Input()wbSessionId:string;
   constructor(
     public websocketManagerService:WebsocketManagerService,
     public cursorTrackerService:CursorTrackerService,
@@ -38,7 +39,7 @@ export class WhiteboardBannerComponent implements OnInit,OnDestroy {
           break;
         case WbSessionEventEnum.DISCONNECT:
           console.log("WhiteboardBannerComponent >> WbSessionEvent >> recvEvent : ",recvEvent);
-          this.onUserDisconnect(recvEvent.data);
+          this.onUserDisconnect(recvEvent.data, recvEvent.additionalData);
           break;
       }
     })
@@ -48,7 +49,10 @@ export class WhiteboardBannerComponent implements OnInit,OnDestroy {
       this.subscription.unsubscribe();
     }
   }
-  onUserDisconnect(idToken){
+  onUserDisconnect(idToken, wbSessionId){
+    if(wbSessionId !== this.wbSessionId){
+      return;
+    }
     for(let i = 0 ; i < this.connectedUserList.length; i++){
       let currUser = this.connectedUserList[i];
       if(currUser === idToken){

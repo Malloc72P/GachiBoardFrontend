@@ -14,6 +14,7 @@ export class RouterHelperService {
     this.goToTarget("login");
   }
   goToMainPage(){
+    console.log("RouterHelperService >> goToMainPage >> 진입함");
     this.goToTarget("mainpage");
   }
   goToHomePage(){

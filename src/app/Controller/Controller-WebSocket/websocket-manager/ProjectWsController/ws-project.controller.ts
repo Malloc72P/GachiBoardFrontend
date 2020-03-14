@@ -1,5 +1,5 @@
 import {Socket} from 'ngx-socket-io';
-import {HttpHelper} from '../../../../Model/Helper/http-helper/http-helper';
+import {HttpHelper, WebsocketValidationCheck} from '../../../../Model/Helper/http-helper/http-helper';
 import {WebsocketManagerService} from '../websocket-manager.service';
 import {WebsocketPacketDto} from '../../../../DTO/WebsocketPacketDto/WebsocketPacketDto';
 import {WebsocketPacketActionEnum} from '../../../../DTO/WebsocketPacketDto/WebsocketPacketActionEnum';
@@ -17,6 +17,7 @@ export class WsProjectController {
     this.websocketManager = websocketManager;
     this.socket = this.websocketManager.socket;
     this.onParticipantJoin();
+    this.onProjectUpdate();
   }
 
 
@@ -45,13 +46,26 @@ export class WsProjectController {
 
       this.socket.once(HttpHelper.websocketApi.project.joinProject.event,
         (wsPacket:WebsocketPacketDto)=>{
-          console.log("WsProjectController >>  >> wsPacket : ",wsPacket);
+          console.log("WsProjectController >> waitJoinProject >> recv wsPacket : ",wsPacket);
           switch (wsPacket.action) {
             case WebsocketPacketActionEnum.ACK:
               this.websocketManager.currentProjectDto = wsPacket.dataDto as ProjectDto;
               subscriber.next(this.websocketManager.currentProjectDto);
               break;
             case WebsocketPacketActionEnum.NAK:
+              let reason:WebsocketValidationCheck = wsPacket.dataDto as WebsocketValidationCheck;
+              let errorMessage = "";
+              switch (reason) {
+                case WebsocketValidationCheck.INVALID_USER:
+                case WebsocketValidationCheck.INVALID_PROJECT:
+                case WebsocketValidationCheck.INVALID_PARTICIPANT:
+                  errorMessage = "일시적인 오류가 발생했어요. 다시 시도해주세요.";
+                  break;
+                case WebsocketValidationCheck.KICKED_PARTICIPANT:
+                  errorMessage = "프로젝트 관리자가 회원님을 내보낸 것 같아요. 프로젝트 관리자에게 문의해주세요.";
+                  break;
+              }
+              subscriber.error(errorMessage);
               break;
           }
         });
@@ -83,6 +97,18 @@ export class WsProjectController {
   /* **************************************************** */
   /* WS-Project Controller END */
   /* **************************************************** */
+
+  private onProjectUpdate(){
+    this.socket.on(HttpHelper.websocketApi.project.update.event,
+      (wsPacket:WebsocketPacketDto)=>{
+      console.log("WsProjectController >> onProjectUpdate >> wsPacket : ",wsPacket);
+        let updatedProjectDto:ProjectDto = wsPacket.dataDto as ProjectDto;
+        if (wsPacket.action === WebsocketPacketActionEnum.UPDATE) {
+          this.websocketManager.currentProjectDto = wsPacket.dataDto as ProjectDto;
+          this.websocketManager.wsEventEmitter.emit(new WebsocketEvent(WebsocketEventEnum.UPDATE, wsPacket.dataDto));
+        }
+      })
+  }
 
 
 

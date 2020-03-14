@@ -117,7 +117,7 @@ import { CreateWbSessionComponent } from './View/NormalPages/main-page/main-page
 import { ToolLinkPanelComponent } from './View/Whiteboard/whiteboard-tool-panel/tool-link-panel/tool-link-panel.component';
 import {WhiteboardBannerComponent} from './View/Whiteboard/whiteboard-banner/whiteboard-banner.component';
 import { EditProjectComponent } from './View/NormalPages/main-page/main-page-root/edit-project/edit-project.component';
-import { AlertPanelComponent } from './View/Commons/alert-panel/alert-panel.component';
+import { EditWbSessionComponent } from './View/NormalPages/main-page/main-page-project/edit-wb-session/edit-wb-session.component';
 
 const config: SocketIoConfig = { url: HttpHelper.apiUrl, options: {} };
 
@@ -237,7 +237,7 @@ const appRoutes: Routes = [
     ToolLinkPanelComponent,
     WhiteboardBannerComponent,
     EditProjectComponent,
-    AlertPanelComponent,
+    EditWbSessionComponent,
   ],
   entryComponents: [
     KanbanComponent,
@@ -249,6 +249,7 @@ const appRoutes: Routes = [
     CreateProjectComponent,
     CreateInviteCodeComponent,
     EditProjectComponent,
+    EditWbSessionComponent,
     MatSpinner
   ],
   imports: [

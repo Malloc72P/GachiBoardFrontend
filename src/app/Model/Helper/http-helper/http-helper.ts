@@ -52,6 +52,14 @@ export enum REST_RESPONSE{
   NOT_AUTHORIZED = 400,
 }
 
+export enum WebsocketValidationCheck {
+  INVALID_USER,
+  INVALID_PROJECT,
+  INVALID_PARTICIPANT,
+  KICKED_PARTICIPANT
+}
+
+
 export class HttpHelper {
   //TODO 이런거 json으로 뽑을 수 있으면 뽑아야 함.
   private static readonly ngDomainName        =   ServerSetting.ngDomain;
@@ -104,6 +112,9 @@ export class HttpHelper {
       ),
       patch : new ApiRequest(
         "/project", ApiRequestTypeEnum.PATCH
+      ),
+      getParticipantList : new ApiRequest(
+        "/project/participantList", ApiRequestTypeEnum.GET
       )
     }
   };
@@ -112,6 +123,9 @@ export class HttpHelper {
     project : {
       joinProject : new WebSocketRequest(
         "project_join",WebSocketTypeEnum.READ
+      ),
+      update : new WebSocketRequest(
+        "project_update",WebSocketTypeEnum.UPDATE
       )
     },
     kanban : {

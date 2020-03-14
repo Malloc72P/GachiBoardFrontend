@@ -12,10 +12,6 @@ import {WsProjectController} from '../../../../Controller/Controller-WebSocket/w
 import {ProjectDto} from '../../../../DTO/ProjectDto/project-dto';
 import {CreateInviteCodeComponent, CreateInviteCodeComponentData} from './create-invite-code/create-invite-code.component';
 import {KanbanItemDto} from '../../../../DTO/ProjectDto/KanbanDataDto/KanbanGroupDto/KanbanItemDto/kanban-item-dto';
-import {
-  WebsocketEvent,
-  WebsocketEventEnum
-} from '../../../../Controller/Controller-WebSocket/websocket-manager/WebsocketEvent/WebsocketEvent';
 import {KanbanDataDto} from '../../../../DTO/ProjectDto/KanbanDataDto/kanban-data-dto';
 import {KanbanEvent, KanbanEventEnum} from '../../../../Model/Whiteboard/ProjectSupporter/Kanban/KanbanEvent/KanbanEvent';
 import {KanbanEventManagerService} from '../../../../Model/Whiteboard/ProjectSupporter/Kanban/kanban-event-manager.service';
@@ -31,8 +27,18 @@ import {
 } from '../../../../Controller/Controller-WebSocket/websocket-manager/WhiteboardSessionWsController/wb-session-event/wb-session-event';
 import {WsWhiteboardSessionController} from '../../../../Controller/Controller-WebSocket/websocket-manager/WhiteboardSessionWsController/ws-whiteboard-session.controller';
 import {RouterHelperService} from '../../../../Model/Helper/router-helper-service/router-helper.service';
-import {CursorTrackerService} from '../../../../Model/Whiteboard/CursorTracker/cursor-tracker-service/cursor-tracker.service';
 import {UiService} from '../../../../Model/Helper/ui-service/ui.service';
+import {AreYouSurePanelService} from '../../../../Model/PopupManager/AreYouSurePanelManager/are-you-sure-panel.service';
+import {ProjectRequesterService} from '../../../../Controller/Project/project-requester.service';
+import {EditProjectComponent} from '../main-page-root/edit-project/edit-project.component';
+import {RestPacketDto} from '../../../../DTO/RestPacketDto/RestPacketDto';
+import {AuthorityLevel} from '../../../../DTO/ProjectDto/ParticipantDto/authority-level.enum';
+import {ParticipantDto, ParticipantState} from '../../../../DTO/ProjectDto/ParticipantDto/participant-dto';
+import {EditWbSessionComponent, EditWbSessionComponentData} from './edit-wb-session/edit-wb-session.component';
+import {
+  WebsocketEvent,
+  WebsocketEventEnum
+} from '../../../../Controller/Controller-WebSocket/websocket-manager/WebsocketEvent/WebsocketEvent';
 
 @Component({
   selector: 'app-main-page-project',
@@ -65,6 +71,9 @@ export class MainPageProjectComponent implements OnInit, OnDestroy {
     public kanbanEventManager:KanbanEventManagerService,
     public wbSessionEventManagerService:WbSessionEventManagerService,
     public uiService:UiService,
+    public areYouSurePanelService:AreYouSurePanelService,
+    public projectRequesterService:ProjectRequesterService,
+    public routerService:RouterHelperService
   ) {
     this.projectId = this.route.snapshot.paramMap.get('projectId');
 
@@ -76,14 +85,41 @@ export class MainPageProjectComponent implements OnInit, OnDestroy {
     let subscription = this.authRequestService.authEventEmitter.subscribe((authEvent:AuthEvent)=>{
       let userDto = authEvent.userInfo;
       this.userDto = userDto;
+
       this.getProjectDto();
+
+
 
       this.userManagerService.initService(this.projectDto);
 
-      this.joinProject(userDto);
+      // this.joinProject(userDto);
+      let wsProjectController = WsProjectController.getInstance();
+      let subscription = wsProjectController.waitJoinProject(userDto.idToken, userDto.accessToken, this.projectId)
+        .subscribe((fullProjectDto:ProjectDto)=>{
+        subscription.unsubscribe();
+
+          let kanbanData:KanbanDataDto = fullProjectDto.kanbanData;
+          let wbSessionListData:Array<WhiteboardSessionDto> = fullProjectDto.whiteboardSessionList;
+          for(let kanbanItem of kanbanData.inProgressGroup){
+            this.inProgressGroup.push(kanbanItem);
+          }
+          for(let wbSession of wbSessionListData){
+            this.wbSessionList.push(wbSession);
+          }
+
+        },(errorDetail)=>{
+
+          this.areYouSurePanelService.openAreYouSurePanel(
+            "프로젝트를 이용할 수 없어요......", errorDetail,
+            true
+          ).subscribe(()=>{
+            this.routerService.goToMainPage();
+          })
+        })
     });
     this.subscriptionList.push(subscription);
 
+/*
     subscription = this.websocketManagerService.wsEventEmitter.subscribe((wsEvent:WebsocketEvent)=>{
       if(wsEvent.action === WebsocketEventEnum.GET_PROJECT_FULL_DATA){
         let fullProjectDto:ProjectDto = wsEvent.data as ProjectDto;
@@ -97,9 +133,11 @@ export class MainPageProjectComponent implements OnInit, OnDestroy {
         }
       }
     });
+*/
     this.subscriptionList.push(subscription);
     this.subscribeKanbanEventEmitter();
     this.subscribeWbSessionEventEmitter();
+    this.subscribeProjectEventEmitter();
   }
 
   subscribeKanbanEventEmitter(){
@@ -128,6 +166,22 @@ export class MainPageProjectComponent implements OnInit, OnDestroy {
         case WbSessionEventEnum.DELETE:
         case WbSessionEventEnum.UPDATE:
           this.refreshWbSessionList();
+      }
+    });
+    this.subscriptionList.push(subscription);
+  }
+  subscribeProjectEventEmitter(){
+    let subscription = this.websocketManagerService.wsEventEmitter
+      .subscribe((websocketEvent:WebsocketEvent)=>{
+        console.log("MainPageProjectComponent >> subscribeProjectEventEmitter >> websocketEvent : ",websocketEvent);
+      switch (websocketEvent.action) {
+        case WebsocketEventEnum.UPDATE:
+          let projectDto:ProjectDto = websocketEvent.data;
+          if(projectDto){
+            this.projectDto.projectTitle = projectDto.projectTitle;
+          }
+          break;
+
       }
     });
     this.subscriptionList.push(subscription);
@@ -165,17 +219,20 @@ export class MainPageProjectComponent implements OnInit, OnDestroy {
 
   public isRequestedJoin = false;
   joinProject(userDto){
+/*
     if (!this.isRequestedJoin) {
       let wsProjectController = WsProjectController.getInstance();
       wsProjectController.joinProject(userDto.idToken, userDto.accessToken, this.projectId);
       this.isRequestedJoin = true;
     }
+*/
   }
 
   getProjectDto(){
     this.userDto.participatingProjects.forEach((value:ProjectDto) => {
       if(value._id === this.projectId){
         this.projectDto = value;
+        this.checkAuth();
       }
     });
   }
@@ -207,10 +264,10 @@ export class MainPageProjectComponent implements OnInit, OnDestroy {
     this.websocketManagerService.resetSocket();
     /*this.websocketManagerService.sendMessage(this.userDto.idToken);*/
   }
-  onInviteBtnClick(projectDto){
+  onInviteBtnClick(){
     const dialogRef = this.dialog.open(CreateInviteCodeComponent, {
       width: '480px',
-      data: new CreateInviteCodeComponentData(projectDto)
+      data: new CreateInviteCodeComponentData(this.projectDto)
     });
 
     dialogRef.afterClosed().subscribe((result) => {
@@ -224,10 +281,87 @@ export class MainPageProjectComponent implements OnInit, OnDestroy {
     });
 
     dialogRef.afterClosed().subscribe((result) => {
-      if(result.createFlag){
+      if(result && result.createFlag){
         this.refreshWbSessionList();
       }
     });
+  }
+
+
+  //프로젝트 수정, 나가기 패널
+  myAuthority = true;
+
+  checkAuth(){
+    let userDto:UserDTO = this.authRequestService.getUserInfo();
+    if(userDto){
+      for(let participantDto of this.projectDto.participantList){
+        if(participantDto.idToken === userDto.idToken && participantDto.authorityLevel === AuthorityLevel.PROJECT_MANAGER){
+          this.myAuthority = false;
+          return;
+        }
+      }
+
+    }
+  }
+
+
+  onProjectEdit(){
+    const dialogRef = this.dialog.open(EditProjectComponent, {
+      width: '480px',
+      data: { projectDto: this.projectDto }
+    });
+
+    dialogRef.afterClosed().subscribe((response) => {
+      console.log("ProjectCardComponent >> onProjectEdit >> response : ",response);
+      if(response && response.res){
+        let restPacketDto:RestPacketDto = response.res as RestPacketDto;
+      }
+    });
+  }
+
+  private readonly deleteMsg1 = "정말로 프로젝트에서 나가시겠어요?";
+  private readonly deleteMsg2 = "프로젝트에서 나가도, 다시 초대해주면 다시 참여할 수 있어요.";
+  deleteSubscription:Subscription = null;
+  onProjectExit(){
+    let firstMsg = this.deleteMsg1;
+    let secondMsg = this.deleteMsg2;
+
+
+    let subscription = this.projectRequesterService.getParticipantList(this.projectId).subscribe((participantList:Array<ParticipantDto>)=>{
+      subscription.unsubscribe();
+      console.log("MainPageProjectComponent >> onProjectExit >> participantList : ",participantList);
+
+      let numberOfAvailUser = this.getNumberOfAvailUser(participantList);
+      console.log("MainPageProjectComponent >> onProjectExit >> numberOfAvailUser : ",numberOfAvailUser);
+      if(numberOfAvailUser <= 1){
+        secondMsg = "회원님은 해당 프로젝트의 마지막 참여자이므로, 회원님이 탈퇴하시면 해당 프로젝트는 삭제됩니다!";
+      }
+
+      this. deleteSubscription = this.areYouSurePanelService.openAreYouSurePanel(firstMsg, secondMsg).subscribe((res)=>{
+        if(this.deleteSubscription){
+          this.deleteSubscription.unsubscribe();
+        }
+        console.log("ProjectCardComponent >> onProjectDelete >> res : ",res);
+        if(res){
+          let subscription = this.projectRequesterService.requestExitProject(this.projectDto._id).subscribe((userDto:UserDTO)=>{
+            subscription.unsubscribe();
+            console.log("ProjectCardComponent >> onProjectDelete >> userDto : ",userDto);
+            this.routerService.goToMainPage();
+          });
+        }
+      });
+
+    });
+  }
+
+  getNumberOfAvailUser(participantList:Array<ParticipantDto>){
+    let counter = 0;
+    for(let participant of participantList){
+      if (participant.state === ParticipantState.AVAIL) {
+        counter++;
+      }
+    }
+    return counter;
   }
 
 }
