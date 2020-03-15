@@ -39,9 +39,7 @@ export class KanbanItemEditComponent implements OnInit {
       Validators.required,
     ]);
     this.colorFormControl = new FormControl(this.kanbanItem.getColorNumber());
-    this.userFormControl = new FormControl(this.kanbanItem.userInfo.userName);
-    console.log("KanbanItemEditComponent >> constructor >> colorService : ",colorService.getEnumEntryArray());
-    console.log("KanbanItemEditComponent >> constructor >> colorFormControl : ",this.colorFormControl.value);
+    this.userFormControl = new FormControl(this.kanbanItem.userInfo.idToken);
     this.selected = this.colorFormControl.value;
   }
 

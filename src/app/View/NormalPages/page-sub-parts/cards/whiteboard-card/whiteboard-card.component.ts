@@ -13,6 +13,8 @@ import {
   WbSessionEventEnum
 } from '../../../../../Controller/Controller-WebSocket/websocket-manager/WhiteboardSessionWsController/wb-session-event/wb-session-event';
 import {Subscription} from 'rxjs';
+import {AreYouSurePanelService} from '../../../../../Model/PopupManager/AreYouSurePanelManager/are-you-sure-panel.service';
+import {WsWhiteboardSessionController} from '../../../../../Controller/Controller-WebSocket/websocket-manager/WhiteboardSessionWsController/ws-whiteboard-session.controller';
 
 @Component({
   selector: 'app-whiteboard-card',
@@ -32,6 +34,7 @@ export class WhiteboardCardComponent implements OnInit, AfterViewInit, OnDestroy
     public animeManagerService:AnimeManagerService,
     public websocketManagerService:WebsocketManagerService,
     public routerService:RouterHelperService,
+    public areYouSurePanelService:AreYouSurePanelService,
     public dialog: MatDialog,
   ) {
     let subscription = this.websocketManagerService.wbSessionEventManagerService.wsWbSessionEventEmitter
@@ -119,7 +122,34 @@ export class WhiteboardCardComponent implements OnInit, AfterViewInit, OnDestroy
   onDeleteWbSessionBtnClick(){
     console.log("WhiteboardCardComponent >> onDeleteWbSessionBtnClick >> this.whiteboardSession : ",this.whiteboardSession);
     if(this.whiteboardSession.connectedUsers.length <= 0){
+      this.areYouSurePanelService.openAreYouSurePanel(
+        "정말로 선택하신 화이트보드를 삭제하시겠어요?",
+        "해당 화이트보드 안에 접속한 사용자가 있는 경우, 삭제할 수 없어요."
+      ).subscribe((answer)=>{
+        if(answer){
+          let wsWbSessionController = WsWhiteboardSessionController.getInstance();
+          let subscription = wsWbSessionController.waitRequestDeleteWbSession(this.whiteboardSession)
+            .subscribe((res)=>{
+            subscription.unsubscribe();
+            console.log("WhiteboardCardComponent >> onDeleteWbSessionBtnClick >> res : ",res);
 
+          },()=>{
+              subscription.unsubscribe();
+              this.areYouSurePanelService.openAreYouSurePanel(
+                "화이트보드 세션삭제작업에서 문제가 발생했어요",
+                "화이트보드에 누군가 접속했나봐요",
+                true
+              ).subscribe(()=>{});
+          })
+        }
+      })
+    }
+    else{
+      this.areYouSurePanelService.openAreYouSurePanel(
+        "선택하신 화이트보드를 삭제할 수 없어요",
+        "화이트보드안에 누군가 접속해 있는경우, 삭제할 수 없어요",
+        true
+      ).subscribe(()=>{});
     }
   }
 

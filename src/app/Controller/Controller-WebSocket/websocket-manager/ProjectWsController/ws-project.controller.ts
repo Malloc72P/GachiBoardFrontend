@@ -44,7 +44,7 @@ export class WsProjectController {
       };
       this.socket.emit(HttpHelper.websocketApi.project.joinProject.event,param);
 
-      this.socket.once(HttpHelper.websocketApi.project.joinProject.event,
+      this.socket.once(HttpHelper.websocketApi.project.joinProject.event + HttpHelper.ACK_SIGN,
         (wsPacket:WebsocketPacketDto)=>{
           console.log("WsProjectController >> waitJoinProject >> recv wsPacket : ",wsPacket);
           switch (wsPacket.action) {

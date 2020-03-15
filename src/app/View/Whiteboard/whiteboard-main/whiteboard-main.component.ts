@@ -55,6 +55,7 @@ import {WebsocketPacketDto} from '../../../DTO/WebsocketPacketDto/WebsocketPacke
 import {WbItemFactoryResult} from '../../../Model/Whiteboard/InfiniteCanvas/WhiteboardItemFactory/WbItemFactoryResult/wb-item-factory-result';
 import {WbItemPacketDto} from '../../../DTO/WhiteboardItemDto/WbItemPacketDto/WbItemPacketDto';
 import {ItemBlinderManagementService} from '../../../Model/Whiteboard/OccupiedItemBlinder/item-blinder-management-service/item-blinder-management.service';
+import {HotKeyManagementService} from '../../../Model/Whiteboard/HotKeyManagement/hot-key-management.service';
 
 @Component({
   selector: 'app-whiteboard-main',
@@ -100,7 +101,8 @@ export class WhiteboardMainComponent implements OnInit,OnDestroy {
     public route: ActivatedRoute,
     public userManagerService: UserManagerService,
     public wbSessionEventManagerService: WbSessionEventManagerService,
-    public itemBlinderManagementService:ItemBlinderManagementService
+    public itemBlinderManagementService:ItemBlinderManagementService,
+    public hotKeyManagementService:HotKeyManagementService
   ) {
     this.connectedUserList = new Array<string>();
   }
@@ -198,19 +200,44 @@ export class WhiteboardMainComponent implements OnInit,OnDestroy {
   subscribeWbSessionEventEmitter(){
 
     this.wbSessionSubscription = this.wbSessionEventManagerService.wsWbSessionEventEmitter.subscribe((wbSessionEvent:WbSessionEvent)=>{
-      if(wbSessionEvent.action === WbSessionEventEnum.JOIN){
-        let recvWbSessionDto:WhiteboardSessionDto = wbSessionEvent.data as WhiteboardSessionDto;
-        if (recvWbSessionDto._id === this.wbSessionId && wbSessionEvent.additionalData) {
-          //this.connectedUserList.push(wbSessionEvent.additionalData);
-          this.pushToConnectedUserArray(wbSessionEvent.additionalData);
-        }
-
-      } else if(wbSessionEvent.action === WbSessionEventEnum.UPDATE_CURSOR){
-        //console.log("WhiteboardMainComponent >> UPDATE_CURSOR >> wbSessionEvent : ",wbSessionEvent.additionalData);
-        this.parsePositionData(wbSessionEvent.additionalData);
-        this.cursorTrackerService.refreshPoint();
+      switch (wbSessionEvent.action) {
+        case WbSessionEventEnum.CREATE:
+          break;
+        case WbSessionEventEnum.DELETE:
+          break;
+        case WbSessionEventEnum.UPDATE:
+          break;
+        case WbSessionEventEnum.JOIN:
+          this.onUserJoin(wbSessionEvent);
+          break;
+        case WbSessionEventEnum.DISCONNECT:
+          this.onUserDisconnect(wbSessionEvent);
+          break;
+        case WbSessionEventEnum.UPDATE_CURSOR:
+          this.onCursorUpdate(wbSessionEvent);
+          break;
       }
     })
+  }
+  onUserJoin(wbSessionEvent){
+    let recvWbSessionDto:WhiteboardSessionDto = wbSessionEvent.data as WhiteboardSessionDto;
+    if (recvWbSessionDto._id === this.wbSessionId && wbSessionEvent.additionalData) {
+      this.pushToConnectedUserArray(wbSessionEvent.additionalData);
+    }
+  }
+  onUserDisconnect(wbSessionEvent){
+    if(wbSessionEvent.additionalData !== this.wbSessionId){
+      return;
+    }
+    this.cursorTrackerService.deleteUser(wbSessionEvent.dataDto);
+  }
+
+  onCursorUpdate(wbSessionEvent){
+    // if(wbSessionEvent.additionalData !== this.wbSessionId){
+    //   return;
+    // }
+    this.parsePositionData(wbSessionEvent.additionalData);
+    this.cursorTrackerService.refreshPoint();
   }
   pushToConnectedUserArray(idToken){
     let i = this.connectedUserList.length;
@@ -231,6 +258,17 @@ export class WhiteboardMainComponent implements OnInit,OnDestroy {
         continue;
       }
       this.cursorTrackerService.updateUser(cursorData.idToken, cursorData.position);
+    }
+    for(let [idToken, userCursor] of this.cursorTrackerService.userCursorMap){
+      let isExist = false;
+      for(let cursorData of cursorDataArray){
+        if(cursorData.idToken === idToken){
+          isExist = true;
+        }
+      }
+      if(!isExist){
+        this.cursorTrackerService.deleteUser(idToken);
+      }
     }
   }
 
@@ -312,6 +350,10 @@ export class WhiteboardMainComponent implements OnInit,OnDestroy {
     }
     // 포인터로 무언가 그리거나 이동하는 등의 Mouse 이벤트가 시작된 상태면 단축키로 모드변경 못하도록 막음
     if (this.pointerModeManager.mouseDown) {
+      return;
+    }
+
+    if(!this.hotKeyManagementService.isAvail){
       return;
     }
 

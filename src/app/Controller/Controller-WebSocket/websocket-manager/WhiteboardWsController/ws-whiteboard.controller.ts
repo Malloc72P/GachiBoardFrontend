@@ -52,7 +52,7 @@ export class WsWhiteboardController {
 
       //#### 요청 완료
 
-      this.socket.once(HttpHelper.websocketApi.whiteboardItem.read.event,
+      this.socket.once(HttpHelper.websocketApi.whiteboardItem.read.event + HttpHelper.ACK_SIGN,
         (wsPacketDto:WebsocketPacketDto)=>{
           this.websocketManager.uiService.spin$.next(false);
           switch (wsPacketDto.action) {
@@ -87,7 +87,7 @@ export class WsWhiteboardController {
 
       //#### 요청 완료
 
-      this.socket.once(HttpHelper.websocketApi.whiteboardItem.create.event,
+      this.socket.once(HttpHelper.websocketApi.whiteboardItem.create.event + HttpHelper.ACK_SIGN,
         (wsPacketDto:WebsocketPacketDto)=>{
           //this.websocketManager.uiService.spin$.next(false);
           switch (wsPacketDto.action) {
@@ -138,7 +138,7 @@ export class WsWhiteboardController {
 
       //#### 요청 완료
 
-      this.socket.once(HttpHelper.websocketApi.whiteboardItem.create_multiple.event,
+      this.socket.once(HttpHelper.websocketApi.whiteboardItem.create_multiple.event + HttpHelper.ACK_SIGN,
         (wsPacketDto:WebsocketPacketDto)=>{
           //this.websocketManager.uiService.spin$.next(false);
           switch (wsPacketDto.action) {
@@ -190,7 +190,7 @@ export class WsWhiteboardController {
 
       //#### 요청 완료
 
-      this.socket.once(HttpHelper.websocketApi.whiteboardItem.update.event,
+      this.socket.once(HttpHelper.websocketApi.whiteboardItem.update.event + HttpHelper.ACK_SIGN,
         (wsPacketDto:WebsocketPacketDto)=>{
           //this.websocketManager.uiService.spin$.next(false);
           switch (wsPacketDto.action) {
@@ -250,7 +250,7 @@ export class WsWhiteboardController {
 
       //#### 요청 완료
 
-      this.socket.once(HttpHelper.websocketApi.whiteboardItem.update_multiple.event,
+      this.socket.once(HttpHelper.websocketApi.whiteboardItem.update_multiple.event + HttpHelper.ACK_SIGN,
         (wsPacketDto:WebsocketPacketDto)=>{
           //this.websocketManager.uiService.spin$.next(false);
           switch (wsPacketDto.action) {
@@ -309,7 +309,7 @@ export class WsWhiteboardController {
 
       //#### 요청 완료
 
-      this.socket.once(HttpHelper.websocketApi.whiteboardItem.updateZIndex.event,
+      this.socket.once(HttpHelper.websocketApi.whiteboardItem.updateZIndex.event + HttpHelper.ACK_SIGN,
         (wsPacketDto:WebsocketPacketDto)=>{
           //this.websocketManager.uiService.spin$.next(false);
           switch (wsPacketDto.action) {
@@ -362,7 +362,7 @@ export class WsWhiteboardController {
 
       //#### 요청 완료
 
-      this.socket.once(HttpHelper.websocketApi.whiteboardItem.delete.event,
+      this.socket.once(HttpHelper.websocketApi.whiteboardItem.delete.event + HttpHelper.ACK_SIGN,
         (wsPacketDto:WebsocketPacketDto)=>{
           //this.websocketManager.uiService.spin$.next(false);
           switch (wsPacketDto.action) {
@@ -429,7 +429,7 @@ export class WsWhiteboardController {
 
       //#### 요청 완료
 
-      this.socket.once(HttpHelper.websocketApi.whiteboardItem.delete_multiple.event,
+      this.socket.once(HttpHelper.websocketApi.whiteboardItem.delete_multiple.event + HttpHelper.ACK_SIGN,
         (wsPacketDto:WebsocketPacketDto)=>{
           //this.websocketManager.uiService.spin$.next(false);
           switch (wsPacketDto.action) {
@@ -479,7 +479,7 @@ export class WsWhiteboardController {
 
       //#### 요청 완료
 
-      this.socket.once(HttpHelper.websocketApi.whiteboardItem.lock.event,
+      this.socket.once(HttpHelper.websocketApi.whiteboardItem.lock.event + HttpHelper.ACK_SIGN,
         (wsPacketDto:WebsocketPacketDto)=>{
           //this.websocketManager.uiService.spin$.next(false);
           switch (wsPacketDto.action) {
@@ -527,7 +527,7 @@ export class WsWhiteboardController {
 
       //#### 요청 완료
 
-      this.socket.once(HttpHelper.websocketApi.whiteboardItem.unlock.event,
+      this.socket.once(HttpHelper.websocketApi.whiteboardItem.unlock.event + HttpHelper.ACK_SIGN,
         (wsPacketDto:WebsocketPacketDto)=>{
           //this.websocketManager.uiService.spin$.next(false);
           switch (wsPacketDto.action) {
@@ -577,7 +577,7 @@ export class WsWhiteboardController {
 
       //#### 요청 완료
 
-      this.socket.once(HttpHelper.websocketApi.whiteboardItem.occupied.event,
+      this.socket.once(HttpHelper.websocketApi.whiteboardItem.occupied.event + HttpHelper.ACK_SIGN,
         (wsPacketDto:WebsocketPacketDto)=>{
           //this.websocketManager.uiService.spin$.next(false);
           // console.log("WsWhiteboardController >> waitRequestOccupyWbItem >> wsPacketDto : ",wsPacketDto);
@@ -628,7 +628,7 @@ export class WsWhiteboardController {
 
       //#### 요청 완료
 
-      this.socket.once(HttpHelper.websocketApi.whiteboardItem.notOccupied.event,
+      this.socket.once(HttpHelper.websocketApi.whiteboardItem.notOccupied.event + HttpHelper.ACK_SIGN,
         (wsPacketDto:WebsocketPacketDto)=>{
           //this.websocketManager.uiService.spin$.next(false);
           switch (wsPacketDto.action) {

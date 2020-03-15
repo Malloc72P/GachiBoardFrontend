@@ -57,6 +57,7 @@ import {WbItemPacketDto} from '../../../../DTO/WhiteboardItemDto/WbItemPacketDto
 import {ItemBlinderManagementService} from '../../OccupiedItemBlinder/item-blinder-management-service/item-blinder-management.service';
 import {GlobalSelectedGroupDto} from '../../../../DTO/WhiteboardItemDto/ItemGroupDto/GlobalSelectedGroupDto/GlobalSelectedGroupDto';
 import {UiService} from '../../../Helper/ui-service/ui.service';
+import {HotKeyManagementService} from '../../HotKeyManagement/hot-key-management.service';
 
 
 
@@ -99,6 +100,7 @@ export class DrawingLayerManagerService {
     public  minimapSyncService: MinimapSyncService,
     private websocketManagerService: WebsocketManagerService,
     private blinderManagementService:ItemBlinderManagementService,
+    private hotKeyManagementService:HotKeyManagementService,
     public uiService:UiService,
   ) {
     this._whiteboardItemArray = new Array<WhiteboardItem>();
@@ -579,6 +581,7 @@ export class DrawingLayerManagerService {
 
   public startEditText() {
     let editableShape:EditableShape = this.globalSelectedGroup.wbItemGroup[0] as EditableShape;
+    this.hotKeyManagementService.disableHotKeySystem();
 
     this.prevTextShapeDto = editableShape.exportToDto();
     this.prevTextShape = editableShape;
@@ -617,7 +620,7 @@ export class DrawingLayerManagerService {
 
   public endEditText() {
     let editableShape:EditableShape = this.editTextShape;
-
+    this.hotKeyManagementService.enableHotKeySystem();
 
     this.isEditingText = false;
     editableShape.isEditing = false;

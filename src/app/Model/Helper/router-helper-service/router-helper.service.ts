@@ -35,4 +35,7 @@ export class RouterHelperService {
   private goToTarget(target){
     this.router.navigate([target]);
   }
+  public goBack(){
+    history.back();
+  }
 }

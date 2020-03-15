@@ -195,8 +195,10 @@ export class MainPageProjectComponent implements OnInit, OnDestroy {
   }
   refreshWbSessionList(){
     let wsKanbanController = WsWhiteboardSessionController.getInstance();
+    console.log("MainPageProjectComponent >> refreshWbSessionList >> 진입함");
     wsKanbanController.requestGetWbSessionList()
       .subscribe((wbSessionList:Array<WhiteboardSessionDto>)=>{
+        console.log("MainPageProjectComponent >> refreshWbSessionList >> wbSessionList : ",wbSessionList);
       this.wbSessionList = wbSessionList;
     });
   }

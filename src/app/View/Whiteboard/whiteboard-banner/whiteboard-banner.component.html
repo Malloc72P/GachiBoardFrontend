@@ -8,7 +8,8 @@
       <button mat-button class="banner-menu-btn" [matMenuTriggerFor]="wbMainMenu"><mat-icon>more_vert</mat-icon></button>
 
       <mat-menu #wbMainMenu="matMenu">
-        <button mat-menu-item ><span>화이트보드 속성</span></button>
+        <button mat-menu-item (click)="goToProjectPage()"><span>프로젝트 페이지로 이동하기</span></button>
+<!--        <button mat-menu-item ><span>화이트보드 속성</span></button>-->
       </mat-menu>
       <app-user-overlay-card *ngFor="let idToken of connectedUserList"
                              (click)="onUserImageClick(idToken)"

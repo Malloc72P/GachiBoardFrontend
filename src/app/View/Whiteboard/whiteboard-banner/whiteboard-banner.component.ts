@@ -13,6 +13,7 @@ import {
   WbSessionEventEnum
 } from '../../../Controller/Controller-WebSocket/websocket-manager/WhiteboardSessionWsController/wb-session-event/wb-session-event';
 import {Subscription} from 'rxjs';
+import {RouterHelperService} from '../../../Model/Helper/router-helper-service/router-helper.service';
 
 @Component({
   selector: 'app-whiteboard-banner',
@@ -29,6 +30,7 @@ export class WhiteboardBannerComponent implements OnInit,OnDestroy {
     public layerService:DrawingLayerManagerService,
     public infiniteCanvasService:InfiniteCanvasService,
     public wbSessionEventManager:WbSessionEventManagerService,
+    public routerHelperService:RouterHelperService,
   ) { }
 
   private subscription:Subscription;
@@ -74,4 +76,7 @@ export class WhiteboardBannerComponent implements OnInit,OnDestroy {
     this.infiniteCanvasService.resetInfiniteCanvas();
   }
 
+  goToProjectPage(){
+    this.routerHelperService.goBack();
+  }
 }

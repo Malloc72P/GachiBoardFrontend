@@ -59,7 +59,6 @@ export enum WebsocketValidationCheck {
   KICKED_PARTICIPANT
 }
 
-
 export class HttpHelper {
   //TODO 이런거 json으로 뽑을 수 있으면 뽑아야 함.
   private static readonly ngDomainName        =   ServerSetting.ngDomain;
@@ -72,6 +71,8 @@ export class HttpHelper {
 
   public static readonly ngUrl   =   HttpHelper.ngDomainName + HttpHelper.ngPort;
   public static readonly apiUrl  =   HttpHelper.apiServerDomainName + HttpHelper.apiServerPort;
+
+  public static readonly ACK_SIGN = "_ack";
 
   //TODO api정보를 담는 변수임. 얘는 반드시 uri값을 가져야 함.
   //url값을 가지면 안됨. url값을 쓰고 싶으면 apiUrl이랑 합쳐서 써야 함. 그래서 public으로 해놓음.
