@@ -9,6 +9,7 @@ export enum SupportMode {
   IMPORT,
   EXPORT,
   TEXT_CHAT,
+  VIDEO_CHAT,
   CURSOR_TRACKER,
 }
 export enum SupporterIcon {
@@ -18,6 +19,7 @@ export enum SupporterIcon {
   import,
   export,
   text_chat,
+  video_chat,
   cursor_tracker,
 }
 

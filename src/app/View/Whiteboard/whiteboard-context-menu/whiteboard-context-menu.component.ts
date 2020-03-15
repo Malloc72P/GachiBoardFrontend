@@ -14,7 +14,7 @@ import Point = paper.Point;
   styleUrls: ['./whiteboard-context-menu.component.css']
 })
 
-export class WhiteboardContextMenuComponent implements OnInit {
+export class WhiteboardContextMenuComponent implements OnInit, AfterViewInit {
   @ViewChild(MatMenuTrigger) matMenuTrigger: MatMenuTrigger;
   @ViewChild('contextMenu', {static: true}) contextMenu;
 

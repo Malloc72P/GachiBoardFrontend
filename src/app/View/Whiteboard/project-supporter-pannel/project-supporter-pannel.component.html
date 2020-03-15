@@ -1,14 +1,59 @@
 <div>
   <mat-card class="supportBtnWrapper">
-    <button *ngFor="let mode of selectableMode"
-            [value]="mode"
-            mat-button
-            matTooltip="{{projectSupporterEnumService.getEnumArray()[mode]}}"
-            matTooltipPosition="above"
-            class="supportBtn"
-            (click)="onClickPanelItem(mode)">
-      <span class="selectable-icon {{projectSupporterEnumService.getSupporterIcon(mode)}}"></span>
+    <button [value]="SupportMode.KANBAN"
+            mat-button matTooltip="{{SupportMode[SupportMode.KANBAN]}}"
+            matTooltipPosition="above" class="supportBtn"
+            (click)="onClickPanelItem(SupportMode.KANBAN)">
+      <span class="selectable-icon {{projectSupporterEnumService.getSupporterIcon(SupportMode.KANBAN)}}"></span>
     </button>
+    <button [value]="SupportMode.TIME_TIMER"
+            mat-button matTooltip="{{SupportMode[SupportMode.TIME_TIMER]}}"
+            matTooltipPosition="above" class="supportBtn"
+            (click)="onClickPanelItem(SupportMode.TIME_TIMER)">
+      <span class="selectable-icon {{projectSupporterEnumService.getSupporterIcon(SupportMode.TIME_TIMER)}}"></span>
+    </button>
+    <button [value]="SupportMode.CLOUD_STORAGE"
+            mat-button matTooltip="{{SupportMode[SupportMode.CLOUD_STORAGE]}}"
+            matTooltipPosition="above" class="supportBtn"
+            (click)="onClickPanelItem(SupportMode.CLOUD_STORAGE)">
+      <span class="selectable-icon {{projectSupporterEnumService.getSupporterIcon(SupportMode.CLOUD_STORAGE)}}"></span>
+    </button>
+    <button [value]="SupportMode.IMPORT"
+            mat-button matTooltip="{{SupportMode[SupportMode.IMPORT]}}"
+            matTooltipPosition="above" class="supportBtn"
+            (click)="onClickPanelItem(SupportMode.IMPORT)">
+      <span class="selectable-icon {{projectSupporterEnumService.getSupporterIcon(SupportMode.IMPORT)}}"></span>
+    </button>
+    <button [value]="SupportMode.EXPORT"
+            mat-button matTooltip="{{SupportMode[SupportMode.EXPORT]}}"
+            matTooltipPosition="above" class="supportBtn"
+            (click)="onClickPanelItem(SupportMode.EXPORT)">
+      <span class="selectable-icon {{projectSupporterEnumService.getSupporterIcon(SupportMode.EXPORT)}}"></span>
+    </button>
+    <button [value]="SupportMode.TEXT_CHAT"
+            mat-button matTooltip="{{SupportMode[SupportMode.TEXT_CHAT]}}"
+            matTooltipPosition="above" class="supportBtn"
+            (click)="onClickPanelItem(SupportMode.TEXT_CHAT)">
+      <span class="selectable-icon {{projectSupporterEnumService.getSupporterIcon(SupportMode.TEXT_CHAT)}}"></span>
+    </button>
+    <button [value]="SupportMode.VIDEO_CHAT"
+            mat-button matTooltip="{{SupportMode[SupportMode.VIDEO_CHAT]}}"
+            matTooltipPosition="above" class="supportBtn"
+            [matMenuTriggerFor]="videoChatMenu"
+            (click)="onClickPanelItem(SupportMode.VIDEO_CHAT)">
+      <span class="selectable-icon {{projectSupporterEnumService.getSupporterIcon(SupportMode.VIDEO_CHAT)}}"></span>
+    </button>
+    <button [value]="SupportMode.CURSOR_TRACKER"
+            mat-button matTooltip="{{SupportMode[SupportMode.CURSOR_TRACKER]}}"
+            matTooltipPosition="above" class="supportBtn"
+            (click)="onClickPanelItem(SupportMode.CURSOR_TRACKER)">
+      <span class="selectable-icon {{projectSupporterEnumService.getSupporterIcon(SupportMode.CURSOR_TRACKER)}}"></span>
+    </button>
+    <mat-menu #videoChatMenu="matMenu">
+      <button mat-menu-item [disabled]="disableCam" (click)="onClickCam()">Broadcast cam</button>
+      <button mat-menu-item [disabled]="disableScreen" (click)="onClickScreen()">Broadcast screen</button>
+      <button mat-menu-item [disabled]="disableEnd" (click)="onClickEnd()">End video chat</button>
+    </mat-menu>
     <input #fileInputMultiple type="file" multiple="multiple" id="fileInputMultiple" (change)="onFileChangeMultiple()" style="display: none"/>
     <input #fileInput type="file" id="fileInput" (change)="onFileChange()" style="display: none" accept="image/gif, image/png, image/jpeg">
   </mat-card>
