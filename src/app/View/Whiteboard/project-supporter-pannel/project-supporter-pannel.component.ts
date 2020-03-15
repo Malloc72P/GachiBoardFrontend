@@ -12,6 +12,8 @@ import {CursorTrackerService} from "../../../Model/Whiteboard/CursorTracker/curs
 import {DrawingLayerManagerService} from "../../../Model/Whiteboard/InfiniteCanvas/DrawingLayerManager/drawing-layer-manager.service";
 import {MatDialog} from '@angular/material/dialog';
 import {HotKeyManagementService} from '../../../Model/Whiteboard/HotKeyManagement/hot-key-management.service';
+import {VideoChatService} from "../../../Model/Whiteboard/VideoChat/video-chat/video-chat.service";
+import {MatMenu} from "@angular/material/menu";
 
 @Component({
   selector: 'app-project-supporter-pannel',
@@ -21,6 +23,7 @@ import {HotKeyManagementService} from '../../../Model/Whiteboard/HotKeyManagemen
 export class ProjectSupporterPannelComponent extends PopoverPanel  implements OnInit {
   @ViewChild('fileInputMultiple') fileInputMultiple: ElementRef;
   @ViewChild('fileInput') fileInput: ElementRef;
+  @ViewChild('videoChatMenu', {static: true}) videoChatMenu: MatMenu;
   projectSupporterEnumService: ProjectSupporterEnumService;
   isHovered;
   public prevPopup = null;
@@ -35,6 +38,7 @@ export class ProjectSupporterPannelComponent extends PopoverPanel  implements On
     public cursorTrackerService: CursorTrackerService,
     public layerService: DrawingLayerManagerService,
     public hotKeyManagementService: HotKeyManagementService,
+    private videoChat: VideoChatService,
   ) {
     super(projectSupporterEnumService);
     this.projectSupporterEnumService = projectSupporterEnumService;
@@ -60,7 +64,6 @@ export class ProjectSupporterPannelComponent extends PopoverPanel  implements On
     //this.pointerModeManagerService.currentPointerMode = this.currentSelectedMode;
   }
   onClickPanelItem(panelItem: number) {
-
     switch (panelItem) {
       case SupportMode.KANBAN:
 
@@ -88,12 +91,8 @@ export class ProjectSupporterPannelComponent extends PopoverPanel  implements On
       case SupportMode.EXPORT:
         break;
       case SupportMode.TEXT_CHAT:
-        this.layerService.drawingLayer.children.forEach(value => {
-          console.log("Children ID :", value.id, ", Children Object : ", value);
-        });
-        this.layerService.whiteboardItemArray.forEach(value => {
-          console.log("WBItem ID :", value.id, ", Paper ID :", value.group.id,"WBItem Object : ", value);
-        });
+        break;
+      case SupportMode.VIDEO_CHAT:
         break;
       case SupportMode.CURSOR_TRACKER:
         if(this.cursorTrackerService.isActivate) {
@@ -118,5 +117,55 @@ export class ProjectSupporterPannelComponent extends PopoverPanel  implements On
     let fileObject = this.fileInput.nativeElement.files;
 
     this.importFileService.importFile(fileObject)
+  }
+
+  onClickCam() {
+    if(this.videoChat.isJoined) {
+      this.videoChat.changeVideoSource('cam').then();
+    } else {
+      this.videoChat.joinVideoChat('cam').then();
+    }
+  }
+
+  onClickScreen() {
+    if(this.videoChat.isJoined) {
+      this.videoChat.changeVideoSource('screen').then()
+    } else {
+      this.videoChat.joinVideoChat('screen').then();
+    }
+  }
+
+  onClickEnd() {
+    this.videoChat.leaveVideoChat().then();
+  }
+
+  menu(mode: SupportMode) {
+    if(mode === SupportMode.VIDEO_CHAT) {
+      return this.videoChatMenu;
+    }
+    return undefined;
+  }
+
+  get disableCam(): boolean {
+    if(this.videoChat.isJoined) {
+      return this.videoChat.isCam;
+    }
+    return false;
+  }
+
+  get disableScreen(): boolean {
+    if(this.videoChat.isJoined) {
+      return this.videoChat.isScreen;
+    }
+    return false;
+  }
+
+  get disableEnd(): boolean {
+    return !this.videoChat.isJoined;
+
+  }
+
+  get SupportMode() {
+    return SupportMode;
   }
 }

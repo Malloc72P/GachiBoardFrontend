@@ -49,6 +49,7 @@ export class ContextMenuService {
   ) { }
 
   public initializeContextMenuService(contextMenu: MatMenu, contextMenuTrigger: MatMenuTrigger) {
+    console.log("ContextMenuService >> initializeContextMenuService >>  : ", );
     this._contextMenuTrigger = contextMenuTrigger;
     this._contextMenu = contextMenu;
   }

@@ -118,6 +118,10 @@ import { ToolLinkPanelComponent } from './View/Whiteboard/whiteboard-tool-panel/
 import {WhiteboardBannerComponent} from './View/Whiteboard/whiteboard-banner/whiteboard-banner.component';
 import { EditProjectComponent } from './View/NormalPages/main-page/main-page-root/edit-project/edit-project.component';
 import { EditWbSessionComponent } from './View/NormalPages/main-page/main-page-project/edit-wb-session/edit-wb-session.component';
+import { VideoChatPanelComponent } from './View/Whiteboard/video-chat/video-chat-panel/video-chat-panel.component';
+import {VideoChatPanelManagerService} from "./Model/Whiteboard/VideoChat/video-chat-panel-manager/video-chat-panel-manager.service";
+import { VideoChatWrapperComponent } from './View/Whiteboard/video-chat/video-chat-wrapper/video-chat-wrapper.component';
+import {VideoChatService} from "./Model/Whiteboard/VideoChat/video-chat/video-chat.service";
 
 const config: SocketIoConfig = { url: HttpHelper.apiUrl, options: {} };
 
@@ -238,6 +242,8 @@ const appRoutes: Routes = [
     WhiteboardBannerComponent,
     EditProjectComponent,
     EditWbSessionComponent,
+    VideoChatPanelComponent,
+    VideoChatWrapperComponent,
   ],
   entryComponents: [
     KanbanComponent,
@@ -332,6 +338,8 @@ const appRoutes: Routes = [
     KanbanEventManagerService,
     UiService,
     LinkService,
+    VideoChatPanelManagerService,
+    VideoChatService,
   ],
   bootstrap: [AppComponent]
 })

@@ -48,3 +48,6 @@ Thumbs.db
 # Settings
 src/app/Model/Helper/http-helper/ServerSetting.json
 
+# SSL
+/src/assets/ssl
+
