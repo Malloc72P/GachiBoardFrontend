@@ -1,0 +1,24 @@
+.popover-form {
+  min-width: 150px;
+  max-width: 500px;
+  width: 100%;
+}
+
+.gachi-form-field {
+  width: 100%;
+}
+
+.popover-edit-content{
+  padding: 25px 12px;
+}
+.popover-edit-button-wrapper{
+  display: flex;
+  flex-flow: row-reverse;
+}
+.popover-edit-divider{
+  margin-top: 16px;
+  margin-bottom: 16px;
+}
+.kanban-create-form-field{
+  margin-bottom: 15px;
+}

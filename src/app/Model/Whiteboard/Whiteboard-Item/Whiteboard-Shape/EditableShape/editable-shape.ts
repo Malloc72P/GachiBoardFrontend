@@ -73,6 +73,7 @@ export abstract class EditableShape extends WhiteboardShape {
     this.coreItem.remove();
     this.group.remove();
     this.destroyBlind();
+    this.localEmitDestroy();
   }
 
   public refreshItem() {

@@ -2,10 +2,10 @@ import {WhiteboardItemDto} from '../../../../../DTO/WhiteboardItemDto/whiteboard
 
 export class WbItemEvent {
   action:WbItemEventEnum;
-  data:WhiteboardItemDto;
+  data;
   additionalData;
 
-  constructor(action: WbItemEventEnum, data: WhiteboardItemDto, additionalData?) {
+  constructor(action: WbItemEventEnum, data, additionalData?) {
     this.action = action;
     this.data = data;
     this.additionalData = additionalData;
@@ -15,7 +15,9 @@ export enum WbItemEventEnum {
   CREATE,
   CREATE_MULTIPLE,
   DELETE,
+  DELETE_MULTIPLE,
   UPDATE,
+  UPDATE_MULTIPLE,
   UPDATE_ZIndex,
   READ,
   LOCK,

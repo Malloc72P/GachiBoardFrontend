@@ -8,6 +8,7 @@ export class ParticipantDto {
   public email      : string;
   public userName   : string;
   public profileImg : string;
+  public state      : ParticipantState;
 
   public static createUnknownParticipant(){
     let unknown = new ParticipantDto();
@@ -18,6 +19,26 @@ export class ParticipantDto {
     unknown.email = "-1";
     unknown.userName = "unknown";
     unknown.profileImg = "/assets/images/supporter/kanban/male.jpg";
+    unknown.state = ParticipantState.AVAIL;
     return unknown;
   }
+  public static clone(participantDto:ParticipantDto){
+    let cloneData:ParticipantDto = new ParticipantDto();
+    cloneData._id             = participantDto._id;
+    cloneData.authorityLevel  = participantDto.authorityLevel;
+    cloneData.startDate       = participantDto.startDate;
+    cloneData.idToken         = participantDto.idToken;
+    cloneData.email           = participantDto.email;
+    cloneData.userName        = participantDto.userName;
+    cloneData.profileImg      = participantDto.profileImg;
+    cloneData.state           = participantDto.state;
+
+    return cloneData;
+  }
 }
+
+export enum ParticipantState {
+  AVAIL,
+  NOT_AVAIL,
+}
+

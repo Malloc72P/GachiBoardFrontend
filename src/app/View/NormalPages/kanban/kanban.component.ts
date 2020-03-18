@@ -22,6 +22,7 @@ import {WebsocketManagerService} from '../../../Controller/Controller-WebSocket/
 import {KanbanDataDto} from '../../../DTO/ProjectDto/KanbanDataDto/kanban-data-dto';
 import {Subscription} from 'rxjs';
 import {MAT_DIALOG_DATA, MatDialog, MatDialogRef} from '@angular/material/dialog';
+import {UiService} from '../../../Model/Helper/ui-service/ui.service';
 
 export class KanbanComponentData {
   projectDto:ProjectDto;
@@ -56,6 +57,7 @@ export class KanbanComponent implements OnInit, OnDestroy {
     public dialog: MatDialog,
     public kanbanEventManager:KanbanEventManagerService,
     public websocketManagerService:WebsocketManagerService,
+    public htmlHelper:HtmlHelperService,
     @Inject(MAT_DIALOG_DATA) public data: KanbanComponentData,
   ) {
     this.kanbanGroupWrapper = new Array<KanbanGroup>();

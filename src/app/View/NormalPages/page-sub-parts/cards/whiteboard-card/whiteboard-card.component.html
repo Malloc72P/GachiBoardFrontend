@@ -32,9 +32,13 @@
         </button>
         <span class="text-ellipsis">Whiteboard : {{whiteboardSession.title}}</span>
         <span class="wb-bottom-spacer"></span>
-        <button mat-button class="wb-card-title-button">
+        <button mat-button class="wb-card-title-button" [matMenuTriggerFor]="wbSessionMenu">
           <mat-icon >more_vert</mat-icon>
         </button>
+        <mat-menu #wbSessionMenu="matMenu">
+          <button mat-menu-item (click)="onEditWbSessionBtnClick()"><span>화이트보드 수정하기</span></button>
+          <button mat-menu-item (click)="onDeleteWbSessionBtnClick()"><span>화이트보드 삭제하기</span></button>
+        </mat-menu>
       </div>
       <div class="wb-card-subtitle wb-card-bottom-row">
         <span class="text-ellipsis">최근 수정 : {{websocketManagerService.getUserInfoByIdToken(whiteboardSession.recentlyModifiedBy).userName}}</span>

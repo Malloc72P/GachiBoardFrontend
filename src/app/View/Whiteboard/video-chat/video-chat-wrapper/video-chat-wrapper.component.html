@@ -1,0 +1,11 @@
+<div id="videoPanel" class="video-chat-wrapper" cdkDrag
+     [cdkDragFreeDragPosition]="position"
+     (cdkDragEnded)="dragEnd($event)"
+     [style.width]="width"
+     [style.height]="height">
+  <div>
+    <video #videoElement autoplay playsinline></video>
+    <audio #audioElement autoplay></audio>
+    <button class="scale-change-button" mat-button (click)="onClickSizeChangeButton()">{{changePanelSizeButtonLabel}}</button>
+  </div>
+</div>

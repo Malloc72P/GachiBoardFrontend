@@ -10,8 +10,6 @@ import Point = paper.Point;
 // @ts-ignore
 import Rectangle = paper.Path.Rectangle;
 // @ts-ignore
-import TextItem = paper.TextItem;
-// @ts-ignore
 import PointText = paper.PointText;
 
 import {EventEmitter} from '@angular/core';
@@ -26,6 +24,7 @@ import {WhiteboardItemDto} from '../../../DTO/WhiteboardItemDto/whiteboard-item-
 import {GachiPointDto} from '../../../DTO/WhiteboardItemDto/PointDto/gachi-point-dto';
 import {ItemLifeCycleEnum, ItemLifeCycleEvent} from "./WhiteboardItemLifeCycle/WhiteboardItemLifeCycle";
 import {WhiteboardItemType} from '../../Helper/data-type-enum/data-type.enum';
+import {WorkHistoryManager} from '../InfiniteCanvas/DrawingLayerManager/WorkHistoryManager/work-history-manager';
 
 export abstract class WhiteboardItem {
   protected _id: number;
@@ -43,6 +42,8 @@ export abstract class WhiteboardItem {
   private _isModified: boolean = false;
   private _parentEdtGroup:EditableItemGroup = null;
 
+  public groupedIdList:Array<any> = new Array<any>();
+
   private _disableLinkHandler;
   private _longTouchTimer;
 
@@ -56,6 +57,8 @@ export abstract class WhiteboardItem {
 
   public isOccupied = false;
 
+  public isVisited = false;//layer서비스의 getIntersectedList의 순회에서 방문된 경우 true값이 됨.
+
   protected _globalLifeCycleEmitter: EventEmitter<any>;
   protected _localLifeCycleEmitter = new EventEmitter<any>();
   protected _zoomEventEmitter: EventEmitter<any>;
@@ -65,6 +68,7 @@ export abstract class WhiteboardItem {
     this.selectMode = SelectModeEnum.SINGLE_SELECT;
     this.group = new Group();
     this.disableLinkHandler = false;
+    this.groupedIdList = new Array<any>();
     if(item){
       item.data.myGroup = this.group;
       this.group.addChild(item);
@@ -243,47 +247,13 @@ export abstract class WhiteboardItem {
     this.trailDistance = 0;
   }
 
-  private onPointerDownForEdit(event){
-    if(!this.checkEditable()){
-      return;
-    }
-    if(event.modifiers.control === true || event.modifiers.shift === true){
-      this.setMultipleSelectMode();
-    }
-    else{
-      this.setSingleSelectMode();
-    }
-    if(!this.isSelected){
-      if(this.isSingleSelectMode()){
-        this.layerService.globalSelectedGroup.extractAllFromSelection();
-      }
-      if(this.isGrouped && this.parentEdtGroup){//해당 WbItem이 그룹화되어 있는 경우
-        this.parentEdtGroup.pushAllChildIntoGSG();
-      }
-      else{//해당 WbItem이 그룹화되어 있지 않은 경우(통상)
-        this.layerService.globalSelectedGroup.insertOneIntoSelection(this);
-      }
-      this.isSelected = true;
-    }
-  }
-  private onPointerDownForContextMenu(event){
-    if(!this.checkContextMenuIsAvailable()){
-      return;
-    }
-    if(!this.isSelected){
-      if(this.isSingleSelectMode()){
-        this.layerService.globalSelectedGroup.extractAllFromSelection();
-      }
-      this.layerService.globalSelectedGroup.insertOneIntoSelection(this);
-      this.isSelected = true;
-    }
-  }
 
   public update(dto: WhiteboardItemDto) {
     this.group.position = GachiPointDto.getPaperPoint(dto.center);
     this.isGrouped = dto.isGrouped;
     this.parentEdtGroup = dto.parentEdtGroupId;
     this.zIndex = dto.zIndex;
+    this.groupedIdList = dto.groupedIdList;
     if(this.blindGroup){
       this.updateBlindGroup();
     }
@@ -346,7 +316,6 @@ export abstract class WhiteboardItem {
     }else{
       parentEdtGroupId = -1;
     }
-
     wbItemDto = new WhiteboardItemDto(
       this.id,
       this.type,
@@ -355,6 +324,9 @@ export abstract class WhiteboardItem {
       parentEdtGroupId,
       this.zIndex
     );
+    if (this.groupedIdList) {
+      wbItemDto.groupedIdList = this.groupedIdList;
+    }
     return wbItemDto;
   }
 

@@ -150,6 +150,8 @@ export class WorkHistoryManager {
         case ItemLifeCycleEnum.CREATE:
           this.destroyItem(currentAction.wbItemDtoArray).then(()=>{
             this.layerService.minimapSyncService.syncMinimap();
+            this.layerService.globalSelectedGroup.refreshGsg();
+            this.layerService.horizonContextMenuService.close();
             resolve();
           });
           break;
@@ -178,6 +180,7 @@ export class WorkHistoryManager {
   async buildItem(originWbItemDtoArray:Array<WhiteboardItemDto>):Promise<Array<WhiteboardItemDto>>{
     return new Promise<any>((resolve, reject)=>{
       let wsWbController = WsWhiteboardController.getInstance();
+      console.log("WorkHistoryManager >>  >> originWbItemDtoArray : ",originWbItemDtoArray);
 
       WhiteboardItemFactory.cloneWbItems(originWbItemDtoArray)
         .subscribe((copiedItems:Array<WhiteboardItem>)=>{
@@ -220,7 +223,6 @@ export class WorkHistoryManager {
                 newWbItem.coreItem.opacity = 1;
                 createdWbItemMap.set(newWbItem.id, newWbItem);
                 this.updateIdMap(originKey, newKey);
-
               }
               for(let i = 0 ; i < originWbItemDtoArray.length; i++){
                 let currOriginWbItemDto = originWbItemDtoArray[i];
@@ -257,32 +259,36 @@ export class WorkHistoryManager {
                 }
               }
               let resolveCounter = copiedItems.length;
+              let copiedItemDtoList:Array<WhiteboardItemDto> = new Array<WhiteboardItemDto>();
+
               for(let copiedItem of copiedItems){
-                wsWbController.waitRequestUpdateWbItem(copiedItem.exportToDto()).subscribe(()=>{
-                  resolveCounter--;
-                  if(resolveCounter === 0){
-                    resolve();
-                  }
-                })
+                copiedItemDtoList.push(copiedItem.exportToDto());
               }
+
+              wsWbController.waitRequestUpdateMultipleWbItem(copiedItemDtoList).subscribe(()=>{
+                resolve();
+              });
+
             });
         });
     });
   }
   async updateItem(wbItemDtoArray:Array<WhiteboardItemDto>):Promise<any>{
     return new Promise<any>((resolve, reject)=>{
-      let wsWbController = WsWhiteboardController.getInstance();
-
-      for(let currDto of wbItemDtoArray){
+      let i = wbItemDtoArray.length;
+      while (i--) {
+        let currDto = wbItemDtoArray[i];
         let updateItem = this.layerService.findItemById(currDto.id);
         if(updateItem){
-          //this.layerService.deleteItemFromWbArray(delItem.id);
           updateItem.update(currDto);
-          wsWbController.waitRequestUpdateWbItem(currDto).subscribe(()=>{
-            resolve();
-          });
+        }else{
+          wbItemDtoArray.splice(i, 1);
         }
       }
+      let wsWbController = WsWhiteboardController.getInstance();
+      wsWbController.waitRequestUpdateMultipleWbItem(wbItemDtoArray).subscribe(()=>{
+        resolve();
+      });
     });
   }
   async destroyItem(wbItemDtoArray:Array<WhiteboardItemDto>):Promise<any>{
@@ -293,12 +299,15 @@ export class WorkHistoryManager {
         let delItem = this.layerService.findItemById(currDto.id);
 
         if(delItem){
-          delItem.destroyItem();
-          wsWbController.waitRequestDeleteWbItem(currDto).subscribe(()=>{
+          delItem.destroyItemAndNoEmit();
+          /*wsWbController.waitRequestDeleteWbItem(currDto).subscribe(()=>{
             resolve();
-          });
+          });*/
         }
       }
+      wsWbController.waitRequestDeleteMultipleWbItem(wbItemDtoArray).subscribe(()=>{
+        resolve();
+      });
     });
   }
 

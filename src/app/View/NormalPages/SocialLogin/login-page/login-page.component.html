@@ -1,22 +1,45 @@
 <div style="height: 100%;">
-  <mat-card class="sign-card do-anime-activateSignCard-normal">
-    <mat-card-header>
-      <div mat-card-avatar class="sign-header-image"></div>
-      <mat-card-title>GachiBoard</mat-card-title>
-      <mat-card-subtitle>Real-time collaboratable Web Whiteboard</mat-card-subtitle>
-    </mat-card-header>
-    <img mat-card-image src="assets/images/collaboration.png" alt="collaboration">
-    <mat-card-content>
-      <p>같이 보고, 같이 듣고, 같이 그리는 GachiBoard!</p>
-    </mat-card-content>
-    <mat-card-actions class="sign-card-actions">
-      <button mat-button
-              class="signin-btn-google"
-              (click)="signIn('Google');">
-        <span class="googleSignInBtn"></span>
-      </button>
-    </mat-card-actions>
-  </mat-card>
+  <div class="header-wrapper">
+    <app-gachi-header [headerMode]="'sign'"></app-gachi-header>
+  </div>
+  <div class="sign-card do-anime-activateSignCard-normal">
+    <div class="left-panel panel-block">
+      <div class="service-info-panel">
+        <h1>Sign In</h1>
 
-  <div class="signin-bg"></div>
+        <div class="below-border" style="margin-bottom: 50px;"></div>
+
+        <!--<h4>멀리 떨어져 있어도 마치 옆에 있는 것처럼</h4>
+        <h4>같이보고, 같이쓰고, 같이 쓸 수 있어요</h4>-->
+<!--        <h3>소셜 계정으로 로그인하기</h3>-->
+
+        <div class="social-login-wrapper">
+          <button mat-button
+                  class="signin-btn"
+                  (click)="signIn(googleProvider);">
+            <span class="signInBtn googleSignInBtn"></span>
+          </button>
+          <button mat-button
+                  class="signin-btn"
+                  (click)="signIn(naverProvider);">
+            <span class="signInBtn naverSignInBtn"></span>
+          </button>
+
+          <button mat-button
+                  class="signin-btn"
+                  (click)="signIn(kakaoProvider);">
+            <span class="signInBtn kakaoSignInBtn"></span>
+          </button>
+        </div>
+
+<!--        <div class="below-border"></div>-->
+
+      </div>
+    </div>
+  </div>
+  <div class="signin-bg" [@fadeIn]="fadeIn"></div>
 </div>
+
+
+
+

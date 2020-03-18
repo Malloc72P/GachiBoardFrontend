@@ -96,14 +96,18 @@ export class LassoSelectorService {
 
   private selectBound() {
     let wbItems = this.layerService.whiteboardItemArray;
+    let selection:Array<WhiteboardItem> = new Array<WhiteboardItem>();
     for(let i = 0; i < wbItems.length; i++){
       let wbItem = wbItems[i];
       if(wbItem instanceof GlobalSelectedGroup){
         continue
       }
       if(this.isInside(this.newPath, wbItem.group)){
-        this.layerService.globalSelectedGroup.insertOneIntoSelection(wbItem);
+        selection.push(wbItem);
       }
+    }
+    if (selection.length > 0) {
+      this.layerService.globalSelectedGroup.insertMultipleIntoSelection(selection).then(()=>{});
     }
   }
 

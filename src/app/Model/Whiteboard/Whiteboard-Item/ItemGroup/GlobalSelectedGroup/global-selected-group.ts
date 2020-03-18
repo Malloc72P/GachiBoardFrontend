@@ -18,11 +18,12 @@ import {WbItemPacketDto} from '../../../../../DTO/WhiteboardItemDto/WbItemPacket
 import {ParticipantDto} from '../../../../../DTO/ProjectDto/ParticipantDto/participant-dto';
 import {WorkHistoryManager} from '../../../InfiniteCanvas/DrawingLayerManager/WorkHistoryManager/work-history-manager';
 import {WbItemWork} from '../../../InfiniteCanvas/DrawingLayerManager/WorkHistoryManager/WbItemWork/wb-item-work';
+import {GlobalSelectedGroupDto} from '../../../../../DTO/WhiteboardItemDto/ItemGroupDto/GlobalSelectedGroupDto/GlobalSelectedGroupDto';
+import {GachiPointDto} from '../../../../../DTO/WhiteboardItemDto/PointDto/gachi-point-dto';
 // @ts-ignore
 import Item = paper.Item;
 // @ts-ignore
 import Path = paper.Path;
-import {WhiteboardShapeDto} from '../../../../../DTO/WhiteboardItemDto/WhiteboardShapeDto/whiteboard-shape-dto';
 
 export class GlobalSelectedGroup extends ItemGroup {
   private static globalSelectedGroup: GlobalSelectedGroup;
@@ -51,18 +52,20 @@ export class GlobalSelectedGroup extends ItemGroup {
 
           // this.applyZIndexToSelection();
 
-          wsWbController.waitRequestOccupyWbItem(gsgEvent.wbItem.exportToDto())
+          wsWbController.waitRequestOccupyWbItem(this.exportToGsgDto())
             .subscribe(()=>{
 
             },(errorParam:WebsocketPacketDto)=>{
               this.extractOneFromGroup(gsgEvent.wbItem);
               let recvWbItemDto:WbItemPacketDto = errorParam.additionalData as WbItemPacketDto;
-              let occupierInfo:ParticipantDto = wsWbController.getUserNameWithIdToken(recvWbItemDto.occupiedBy);
-              gsgEvent.wbItem.onOccupied(occupierInfo.userName);
+              if (recvWbItemDto) {
+                let occupierInfo: ParticipantDto = wsWbController.getUserNameWithIdToken(recvWbItemDto.occupiedBy);
+                gsgEvent.wbItem.onOccupied(occupierInfo.userName);
+              }
             });
           break;
         case GsgSelectEventEnum.DESELECTED:
-          wsWbController.waitRequestNotOccupyWbItem(gsgEvent.wbItem.exportToDto())
+          wsWbController.waitRequestNotOccupyWbItem(this.exportToGsgDto())
             .subscribe((error)=>{
             });
           break;
@@ -78,6 +81,7 @@ export class GlobalSelectedGroup extends ItemGroup {
     let isMoved = super.moveEnd();
     if (isMoved) {
       this.pushGsgWorkIntoWorkHistroy(ItemLifeCycleEnum.MODIFY);
+      this.requestUpdateOnSelectedItem();
       // this.applyZIndexToSelection();
     }
     return true;
@@ -85,19 +89,16 @@ export class GlobalSelectedGroup extends ItemGroup {
   resizeEnd() {
     super.resizeEnd();
     this.pushGsgWorkIntoWorkHistroy(ItemLifeCycleEnum.MODIFY);
+    this.requestUpdateOnSelectedItem();
   }
 
-  applyZIndexToSelection(wbItemGroup?:Array<WhiteboardItem>){
+  applyZIndexToSelection(){
+    this.layerService.applyZIndex();
+  }
 
-    if (!wbItemGroup) {
-      this.wbItemGroup.forEach((value, index, array) => {
-        this.layerService.applyZIndex(value);
-      });
-    }else{
-      wbItemGroup.forEach((value, index, array) => {
-        this.layerService.applyZIndex(value);
-      });
-    }
+  requestUpdateOnSelectedItem(){
+    let wsWbController = WsWhiteboardController.getInstance();
+    wsWbController.waitRequestUpdateMultipleWbItem(this.exportSelectionToDto(), this.exportToGsgDto()).subscribe(()=>{});
   }
 
 
@@ -214,11 +215,11 @@ export class GlobalSelectedGroup extends ItemGroup {
   public doPaste(newPosition){
     if(this.copiedDtoArray.length > 0){
       this.waitForCloneOperation().subscribe((data:Array<WhiteboardItem>)=>{
+        this.layerService.uiService.spin$.next(true);
 
-
-        for (let i = 0; i < data.length; i++) {
-          this.insertOneIntoSelection(data[i]);
-        }
+        // for (let i = 0; i < data.length; i++) {
+        //   this.insertOneIntoSelection(data[i]);
+        // }
 
         let wsWbController = WsWhiteboardController.getInstance();
         let wbItemDtoArray:Array<WhiteboardItemDto> = new Array<WhiteboardItemDto>();
@@ -230,24 +231,43 @@ export class GlobalSelectedGroup extends ItemGroup {
         wsWbController.waitRequestCreateMultipleWbItem(wbItemDtoArray)
           .subscribe((wsPacketDto:WebsocketPacketDto)=>{
             let recvWbItemDtoArray:Array<WhiteboardItemDto> = wsPacketDto.dataDto as Array<WhiteboardItemDto>;
+            let cloneWbItemList:Array<WhiteboardItem> = new Array<WhiteboardItem>();
             for (let i = 0; i < data.length; i++) {
               let newWbItem = data[i];
               newWbItem.id = recvWbItemDtoArray[i].id;
               newWbItem.zIndex = recvWbItemDtoArray[i].zIndex;
-              newWbItem.group.opacity = 1;
-              newWbItem.coreItem.opacity = 1;
-              this.insertOneIntoSelection(newWbItem);
+              // newWbItem.group.opacity = 1;
+              // newWbItem.coreItem.opacity = 1;
+              cloneWbItemList.push(newWbItem);
+              // this.insertOneIntoSelection(newWbItem);
             }
-            this.relocateItemGroup(newPosition);
-            for (let i = 0; i < data.length; i++) {
-              let newWbItem = data[i];
-              wsWbController.waitRequestUpdateWbItem(newWbItem.exportToDto())
-                .subscribe(()=>{});
-            }
-            let workHistoryManager = WorkHistoryManager.getInstance();
-            let copyWorkHistory = new WbItemWork(ItemLifeCycleEnum.COPIED, recvWbItemDtoArray[0]);
-            copyWorkHistory.wbItemDtoArray = recvWbItemDtoArray;
-            workHistoryManager.pushIntoStack(copyWorkHistory);
+            this.insertMultipleIntoSelection(cloneWbItemList).then(()=>{
+              this.relocateItemGroup(newPosition);
+
+              let updateDtoList:Array<any> = new Array<any>();
+              for (let i = 0; i < data.length; i++) {
+                let newWbItem = data[i];
+                updateDtoList.push(newWbItem.exportToDto());
+              }
+
+              wsWbController.waitRequestUpdateMultipleWbItem(updateDtoList, this.exportToGsgDto()).subscribe(()=>{
+                recvWbItemDtoArray.splice(0, recvWbItemDtoArray.length);
+
+                for(let cloneItem of cloneWbItemList){
+                  cloneItem.group.opacity = 1;
+                  cloneItem.coreItem.opacity = 1;
+                  recvWbItemDtoArray.push(cloneItem.exportToDto());
+                }
+                let workHistoryManager = WorkHistoryManager.getInstance();
+                let copyWorkHistory = new WbItemWork(ItemLifeCycleEnum.CREATE, recvWbItemDtoArray[0]);
+
+                copyWorkHistory.wbItemDtoArray = recvWbItemDtoArray;
+
+                workHistoryManager.pushIntoStack(copyWorkHistory);
+
+                this.layerService.uiService.spin$.next(false);
+              });
+            });
           })
       });
     }
@@ -292,24 +312,57 @@ export class GlobalSelectedGroup extends ItemGroup {
 
   public insertOneIntoSelection(wbItem: WhiteboardItem) {
     // 아이템 그룹일 경우 그룹 안에 있는 모든 아이템을 GSG 에 추가
-    if(wbItem instanceof ItemGroup) {
-      if(this.checkLocking(wbItem)) {
-        return;
-      }
-      wbItem.wbItemGroup.forEach(value => {
-        this.insertOneIntoGroup(value);
-      });
-    } else {
-      if(this.checkLocking(wbItem)) {
-        return;
-      }
-      this.insertOneIntoGroup(wbItem);
+
+    if(this.checkLocking(wbItem)) {
+      return;
     }
+    if(wbItem.groupedIdList.length > 0){
+      for(let currId of wbItem.groupedIdList){
+        let foundItem = this.layerService.findItemById(currId);
+        if(foundItem){
+          this.insertOneIntoGroup(foundItem);
+        }
+      }
+    }
+    this.insertOneIntoGroup(wbItem);
     this.resetMyItemAdjustor();
     this.layerService.horizonContextMenuService.open();
     //this.emitSelected();
     this.saveCurrentItemState();
     this.gsgSelectorEventEmitter.emit(new GsgSelectEvent(GsgSelectEventEnum.SELECTED, wbItem));
+  }
+  public insertMultipleIntoSelection(wbItemList: Array<WhiteboardItem>) :Promise<any>{
+    return new Promise<any>((resolve, reject)=>{
+      console.log("GlobalSelectedGroup >> insertMultipleIntoSelection >> 진입함");
+      for(let wbItem of wbItemList){
+        if(this.checkLocking(wbItem)) {
+          return;
+        }
+        if(wbItem.groupedIdList.length > 0){
+          for(let currId of wbItem.groupedIdList){
+            let foundItem = this.layerService.findItemById(currId);
+            if(foundItem){
+              this.insertOneIntoGroup(foundItem);
+            }
+          }
+        }
+        this.insertOneIntoGroup(wbItem);
+      }
+      this.resetMyItemAdjustor();
+      this.layerService.horizonContextMenuService.open();
+
+      this.saveCurrentItemState();
+      let wsWbController = WsWhiteboardController.getInstance();
+
+      let gsgDto = this.exportToGsgDto();
+
+      wsWbController.waitRequestOccupyWbItem(gsgDto)
+        .subscribe(()=>{
+          resolve();
+        },(errorParam:WebsocketPacketDto)=>{
+          this.extractAllFromSelection();
+        });
+    });
   }
 
   private setLifeCycleEvent() {
@@ -362,15 +415,20 @@ export class GlobalSelectedGroup extends ItemGroup {
       prevWbItemGroup.push(prevWbItem);
     }
     this.layerService.horizonContextMenuService.close();
-    for(let i = 0 ; i < this.wbItemGroup.length; i++){
+    /*for(let i = 0 ; i < this.wbItemGroup.length; i++){
       this.gsgSelectorEventEmitter.emit(new GsgSelectEvent(GsgSelectEventEnum.DESELECTED, this.wbItemGroup[i]));
-    }
+    }*/
+
+    let gsgDto = this.exportToGsgDto();
+    let wsWbController = WsWhiteboardController.getInstance();
+    wsWbController.waitRequestNotOccupyWbItem(gsgDto).subscribe(()=>{});
+
     this.isLinkSelected = false;
     this.extractAllFromGroup();
     this.isLocked = false;
     this.saveCurrentItemState();
 
-    this.applyZIndexToSelection(prevWbItemGroup);
+    this.applyZIndexToSelection();
 
   }
 
@@ -392,8 +450,19 @@ export class GlobalSelectedGroup extends ItemGroup {
 
   destroyItem() {
     this.pushGsgWorkIntoWorkHistroy(ItemLifeCycleEnum.DESTROY);
-    this.destroyAllFromGroup();
+    // this.destroyAllFromGroup();
+    let deleteList:Array<WhiteboardItemDto> = this.exportSelectionToDto();
+    let wsWbController = WsWhiteboardController.getInstance();
+    wsWbController.waitRequestDeleteMultipleWbItem(deleteList).subscribe(()=>{
+      for(let wbItem of this.wbItemGroup){
+        wbItem.destroyItemAndNoEmit();
+      }
 
+      this.wbItemGroup.splice(0, this.wbItemGroup.length);
+
+      this.layerService.horizonContextMenuService.close();
+      this.resetMyItemAdjustor();
+    });
   }
   destroyItemAndNoEmit() {
     // this.destroyAllFromGroup();
@@ -406,6 +475,18 @@ export class GlobalSelectedGroup extends ItemGroup {
       dtoList.push(wbItem.exportToDto());
     }
     return dtoList;
+  }
+  exportToGsgDto() :GlobalSelectedGroupDto{
+    let gsgBoundary = this.group.bounds;
+    let wbItemIdGroup:Array<any> = new Array<any>();
+    for(let selectedItem of this.wbItemGroup){
+      wbItemIdGroup.push(selectedItem.id);
+    }
+    return new GlobalSelectedGroupDto(
+      gsgBoundary.width, gsgBoundary.height,
+      new GachiPointDto(gsgBoundary.topLeft.x, gsgBoundary.topLeft.y)
+      , wbItemIdGroup
+    );
   }
 
   get isLocked(): boolean {

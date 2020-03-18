@@ -150,6 +150,7 @@ export class EditableLink extends WhiteboardItem {
     this.linkTail.remove();
     this.linkLine.remove();
     this.destroyBlind();
+    this.localEmitDestroy();
   }
 
   public exportToDto(): EditableLinkDto {

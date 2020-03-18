@@ -54,6 +54,11 @@ import Point = paper.Point;
 import Project = paper.Project;
 import {EditableShapeDto} from '../../../../DTO/WhiteboardItemDto/WhiteboardShapeDto/EditableShapeDto/editable-shape-dto';
 import {WbItemPacketDto} from '../../../../DTO/WhiteboardItemDto/WbItemPacketDto/WbItemPacketDto';
+import {ItemBlinderManagementService} from '../../OccupiedItemBlinder/item-blinder-management-service/item-blinder-management.service';
+import {GlobalSelectedGroupDto} from '../../../../DTO/WhiteboardItemDto/ItemGroupDto/GlobalSelectedGroupDto/GlobalSelectedGroupDto';
+import {UiService} from '../../../Helper/ui-service/ui.service';
+import {HotKeyManagementService} from '../../HotKeyManagement/hot-key-management.service';
+
 
 
 @Injectable({
@@ -94,6 +99,9 @@ export class DrawingLayerManagerService {
     private wbItemEventManagerService: WbItemEventManagerService,
     public  minimapSyncService: MinimapSyncService,
     private websocketManagerService: WebsocketManagerService,
+    private blinderManagementService:ItemBlinderManagementService,
+    private hotKeyManagementService:HotKeyManagementService,
+    public uiService:UiService,
   ) {
     this._whiteboardItemArray = new Array<WhiteboardItem>();
     this._editableLinkArray = new Array<EditableLink>();
@@ -175,24 +183,31 @@ export class DrawingLayerManagerService {
         case WbItemEventEnum.DELETE:
           let delItem = this.findItemById(recvWbItemEvent.data.id);
           if(delItem){
+            this.blinderManagementService.onWbItemDestroy(delItem.id);
             this.deleteItemFromWbArray(delItem.id);
             delItem.destroyItemAndNoEmit();
             workHistoryManager.removeTask(recvWbItemEvent.data.id);
           }
           break;
-        case WbItemEventEnum.OCCUPIED:
-          let occupiedItem = this.findItemById(recvWbItemEvent.data.id);
-          let wsPacketDto:WebsocketPacketDto = recvWbItemEvent.additionalData;
-          if (occupiedItem) {
-            console.log("DrawingLayerManagerService >> WbItemEventEnum.OCCUPIED >> occupiedItem : ",occupiedItem);
-            occupiedItem.onOccupied(this.websocketManagerService.getUserInfoByIdToken(wsPacketDto.senderIdToken).userName);
+        case WbItemEventEnum.DELETE_MULTIPLE:
+          let delItemList:Array<WhiteboardItemDto> = recvWbItemEvent.data as Array<WhiteboardItemDto>;
+          for(let currDelItem of delItemList){
+            let delItem = this.findItemById(currDelItem.id);
+            if(delItem){
+              this.blinderManagementService.onWbItemDestroy(delItem.id);
+              this.deleteItemFromWbArray(delItem.id);
+              delItem.destroyItemAndNoEmit();
+              workHistoryManager.removeTask(recvWbItemEvent.data.id);
+            }
           }
           break;
+        case WbItemEventEnum.OCCUPIED:
+          let occupiedGsgDto:GlobalSelectedGroupDto = recvWbItemEvent.data as unknown as GlobalSelectedGroupDto;
+          this.blinderManagementService.updateOccupiedData(occupiedGsgDto);
+          break;
         case WbItemEventEnum.NOT_OCCUPIED:
-          let notOccupiedItem = this.findItemById(recvWbItemEvent.data.id);
-          if (notOccupiedItem) {
-            notOccupiedItem.onNotOccupied();
-          }
+          let notOccupiedGsgDto:GlobalSelectedGroupDto = recvWbItemEvent.data as unknown as GlobalSelectedGroupDto;
+          this.blinderManagementService.updateNotOccupiedData(notOccupiedGsgDto);
           break;
         case WbItemEventEnum.UPDATE:
           let updateItem = this.findItemById(recvWbItemEvent.data.id);
@@ -201,8 +216,21 @@ export class DrawingLayerManagerService {
             workHistoryManager.removeTask(recvWbItemEvent.data.id);
           }
           break;
+        case WbItemEventEnum.UPDATE_MULTIPLE:
+          let wbItemDtoList:Array<WhiteboardItemDto> = recvWbItemEvent.data as Array<WhiteboardItemDto>;
+          for(let wbItemDto of wbItemDtoList){
+            let updateItem = this.findItemById(wbItemDto.id);
+            if(updateItem){
+              updateItem.update(wbItemDto);
+              workHistoryManager.removeTask(wbItemDto.id);
+              if (recvWbItemEvent.additionalData) {
+                this.blinderManagementService.updateOccupiedData(recvWbItemEvent.additionalData);
+              }
+            }
+            //this.blinderManagementService.updateOccupiedData()
+          }
+          break;
         case WbItemEventEnum.UPDATE_ZIndex:
-          console.log("DrawingLayerManagerService >> UPDATE_ZIndex >> recvWbItemEvent : ",recvWbItemEvent);
           this.updateZIndex(recvWbItemEvent.additionalData);
 
           break;
@@ -236,9 +264,8 @@ export class DrawingLayerManagerService {
           this.drawingLayer.addChild(data.item.group);
           break;
         case ItemLifeCycleEnum.MODIFY:
-          wsWbController.waitRequestUpdateWbItem(data.item.exportToDto()).subscribe(()=>{
-            /*workHistoryManager.pushIntoStack(new WbItemWork(ItemLifeCycleEnum.MODIFY, data.item.exportToDto()));*/
-          });
+          /*wsWbController.waitRequestUpdateWbItem(data.item.exportToDto()).subscribe(()=>{
+          });*/
           break;
         case ItemLifeCycleEnum.DESTROY:
           wsWbController.waitRequestDeleteWbItem(data.item.exportToDto()).subscribe((ackPacket)=>{
@@ -250,9 +277,7 @@ export class DrawingLayerManagerService {
     });
   }
   deleteItemFromWbArray(id){
-    console.log("DrawingLayerManagerService >> deleteItemFromWbArray >> id : ",id);
     let removeIdx = this.indexOfWhiteboardArray(id);
-    console.log("DrawingLayerManagerService >> deleteItemFromWbArray >> removeIdx : ",removeIdx);
     if(removeIdx !== -1){
       this.whiteboardItemArray.splice(removeIdx, 1);
     }
@@ -329,6 +354,7 @@ export class DrawingLayerManagerService {
     }
     else if(DrawingLayerManagerService.isEditableRaster(type)){
       newWhiteboardItem = new SimpleRaster(this.getWbId(), item, this);
+      this.uiService.spin$.next(true);
     }
     else if(DrawingLayerManagerService.isEditableShape(type)){
       let editText:PointText      = extras[0];
@@ -373,6 +399,10 @@ export class DrawingLayerManagerService {
           newWhiteboardItem.zIndex = packetDto.dataDto.zIndex;
           let workHistoryManager = WorkHistoryManager.getInstance();
           workHistoryManager.pushIntoStack(new WbItemWork(ItemLifeCycleEnum.CREATE, newWhiteboardItem.exportToDto()));
+
+          if(newWhiteboardItem instanceof SimpleRaster){
+            this.uiService.spin$.next(false);
+          }
         });
     }
     return newWhiteboardItem;
@@ -551,6 +581,7 @@ export class DrawingLayerManagerService {
 
   public startEditText() {
     let editableShape:EditableShape = this.globalSelectedGroup.wbItemGroup[0] as EditableShape;
+    this.hotKeyManagementService.disableHotKeySystem();
 
     this.prevTextShapeDto = editableShape.exportToDto();
     this.prevTextShape = editableShape;
@@ -588,9 +619,8 @@ export class DrawingLayerManagerService {
   //#####################
 
   public endEditText() {
-    console.log("DrawingLayerManagerService >> endEditText >> 진입함");
     let editableShape:EditableShape = this.editTextShape;
-
+    this.hotKeyManagementService.enableHotKeySystem();
 
     this.isEditingText = false;
     editableShape.isEditing = false;
@@ -611,6 +641,13 @@ export class DrawingLayerManagerService {
     let workHistoryManager = WorkHistoryManager.getInstance();
     let wbItemWork = new WbItemWork(ItemLifeCycleEnum.MODIFY, this.prevTextShapeDto);
     workHistoryManager.pushIntoStack(wbItemWork);
+
+    let updateList:Array<WhiteboardItemDto> = new Array<WhiteboardItemDto>();
+    updateList.push(this.editTextShape.exportToDto());
+    let wsWbController = WsWhiteboardController.getInstance();
+    wsWbController.waitRequestUpdateMultipleWbItem(updateList).subscribe(()=>{
+
+    });
 
     this.prevTextShape.globalEmitModify();
 
@@ -642,18 +679,20 @@ export class DrawingLayerManagerService {
 
   public groupSelectedItems(){
     let gsg = this.globalSelectedGroup;
+    let newGroup:Array<any> = new Array<any>();
     for (let i = 0; i < gsg.wbItemGroup.length; i++) {
       let currWbItem = gsg.wbItemGroup[i];
-      if(currWbItem.isGrouped && currWbItem.parentEdtGroup){
-        currWbItem.parentEdtGroup.destroyItem();
-      }
+      newGroup.push(currWbItem.id);
     }
 
-    let newEdtGroup:EditableItemGroup = this.addToDrawingLayer(null, WhiteboardItemType.EDITABLE_GROUP) as EditableItemGroup;
+    for (let i = 0; i < gsg.wbItemGroup.length; i++) {
+      let currWbItem = gsg.wbItemGroup[i];
+      currWbItem.groupedIdList = newGroup;
+    }
 
-    this.globalSelectedGroup.wbItemGroup.forEach((value, index, array)=>{
-      newEdtGroup.addItem(value);
-    });
+    let wsWbController = WsWhiteboardController.getInstance();
+    let dtoList = this.globalSelectedGroup.exportSelectionToDto();
+    wsWbController.waitRequestUpdateMultipleWbItem(dtoList).subscribe(()=>{});
 
     this.globalSelectedGroup.extractAllFromSelection();
   }
@@ -662,15 +701,28 @@ export class DrawingLayerManagerService {
     let gsg = this.globalSelectedGroup;
     for (let i = 0; i < gsg.wbItemGroup.length; i++) {
       let currWbItem = gsg.wbItemGroup[i];
-      if(currWbItem.isGrouped && currWbItem.parentEdtGroup){
-        currWbItem.parentEdtGroup.destroyItem();
+      if (currWbItem.groupedIdList) {
+        currWbItem.groupedIdList.splice(0, currWbItem.groupedIdList.length);
       }
     }
+
+    let wsWbController = WsWhiteboardController.getInstance();
+    let dtoList = this.globalSelectedGroup.exportSelectionToDto();
+    wsWbController.waitRequestUpdateMultipleWbItem(dtoList).subscribe(()=>{});
+
     this.globalSelectedGroup.extractAllFromSelection();
   }
 
-  public applyZIndex(touchedWbItem:WhiteboardItem){
-    let intersectedWbItemList:Array<WhiteboardItem>;
+  public applyZIndex(){
+    this.whiteboardItemArray.sort((prev, next)=>{
+      if(prev.zIndex < next.zIndex){
+        return -1;
+      }else return 1;
+    });
+    for (let i = 0; i < this.whiteboardItemArray.length; i++) {
+      this.drawingLayer.insertChild(i, this.whiteboardItemArray[i].group);
+    }
+/*    let intersectedWbItemList:Array<WhiteboardItem>;
 
     intersectedWbItemList = this.getIntersectedList(touchedWbItem);
     intersectedWbItemList.sort((prevWbItem, currWbItem)=>{
@@ -681,7 +733,8 @@ export class DrawingLayerManagerService {
 
     for(let currItem of intersectedWbItemList){
       currItem.group.bringToFront();
-    }
+      currItem.isVisited = true;
+    }*/
 
   }
 
@@ -691,7 +744,6 @@ export class DrawingLayerManagerService {
 
     this.visitIntersectedWbItem(entryItem, intersectedWbItemMap, returnValue);
 
-    console.log("DrawingLayerManagerService >> getIntersectedList >> returnValue : ",returnValue);
     return returnValue;
   }
   visitIntersectedWbItem(visitedWbItem:WhiteboardItem, intersectedWbItemMap:Map<any, WhiteboardItem>, returnValue:Array<WhiteboardItem>){
@@ -724,7 +776,7 @@ export class DrawingLayerManagerService {
       let foundItem:WhiteboardItem = this.findItemById(recvWbPacket._id);
       if(foundItem){
         foundItem.zIndex = recvWbPacket.wbItemDto.zIndex;
-        this.applyZIndex(foundItem);
+        this.applyZIndex();
         if(foundItem.isOccupied){
           foundItem.updateBlindGroup();
         }
@@ -734,6 +786,10 @@ export class DrawingLayerManagerService {
 
 
   //########## Getter & Setter ##########
+
+  public getWorkHistoryManager(){
+    return WorkHistoryManager.getInstance();
+  }
 
   get whiteboardItemArray(): Array<WhiteboardItem> {
     return this._whiteboardItemArray;

@@ -117,14 +117,14 @@ export class WhiteboardItemFactory {
       if(wbItemArray){
         WhiteboardItemFactory.waitForCreateWbItem(wbItemDto, BUILD_MODE.CREATE, wbItemArray)
           .subscribe((wbFactoryRes:WbItemFactoryResult)=>{
-            console.log("WhiteboardItemFactory >> buildWbItems >> wbFactoryRes : ",wbFactoryRes);
+            // console.log("WhiteboardItemFactory >> buildWbItems >> wbFactoryRes : ",wbFactoryRes);
             observer.next(wbFactoryRes);
           });
       }
       else {
         WhiteboardItemFactory.waitForCreateWbItem(wbItemDto, BUILD_MODE.CREATE)
           .subscribe((wbFactoryRes:WbItemFactoryResult)=>{
-            console.log("WhiteboardItemFactory >> buildWbItems >> wbFactoryRes : ",wbFactoryRes);
+            // console.log("WhiteboardItemFactory >> buildWbItems >> wbFactoryRes : ",wbFactoryRes);
             observer.next(wbFactoryRes);
           });
 
@@ -151,12 +151,14 @@ export class WhiteboardItemFactory {
         WhiteboardItemFactory.createWbItem(buildMode, wbItemDto, wbItemArray)
           .subscribe((data:WhiteboardItem)=>{
             data.group.opacity = 1;
+            data.groupedIdList = wbItemDto.groupedIdList;
             observer.next(new WbItemFactoryResult( data, wbItemDto ));
           });
       }else {
         WhiteboardItemFactory.createWbItem(buildMode, wbItemDto)
           .subscribe((data:WhiteboardItem)=>{
             data.group.opacity = 1;
+            data.groupedIdList = wbItemDto.groupedIdList;
             observer.next(new WbItemFactoryResult( data, wbItemDto ));
           });
       }

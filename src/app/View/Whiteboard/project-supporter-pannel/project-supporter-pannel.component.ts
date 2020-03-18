@@ -11,6 +11,9 @@ import {ImportFileService} from "../../../Model/Whiteboard/ImportFile/import-fil
 import {CursorTrackerService} from "../../../Model/Whiteboard/CursorTracker/cursor-tracker-service/cursor-tracker.service";
 import {DrawingLayerManagerService} from "../../../Model/Whiteboard/InfiniteCanvas/DrawingLayerManager/drawing-layer-manager.service";
 import {MatDialog} from '@angular/material/dialog';
+import {HotKeyManagementService} from '../../../Model/Whiteboard/HotKeyManagement/hot-key-management.service';
+import {VideoChatService} from "../../../Model/Whiteboard/VideoChat/video-chat/video-chat.service";
+import {MatMenu} from "@angular/material/menu";
 
 @Component({
   selector: 'app-project-supporter-pannel',
@@ -20,6 +23,7 @@ import {MatDialog} from '@angular/material/dialog';
 export class ProjectSupporterPannelComponent extends PopoverPanel  implements OnInit {
   @ViewChild('fileInputMultiple') fileInputMultiple: ElementRef;
   @ViewChild('fileInput') fileInput: ElementRef;
+  @ViewChild('videoChatMenu', {static: true}) videoChatMenu: MatMenu;
   projectSupporterEnumService: ProjectSupporterEnumService;
   isHovered;
   public prevPopup = null;
@@ -33,6 +37,8 @@ export class ProjectSupporterPannelComponent extends PopoverPanel  implements On
     public importFileService: ImportFileService,
     public cursorTrackerService: CursorTrackerService,
     public layerService: DrawingLayerManagerService,
+    public hotKeyManagementService: HotKeyManagementService,
+    private videoChat: VideoChatService,
   ) {
     super(projectSupporterEnumService);
     this.projectSupporterEnumService = projectSupporterEnumService;
@@ -58,21 +64,11 @@ export class ProjectSupporterPannelComponent extends PopoverPanel  implements On
     //this.pointerModeManagerService.currentPointerMode = this.currentSelectedMode;
   }
   onClickPanelItem(panelItem: number) {
-    console.log("ProjectSupporterPannelComponent >> onClickPanelItem >> this.prevPopup : ",this.prevPopup);
-    /*if(this.prevPopup){
-      this.renderer2.removeClass(this.prevPopup, "do-anime-popup-appear");
-      this.renderer2.addClass(this.prevPopup,"do-anime-popup-disappear");
-    }
-    let itemName = this.projectSupporterEnumService.getEnumArray()[panelItem];
-    let itemElement:HTMLElement = document.getElementById("supporter-" + itemName) as HTMLElement;
-    if(!itemElement){
-      return;
-    }
-    this.renderer2.removeClass(itemElement, "do-anime-popup-disappear");
-    this.renderer2.addClass(itemElement,"do-anime-popup-appear");
-    this.prevPopup = itemElement;*/
     switch (panelItem) {
       case SupportMode.KANBAN:
+
+        this.hotKeyManagementService.disableHotKeySystem();
+
         const dialogRef = this.dialog.open(KanbanComponent, {
           width: this.positionCalcService.getWidthOfBrowser()+"px",
           height: this.positionCalcService.getHeightOfBrowser()+"px",
@@ -82,7 +78,7 @@ export class ProjectSupporterPannelComponent extends PopoverPanel  implements On
 
         dialogRef.afterClosed().subscribe(result => {
           console.log('The dialog was closed');
-
+          this.hotKeyManagementService.enableHotKeySystem();
         });
         break;
       case SupportMode.TIME_TIMER:
@@ -95,12 +91,8 @@ export class ProjectSupporterPannelComponent extends PopoverPanel  implements On
       case SupportMode.EXPORT:
         break;
       case SupportMode.TEXT_CHAT:
-        this.layerService.drawingLayer.children.forEach(value => {
-          console.log("Children ID :", value.id, ", Children Object : ", value);
-        });
-        this.layerService.whiteboardItemArray.forEach(value => {
-          console.log("WBItem ID :", value.id, ", Paper ID :", value.group.id,"WBItem Object : ", value);
-        });
+        break;
+      case SupportMode.VIDEO_CHAT:
         break;
       case SupportMode.CURSOR_TRACKER:
         if(this.cursorTrackerService.isActivate) {
@@ -125,5 +117,55 @@ export class ProjectSupporterPannelComponent extends PopoverPanel  implements On
     let fileObject = this.fileInput.nativeElement.files;
 
     this.importFileService.importFile(fileObject)
+  }
+
+  onClickCam() {
+    if(this.videoChat.isJoined) {
+      this.videoChat.changeVideoSource('cam').then();
+    } else {
+      this.videoChat.joinVideoChat('cam').then();
+    }
+  }
+
+  onClickScreen() {
+    if(this.videoChat.isJoined) {
+      this.videoChat.changeVideoSource('screen').then()
+    } else {
+      this.videoChat.joinVideoChat('screen').then();
+    }
+  }
+
+  onClickEnd() {
+    this.videoChat.leaveVideoChat().then();
+  }
+
+  menu(mode: SupportMode) {
+    if(mode === SupportMode.VIDEO_CHAT) {
+      return this.videoChatMenu;
+    }
+    return undefined;
+  }
+
+  get disableCam(): boolean {
+    if(this.videoChat.isJoined) {
+      return this.videoChat.isCam;
+    }
+    return false;
+  }
+
+  get disableScreen(): boolean {
+    if(this.videoChat.isJoined) {
+      return this.videoChat.isScreen;
+    }
+    return false;
+  }
+
+  get disableEnd(): boolean {
+    return !this.videoChat.isJoined;
+
+  }
+
+  get SupportMode() {
+    return SupportMode;
   }
 }

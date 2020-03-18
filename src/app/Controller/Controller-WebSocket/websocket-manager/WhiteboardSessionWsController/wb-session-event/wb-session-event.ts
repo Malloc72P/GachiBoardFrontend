@@ -2,10 +2,10 @@ import {WhiteboardSessionDto} from '../../../../../DTO/ProjectDto/WhiteboardSess
 
 export class WbSessionEvent {
   action:WbSessionEventEnum;
-  data:WhiteboardSessionDto;
+  data;
   additionalData;
 
-  constructor(action: WbSessionEventEnum, data: WhiteboardSessionDto, additionalData?) {
+  constructor(action: WbSessionEventEnum, data, additionalData?:WbSessionEventEnum) {
     this.action = action;
     this.data = data;
     this.additionalData = additionalData;
@@ -17,5 +17,6 @@ export enum WbSessionEventEnum {
   UPDATE,
   READ,
   JOIN,
+  DISCONNECT,
   UPDATE_CURSOR
 }

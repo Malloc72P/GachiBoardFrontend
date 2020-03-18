@@ -9,13 +9,19 @@ import {
 } from '../../../Model/NormalPagesManager/gachi-sidebar-manager/GachiSidebarEvent/GachiSidebarEvent';
 import {UserDTO} from '../../../DTO/user-dto';
 import {MatSidenav} from '@angular/material/sidenav';
+import {transition, trigger, useAnimation} from '@angular/animations';
+import {fadeInLeft, jackInTheBox} from 'ng-animate';
 
 @Component({
   selector: 'app-main-page',
   templateUrl: './main-page.component.html',
-  styleUrls: ['./main-page.component.css', './../gachi-font.css']
+  styleUrls: ['./main-page.component.css', './../gachi-font.css'],
+  animations: [trigger('fadeIn',
+    [transition('* => *', useAnimation(fadeInLeft,
+      {params : {timing : 0.4, delay : 0}}))])]
 })
 export class MainPageComponent implements OnInit {
+  fadeIn:any;
   @ViewChild('mainLeftDrawer', {static: true}) mainLeftDrawer;
   @ViewChild('drawer', {static: true}) rightSidebar:MatSidenav;
   public userName = "";

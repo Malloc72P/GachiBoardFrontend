@@ -3,7 +3,7 @@
      ><!--[ngClass]="{'wb-card-show' : isHovering}"-->
   <div style="padding: 3px; text-align: center;">
     <img class="wb-card-participant-img"
-         src="{{imgSrc}}"
+         src="{{htmlHelper.verifyProfileImage(imgSrc)}}"
          [ngClass]="{'wb-card-drop-shadow' : enableDropShadow && isHovering}"
          [ngStyle]="{ 'width' : imgSize, 'height' : imgSize,
                       'filter': 'drop-shadow(0px 0px 8px '+dropShadowColor+')'}">

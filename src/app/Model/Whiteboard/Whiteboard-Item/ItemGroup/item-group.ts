@@ -197,8 +197,11 @@ export class ItemGroup extends WhiteboardItem {
     }
     this.wbItemGroup.push(wbItem);
     wbItem.isSelected = true;
+    let wbItemPaperIdx = wbItem.group.index;
+    // console.log("ItemGroup >> insertOneIntoGroup >> wbItemPaperIdx : ",wbItemPaperIdx);
     this.coreItem.addChild(wbItem.group);
-    this.group.bringToFront();
+    this.layerService.drawingLayer.insertChild(wbItemPaperIdx, this.coreItem);
+    //this.group.bringToFront();
 
     wbItem.localEmitSelected();
     wbItem.globalEmitSelected();

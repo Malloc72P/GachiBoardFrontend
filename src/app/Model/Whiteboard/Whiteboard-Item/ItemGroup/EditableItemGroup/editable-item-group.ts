@@ -58,6 +58,7 @@ export class EditableItemGroup extends ItemGroup implements Editable{
       value.parentEdtGroup = null;
     });
     this.destroyBlind();
+    this.localEmitDestroy();
   }
 
   public pushAllChildIntoGSG(){

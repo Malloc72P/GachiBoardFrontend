@@ -8,20 +8,14 @@
   width: 100%;
 }
 
-.kanban-item-edit-content{
+.item-edit-content{
   padding: 25px 12px;
 }
-.kanban-item-edit-button-wrapper{
+.item-edit-button-wrapper{
   display: flex;
   flex-flow: row-reverse;
 }
-.kanban-item-edit-divider{
+.item-edit-divider{
   margin-top: 16px;
   margin-bottom: 16px;
-}
-.kanban-group-section{
-  margin-bottom: 20px;
-}
-.kanban-group-setting-wrapper{
-  overflow-y: auto;
 }

@@ -1,7 +1,7 @@
 //animation-activateSignCard-class
-$anime-activateSignCard-duration: 0.5s;
+$anime-activateSignCard-duration: 1.3s;
 $anime-activateSignCard-easing: ease-out;
-$anime-activateSignCard-fillMod: forwards;
+$anime-activateSignCard-fillMod: normal;
 $anime-activateSignCard-delay: 0;
 .do-anime-activateSignCard-normal {
   animation-name: anime-activateSignCard-keyframe;
@@ -14,11 +14,9 @@ $anime-activateSignCard-delay: 0;
 
 @keyframes anime-activateSignCard-keyframe {
   0% {
-    transform: scale(0.1) rotateZ(270deg) translate(1000px, 2000px);
     opacity: 0;
   }
   100% {
-    transform: scale(1) rotateZ(0deg) translate(0px, 0px);
     opacity: 1;
   }
 }

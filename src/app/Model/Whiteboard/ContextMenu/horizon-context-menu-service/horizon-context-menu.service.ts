@@ -19,6 +19,8 @@ import {
   ItemLifeCycleEvent
 } from "../../Whiteboard-Item/WhiteboardItemLifeCycle/WhiteboardItemLifeCycle";
 import {SubPanelManager} from "../../Panel/sub-panel-manager/sub-panel-manager";
+import {WsWhiteboardController} from '../../../../Controller/Controller-WebSocket/websocket-manager/WhiteboardWsController/ws-whiteboard.controller';
+import {WhiteboardItemDto} from '../../../../DTO/WhiteboardItemDto/whiteboard-item-dto';
 
 @Injectable({
   providedIn: 'root'
@@ -63,6 +65,7 @@ export class HorizonContextMenuService {
   }
 
   public close() {
+    console.log("HorizonContextMenuService >> close >> 진입함");
     this._isHidden = true;
     this.checkModifiedItem();
     this.subPanelManager.hideAll();
@@ -82,8 +85,10 @@ export class HorizonContextMenuService {
   private checkModifiedItem() {
     if(!!this.item) {
       if(this.item.isModified) {
-        console.log("HorizonContextMenuService >> checkModifiedItem >> this.item.isModified >> 진입함");
         this.globalSelectedGroup.pushGsgWorkIntoWorkHistroy(ItemLifeCycleEnum.MODIFY);
+
+        this.globalSelectedGroup.requestUpdateOnSelectedItem();
+
         this.item.localEmitModify();
         this.item.globalEmitModify();
         this.item.isModified = false;
@@ -148,11 +153,6 @@ export class HorizonContextMenuService {
   }
 
   private instanceCheckItem(wbItemGroup: Array<WhiteboardItem>): HorizonContextMenuTypes {
-    //EditableItemGroup으로 잡힌 경우, GSG에 있는 대상은 EditableItemGroup이 아닌,
-    //해당 그룹 안의 WbItem들이다. 그러므로 별도의 체크 메서드를 통해, 먼저 검사한다.
-    if(this.instanceCheckEdtGroup()){
-      return HorizonContextMenuTypes.GROUP;
-    }
 
     // GSG 에 선택된 아이템이 한개이상 (다중선택)
     if(wbItemGroup.length > 1) {
@@ -249,6 +249,7 @@ export class HorizonContextMenuService {
     this._menuItemArray = new Array<HorizonContextMenuActions>(
       HorizonContextMenuActions.LOCK,
       HorizonContextMenuActions.GROUP,
+      HorizonContextMenuActions.UNGROUP,
       HorizonContextMenuActions.MORE,
     );
   }
@@ -339,6 +340,9 @@ export class HorizonContextMenuService {
     if(this.item instanceof WhiteboardItem) {
       return this.item.coreItem;
     } else if(Array.isArray(this.item)) {
+      return this.globalSelectedGroup.group;
+    }else{
+      this._item = this.globalSelectedGroup.wbItemGroup;
       return this.globalSelectedGroup.group;
     }
   }

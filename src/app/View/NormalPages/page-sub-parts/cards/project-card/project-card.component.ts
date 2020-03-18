@@ -2,6 +2,17 @@ import {AfterViewInit, Component, Input, OnInit, Renderer2, ViewChild} from '@an
 import {HtmlHelperService} from '../../../../../Model/NormalPagesManager/HtmlHelperService/html-helper.service';
 import {RouterHelperService} from '../../../../../Model/Helper/router-helper-service/router-helper.service';
 import {ProjectDto} from '../../../../../DTO/ProjectDto/project-dto';
+import {AreYouSurePanelService} from '../../../../../Model/PopupManager/AreYouSurePanelManager/are-you-sure-panel.service';
+import {Subscription} from 'rxjs';
+import {ProjectRequesterService} from '../../../../../Controller/Project/project-requester.service';
+import {UserDTO} from '../../../../../DTO/user-dto';
+import {ParticipantDto, ParticipantState} from '../../../../../DTO/ProjectDto/ParticipantDto/participant-dto';
+import {CreateProjectComponent} from '../../../main-page/main-page-root/create-project/create-project.component';
+import {MatDialog} from '@angular/material/dialog';
+import {EditProjectComponent} from '../../../main-page/main-page-root/edit-project/edit-project.component';
+import {AuthRequestService} from '../../../../../Controller/SocialLogin/auth-request/auth-request.service';
+import {AuthorityLevel} from '../../../../../DTO/ProjectDto/ParticipantDto/authority-level.enum';
+import {RestPacketDto} from '../../../../../DTO/RestPacketDto/RestPacketDto';
 
 @Component({
   selector: 'app-project-card',
@@ -12,6 +23,7 @@ export class ProjectCardComponent implements OnInit, AfterViewInit {
   @ViewChild('projectCard') projectCard;
   @Input() projectDto:ProjectDto;
   @Input()marginValue = '0px';
+  @Input()userDtoEventEmitter;
 
   public isHovering = false;
 
@@ -20,12 +32,17 @@ export class ProjectCardComponent implements OnInit, AfterViewInit {
   public m = [4][4];
 
   constructor(
+    public dialog: MatDialog,
     public renderer: Renderer2,
     public htmlHelperService:HtmlHelperService,
-    public routerHelperService:RouterHelperService
+    public routerHelperService:RouterHelperService,
+    public areYouSurePanelService:AreYouSurePanelService,
+    public projectRequesterService:ProjectRequesterService,
+    public authRequestService:AuthRequestService,
   ) { }
 
   ngOnInit() {
+    this.checkAuth();
   }
   ngAfterViewInit(): void {
     console.log("ProjectCardComponent >> ngAfterViewInit >> projectCard : ",this.projectCard);
@@ -65,5 +82,60 @@ export class ProjectCardComponent implements OnInit, AfterViewInit {
     }
   }
 
+  onProjectEdit(){
+    const dialogRef = this.dialog.open(EditProjectComponent, {
+      width: '480px',
+      data: { projectDto: this.projectDto }
+    });
+
+    dialogRef.afterClosed().subscribe((response) => {
+      console.log("ProjectCardComponent >>  >> response : ",response);
+      if(response && response.res){
+        let restPacketDto:RestPacketDto = response.res as RestPacketDto;
+        this.userDtoEventEmitter.emit(restPacketDto.data);
+      }
+    });
+  }
+
+  private readonly deleteMsg1 = "정말로 프로젝트에서 나가시겠어요?";
+  private readonly deleteMsg2 = "프로젝트에서 나가도, 다시 초대해주면 다시 참여할 수 있어요.";
+  deleteSubscription:Subscription = null;
+  onProjectExit(){
+    this. deleteSubscription = this.areYouSurePanelService.openAreYouSurePanel(this.deleteMsg1, this.deleteMsg2).subscribe((res)=>{
+      if(this.deleteSubscription){
+        this.deleteSubscription.unsubscribe();
+      }
+      console.log("ProjectCardComponent >> onProjectDelete >> res : ",res);
+      if(res){
+        let subscription = this.projectRequesterService.requestExitProject(this.projectDto._id).subscribe((userDto:UserDTO)=>{
+          subscription.unsubscribe();
+          console.log("ProjectCardComponent >> onProjectDelete >> userDto : ",userDto);
+          this.userDtoEventEmitter.emit(userDto);
+        });
+      }
+    });
+  }
+  filterParticipantList() :Array<ParticipantDto>{
+    let filteredArray:Array<ParticipantDto> = new Array<ParticipantDto>();
+    for(let participantDto of this.projectDto.participantList){
+      if (participantDto.state === ParticipantState.AVAIL) {
+        filteredArray.push(participantDto);
+      }
+    }
+    return filteredArray;
+  }
+  myAuthority = true;
+  checkAuth(){
+    let userDto:UserDTO = this.authRequestService.getUserInfo();
+    if(userDto){
+      for(let participantDto of this.projectDto.participantList){
+        if(participantDto.idToken === userDto.idToken && participantDto.authorityLevel === AuthorityLevel.PROJECT_MANAGER){
+          this.myAuthority = false;
+          return;
+        }
+      }
+
+    }
+  }
 
 }

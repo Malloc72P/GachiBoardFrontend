@@ -89,6 +89,7 @@ export class NormalPointerService {
   public onMouseUp(event){
     if(!this.layerService.isSelecting){
       // this.moveCanvas(event);
+      this.moveCanvasEnd(event);
     } else {
       this.endDragging(event);
     }
@@ -267,8 +268,19 @@ export class NormalPointerService {
     }
     return false;
   }
-
+  private isThrottle = false;
   public moveCanvas(event) {
+    this.infiniteCanvasService.moveWithDelta(event.delta);
+    // if(this.isThrottle){
+    //   return;
+    // }
+    // this.isThrottle = true;
+    // this.infiniteCanvasService.moveWithDelta(event.delta);
+    // setTimeout(() => {
+    //   this.isThrottle = false;
+    // }, 10);
+  }
+  public moveCanvasEnd(event){
     this.infiniteCanvasService.moveWithDelta(event.delta);
     this.infiniteCanvasService.solveDangerState();
   }

@@ -45,11 +45,17 @@ import Point = paper.Point;
 import PaperScope = paper.PaperScope;
 // @ts-ignore
 import Color = paper.Color;
+// @ts-ignore
+import Circle = paper.Path.Circle;
+// @ts-ignore
+import Rectangle = paper.Path.Rectangle;
 import {CursorData} from '../../../DTO/ProjectDto/WhiteboardSessionDto/Cursor-Data/Cursor-Data';
 import {WsWhiteboardController} from '../../../Controller/Controller-WebSocket/websocket-manager/WhiteboardWsController/ws-whiteboard.controller';
 import {WebsocketPacketDto} from '../../../DTO/WebsocketPacketDto/WebsocketPacketDto';
 import {WbItemFactoryResult} from '../../../Model/Whiteboard/InfiniteCanvas/WhiteboardItemFactory/WbItemFactoryResult/wb-item-factory-result';
 import {WbItemPacketDto} from '../../../DTO/WhiteboardItemDto/WbItemPacketDto/WbItemPacketDto';
+import {ItemBlinderManagementService} from '../../../Model/Whiteboard/OccupiedItemBlinder/item-blinder-management-service/item-blinder-management.service';
+import {HotKeyManagementService} from '../../../Model/Whiteboard/HotKeyManagement/hot-key-management.service';
 
 @Component({
   selector: 'app-whiteboard-main',
@@ -66,6 +72,7 @@ export class WhiteboardMainComponent implements OnInit,OnDestroy {
 
   public connectedUserList:Array<string>;
   public wbTitle = "GachiBoard";
+  public wbSessionId = "";
 
 
   ngCursorTracker(event) {
@@ -94,6 +101,8 @@ export class WhiteboardMainComponent implements OnInit,OnDestroy {
     public route: ActivatedRoute,
     public userManagerService: UserManagerService,
     public wbSessionEventManagerService: WbSessionEventManagerService,
+    public itemBlinderManagementService:ItemBlinderManagementService,
+    public hotKeyManagementService:HotKeyManagementService
   ) {
     this.connectedUserList = new Array<string>();
   }
@@ -103,27 +112,19 @@ export class WhiteboardMainComponent implements OnInit,OnDestroy {
     this.initWhiteboardMainComponent();
     this.route.queryParamMap.subscribe((params) => {
       //#1. URI 패러미터 파싱 >>> WhiteboardSessionDto 획득
-      console.log("WhiteboardMainComponent >> #1. URI 패러미터 파싱 >>> WhiteboardSessionDto 획득");
       let wbSessionId = params.get('wbSessionId');
       let projectId   = params.get('projectId');
 
-      console.log("WhiteboardMainComponent >> ngOnInit >> wbSessionId : ",wbSessionId);
-      console.log("WhiteboardMainComponent >> ngOnInit >> projectId : ",projectId);
       if(wbSessionId || projectId){
         //#### 오류발생 팝업 띄우고 프로젝트 페이지로 리다이렉션
       }
-      console.log("WhiteboardMainComponent >> ngOnInit >> wbSessionId : ",wbSessionId);
       //#2. Protected 요청 수행
-      console.log("WhiteboardMainComponent >> Protected 요청 수행");
       this.authRequestService.protectedApi().subscribe((userDto:UserDTO)=>{
         //#3. Project Join 수행
-        console.log("WhiteboardMainComponent >> #3. Project Join 수행");
         let wsProjectController = WsProjectController.getInstance();
         wsProjectController.waitJoinProject(userDto.idToken,userDto.accessToken,projectId)
           .subscribe((projectDto:ProjectDto)=>{
             this.userManagerService.initService(projectDto);
-            console.log("WhiteboardMainComponent >> #4. Whiteboard Join 수행");
-            console.log("WhiteboardMainComponent >> #5. WhiteboardSessionDto의 정보를 이용해서 WhiteboardItemList까지 가지고 있는 FullData 요청");
             //#4. Whiteboard Join 수행
             //#5. WhiteboardSessionDto의 정보를 이용해서 WhiteboardItemList까지 가지고 있는 FullData 요청
             let wbSessionDto = new WhiteboardSessionDto();
@@ -133,37 +134,29 @@ export class WhiteboardMainComponent implements OnInit,OnDestroy {
               .subscribe((wbSessionFullDto:WhiteboardSessionDto)=>{
                 console.log("WhiteboardMainComponent >>  >> wbSessionFullDto : ",wbSessionFullDto);
                 //#6. FullData획득시, 데이터에 있는 아이템을 전부 Layer서비스에 등록
-                console.log("WhiteboardMainComponent >> #6. FullData획득시, 데이터에 있는 아이템을 전부 Layer서비스에 등록");
 
-                wsWbSessionController.requestPingToWbSession().subscribe((data) => {
-                  //console.log("WhiteboardMainComponent >> ngOnInit >> data : ", data);
-                });
                 this.minimapSyncService.syncMinimap();
                 this.initCursorTrackerInstance(wbSessionFullDto, userDto);
                 this.wbTitle = wbSessionFullDto.title;
+                this.wbSessionId = wbSessionFullDto._id;
 
                 let recvWbItemPacketDtoList:Array<WbItemPacketDto> = wbSessionFullDto.wbItemArray as Array<WbItemPacketDto>;
-                console.log("WhiteboardMainComponent >> waitRequestGetWbItemList >> recvWbItemPacketDtoList : ",recvWbItemPacketDtoList);
-                for(let recvWbItemPacket of recvWbItemPacketDtoList){
+                for(let i = 0 ; i < recvWbItemPacketDtoList.length; i++){
+                  let recvWbItemPacket = recvWbItemPacketDtoList[i];
+                  let currIndex = i;
                   WhiteboardItemFactory.buildWbItems(recvWbItemPacket.wbItemDto, this.layerService.whiteboardItemArray)
                     .subscribe((factoryRes:WbItemFactoryResult)=>{
                       factoryRes.newWbItem.group.opacity = 1;
                       factoryRes.newWbItem.coreItem.opacity = 1;
                       factoryRes.newWbItem.zIndex =  recvWbItemPacket.wbItemDto.zIndex;
 
-                      this.layerService.applyZIndex(factoryRes.newWbItem);
-
-                      this.minimapSyncService.syncMinimap();
+                      if (currIndex === recvWbItemPacketDtoList.length - 1) {
+                        console.log("WhiteboardMainComponent >> 마지막 아이템 생성 >> 진입함");
+                        this.layerService.applyZIndex();
+                        this.minimapSyncService.syncMinimap();
+                      }
                     });
                 }
-
-
-                // let wsWbController = WsWhiteboardController.getInstance();
-/*
-                wsWbController.waitRequestGetWbItemList()
-                  .subscribe((wsPacketDto:WebsocketPacketDto)=>{
-                  });
-*/
               });
           });
 
@@ -184,7 +177,6 @@ export class WhiteboardMainComponent implements OnInit,OnDestroy {
       let targetIndex = this.websocketManagerService.getUserIndexByIdToken(currConnUserIdToken);
 
       let userColor = GachiColorList.getColor(targetIndex);
-      console.log("WhiteboardMainComponent >>  >> userColor : ",userColor);
 
       this.cursorTrackerService.addUser(currConnParticipantInfo.idToken, new Point(0,0),new Color(userColor));
     }
@@ -208,20 +200,44 @@ export class WhiteboardMainComponent implements OnInit,OnDestroy {
   subscribeWbSessionEventEmitter(){
 
     this.wbSessionSubscription = this.wbSessionEventManagerService.wsWbSessionEventEmitter.subscribe((wbSessionEvent:WbSessionEvent)=>{
-      if(wbSessionEvent.action === WbSessionEventEnum.JOIN){
-        console.log("WhiteboardMainComponent >> JOIN >> wbSessionEvent : ",wbSessionEvent);
-
-        if (wbSessionEvent.additionalData) {
-          //this.connectedUserList.push(wbSessionEvent.additionalData);
-          this.pushToConnectedUserArray(wbSessionEvent.additionalData);
-        }
-
-      } else if(wbSessionEvent.action === WbSessionEventEnum.UPDATE_CURSOR){
-        //console.log("WhiteboardMainComponent >> UPDATE_CURSOR >> wbSessionEvent : ",wbSessionEvent.additionalData);
-        this.parsePositionData(wbSessionEvent.additionalData);
-        this.cursorTrackerService.refreshPoint();
+      switch (wbSessionEvent.action) {
+        case WbSessionEventEnum.CREATE:
+          break;
+        case WbSessionEventEnum.DELETE:
+          break;
+        case WbSessionEventEnum.UPDATE:
+          break;
+        case WbSessionEventEnum.JOIN:
+          this.onUserJoin(wbSessionEvent);
+          break;
+        case WbSessionEventEnum.DISCONNECT:
+          this.onUserDisconnect(wbSessionEvent);
+          break;
+        case WbSessionEventEnum.UPDATE_CURSOR:
+          this.onCursorUpdate(wbSessionEvent);
+          break;
       }
     })
+  }
+  onUserJoin(wbSessionEvent){
+    let recvWbSessionDto:WhiteboardSessionDto = wbSessionEvent.data as WhiteboardSessionDto;
+    if (recvWbSessionDto._id === this.wbSessionId && wbSessionEvent.additionalData) {
+      this.pushToConnectedUserArray(wbSessionEvent.additionalData);
+    }
+  }
+  onUserDisconnect(wbSessionEvent){
+    if(wbSessionEvent.additionalData !== this.wbSessionId){
+      return;
+    }
+    this.cursorTrackerService.deleteUser(wbSessionEvent.dataDto);
+  }
+
+  onCursorUpdate(wbSessionEvent){
+    // if(wbSessionEvent.additionalData !== this.wbSessionId){
+    //   return;
+    // }
+    this.parsePositionData(wbSessionEvent.additionalData);
+    this.cursorTrackerService.refreshPoint();
   }
   pushToConnectedUserArray(idToken){
     let i = this.connectedUserList.length;
@@ -242,6 +258,17 @@ export class WhiteboardMainComponent implements OnInit,OnDestroy {
         continue;
       }
       this.cursorTrackerService.updateUser(cursorData.idToken, cursorData.position);
+    }
+    for(let [idToken, userCursor] of this.cursorTrackerService.userCursorMap){
+      let isExist = false;
+      for(let cursorData of cursorDataArray){
+        if(cursorData.idToken === idToken){
+          isExist = true;
+        }
+      }
+      if(!isExist){
+        this.cursorTrackerService.deleteUser(idToken);
+      }
     }
   }
 
@@ -271,6 +298,9 @@ export class WhiteboardMainComponent implements OnInit,OnDestroy {
     this.linkModeManagerService.initLinkModeManagerService(this.layerService.linkModeEventEmitter);
     WhiteboardItemFactory.initWhiteboardItemFactory(this.layerService);
     this.cursorTrackerService.initializeCursorTrackerService(this.infiniteCanvasService.zoomEventEmitter);
+    this.itemBlinderManagementService.initializeBlinderService(this.infiniteCanvasService.zoomEventEmitter, this.layerService);
+
+
     this.whiteboardPaperProject.activeLayer.onFrame = (event) => {
     };
   }
@@ -320,6 +350,10 @@ export class WhiteboardMainComponent implements OnInit,OnDestroy {
     }
     // 포인터로 무언가 그리거나 이동하는 등의 Mouse 이벤트가 시작된 상태면 단축키로 모드변경 못하도록 막음
     if (this.pointerModeManager.mouseDown) {
+      return;
+    }
+
+    if(!this.hotKeyManagementService.isAvail){
       return;
     }
 

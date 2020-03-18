@@ -5,7 +5,9 @@
   <span class="main-article-card-title">PROJECT : {{projectDto.projectTitle}}</span>
   <span><button mat-button [matMenuTriggerFor]="projectMenu"><mat-icon>more_vert</mat-icon></button></span>
   <mat-menu #projectMenu="matMenu">
-    <button mat-menu-item (click)="onInviteBtnClick(projectDto)"><span>프로젝트에 초대하기</span></button>
+    <button mat-menu-item (click)="onInviteBtnClick()"><span>프로젝트에 초대하기</span></button>
+    <button mat-menu-item [disabled]="myAuthority" (click)="onProjectEdit()"><span>프로젝트 수정하기</span></button>
+    <button mat-menu-item (click)="onProjectExit()"><span>프로젝트에서 나가기</span></button>
   </mat-menu>
 </mat-toolbar>
 

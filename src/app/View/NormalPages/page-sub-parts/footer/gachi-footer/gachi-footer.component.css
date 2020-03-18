@@ -4,6 +4,8 @@
 .home-footer-wrapper{
   height: 120px;
   width: 100%;
+  box-shadow: 0px 3px 18px -3px rgba(0,0,0,0.75);
+  margin-top: 200px;
 }
 .home-header-spacer{
   flex: 1 1 auto;

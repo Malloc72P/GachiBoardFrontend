@@ -20,6 +20,7 @@ import {ItemLifeCycleEnum} from '../../Model/Whiteboard/Whiteboard-Item/Whiteboa
 import {DrawingLayerManagerService} from '../../Model/Whiteboard/InfiniteCanvas/DrawingLayerManager/drawing-layer-manager.service';
 import {WhiteboardItem} from '../../Model/Whiteboard/Whiteboard-Item/whiteboard-item';
 import {WhiteboardItemType} from '../../Model/Helper/data-type-enum/data-type.enum';
+import {ItemBlinderManagementService} from '../../Model/Whiteboard/OccupiedItemBlinder/item-blinder-management-service/item-blinder-management.service';
 @Component({
   selector: 'app-debuging-pannel',
   templateUrl: './debuging-pannel.component.html',
@@ -41,6 +42,7 @@ export class DebugingPannelComponent implements OnInit {
     public zoomControlService      : ZoomControlService,
     public debugingService         : DebugingService,
     public layerService         : DrawingLayerManagerService,
+    public blinderManagementService         : ItemBlinderManagementService,
   ) { }
 
   public undoStack:Array<WbItemWork> = new Array<WbItemWork>();
@@ -99,6 +101,10 @@ export class DebugingPannelComponent implements OnInit {
 
   getWbItemTypeName(typeNumber:WhiteboardItemType){
     return WhiteboardItemType[typeNumber];
+  }
+
+  blindMapToArray(){
+    return Array.from(this.blinderManagementService.userBinderMap.values());
   }
 
 
