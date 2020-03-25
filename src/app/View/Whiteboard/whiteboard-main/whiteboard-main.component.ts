@@ -20,7 +20,6 @@ import {CursorTrackerService} from '../../../Model/Whiteboard/CursorTracker/curs
 import {WhiteboardItemDto} from '../../../DTO/WhiteboardItemDto/whiteboard-item-dto';
 import {WhiteboardItemFactory} from '../../../Model/Whiteboard/InfiniteCanvas/WhiteboardItemFactory/whiteboard-item-factory';
 import {WorkHistoryManager} from '../../../Model/Whiteboard/InfiniteCanvas/DrawingLayerManager/WorkHistoryManager/work-history-manager';
-import {ItemLifeCycleEnum} from '../../../Model/Whiteboard/Whiteboard-Item/WhiteboardItemLifeCycle/WhiteboardItemLifeCycle';
 import {WhiteboardSessionDto} from '../../../DTO/ProjectDto/WhiteboardSessionDto/whiteboard-session-dto';
 import {ActivatedRoute} from '@angular/router';
 import {WsProjectController} from '../../../Controller/Controller-WebSocket/websocket-manager/ProjectWsController/ws-project.controller';
@@ -50,12 +49,11 @@ import Circle = paper.Path.Circle;
 // @ts-ignore
 import Rectangle = paper.Path.Rectangle;
 import {CursorData} from '../../../DTO/ProjectDto/WhiteboardSessionDto/Cursor-Data/Cursor-Data';
-import {WsWhiteboardController} from '../../../Controller/Controller-WebSocket/websocket-manager/WhiteboardWsController/ws-whiteboard.controller';
-import {WebsocketPacketDto} from '../../../DTO/WebsocketPacketDto/WebsocketPacketDto';
 import {WbItemFactoryResult} from '../../../Model/Whiteboard/InfiniteCanvas/WhiteboardItemFactory/WbItemFactoryResult/wb-item-factory-result';
 import {WbItemPacketDto} from '../../../DTO/WhiteboardItemDto/WbItemPacketDto/WbItemPacketDto';
 import {ItemBlinderManagementService} from '../../../Model/Whiteboard/OccupiedItemBlinder/item-blinder-management-service/item-blinder-management.service';
 import {HotKeyManagementService} from '../../../Model/Whiteboard/HotKeyManagement/hot-key-management.service';
+import {ImportFileService} from "../../../Model/Whiteboard/ImportFile/import-file.service";
 
 @Component({
   selector: 'app-whiteboard-main',
@@ -73,7 +71,6 @@ export class WhiteboardMainComponent implements OnInit,OnDestroy {
   public connectedUserList:Array<string>;
   public wbTitle = "GachiBoard";
   public wbSessionId = "";
-
 
   ngCursorTracker(event) {
     this.debugingService.ngCursorX = event.x;
@@ -102,7 +99,8 @@ export class WhiteboardMainComponent implements OnInit,OnDestroy {
     public userManagerService: UserManagerService,
     public wbSessionEventManagerService: WbSessionEventManagerService,
     public itemBlinderManagementService:ItemBlinderManagementService,
-    public hotKeyManagementService:HotKeyManagementService
+    public hotKeyManagementService:HotKeyManagementService,
+    private importFile: ImportFileService,
   ) {
     this.connectedUserList = new Array<string>();
   }
@@ -456,6 +454,31 @@ export class WhiteboardMainComponent implements OnInit,OnDestroy {
       default:
         break;
     }
+  }
+
+  @HostListener('dragover', ['$event'])
+  public onDragOver(event) {
+    event.preventDefault();
+    event.stopPropagation();
+
+    // 드래그 오버시에 처리할게 있으면 쓰면 됨
+  }
+
+  @HostListener('dragleave', ['$event'])
+  public onDragLeave(event) {
+    event.preventDefault();
+    event.stopPropagation();
+
+    // 드래그오버 후 브라우저 영역을 빠져나갈 때 처리할게 있으면 쓰면 됨
+  }
+
+  @HostListener('drop', ['$event'])
+  public onDrop(event) {
+    event.preventDefault();
+    event.stopPropagation();
+
+    const files = event.dataTransfer.files;
+    this.importFile.importFile(files);
   }
 
   get PointerMode() {
