@@ -1,11 +1,16 @@
-<div id="videoPanel" class="video-chat-wrapper" cdkDrag
+<div class="video-chat-wrapper" cdkDrag
      [cdkDragFreeDragPosition]="position"
      (cdkDragEnded)="dragEnd($event)"
      [style.width]="width"
      [style.height]="height">
   <div>
-    <video #videoElement autoplay playsinline></video>
-    <audio #audioElement autoplay></audio>
-    <button class="scale-change-button" mat-button (click)="onClickSizeChangeButton()">{{changePanelSizeButtonLabel}}</button>
+    <div id="videoPanel" #videoPanel>
+      <video #videoElement autoplay playsinline></video>
+      <audio #audioElement autoplay></audio>
+    </div>
+    <div class="buttons">
+      <button class="fullscreen" mat-button (click)="onClickFullScreenButton()"><mat-icon>fullscreen</mat-icon></button>
+      <button class="scale-change" mat-button (click)="onClickSizeChangeButton()">{{changePanelSizeButtonLabel}}</button>
+    </div>
   </div>
 </div>

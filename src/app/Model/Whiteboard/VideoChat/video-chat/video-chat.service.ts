@@ -36,6 +36,7 @@ export class VideoChatService {
   private roomId: string;
   private userList: Array<string>;
   private type: string;
+  private isChangingVideoSource = false;
 
   private device: Device;
 
@@ -76,6 +77,8 @@ export class VideoChatService {
   }
 
   public async changeVideoSource(type: 'cam' | 'screen') {
+    this.isChangingVideoSource = true;
+    this.stopVideoStream();
     this.producerVideoStart(type);
   }
 
@@ -276,7 +279,14 @@ export class VideoChatService {
             break;
           case "screen":
             // @ts-ignore
-            videoStream = await navigator.mediaDevices.getDisplayMedia({ video: { width: 200, height: 200 }});
+            videoStream = await navigator.mediaDevices.getDisplayMedia({ video: true });
+            videoStream.oninactive = () => {
+              console.log("VideoChatService >> oninactive >> this.isChangingVideoSource : ", this.isChangingVideoSource);
+              if(!this.isChangingVideoSource) {
+                this.leaveVideoChat();
+              }
+            };
+            this.isChangingVideoSource = false;
             break;
         }
 
@@ -457,12 +467,20 @@ export class VideoChatService {
   }
 
   private stopMediaStream() {
+    this.stopVideoStream();
+    this.stopAudioStream();
+  }
+
+  private stopVideoStream() {
     if(!!this.producerVideoStream) {
       this.producerVideoStream.getTracks().forEach(track => {
         track.stop();
       });
       this.producerVideoStream = undefined;
     }
+  }
+
+  private stopAudioStream() {
     if(!!this.producerAudioStream) {
       this.producerAudioStream.getTracks().forEach(track => {
         track.stop();

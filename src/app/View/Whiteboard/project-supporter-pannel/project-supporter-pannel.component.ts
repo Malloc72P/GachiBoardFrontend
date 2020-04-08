@@ -153,16 +153,17 @@ export class ProjectSupporterPannelComponent extends PopoverPanel  implements On
     return false;
   }
 
-  get disableScreen(): boolean {
-    if(this.videoChat.isJoined) {
-      return this.videoChat.isScreen;
-    }
-    return false;
-  }
-
   get disableEnd(): boolean {
     return !this.videoChat.isJoined;
 
+  }
+
+  get screenState(): string {
+    if(this.videoChat.isJoined) {
+      return "Change screen";
+    } else {
+      return "Broadcast screen";
+    }
   }
 
   get SupportMode() {

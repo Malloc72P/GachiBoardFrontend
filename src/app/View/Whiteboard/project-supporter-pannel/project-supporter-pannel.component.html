@@ -51,7 +51,7 @@
     </button>
     <mat-menu #videoChatMenu="matMenu">
       <button mat-menu-item [disabled]="disableCam" (click)="onClickCam()">Broadcast cam</button>
-      <button mat-menu-item [disabled]="disableScreen" (click)="onClickScreen()">Broadcast screen</button>
+      <button mat-menu-item (click)="onClickScreen()">{{screenState}}</button>
       <button mat-menu-item [disabled]="disableEnd" (click)="onClickEnd()">End video chat</button>
     </mat-menu>
     <input #fileInputMultiple type="file" multiple="multiple" id="fileInputMultiple" (change)="onFileChangeMultiple()" style="display: none"/>
