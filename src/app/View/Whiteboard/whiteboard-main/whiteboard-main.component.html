@@ -1,10 +1,13 @@
 <div id="canvasWrapper"
     style="height: 100%;">
-  <canvas id="cv1" class="mainCanvas"
+  <canvas id="cv1" class="paperCanvas"
           (mousemove)="ngCursorTracker($event)"
           (mousewheel)="zoomControlService.zoomControl($event)"
           (contextmenu)="contextMenuService.openMenu($event)">
   </canvas>
+  <canvas id="tempCv" class="paperCanvas tempCanvas"></canvas>
+  <canvas id="cursorTrackerCv" class="paperCanvas cursorTrackerCanvas"></canvas>
+
   <app-whiteboard-context-menu></app-whiteboard-context-menu>
   <app-horizon-context-menu></app-horizon-context-menu>
   <div id="textEditorWrapper"

@@ -64,10 +64,19 @@ import {HotKeyManagementService} from '../../../Model/Whiteboard/HotKeyManagemen
 })
 export class WhiteboardMainComponent implements OnInit,OnDestroy {
   public whiteboardPaperProject: Project;
+  public tempPaperProject: Project;
+  public cursorTrackerPaperProject: Project;
+
   public whiteboardPaperScope: PaperScope;
+  public tempPaperScope: PaperScope;
+  public cursorTrackerPaperScope: PaperScope;
 
   public currentPointerMode;
+
   public htmlCanvasObject: HTMLCanvasElement;
+  public htmlTempCanvasObject: HTMLCanvasElement;
+  public htmlCursorTrackerCanvasObject: HTMLCanvasElement;
+
   public htmlCanvasWrapperObject: HTMLDivElement;
 
   public connectedUserList:Array<string>;
@@ -181,21 +190,32 @@ export class WhiteboardMainComponent implements OnInit,OnDestroy {
       this.cursorTrackerService.addUser(currConnParticipantInfo.idToken, new Point(0,0),new Color(userColor));
     }
     this.subscribeWbSessionEventEmitter();
-    this.whiteboardPaperProject.view.onMouseMove = (event) => {
-      if (this.cursorThrottle) {
-        return;
-      }
-      this.debugingService.cursorX = this.cursorTrackerService.currentCursorPosition.x = event.point.x;
-      this.debugingService.cursorY = this.cursorTrackerService.currentCursorPosition.y = event.point.y;
 
-      this.sendCursorData();
-      this.cursorThrottle = true;
-      setTimeout(()=>{
-        this.cursorThrottle = false;
-      },30);
+    this.whiteboardPaperProject.view.onMouseMove = (event) => {
+      this.onPointerMove(event);
     };
+    this.tempPaperProject.view.onMouseMove = (event) => {
+      this.onPointerMove(event);
+    };
+
     this.cursorTrackerService.refreshPoint();
   }
+
+  onPointerMove(event){
+    if (this.cursorThrottle) {
+      return;
+    }
+    this.debugingService.cursorX = this.cursorTrackerService.currentCursorPosition.x = event.point.x;
+    this.debugingService.cursorY = this.cursorTrackerService.currentCursorPosition.y = event.point.y;
+
+    this.sendCursorData();
+    this.cursorThrottle = true;
+    setTimeout(()=>{
+      this.cursorThrottle = false;
+    },30);
+
+  }
+
   private wbSessionSubscription:Subscription;
   subscribeWbSessionEventEmitter(){
 
@@ -285,16 +305,18 @@ export class WhiteboardMainComponent implements OnInit,OnDestroy {
     //this.pointerModeManager.activateTool(PointerMode.DRAW);
 
     //서비스 이니셜라이징
-    this.infiniteCanvasService.initializeInfiniteCanvas(this.whiteboardPaperProject);
+    this.infiniteCanvasService.initializeInfiniteCanvas(this.whiteboardPaperProject, this.tempPaperProject, this.cursorTrackerPaperProject);
     this.posCalcService.initializePositionCalcService(this.whiteboardPaperProject);
-    this.zoomControlService.initializeZoomControlService(this.whiteboardPaperProject);
+    this.zoomControlService.initializeZoomControlService(this.whiteboardPaperProject, this.tempPaperProject, this.cursorTrackerPaperProject);
 
-    this.pointerModeManager.initializePointerModeManagerService(this.whiteboardPaperProject);
+    this.pointerModeManager.initializePointerModeManagerService(this.whiteboardPaperProject, this.tempPaperProject);
 
     this.debugingService.initializeDebugingService(this.whiteboardPaperProject);
 
     this.minimapSyncService.initializePositionCalcService(this.whiteboardPaperProject);
-    this.layerService.initializeDrawingLayerService(this.whiteboardPaperProject, this.contextMenuService);
+
+    this.layerService.initializeDrawingLayerService(this.whiteboardPaperProject, this.contextMenuService, this.tempPaperProject, this.htmlCanvasObject, this.htmlTempCanvasObject, this.cursorTrackerPaperProject);
+
     this.linkModeManagerService.initLinkModeManagerService(this.layerService.linkModeEventEmitter);
     WhiteboardItemFactory.initWhiteboardItemFactory(this.layerService);
     this.cursorTrackerService.initializeCursorTrackerService(this.infiniteCanvasService.zoomEventEmitter);
@@ -318,12 +340,22 @@ export class WhiteboardMainComponent implements OnInit,OnDestroy {
   public initWhiteboardPaper() {
     paper.settings.hitTolerance = 40;
 
-    this.htmlCanvasObject = document.getElementById("cv1") as HTMLCanvasElement;
+    this.htmlCanvasObject               = document.getElementById("cv1") as HTMLCanvasElement;
+    this.htmlTempCanvasObject           = document.getElementById("tempCv") as HTMLCanvasElement;
+    this.htmlCursorTrackerCanvasObject  = document.getElementById("cursorTrackerCv") as HTMLCanvasElement;
+
     this.htmlCanvasWrapperObject = document.getElementById("canvasWrapper") as HTMLDivElement;
+
+    this.tempPaperScope = new PaperScope();
+    this.tempPaperScope.setup(this.htmlTempCanvasObject);
+    this.tempPaperProject = this.tempPaperScope.project;
+
+    this.cursorTrackerPaperScope = new PaperScope();
+    this.cursorTrackerPaperScope.setup(this.htmlCursorTrackerCanvasObject);
+    this.cursorTrackerPaperProject = this.cursorTrackerPaperScope.project;
+
     this.whiteboardPaperScope = new PaperScope();
     this.whiteboardPaperScope.setup(this.htmlCanvasObject);
-    this.whiteboardPaperScope.settings.hitTolerance = 40;
-
     this.whiteboardPaperProject = this.whiteboardPaperScope.project;
   }
 
