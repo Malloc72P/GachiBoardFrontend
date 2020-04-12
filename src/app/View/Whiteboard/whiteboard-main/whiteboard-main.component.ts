@@ -470,6 +470,7 @@ export class WhiteboardMainComponent implements OnInit,OnDestroy {
       case PointerMode.LASSO_SELECTOR:
         if (event.code === "Delete") {
           this.layerService.globalSelectedGroup.destroyItem();
+          this.layerService.cursorChanger.syncCurrentPointerMode(this.layerService.currentPointerMode);
           this.minimapSyncService.syncMinimap();
         }
         if (event.code === "KeyL") {
