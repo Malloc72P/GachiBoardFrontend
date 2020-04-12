@@ -1,11 +1,14 @@
 <div id="canvasWrapper"
     style="height: 100%;">
   <canvas id="cv1" class="paperCanvas"
-          (mousemove)="ngCursorTracker($event)"
           (mousewheel)="zoomControlService.zoomControl($event)"
           (contextmenu)="contextMenuService.openMenu($event)">
   </canvas>
-  <canvas id="tempCv" class="paperCanvas tempCanvas"></canvas>
+  <!--(mousemove)="ngCursorTracker($event)"-->
+  <canvas id="tempCv" class="paperCanvas tempCanvas"
+          (mousewheel)="zoomControlService.zoomControl($event)"
+          (contextmenu)="contextMenuService.openMenu($event)">
+  </canvas>
   <canvas id="cursorTrackerCv" class="paperCanvas cursorTrackerCanvas"></canvas>
 
   <app-whiteboard-context-menu></app-whiteboard-context-menu>

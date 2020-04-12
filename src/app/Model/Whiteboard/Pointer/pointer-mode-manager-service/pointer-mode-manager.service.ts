@@ -301,6 +301,7 @@ export class PointerModeManagerService {
     }
     else if (event.event.touches.length == 2) {
       //핀치줌
+      this.layerService.currentProject.view.autoUpdate = true;
       this.zoomCtrlService.onPinchZoomMove(event.event);
     }
 
