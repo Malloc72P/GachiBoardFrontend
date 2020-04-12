@@ -181,6 +181,7 @@ export class InfiniteCanvasService {
           newLine.lineTo(new Point(exitPoint.x, i));
           currentCell.cellGroup.addChild(newLine);
         }
+        this.whiteboardLayer.addChild(currentCell.cellGroup);
       }//for
     }
   }//WhiteboardInitializer
