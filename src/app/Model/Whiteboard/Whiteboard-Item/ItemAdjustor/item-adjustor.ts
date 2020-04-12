@@ -120,6 +120,7 @@ export class ItemAdjustor {
     this.itemGuideLine.dashArray = [HandlerOption.dashLength / zoomFactor,
       HandlerOption.dashLength / zoomFactor];
     this.itemGuideLine.name = "GuideLine";
+    this.owner.layerService.drawingLayer.addChild(this._itemGuideLine);
   }
 
   private initBackground() {
@@ -127,6 +128,7 @@ export class ItemAdjustor {
     this.background.fillColor = new paper.Color('skyblue');
     this.background.opacity = 0.2;
     this.background.name = "BG";
+    this.owner.layerService.drawingLayer.addChild(this.background);
   }
 
   private initHandlers(){
