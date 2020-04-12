@@ -117,20 +117,26 @@ export class ZoomControlService {
   }
   zoomInToCenter(){
     let ngCanvasCenter = this.posCalcService.getCenterOfBrowser();
-    this.currentProject.view.zoom = this.infiniteCanvasService.changeZoom(
+    let newZoom = this.infiniteCanvasService.changeZoom(
       this.currentProject.view.zoom,
       ngCanvasCenter,
       ngCanvasCenter,
       -100);
+    this.currentProject.view.zoom = newZoom;
+    this.tempProject.view.zoom = newZoom;
+    this.cursorTrackerProject.view.zoom = newZoom;
+
 
   }
   zoomOutToCenter(){
     let ngCanvasCenter = this.posCalcService.getCenterOfBrowser();
-    this.currentProject.view.zoom = this.infiniteCanvasService.changeZoom(
+    let newZoom = this.infiniteCanvasService.changeZoom(
       this.currentProject.view.zoom,
       ngCanvasCenter,
       ngCanvasCenter,
       100);
-
+    this.currentProject.view.zoom = newZoom;
+    this.tempProject.view.zoom = newZoom;
+    this.cursorTrackerProject.view.zoom = newZoom;
   }
 }

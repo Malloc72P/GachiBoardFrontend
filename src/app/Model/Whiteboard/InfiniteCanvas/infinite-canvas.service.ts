@@ -83,7 +83,10 @@ export class InfiniteCanvasService {
   }
   onWindowResized() {
     let bottomRight = this.posCalcService.getBottomRightPositionOfBrowser();
-    this.currentProject.view.viewSize = new Size(bottomRight.x, bottomRight.y);
+    let newResolution = new Size(bottomRight.x, bottomRight.y);
+    this.currentProject.view.viewSize = newResolution;
+    this.tempProject.view.viewSize = newResolution;
+    this.cursorTrackerPaperProject.view.viewSize = newResolution;
     this.resetInfiniteCanvas();
   }
 
@@ -140,6 +143,8 @@ export class InfiniteCanvasService {
 
     let width = rect.width + gridStep - (rect.width % gridStep);
     let height = rect.height + gridStep - (rect.height % gridStep);
+
+    this.whiteboardLayer.activate();
 
     for (let i = 0; i < 3; i++) {
       for (let j = 0; j < 3; j++) {
@@ -341,19 +346,19 @@ export class InfiniteCanvasService {
   }
   public resetInfiniteCanvas(){
     // console.log("InfiniteCanvasService >> resetInfiniteCanvas >> 진입함");
-    this.initFlag = false;
+    // this.initFlag = false;
     this.currentProject.layers.forEach( (value, index) => {
       if(value.data.type === DataType.INFINITE_CANVAS){
         value.removeChildren();
-        value.remove();
       }
     } );
-    this.initWhiteboardVariable();
-    this.currentProject.layers.forEach((value, index) => {
+    // this.initWhiteboardVariable();
+    this.whiteboardInitializer();
+    /*this.currentProject.layers.forEach((value, index) => {
       if(value.data.type === DataType.DRAWING_CANVAS){
         value.activate();
       }
-    });
+    });*/
     this.whiteboardLayer.sendToBack();
     this.minimapSyncService.syncMinimap();
     this.drawingLayer.activate();
