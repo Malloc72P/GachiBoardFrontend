@@ -66,6 +66,7 @@ export class EraserService {
         workHistoryManager.pushIntoStack(wbItemWork);
       }
     }
+    this.layerService.currentProject.view.update();
   }
 
   // 사용자 경험상 지우개로 지워지면 안될 화이트보드 아이템을 등록
@@ -94,6 +95,7 @@ export class EraserService {
       strokeCap: 'round',
       strokeJoin: 'round',
     });
+    this.layerService.tempProject.activeLayer.addChild(this.newPath);
   }
 
   set setWidth(value: number) {

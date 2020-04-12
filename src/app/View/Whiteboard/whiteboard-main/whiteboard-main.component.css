@@ -1,9 +1,16 @@
 
-.mainCanvas {
+.paperCanvas{
+  position: fixed;
   left: 0;
   top : 0;
   width: 100%;
   height: 100%;
+}
+.tempCanvas {
+  z-index: -1;
+}
+.cursorTrackerCanvas {
+  z-index: -2;
 }
 
 app-whiteboard-tool-panel {

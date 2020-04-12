@@ -26,6 +26,7 @@ export class HighlighterService {
 
   public createPath(event) {
     this.createHighlightStroke(event.point);
+    this.layerService.tempProject.activeLayer.addChild(this.newPath);
   }
   public drawPath(event) {
     this.newPath.add(event.point);

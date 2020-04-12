@@ -65,6 +65,7 @@ export class LassoSelectorService {
     if(!this.layerService.isSelecting){
       this.newPath.add(event.point);
     } else {
+      this.layerService.currentProject.view.autoUpdate = true;
       this.normalPointer.doDragging(event);
     }
   }
@@ -137,6 +138,6 @@ export class LassoSelectorService {
       strokeWidth: this.strokeWidth / zoomFactor,
       data : { wbID : 1 }
     });
-
+    this.layerService.tempProject.activeLayer.addChild(this.newPath);
   }
 }

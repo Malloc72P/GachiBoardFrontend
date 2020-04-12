@@ -89,8 +89,8 @@ export class CursorTrackerService {
   }
 
   private drawCursor(color: Color): Cursor {
-    let newCursor = new Cursor(color, this.zoomEventEmitter);
-    this.layerManagerService.drawingLayer.addChild(newCursor.getPaperInstance());
+    let newCursor = new Cursor(color, this.zoomEventEmitter, this.layerManagerService);
+    // this.layerManagerService.drawingLayer.addChild(newCursor.getPaperInstance());
     return newCursor;
   }
 
