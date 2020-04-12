@@ -215,7 +215,7 @@ export class PointerModeManagerService {
     }
   }
 
-  setAutoUpdateMode(isDownEvent){
+  setAutoUpdateMode(isDownEvent){//onMouseDown이면 패러미터로 true를 전달. onMouseUp이면 false를 전달
     switch (this.currentPointerMode) {
       case PointerMode.DRAW:
       case PointerMode.HIGHLIGHTER:
@@ -352,7 +352,8 @@ export class PointerModeManagerService {
   // Mouse - Down Listener
   private onMouseDown(event) {
     event.preventDefault();
-    switch (event.button) {
+    console.log("PointerModeManagerService >> onMouseDown >> 진입함");
+    switch (event.event.button) {
       case MouseButtonEventEnum.LEFT_CLICK:
         break;
       case MouseButtonEventEnum.MIDDLE_CLICK:
@@ -397,7 +398,7 @@ export class PointerModeManagerService {
   // Mouse - Move Listener
   private onMouseMove(event) {
     event.preventDefault();
-    switch (event.button) {
+    switch (event.event.button) {
       case MouseButtonEventEnum.LEFT_CLICK:
         break;
       case MouseButtonEventEnum.MIDDLE_CLICK:
@@ -444,7 +445,7 @@ export class PointerModeManagerService {
 
     this.setAutoUpdateMode(false);
 
-    switch (event.button) {
+    switch (event.event.button) {
       case MouseButtonEventEnum.LEFT_CLICK:
         break;
       case MouseButtonEventEnum.MIDDLE_CLICK:

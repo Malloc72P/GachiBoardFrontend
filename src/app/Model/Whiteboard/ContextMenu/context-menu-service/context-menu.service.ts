@@ -56,6 +56,7 @@ export class ContextMenuService {
 
   public openMenu(event) {
     event.preventDefault();
+
     if(this.contextMenu._isAnimating) {
       // 열리거나 닫히거나 애니메이션 중이면 반응 X
       return;
@@ -64,26 +65,36 @@ export class ContextMenuService {
     let convertedPoint = this.positionCalcService.advConvertNgToPaper(point);
 
     let hitItem = this.layerService.getHittedItem(convertedPoint);
+    let isGsg = this.layerService.isHitGSG(convertedPoint);
 
     if(hitItem instanceof WhiteboardItem){
       this.item = hitItem;
+      console.log("ContextMenuService >> openMenu >> hitItem : ",hitItem);
+      if(!isGsg){
+        this.layerService.globalSelectedGroup.extractAllFromSelection();
+      }
     }
 
-    if(hitItem instanceof EditableStroke) {
-      this.setContextMenuToStroke();
-    } else if(hitItem instanceof EditableShape){
-      this.setContextMenuToShape();
-    } else if(hitItem instanceof EditableRaster){
-      this.setContextMenuToRaster();
-    } else if(hitItem instanceof ItemGroup){
+    if(isGsg){//gsg를 선택한 경우
       this.setContextMenuToGroup();
-    } else if(hitItem instanceof EditableLink){
-      this.setContextMenuToEditableLink();
+    }else{//gsg가 아닌 개체를 선택한 경우
+      if(hitItem instanceof EditableStroke) {
+        this.setContextMenuToStroke();
+      } else if(hitItem instanceof EditableShape){
+        this.setContextMenuToShape();
+      } else if(hitItem instanceof EditableRaster){
+        this.setContextMenuToRaster();
+      } else if(hitItem instanceof ItemGroup){
+        this.setContextMenuToGroup();
+      } else if(hitItem instanceof EditableLink){
+        this.setContextMenuToEditableLink();
+      } else {
+        this.setContextMenuToDefault();
+      }
+      if(hitItem){
+        this.layerService.globalSelectedGroup.insertOneIntoSelection(hitItem);
+      }
     }
-    else {
-      this.setContextMenuToDefault();
-    }
-
     this.setPosition(point);
     this.contextMenuTrigger.openMenu();
   }
@@ -104,6 +115,7 @@ export class ContextMenuService {
   }
 
   private setContextMenuToShape() {
+    console.log("ContextMenuService >> setContextMenuToShape >> 진입함");
     this._contextMenuItems.splice(0, this._contextMenuItems.length);
     for (let key in ShapeContextMenu) {
       if(ShapeContextMenu.hasOwnProperty(key)) {
@@ -112,6 +124,7 @@ export class ContextMenuService {
     }
   }
   private setContextMenuToStroke() {
+    console.log("ContextMenuService >> setContextMenuToStroke >> 진입함");
     this._contextMenuItems.splice(0, this._contextMenuItems.length);
     for (let key in StrokeContextMenu) {
       if(StrokeContextMenu.hasOwnProperty(key)) {
@@ -120,6 +133,7 @@ export class ContextMenuService {
     }
   }
   private setContextMenuToRaster() {
+    console.log("ContextMenuService >> setContextMenuToRaster >> 진입함");
     this._contextMenuItems.splice(0, this._contextMenuItems.length);
     for (let key in RasterContextMenu) {
       if(RasterContextMenu.hasOwnProperty(key)) {
@@ -128,6 +142,7 @@ export class ContextMenuService {
     }
   }
   private setContextMenuToGroup() {
+    console.log("ContextMenuService >> setContextMenuToGroup >> 진입함");
     this._contextMenuItems.splice(0, this._contextMenuItems.length);
     for (let key in GroupContextMenu) {
       if(GroupContextMenu.hasOwnProperty(key)) {
@@ -136,6 +151,7 @@ export class ContextMenuService {
     }
   }
   private setContextMenuToEditableLink() {
+    console.log("ContextMenuService >> setContextMenuToEditableLink >> 진입함");
     this._contextMenuItems.splice(0, this._contextMenuItems.length);
     for (let key in EditableLinkContextMenu) {
       if(EditableLinkContextMenu.hasOwnProperty(key)) {
@@ -145,6 +161,7 @@ export class ContextMenuService {
   }
 
   private setContextMenuToDefault() {
+    console.log("ContextMenuService >> setContextMenuToDefault >> 진입함");
     this._contextMenuItems.splice(0, this._contextMenuItems.length);
     for (let key in ContextMenu) {
       if(ContextMenu.hasOwnProperty(key)) {
