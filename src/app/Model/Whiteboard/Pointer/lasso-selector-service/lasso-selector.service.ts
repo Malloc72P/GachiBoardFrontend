@@ -13,6 +13,7 @@ import {WhiteboardItem} from '../../Whiteboard-Item/whiteboard-item';
 import {GlobalSelectedGroup} from '../../Whiteboard-Item/ItemGroup/GlobalSelectedGroup/global-selected-group';
 import {ZoomEvent} from "../../InfiniteCanvas/ZoomControl/ZoomEvent/zoom-event";
 import {NormalPointerService} from "../normal-pointer-service/normal-pointer.service";
+import {LongTouch} from "../long-touch/long-touch";
 
 
 @Injectable({
@@ -23,6 +24,8 @@ export class LassoSelectorService {
   private currentProject: paper.Project;
   private strokeWidth = 1;
   private dashLength = 5;
+
+  private longTouch: LongTouch = new LongTouch();
 
 
   constructor(
@@ -54,7 +57,11 @@ export class LassoSelectorService {
       if(this.normalPointer.tryItemsHit(event)) {
         return;
       }
-      this.normalPointer.tryDragging(event);
+      if(this.normalPointer.tryDragging(event)) {
+        this.longTouch.start(event, () => {
+          this.layerService.contextMenu.openMenu(event.event);
+        });
+      }
       this.createLassoPath(event.point);
     }
 
@@ -66,6 +73,10 @@ export class LassoSelectorService {
       this.newPath.add(event.point);
     } else {
       this.layerService.currentProject.view.autoUpdate = true;
+      this.longTouch.stop(event);
+      if(this.longTouch.longTouched) {
+        return;
+      }
       this.normalPointer.doDragging(event);
     }
   }
@@ -78,6 +89,8 @@ export class LassoSelectorService {
     if(!this.layerService.isSelecting){
       this.selectBound();
     } else {
+      this.longTouch.stop();
+      this.longTouch.touchEnd();
       this.normalPointer.endDragging(event);
     }
 
