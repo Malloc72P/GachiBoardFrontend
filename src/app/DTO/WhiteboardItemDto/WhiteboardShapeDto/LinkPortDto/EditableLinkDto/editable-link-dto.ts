@@ -29,8 +29,9 @@ export class EditableLinkDto extends WhiteboardItemDto {
     linkColor: GachiColorDto,
     linkWidth: number,
     isDashed: boolean,
+    isLocked,
   ) {
-    super(wbItemDto.id, wbItemDto.type, wbItemDto.center, wbItemDto.isGrouped, wbItemDto.parentEdtGroupId);
+    super(wbItemDto.id, wbItemDto.type, wbItemDto.center, wbItemDto.isGrouped, wbItemDto.parentEdtGroupId, isLocked);
 
     this.toLinkPort = LinkPortDto.clone(toLinkPort);
     this.toPoint = GachiPointDto.clone(toPoint);
@@ -46,10 +47,10 @@ export class EditableLinkDto extends WhiteboardItemDto {
 
   public static clone(dto: EditableLinkDto) {
     return new EditableLinkDto(
-      new WhiteboardItemDto(dto.id, dto.type, dto.center, dto.isGrouped, dto.parentEdtGroupId),
+      new WhiteboardItemDto(dto.id, dto.type, dto.center, dto.isGrouped, dto.parentEdtGroupId, dto.isLocked),
       dto.toLinkPort, dto.toPoint, dto.fromLinkPort, dto.fromPoint,
       dto.linkHeadType, dto.linkTailType,
-      dto.capSize, dto.linkColor, dto.linkWidth, dto.isDashed
+      dto.capSize, dto.linkColor, dto.linkWidth, dto.isDashed,dto.isLocked
     );
   }
 }

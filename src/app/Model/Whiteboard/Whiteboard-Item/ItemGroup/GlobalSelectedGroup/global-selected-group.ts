@@ -279,8 +279,14 @@ export class GlobalSelectedGroup extends ItemGroup {
       value.localEmitLocked();
       value.globalEmitLocked();
     });
-    this.localEmitLocked();
-    this.isLocked = true;
+    let dtoList = this.exportSelectionToDto();
+
+    let wsWbController = WsWhiteboardController.getInstance();
+    let subscription = wsWbController.waitRequestUpdateMultipleWbItem(dtoList).subscribe(()=>{
+      subscription.unsubscribe();
+      this.localEmitLocked();
+      this.isLocked = true;
+    });
   }
 
   public unlockItems() {
@@ -289,8 +295,15 @@ export class GlobalSelectedGroup extends ItemGroup {
       value.localEmitUnlocked();
       value.globalEmitUnlocked();
     });
-    this.localEmitUnlocked();
-    this.isLocked = false;
+
+    let dtoList = this.exportSelectionToDto();
+
+    let wsWbController = WsWhiteboardController.getInstance();
+    let subscription = wsWbController.waitRequestUpdateMultipleWbItem(dtoList).subscribe(()=>{
+      subscription.unsubscribe();
+      this.localEmitUnlocked();
+      this.isLocked = false;
+    });
   }
 
   //####################

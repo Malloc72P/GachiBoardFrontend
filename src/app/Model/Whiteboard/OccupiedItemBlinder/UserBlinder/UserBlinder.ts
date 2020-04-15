@@ -89,6 +89,8 @@ export class UserBlinder {
     this.blindGroup.addChild(blindRect);
     this.blindGroup.addChild(this.blindTextGroup);
 
+    this.layerService.drawingLayer.addChild(this.blindGroup);
+
     zoomEventEmitter.subscribe((zoomEvent: ZoomEvent) => {
       this.onZoomChanged(zoomEvent);
     });

@@ -167,7 +167,8 @@ export class EditableLink extends WhiteboardItem {
       this.capSize,
       GachiColorDto.createColor(this.linkColor),
       this.linkWidth,
-      this.isDashed
+      this.isDashed,
+      this.isLocked
       )
   }
 

@@ -150,6 +150,7 @@ export class WhiteboardItemFactory {
       if(wbItemArray){
         WhiteboardItemFactory.createWbItem(buildMode, wbItemDto, wbItemArray)
           .subscribe((data:WhiteboardItem)=>{
+            data.isLocked = wbItemDto.isLocked;
             data.group.opacity = 1;
             data.groupedIdList = wbItemDto.groupedIdList;
             observer.next(new WbItemFactoryResult( data, wbItemDto ));
@@ -157,6 +158,7 @@ export class WhiteboardItemFactory {
       }else {
         WhiteboardItemFactory.createWbItem(buildMode, wbItemDto)
           .subscribe((data:WhiteboardItem)=>{
+            data.isLocked = wbItemDto.isLocked;
             data.group.opacity = 1;
             data.groupedIdList = wbItemDto.groupedIdList;
             observer.next(new WbItemFactoryResult( data, wbItemDto ));

@@ -10,7 +10,8 @@
   z-index: -1;
 }
 .cursorTrackerCanvas {
-  z-index: -2;
+  z-index: 1;
+  pointer-events: none;
 }
 
 app-whiteboard-tool-panel {

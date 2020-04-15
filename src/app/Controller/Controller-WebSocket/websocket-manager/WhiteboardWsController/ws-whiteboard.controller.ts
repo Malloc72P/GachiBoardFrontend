@@ -237,6 +237,7 @@ export class WsWhiteboardController {
   /* *************************************************** */
   waitRequestUpdateMultipleWbItem( wbItemDtos:Array<WhiteboardItemDto>, gsgDto?:GlobalSelectedGroupDto){
     //this.websocketManager.uiService.spin$.next(true);
+    console.log("WsWhiteboardController >> waitRequestUpdateMultipleWbItem >> wbItemDtos : ",wbItemDtos);
     return new Observable<any>((subscriber)=>{
 
 
@@ -424,7 +425,7 @@ export class WsWhiteboardController {
           let newSimpleRasterDto:SimpleRasterDto = new SimpleRasterDto(simpleRasterDto.id, simpleRasterDto.type, simpleRasterDto.center, simpleRasterDto.isGrouped,
             simpleRasterDto.parentEdtGroupId, simpleRasterDto.width, simpleRasterDto.height,
             simpleRasterDto.borderColor, simpleRasterDto.borderWidth, simpleRasterDto.fillColor,
-            simpleRasterDto.opacity, simpleRasterDto.linkPortsDto, null);
+            simpleRasterDto.opacity, simpleRasterDto.linkPortsDto, null, simpleRasterDto.isLocked);
 
           deleteList.splice(idx, 1);
           deleteList.splice(idx, 0, newSimpleRasterDto);

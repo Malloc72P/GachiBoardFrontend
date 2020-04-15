@@ -12,8 +12,8 @@ export class WhiteboardShapeDto extends WhiteboardItemDto{
   public linkPortsDto:Array<LinkPortDto>;
 
 
-  constructor(id, type, center: GachiPointDto, isGrouped, parentEdtGroupId, width, height, borderColor, borderWidth, fillColor, opacity, linkPortsDto: Array<LinkPortDto>) {
-    super(id, type, center, isGrouped, parentEdtGroupId);
+  constructor(id, type, center: GachiPointDto, isGrouped, parentEdtGroupId, width, height, borderColor, borderWidth, fillColor, opacity, linkPortsDto: Array<LinkPortDto>, isLocked) {
+    super(id, type, center, isGrouped, parentEdtGroupId, isLocked);
     this.width = width;
     this.height = height;
     this.borderColor = borderColor;
