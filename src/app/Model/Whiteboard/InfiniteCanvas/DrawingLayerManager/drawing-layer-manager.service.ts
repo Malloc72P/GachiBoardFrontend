@@ -712,8 +712,6 @@ export class DrawingLayerManagerService {
     let wsWbController = WsWhiteboardController.getInstance();
     let dtoList = this.globalSelectedGroup.exportSelectionToDto();
     wsWbController.waitRequestUpdateMultipleWbItem(dtoList).subscribe(()=>{});
-
-    this.globalSelectedGroup.extractAllFromSelection();
   }
 
   public ungroupSelectedItems(){
@@ -728,8 +726,6 @@ export class DrawingLayerManagerService {
     let wsWbController = WsWhiteboardController.getInstance();
     let dtoList = this.globalSelectedGroup.exportSelectionToDto();
     wsWbController.waitRequestUpdateMultipleWbItem(dtoList).subscribe(()=>{});
-
-    this.globalSelectedGroup.extractAllFromSelection();
   }
 
   public applyZIndex(){

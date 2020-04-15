@@ -273,37 +273,47 @@ export class GlobalSelectedGroup extends ItemGroup {
     }
   }
 
-  public lockItems() {
-    this.wbItemGroup.forEach(value => {
-      value.isLocked = true;
-      value.localEmitLocked();
-      value.globalEmitLocked();
-    });
-    let dtoList = this.exportSelectionToDto();
+  public lockItems() :Promise<any>{
+    return new Promise<any>((resolve)=>{
+      this.layerService.groupSelectedItems();
+      this.wbItemGroup.forEach(value => {
+        value.isLocked = true;
+        value.localEmitLocked();
+        value.globalEmitLocked();
+      });
 
-    let wsWbController = WsWhiteboardController.getInstance();
-    let subscription = wsWbController.waitRequestUpdateMultipleWbItem(dtoList).subscribe(()=>{
-      subscription.unsubscribe();
-      this.localEmitLocked();
-      this.isLocked = true;
+      let dtoList = this.exportSelectionToDto();
+
+      let wsWbController = WsWhiteboardController.getInstance();
+      let subscription = wsWbController.waitRequestUpdateMultipleWbItem(dtoList).subscribe(()=>{
+        subscription.unsubscribe();
+        this.localEmitLocked();
+        this.isLocked = true;
+        resolve();
+      });
     });
   }
 
-  public unlockItems() {
-    this.wbItemGroup.forEach(value => {
-      value.isLocked = false;
-      value.localEmitUnlocked();
-      value.globalEmitUnlocked();
+  public unlockItems() :Promise<any>{
+    return new Promise<any>((resolve)=>{
+      this.layerService.ungroupSelectedItems();
+      this.wbItemGroup.forEach(value => {
+        value.isLocked = false;
+        value.localEmitUnlocked();
+        value.globalEmitUnlocked();
+      });
+
+      let dtoList = this.exportSelectionToDto();
+
+      let wsWbController = WsWhiteboardController.getInstance();
+      let subscription = wsWbController.waitRequestUpdateMultipleWbItem(dtoList).subscribe(()=>{
+        subscription.unsubscribe();
+        this.localEmitUnlocked();
+        this.isLocked = false;
+        resolve();
+      });
     });
 
-    let dtoList = this.exportSelectionToDto();
-
-    let wsWbController = WsWhiteboardController.getInstance();
-    let subscription = wsWbController.waitRequestUpdateMultipleWbItem(dtoList).subscribe(()=>{
-      subscription.unsubscribe();
-      this.localEmitUnlocked();
-      this.isLocked = false;
-    });
   }
 
   //####################
@@ -349,7 +359,7 @@ export class GlobalSelectedGroup extends ItemGroup {
       console.log("GlobalSelectedGroup >> insertMultipleIntoSelection >> 진입함");
       for(let wbItem of wbItemList){
         if(this.checkLocking(wbItem)) {
-          return;
+          continue;
         }
         if(wbItem.groupedIdList.length > 0){
           for(let currId of wbItem.groupedIdList){

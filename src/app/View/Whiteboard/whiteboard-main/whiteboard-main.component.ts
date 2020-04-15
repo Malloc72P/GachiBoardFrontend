@@ -444,6 +444,7 @@ export class WhiteboardMainComponent implements OnInit,OnDestroy {
           break;
         case "KeyG":
           this.layerService.groupSelectedItems();
+          this.layerService.globalSelectedGroup.extractAllFromSelection();
           break;
         case "KeyZ":
           workHistoryManager.undoTask();
