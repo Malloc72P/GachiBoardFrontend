@@ -44,12 +44,14 @@ export class HorizonContextMenuComponent implements OnInit {
         this.menu.subPanelManager.toggleThis(action);
         break;
       case HorizonContextMenuActions.LOCK:
-        this.layerService.globalSelectedGroup.lockItems();
-        this.menu.refreshMenuItem();
+        this.layerService.globalSelectedGroup.lockItems().then(()=>{
+          this.menu.refreshMenuItem();
+        });
         break;
       case HorizonContextMenuActions.UNLOCK:
-        this.layerService.globalSelectedGroup.unlockItems();
-        this.menu.refreshMenuItem();
+        this.layerService.globalSelectedGroup.unlockItems().then(()=>{
+          this.menu.refreshMenuItem();
+        });
         break;
       case HorizonContextMenuActions.FONT_STYLE:
         this.menu.subPanelManager.toggleThis(action);
@@ -61,9 +63,11 @@ export class HorizonContextMenuComponent implements OnInit {
         break;
       case HorizonContextMenuActions.GROUP:
         this.layerService.groupSelectedItems();
+        this.layerService.globalSelectedGroup.extractAllFromSelection();
         break;
       case HorizonContextMenuActions.UNGROUP:
         this.layerService.ungroupSelectedItems();
+        this.layerService.globalSelectedGroup.extractAllFromSelection();
         break;
     }
   }

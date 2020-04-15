@@ -61,9 +61,9 @@ export class GachiColorList {
       case 4 :
         return "indigo";
       case 5 :
-        return "azure";
-      case 6 :
         return "orange";
+      case 6 :
+        return "brown";
     }
   }
 }

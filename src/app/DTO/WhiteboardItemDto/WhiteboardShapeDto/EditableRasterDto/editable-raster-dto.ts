@@ -6,8 +6,9 @@ export class EditableRasterDto extends WhiteboardShapeDto{
   public imageBlob;
 
 
-  constructor(id, type, center: GachiPointDto, isGrouped, parentEdtGroupId, width, height, borderColor, borderWidth, fillColor, opacity, linkPortsDto: Array<LinkPortDto>, imageBlob) {
-    super(id, type, center, isGrouped, parentEdtGroupId, width, height, borderColor, borderWidth, fillColor, opacity, linkPortsDto);
+  constructor(id, type, center: GachiPointDto, isGrouped, parentEdtGroupId, width, height, borderColor,
+              borderWidth, fillColor, opacity, linkPortsDto: Array<LinkPortDto>, imageBlob, isLocked) {
+    super(id, type, center, isGrouped, parentEdtGroupId, width, height, borderColor, borderWidth, fillColor, opacity, linkPortsDto, isLocked);
 
     this.imageBlob = imageBlob;
   }

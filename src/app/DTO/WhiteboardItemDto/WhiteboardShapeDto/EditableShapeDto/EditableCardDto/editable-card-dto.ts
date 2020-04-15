@@ -8,8 +8,9 @@ export class EditableCardDto extends EditableShapeDto{
   public tagList: Array<any>;
 
 
-  constructor(id, type, center: GachiPointDto, isGrouped, parentEdtGroupId, width, height, borderColor, borderWidth, fillColor, opacity, linkPortsDto: Array<LinkPortDto>, textContent, rawTextContent, textStyle: TextStyle, borderRadius: number, tagList: Array<any>) {
-    super(id, type, center, isGrouped, parentEdtGroupId, width, height, borderColor, borderWidth, fillColor, opacity, linkPortsDto, textContent, rawTextContent, textStyle);
+  constructor(id, type, center: GachiPointDto, isGrouped, parentEdtGroupId, width, height, borderColor, borderWidth, fillColor, opacity,
+              linkPortsDto: Array<LinkPortDto>, textContent, rawTextContent, textStyle: TextStyle, borderRadius: number, tagList: Array<any>, isLocked) {
+    super(id, type, center, isGrouped, parentEdtGroupId, width, height, borderColor, borderWidth, fillColor, opacity, linkPortsDto, textContent, rawTextContent, textStyle, isLocked);
     this.borderRadius = borderRadius;
     this.tagList = tagList;
   }

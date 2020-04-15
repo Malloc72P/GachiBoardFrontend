@@ -1,10 +1,16 @@
 <div id="canvasWrapper"
     style="height: 100%;">
-  <canvas id="cv1" class="mainCanvas"
-          (mousemove)="ngCursorTracker($event)"
+  <canvas id="cv1" class="paperCanvas"
           (mousewheel)="zoomControlService.zoomControl($event)"
           (contextmenu)="contextMenuService.openMenu($event)">
   </canvas>
+  <!--(mousemove)="ngCursorTracker($event)"-->
+  <canvas id="tempCv" class="paperCanvas tempCanvas"
+          (mousewheel)="zoomControlService.zoomControl($event)"
+          (contextmenu)="contextMenuService.openMenu($event)">
+  </canvas>
+  <canvas id="cursorTrackerCv" class="paperCanvas cursorTrackerCanvas"></canvas>
+
   <app-whiteboard-context-menu></app-whiteboard-context-menu>
   <app-horizon-context-menu></app-horizon-context-menu>
   <div id="textEditorWrapper"
@@ -18,9 +24,10 @@
   <app-tool-highlighter-panel [hidden]="panelManager.subPanel.isHidden(PointerMode.HIGHLIGHTER)" id="highlighterPanel"></app-tool-highlighter-panel>
   <app-tool-link-panel [hidden]="panelManager.subPanel.isHidden(PointerMode.LINK)" id="linkPanel"></app-tool-link-panel>
   <app-tool-shape-panel [hidden]="panelManager.subPanel.isHidden(PointerMode.SHAPE)" id="shapePanel"></app-tool-shape-panel>
-  <!--  <app-debuging-pannel [paperProject]="whiteboardPaperProject"></app-debuging-pannel>-->
   <app-video-chat-panel></app-video-chat-panel>
   <app-whiteboard-minimap [currentProject]="whiteboardPaperProject"></app-whiteboard-minimap>
   <app-project-supporter-pannel class="supporterPanel"></app-project-supporter-pannel>
   <app-whiteboard-banner [wbTitle]="wbTitle" [wbSessionId]="wbSessionId" [connectedUserList]="connectedUserList"></app-whiteboard-banner>
+
+  <!--    <app-debuging-pannel [paperProject]="whiteboardPaperProject"></app-debuging-pannel>-->
 </div>

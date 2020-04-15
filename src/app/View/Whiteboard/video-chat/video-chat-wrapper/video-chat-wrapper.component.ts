@@ -11,6 +11,7 @@ import {PanelData} from "../PanelData/panel-data";
   styleUrls: ['./video-chat-wrapper.component.css']
 })
 export class VideoChatWrapperComponent implements OnInit, AfterViewInit {
+  @ViewChild('videoPanel') videoPanel: ElementRef;
   @ViewChild('videoElement') videoElement: ElementRef;
   @ViewChild('audioElement') audioElement: ElementRef;
   @Input() panelData: PanelData;
@@ -48,8 +49,16 @@ export class VideoChatWrapperComponent implements OnInit, AfterViewInit {
     this.calcOutOfBounds(this.maxPanelSize * this.panelSizeFactor);
   }
 
+  public onClickFullScreenButton() {
+    let element = this.videoPanel.nativeElement;
+    let methodToBeInvoked = element.requestFullscreen || element.webkitRequestFullScreen
+      || element['mozRequestFullscreen'] || element['msRequestFullscreen'];
+    if (methodToBeInvoked) methodToBeInvoked.call(element);
+  }
+
   public dragEnd(event: CdkDragEnd) {
     this.position = event.source.getFreeDragPosition();
+    this.calcOutOfBounds(this.maxPanelSize * this.panelSizeFactor);
   }
 
   private calcOutOfBounds(panelSize: number) {
@@ -115,7 +124,6 @@ export class VideoChatWrapperComponent implements OnInit, AfterViewInit {
 
     return (maxValue * this.panelSizeFactor) + "px";
   }
-
   get changePanelSizeButtonLabel(): string {
     if(this.panelSizeFactor === 1) {
       return "2x";

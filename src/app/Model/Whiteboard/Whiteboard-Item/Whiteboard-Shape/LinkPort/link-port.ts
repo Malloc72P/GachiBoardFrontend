@@ -2,7 +2,7 @@ import * as paper from 'paper';
 // @ts-ignore
 import Point = paper.Point;
 // @ts-ignore
-import Circle = paper.Path.Circle;
+import Path = paper.Path;
 
 import {LinkPortDirectionEnum} from './LinkPortDirectionEnum/link-port-direction-enum.enum';
 import {PositionCalcService} from '../../../PositionCalc/position-calc.service';
@@ -18,9 +18,10 @@ import {LinkPortDto} from '../../../../../DTO/WhiteboardItemDto/WhiteboardShapeD
 import {ItemLifeCycleEnum, ItemLifeCycleEvent} from "../../WhiteboardItemLifeCycle/WhiteboardItemLifeCycle";
 import {LinkService} from "../../../Pointer/link-service/link.service";
 import {Subscription} from "rxjs";
+import {WhiteboardShape} from "../whiteboard-shape";
 
 export class LinkPort {
-  private _owner;
+  private _owner: WhiteboardShape;
   private _direction;
 
   private _fromLinkList:Array<EditableLink>;
@@ -30,17 +31,15 @@ export class LinkPort {
   private _layerService:DrawingLayerManagerService;
   private linkService: LinkService;
 
-  private _handlerCircleObject:Circle;
+  private _handlerCircleObject: Path.Circle;
 
-  private tempLinkEntryCircle:Circle;
-  private tempLinkExitCircle:Circle;
+  private tempLinkEntryCircle: Path.Circle;
+  private tempLinkExitCircle: Path.Circle;
 
   private static readonly HANDLER_FILL_COLOR = 'skyblue';
   private static readonly HANDLER_MARGIN = 25;
 
   private _linkEventEmitter:EventEmitter<any>;
-
-  private tempLink;
 
   private ownerLifeCycleSubscription: Subscription;
   private zoomChangeSubscription: Subscription;
@@ -62,13 +61,14 @@ export class LinkPort {
     let handlerPosition = this.calcLinkPortPosition();
     let zoomFactor = this.posCalcService.getZoomState();
 
-    this._handlerCircleObject = new Circle({
+    this._handlerCircleObject = new Path.Circle({
       center: handlerPosition.clone(),
       radius: HandlerOption.circleRadius / zoomFactor,
       strokeWidth: HandlerOption.strokeWidth / zoomFactor,
       fillColor: LinkPort.HANDLER_FILL_COLOR,
       strokeColor: HandlerOption.strokeColor,
     });
+    this.owner.layerService.drawingLayer.addChild(this._handlerCircleObject);
     this.handlerCircleObject.data.struct = this;
     this.spreadHandler();
   }

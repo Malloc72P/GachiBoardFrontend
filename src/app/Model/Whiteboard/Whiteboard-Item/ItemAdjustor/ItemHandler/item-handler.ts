@@ -41,6 +41,8 @@ export abstract class ItemHandler {
 
     this.handlerCircleObject.strokeColor = handlerOption.strokeColor;
     this.handlerCircleObject.data.struct = this;
+
+    this.owner.layerService.drawingLayer.addChild(this.handlerCircleObject);
   }
 
   public refreshPosition(){

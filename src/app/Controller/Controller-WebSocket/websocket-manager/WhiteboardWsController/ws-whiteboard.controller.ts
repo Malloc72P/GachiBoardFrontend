@@ -81,15 +81,19 @@ export class WsWhiteboardController {
     return new Observable<any>((subscriber)=>{
 
       let packetDto = this.websocketManager.createWbSessionScopePacket(wbItemDto,WebsocketPacketActionEnum.CREATE);
-      packetDto.wsPacketSeq = this.websocketManager.wsPacketSeq;
+      let newSeq = this.websocketManager.wsPacketSeq;
+      packetDto.wsPacketSeq = newSeq;
+
 
       this.socket.emit(HttpHelper.websocketApi.whiteboardItem.create.event, packetDto);
 
       //#### 요청 완료
 
-      this.socket.once(HttpHelper.websocketApi.whiteboardItem.create.event + HttpHelper.ACK_SIGN,
+      this.socket.once(HttpHelper.websocketApi.whiteboardItem.create.event + HttpHelper.ACK_SIGN + newSeq,
         (wsPacketDto:WebsocketPacketDto)=>{
-          //this.websocketManager.uiService.spin$.next(false);
+          // if(newSeq !== wsPacketDto.wsPacketSeq){
+          //   return;
+          // }
           switch (wsPacketDto.action) {
             case WebsocketPacketActionEnum.ACK:
               // console.log("WsWhiteboardController >> waitRequestCreateWbItem >> wsPacketDto : ",wsPacketDto);
@@ -99,7 +103,7 @@ export class WsWhiteboardController {
               subscriber.error(wsPacketDto);
               break;
           }
-        })
+        });
     });
   }
 
@@ -130,7 +134,8 @@ export class WsWhiteboardController {
     return new Observable<any>((subscriber)=>{
 
       let packetDto = this.websocketManager.createWbSessionScopePacket(wbItemDtos,WebsocketPacketActionEnum.CREATE_MULTIPLE);
-      packetDto.wsPacketSeq = this.websocketManager.wsPacketSeq;
+      let newSeq = this.websocketManager.wsPacketSeq;
+      packetDto.wsPacketSeq = newSeq;
 
       // console.log("WsWhiteboardController >> testing >> packetDto : ",packetDto);
 
@@ -138,7 +143,7 @@ export class WsWhiteboardController {
 
       //#### 요청 완료
 
-      this.socket.once(HttpHelper.websocketApi.whiteboardItem.create_multiple.event + HttpHelper.ACK_SIGN,
+      this.socket.once(HttpHelper.websocketApi.whiteboardItem.create_multiple.event + HttpHelper.ACK_SIGN + newSeq,
         (wsPacketDto:WebsocketPacketDto)=>{
           //this.websocketManager.uiService.spin$.next(false);
           switch (wsPacketDto.action) {
@@ -184,13 +189,14 @@ export class WsWhiteboardController {
       }
 
       let packetDto = this.websocketManager.createWbSessionScopePacket(wbItemDto,WebsocketPacketActionEnum.UPDATE);
-      packetDto.wsPacketSeq = this.websocketManager.wsPacketSeq;
+      let newSeq = this.websocketManager.wsPacketSeq;
+      packetDto.wsPacketSeq = newSeq;
 
       this.socket.emit(HttpHelper.websocketApi.whiteboardItem.update.event, packetDto);
 
       //#### 요청 완료
 
-      this.socket.once(HttpHelper.websocketApi.whiteboardItem.update.event + HttpHelper.ACK_SIGN,
+      this.socket.once(HttpHelper.websocketApi.whiteboardItem.update.event + HttpHelper.ACK_SIGN + newSeq,
         (wsPacketDto:WebsocketPacketDto)=>{
           //this.websocketManager.uiService.spin$.next(false);
           switch (wsPacketDto.action) {
@@ -231,6 +237,7 @@ export class WsWhiteboardController {
   /* *************************************************** */
   waitRequestUpdateMultipleWbItem( wbItemDtos:Array<WhiteboardItemDto>, gsgDto?:GlobalSelectedGroupDto){
     //this.websocketManager.uiService.spin$.next(true);
+    console.log("WsWhiteboardController >> waitRequestUpdateMultipleWbItem >> wbItemDtos : ",wbItemDtos);
     return new Observable<any>((subscriber)=>{
 
 
@@ -243,14 +250,15 @@ export class WsWhiteboardController {
       this.setGsgDto(gsgDto);
 
       let packetDto = this.websocketManager.createWbSessionScopePacket(wbItemDtos,WebsocketPacketActionEnum.UPDATE);
-      packetDto.wsPacketSeq = this.websocketManager.wsPacketSeq;
+      let newSeq = this.websocketManager.wsPacketSeq;
+      packetDto.wsPacketSeq = newSeq;
       packetDto.additionalData = gsgDto;
 
       this.socket.emit(HttpHelper.websocketApi.whiteboardItem.update_multiple.event, packetDto);
 
       //#### 요청 완료
 
-      this.socket.once(HttpHelper.websocketApi.whiteboardItem.update_multiple.event + HttpHelper.ACK_SIGN,
+      this.socket.once(HttpHelper.websocketApi.whiteboardItem.update_multiple.event + HttpHelper.ACK_SIGN + newSeq,
         (wsPacketDto:WebsocketPacketDto)=>{
           //this.websocketManager.uiService.spin$.next(false);
           switch (wsPacketDto.action) {
@@ -302,14 +310,15 @@ export class WsWhiteboardController {
       }
 
       let packetDto = this.websocketManager.createWbSessionScopePacket(wbItemDtos,WebsocketPacketActionEnum.UPDATE);
-      packetDto.wsPacketSeq = this.websocketManager.wsPacketSeq;
+      let newSeq = this.websocketManager.wsPacketSeq;
+      packetDto.wsPacketSeq = newSeq;
       packetDto.additionalData = zIndexAction;
 
       this.socket.emit(HttpHelper.websocketApi.whiteboardItem.updateZIndex.event, packetDto);
 
       //#### 요청 완료
 
-      this.socket.once(HttpHelper.websocketApi.whiteboardItem.updateZIndex.event + HttpHelper.ACK_SIGN,
+      this.socket.once(HttpHelper.websocketApi.whiteboardItem.updateZIndex.event + HttpHelper.ACK_SIGN + newSeq,
         (wsPacketDto:WebsocketPacketDto)=>{
           //this.websocketManager.uiService.spin$.next(false);
           switch (wsPacketDto.action) {
@@ -356,13 +365,14 @@ export class WsWhiteboardController {
 
 
       let packetDto = this.websocketManager.createWbSessionScopePacket(wbItemDto,WebsocketPacketActionEnum.DELETE);
-      packetDto.wsPacketSeq = this.websocketManager.wsPacketSeq;
+      let newSeq = this.websocketManager.wsPacketSeq;
+      packetDto.wsPacketSeq = newSeq;
 
       this.socket.emit(HttpHelper.websocketApi.whiteboardItem.delete.event, packetDto);
 
       //#### 요청 완료
 
-      this.socket.once(HttpHelper.websocketApi.whiteboardItem.delete.event + HttpHelper.ACK_SIGN,
+      this.socket.once(HttpHelper.websocketApi.whiteboardItem.delete.event + HttpHelper.ACK_SIGN + newSeq,
         (wsPacketDto:WebsocketPacketDto)=>{
           //this.websocketManager.uiService.spin$.next(false);
           switch (wsPacketDto.action) {
@@ -415,7 +425,7 @@ export class WsWhiteboardController {
           let newSimpleRasterDto:SimpleRasterDto = new SimpleRasterDto(simpleRasterDto.id, simpleRasterDto.type, simpleRasterDto.center, simpleRasterDto.isGrouped,
             simpleRasterDto.parentEdtGroupId, simpleRasterDto.width, simpleRasterDto.height,
             simpleRasterDto.borderColor, simpleRasterDto.borderWidth, simpleRasterDto.fillColor,
-            simpleRasterDto.opacity, simpleRasterDto.linkPortsDto, null);
+            simpleRasterDto.opacity, simpleRasterDto.linkPortsDto, null, simpleRasterDto.isLocked);
 
           deleteList.splice(idx, 1);
           deleteList.splice(idx, 0, newSimpleRasterDto);
@@ -423,13 +433,14 @@ export class WsWhiteboardController {
       }
 
       let packetDto = this.websocketManager.createWbSessionScopePacket(deleteList,WebsocketPacketActionEnum.DELETE);
-      packetDto.wsPacketSeq = this.websocketManager.wsPacketSeq;
+      let newSeq = this.websocketManager.wsPacketSeq;
+      packetDto.wsPacketSeq = newSeq;
 
       this.socket.emit(HttpHelper.websocketApi.whiteboardItem.delete_multiple.event, packetDto);
 
       //#### 요청 완료
 
-      this.socket.once(HttpHelper.websocketApi.whiteboardItem.delete_multiple.event + HttpHelper.ACK_SIGN,
+      this.socket.once(HttpHelper.websocketApi.whiteboardItem.delete_multiple.event + HttpHelper.ACK_SIGN + newSeq,
         (wsPacketDto:WebsocketPacketDto)=>{
           //this.websocketManager.uiService.spin$.next(false);
           switch (wsPacketDto.action) {
@@ -473,13 +484,14 @@ export class WsWhiteboardController {
     return new Observable<any>((subscriber)=>{
 
       let packetDto = this.websocketManager.createWbSessionScopePacket(wbItemDto,WebsocketPacketActionEnum.LOCK);
-      packetDto.wsPacketSeq = this.websocketManager.wsPacketSeq;
+      let newSeq = this.websocketManager.wsPacketSeq;
+      packetDto.wsPacketSeq = newSeq;
 
       this.socket.emit(HttpHelper.websocketApi.whiteboardItem.lock.event, packetDto);
 
       //#### 요청 완료
 
-      this.socket.once(HttpHelper.websocketApi.whiteboardItem.lock.event + HttpHelper.ACK_SIGN,
+      this.socket.once(HttpHelper.websocketApi.whiteboardItem.lock.event + HttpHelper.ACK_SIGN + newSeq,
         (wsPacketDto:WebsocketPacketDto)=>{
           //this.websocketManager.uiService.spin$.next(false);
           switch (wsPacketDto.action) {
@@ -521,13 +533,14 @@ export class WsWhiteboardController {
     return new Observable<any>((subscriber)=>{
 
       let packetDto = this.websocketManager.createWbSessionScopePacket(wbItemDto,WebsocketPacketActionEnum.UNLOCK);
-      packetDto.wsPacketSeq = this.websocketManager.wsPacketSeq;
+      let newSeq = this.websocketManager.wsPacketSeq;
+      packetDto.wsPacketSeq = newSeq;
 
       this.socket.emit(HttpHelper.websocketApi.whiteboardItem.unlock.event, packetDto);
 
       //#### 요청 완료
 
-      this.socket.once(HttpHelper.websocketApi.whiteboardItem.unlock.event + HttpHelper.ACK_SIGN,
+      this.socket.once(HttpHelper.websocketApi.whiteboardItem.unlock.event + HttpHelper.ACK_SIGN + newSeq,
         (wsPacketDto:WebsocketPacketDto)=>{
           //this.websocketManager.uiService.spin$.next(false);
           switch (wsPacketDto.action) {
@@ -571,13 +584,14 @@ export class WsWhiteboardController {
       this.setGsgDto(gsgDto);
 
       let packetDto = this.websocketManager.createWbSessionScopePacket(gsgDto,WebsocketPacketActionEnum.OCCUPIED);
-      packetDto.wsPacketSeq = this.websocketManager.wsPacketSeq;
+      let newSeq = this.websocketManager.wsPacketSeq;
+      packetDto.wsPacketSeq = newSeq;
 
       this.socket.emit(HttpHelper.websocketApi.whiteboardItem.occupied.event, packetDto);
 
       //#### 요청 완료
 
-      this.socket.once(HttpHelper.websocketApi.whiteboardItem.occupied.event + HttpHelper.ACK_SIGN,
+      this.socket.once(HttpHelper.websocketApi.whiteboardItem.occupied.event + HttpHelper.ACK_SIGN + newSeq,
         (wsPacketDto:WebsocketPacketDto)=>{
           //this.websocketManager.uiService.spin$.next(false);
           // console.log("WsWhiteboardController >> waitRequestOccupyWbItem >> wsPacketDto : ",wsPacketDto);
@@ -622,13 +636,14 @@ export class WsWhiteboardController {
       this.setGsgDto(gsgDto);
 
       let packetDto = this.websocketManager.createWbSessionScopePacket(gsgDto,WebsocketPacketActionEnum.NOT_OCCUPIED);
-      packetDto.wsPacketSeq = this.websocketManager.wsPacketSeq;
+      let newSeq = this.websocketManager.wsPacketSeq;
+      packetDto.wsPacketSeq = newSeq;
       // console.log("WsWhiteboardController >> waitRequestNotOccupyWbItem >> gsgDto : ",gsgDto);
       this.socket.emit(HttpHelper.websocketApi.whiteboardItem.notOccupied.event, packetDto);
 
       //#### 요청 완료
 
-      this.socket.once(HttpHelper.websocketApi.whiteboardItem.notOccupied.event + HttpHelper.ACK_SIGN,
+      this.socket.once(HttpHelper.websocketApi.whiteboardItem.notOccupied.event + HttpHelper.ACK_SIGN + newSeq,
         (wsPacketDto:WebsocketPacketDto)=>{
           //this.websocketManager.uiService.spin$.next(false);
           switch (wsPacketDto.action) {

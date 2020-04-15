@@ -20,7 +20,6 @@ import {CursorTrackerService} from '../../../Model/Whiteboard/CursorTracker/curs
 import {WhiteboardItemDto} from '../../../DTO/WhiteboardItemDto/whiteboard-item-dto';
 import {WhiteboardItemFactory} from '../../../Model/Whiteboard/InfiniteCanvas/WhiteboardItemFactory/whiteboard-item-factory';
 import {WorkHistoryManager} from '../../../Model/Whiteboard/InfiniteCanvas/DrawingLayerManager/WorkHistoryManager/work-history-manager';
-import {ItemLifeCycleEnum} from '../../../Model/Whiteboard/Whiteboard-Item/WhiteboardItemLifeCycle/WhiteboardItemLifeCycle';
 import {WhiteboardSessionDto} from '../../../DTO/ProjectDto/WhiteboardSessionDto/whiteboard-session-dto';
 import {ActivatedRoute} from '@angular/router';
 import {WsProjectController} from '../../../Controller/Controller-WebSocket/websocket-manager/ProjectWsController/ws-project.controller';
@@ -50,12 +49,11 @@ import Circle = paper.Path.Circle;
 // @ts-ignore
 import Rectangle = paper.Path.Rectangle;
 import {CursorData} from '../../../DTO/ProjectDto/WhiteboardSessionDto/Cursor-Data/Cursor-Data';
-import {WsWhiteboardController} from '../../../Controller/Controller-WebSocket/websocket-manager/WhiteboardWsController/ws-whiteboard.controller';
-import {WebsocketPacketDto} from '../../../DTO/WebsocketPacketDto/WebsocketPacketDto';
 import {WbItemFactoryResult} from '../../../Model/Whiteboard/InfiniteCanvas/WhiteboardItemFactory/WbItemFactoryResult/wb-item-factory-result';
 import {WbItemPacketDto} from '../../../DTO/WhiteboardItemDto/WbItemPacketDto/WbItemPacketDto';
 import {ItemBlinderManagementService} from '../../../Model/Whiteboard/OccupiedItemBlinder/item-blinder-management-service/item-blinder-management.service';
 import {HotKeyManagementService} from '../../../Model/Whiteboard/HotKeyManagement/hot-key-management.service';
+import {ImportFileService} from "../../../Model/Whiteboard/ImportFile/import-file.service";
 
 @Component({
   selector: 'app-whiteboard-main',
@@ -64,16 +62,24 @@ import {HotKeyManagementService} from '../../../Model/Whiteboard/HotKeyManagemen
 })
 export class WhiteboardMainComponent implements OnInit,OnDestroy {
   public whiteboardPaperProject: Project;
+  public tempPaperProject: Project;
+  public cursorTrackerPaperProject: Project;
+
   public whiteboardPaperScope: PaperScope;
+  public tempPaperScope: PaperScope;
+  public cursorTrackerPaperScope: PaperScope;
 
   public currentPointerMode;
+
   public htmlCanvasObject: HTMLCanvasElement;
+  public htmlTempCanvasObject: HTMLCanvasElement;
+  public htmlCursorTrackerCanvasObject: HTMLCanvasElement;
+
   public htmlCanvasWrapperObject: HTMLDivElement;
 
   public connectedUserList:Array<string>;
   public wbTitle = "GachiBoard";
   public wbSessionId = "";
-
 
   ngCursorTracker(event) {
     this.debugingService.ngCursorX = event.x;
@@ -102,7 +108,8 @@ export class WhiteboardMainComponent implements OnInit,OnDestroy {
     public userManagerService: UserManagerService,
     public wbSessionEventManagerService: WbSessionEventManagerService,
     public itemBlinderManagementService:ItemBlinderManagementService,
-    public hotKeyManagementService:HotKeyManagementService
+    public hotKeyManagementService:HotKeyManagementService,
+    private importFile: ImportFileService,
   ) {
     this.connectedUserList = new Array<string>();
   }
@@ -181,21 +188,32 @@ export class WhiteboardMainComponent implements OnInit,OnDestroy {
       this.cursorTrackerService.addUser(currConnParticipantInfo.idToken, new Point(0,0),new Color(userColor));
     }
     this.subscribeWbSessionEventEmitter();
-    this.whiteboardPaperProject.view.onMouseMove = (event) => {
-      if (this.cursorThrottle) {
-        return;
-      }
-      this.debugingService.cursorX = this.cursorTrackerService.currentCursorPosition.x = event.point.x;
-      this.debugingService.cursorY = this.cursorTrackerService.currentCursorPosition.y = event.point.y;
 
-      this.sendCursorData();
-      this.cursorThrottle = true;
-      setTimeout(()=>{
-        this.cursorThrottle = false;
-      },30);
+    this.whiteboardPaperProject.view.onMouseMove = (event) => {
+      this.onPointerMove(event);
     };
+    this.tempPaperProject.view.onMouseMove = (event) => {
+      this.onPointerMove(event);
+    };
+
     this.cursorTrackerService.refreshPoint();
   }
+
+  onPointerMove(event){
+    if (this.cursorThrottle) {
+      return;
+    }
+    this.debugingService.cursorX = this.cursorTrackerService.currentCursorPosition.x = event.point.x;
+    this.debugingService.cursorY = this.cursorTrackerService.currentCursorPosition.y = event.point.y;
+
+    this.sendCursorData();
+    this.cursorThrottle = true;
+    setTimeout(()=>{
+      this.cursorThrottle = false;
+    },30);
+
+  }
+
   private wbSessionSubscription:Subscription;
   subscribeWbSessionEventEmitter(){
 
@@ -285,16 +303,18 @@ export class WhiteboardMainComponent implements OnInit,OnDestroy {
     //this.pointerModeManager.activateTool(PointerMode.DRAW);
 
     //서비스 이니셜라이징
-    this.infiniteCanvasService.initializeInfiniteCanvas(this.whiteboardPaperProject);
+    this.infiniteCanvasService.initializeInfiniteCanvas(this.whiteboardPaperProject, this.tempPaperProject, this.cursorTrackerPaperProject);
     this.posCalcService.initializePositionCalcService(this.whiteboardPaperProject);
-    this.zoomControlService.initializeZoomControlService(this.whiteboardPaperProject);
+    this.zoomControlService.initializeZoomControlService(this.whiteboardPaperProject, this.tempPaperProject, this.cursorTrackerPaperProject);
 
-    this.pointerModeManager.initializePointerModeManagerService(this.whiteboardPaperProject);
+    this.pointerModeManager.initializePointerModeManagerService(this.whiteboardPaperProject, this.tempPaperProject);
 
     this.debugingService.initializeDebugingService(this.whiteboardPaperProject);
 
     this.minimapSyncService.initializePositionCalcService(this.whiteboardPaperProject);
-    this.layerService.initializeDrawingLayerService(this.whiteboardPaperProject, this.contextMenuService);
+
+    this.layerService.initializeDrawingLayerService(this.whiteboardPaperProject, this.contextMenuService, this.tempPaperProject, this.htmlCanvasObject, this.htmlTempCanvasObject, this.cursorTrackerPaperProject);
+
     this.linkModeManagerService.initLinkModeManagerService(this.layerService.linkModeEventEmitter);
     WhiteboardItemFactory.initWhiteboardItemFactory(this.layerService);
     this.cursorTrackerService.initializeCursorTrackerService(this.infiniteCanvasService.zoomEventEmitter);
@@ -318,12 +338,22 @@ export class WhiteboardMainComponent implements OnInit,OnDestroy {
   public initWhiteboardPaper() {
     paper.settings.hitTolerance = 40;
 
-    this.htmlCanvasObject = document.getElementById("cv1") as HTMLCanvasElement;
+    this.htmlCanvasObject               = document.getElementById("cv1") as HTMLCanvasElement;
+    this.htmlTempCanvasObject           = document.getElementById("tempCv") as HTMLCanvasElement;
+    this.htmlCursorTrackerCanvasObject  = document.getElementById("cursorTrackerCv") as HTMLCanvasElement;
+
     this.htmlCanvasWrapperObject = document.getElementById("canvasWrapper") as HTMLDivElement;
+
+    this.tempPaperScope = new PaperScope();
+    this.tempPaperScope.setup(this.htmlTempCanvasObject);
+    this.tempPaperProject = this.tempPaperScope.project;
+
+    this.cursorTrackerPaperScope = new PaperScope();
+    this.cursorTrackerPaperScope.setup(this.htmlCursorTrackerCanvasObject);
+    this.cursorTrackerPaperProject = this.cursorTrackerPaperScope.project;
+
     this.whiteboardPaperScope = new PaperScope();
     this.whiteboardPaperScope.setup(this.htmlCanvasObject);
-    this.whiteboardPaperScope.settings.hitTolerance = 40;
-
     this.whiteboardPaperProject = this.whiteboardPaperScope.project;
   }
 
@@ -414,6 +444,7 @@ export class WhiteboardMainComponent implements OnInit,OnDestroy {
           break;
         case "KeyG":
           this.layerService.groupSelectedItems();
+          this.layerService.globalSelectedGroup.extractAllFromSelection();
           break;
         case "KeyZ":
           workHistoryManager.undoTask();
@@ -440,6 +471,7 @@ export class WhiteboardMainComponent implements OnInit,OnDestroy {
       case PointerMode.LASSO_SELECTOR:
         if (event.code === "Delete") {
           this.layerService.globalSelectedGroup.destroyItem();
+          this.layerService.cursorChanger.syncCurrentPointerMode(this.layerService.currentPointerMode);
           this.minimapSyncService.syncMinimap();
         }
         if (event.code === "KeyL") {
@@ -456,6 +488,31 @@ export class WhiteboardMainComponent implements OnInit,OnDestroy {
       default:
         break;
     }
+  }
+
+  @HostListener('dragover', ['$event'])
+  public onDragOver(event) {
+    event.preventDefault();
+    event.stopPropagation();
+
+    // 드래그 오버시에 처리할게 있으면 쓰면 됨
+  }
+
+  @HostListener('dragleave', ['$event'])
+  public onDragLeave(event) {
+    event.preventDefault();
+    event.stopPropagation();
+
+    // 드래그오버 후 브라우저 영역을 빠져나갈 때 처리할게 있으면 쓰면 됨
+  }
+
+  @HostListener('drop', ['$event'])
+  public onDrop(event) {
+    event.preventDefault();
+    event.stopPropagation();
+
+    const files = event.dataTransfer.files;
+    this.importFile.importFile(files);
   }
 
   get PointerMode() {

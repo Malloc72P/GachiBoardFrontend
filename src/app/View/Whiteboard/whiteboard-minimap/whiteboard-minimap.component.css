@@ -8,6 +8,7 @@
 .gachi-minimap{
   display: inline-block;
   position: absolute;
+  z-index: 100;
   padding: 0;
   border: 1px solid #ebebeb;
 

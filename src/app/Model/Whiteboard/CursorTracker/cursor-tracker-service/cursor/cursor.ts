@@ -13,6 +13,7 @@ import PointText = paper.PointText;
 import {EventEmitter} from "@angular/core";
 import {ZoomEvent} from "../../../InfiniteCanvas/ZoomControl/ZoomEvent/zoom-event";
 import {ZoomEventEnum} from "../../../InfiniteCanvas/ZoomControl/ZoomEvent/zoom-event-enum.enum";
+import {DrawingLayerManagerService} from '../../../InfiniteCanvas/DrawingLayerManager/drawing-layer-manager.service';
 
 export class Cursor {
   private group: Group;
@@ -20,12 +21,15 @@ export class Cursor {
   private readonly userName: PointText;
   private zoomEventEmitter;
 
+  private layerService:DrawingLayerManagerService;
+
   private width: number;
   private height: number;
 
-  constructor(color: Color, zoomEventEmitter: EventEmitter<any>) {
+  constructor(color: Color, zoomEventEmitter: EventEmitter<any>, layerService) {
     const cursorPath = "M4 0l16 12.279-6.78 1.138 4.256 8.676-3.902 1.907-4.281-8.758-5.293 4.581z";
     this.zoomEventEmitter = zoomEventEmitter;
+    this.layerService = layerService;
 
     this.pointer = new CompoundPath(cursorPath);
     this.pointer.fillColor = color;
@@ -40,6 +44,8 @@ export class Cursor {
     this.group.shadowColor = new Color("grey");
     this.group.shadowBlur = 10;
     this.group.shadowOffset = new Point(1,1);
+
+    this.layerService.cursorTrackerPaperProject.activeLayer.addChild(this.group);
 
     zoomEventEmitter.subscribe((zoomEvent: ZoomEvent) => {
       this.onZoomChanged(zoomEvent);

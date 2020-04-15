@@ -26,6 +26,8 @@ import {InfiniteCanvasService} from "../infinite-canvas.service";
 export class ZoomControlService {
 
   public currentProject: Project;
+  public tempProject: Project;
+  public cursorTrackerProject: Project;
 
   private prevDistance = 0;
   private currentDistance = 0;
@@ -42,8 +44,10 @@ export class ZoomControlService {
 
   }
 
-  public initializeZoomControlService( currentProject: Project ){
+  public initializeZoomControlService( currentProject: Project, tempProject: Project, cursorTrackerProject: Project ){
     this.currentProject = currentProject;
+    this.tempProject = tempProject;
+    this.cursorTrackerProject = cursorTrackerProject;
   }
 
   zoomControl(event) {
@@ -54,11 +58,14 @@ export class ZoomControlService {
     if (!event.ctrlKey) {//컨트롤키 안 누르고 휠 돌리는 경우
       let ngCanvasCenter = this.posCalcService.getCenterOfBrowser();
 
-      this.currentProject.view.zoom = this.infiniteCanvasService.changeZoom(
+      let newZoom = this.infiniteCanvasService.changeZoom(
         this.currentProject.view.zoom,
         ngCanvasCenter,
         new Point(event.x, event.y),
         event.deltaY);
+      this.currentProject.view.zoom = newZoom;
+      this.tempProject.view.zoom = newZoom;
+      this.cursorTrackerProject.view.zoom = newZoom;
     }
   }
 
@@ -70,9 +77,10 @@ export class ZoomControlService {
       let currentDistance = this.posCalcService.calcPointDistanceOn2D(p1, p2);
       let ngCanvasCenter = this.posCalcService.getCenterOfBrowser();
 
-      if(this.prevDistance <= currentDistance){//줌 인
+      let newZoom;
 
-        this.currentProject.view.zoom = this.infiniteCanvasService.changeZoom(
+      if(this.prevDistance <= currentDistance){//줌 인
+        newZoom = this.infiniteCanvasService.changeZoom(
           this.currentProject.view.zoom,
           ngCanvasCenter,
           this.midPoint,
@@ -80,13 +88,16 @@ export class ZoomControlService {
         this.prevDistance = currentDistance;
       }
       else{//줌 아웃
-        this.currentProject.view.zoom = this.infiniteCanvasService.changeZoom(
+        newZoom = this.infiniteCanvasService.changeZoom(
           this.currentProject.view.zoom,
           ngCanvasCenter,
           this.midPoint,
           100);
         this.prevDistance = currentDistance;
       }
+      this.currentProject.view.zoom = newZoom;
+      this.tempProject.view.zoom = newZoom;
+      this.cursorTrackerProject.view.zoom = newZoom;
     } else {//핀치줌 시작하는 경우
       let currentDistance = this.posCalcService.calcPointDistanceOn2D(p1, p2);
       let midPoint = this.posCalcService.calcMidPointOn2D(p1, p2);
@@ -106,20 +117,26 @@ export class ZoomControlService {
   }
   zoomInToCenter(){
     let ngCanvasCenter = this.posCalcService.getCenterOfBrowser();
-    this.currentProject.view.zoom = this.infiniteCanvasService.changeZoom(
+    let newZoom = this.infiniteCanvasService.changeZoom(
       this.currentProject.view.zoom,
       ngCanvasCenter,
       ngCanvasCenter,
       -100);
+    this.currentProject.view.zoom = newZoom;
+    this.tempProject.view.zoom = newZoom;
+    this.cursorTrackerProject.view.zoom = newZoom;
+
 
   }
   zoomOutToCenter(){
     let ngCanvasCenter = this.posCalcService.getCenterOfBrowser();
-    this.currentProject.view.zoom = this.infiniteCanvasService.changeZoom(
+    let newZoom = this.infiniteCanvasService.changeZoom(
       this.currentProject.view.zoom,
       ngCanvasCenter,
       ngCanvasCenter,
       100);
-
+    this.currentProject.view.zoom = newZoom;
+    this.tempProject.view.zoom = newZoom;
+    this.cursorTrackerProject.view.zoom = newZoom;
   }
 }

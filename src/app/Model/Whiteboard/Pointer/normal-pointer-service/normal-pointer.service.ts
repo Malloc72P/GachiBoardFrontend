@@ -10,6 +10,7 @@ import {InfiniteCanvasService} from '../../InfiniteCanvas/infinite-canvas.servic
 import {DrawingLayerManagerService} from '../../InfiniteCanvas/DrawingLayerManager/drawing-layer-manager.service';
 import {LinkPort} from "../../Whiteboard-Item/Whiteboard-Shape/LinkPort/link-port";
 import {LinkService} from "../link-service/link.service";
+import {LongTouch} from "../long-touch/long-touch";
 
 
 enum NORMAL_POINTER_ACTIONS{
@@ -31,6 +32,8 @@ export class NormalPointerService {
 
   private selectedHandle;
 
+  private longTouch: LongTouch = new LongTouch();
+
   constructor(
     private posCalcService        : PositionCalcService,
     private infiniteCanvasService : InfiniteCanvasService,
@@ -49,7 +52,9 @@ export class NormalPointerService {
   // ##############################################
 
   public onMouseDown(event){
-
+    this.longTouch.start(event, () => {
+      this.layerService.contextMenu.openMenu(event.event);
+    });
     // 선택된 아이템이 없음
     if(!this.layerService.isSelecting){
       // 아이템 선택 시도
@@ -75,6 +80,11 @@ export class NormalPointerService {
   // ##############################################
 
   public onMouseMove(event){
+    this.longTouch.stop(event);
+
+    if(this.longTouch.longTouched) {
+      return;
+    }
     if(!this.layerService.isSelecting){
       this.moveCanvas(event);
     } else {
@@ -87,9 +97,11 @@ export class NormalPointerService {
   // ##############################################
 
   public onMouseUp(event){
+    this.longTouch.stop();
+    this.longTouch.touchEnd();
     if(!this.layerService.isSelecting){
       // this.moveCanvas(event);
-      this.moveCanvasEnd(event);
+      this.moveCanvasEnd();
     } else {
       this.endDragging(event);
     }
@@ -268,6 +280,7 @@ export class NormalPointerService {
     }
     return false;
   }
+
   private isThrottle = false;
   public moveCanvas(event) {
     this.infiniteCanvasService.moveWithDelta(event.delta);
@@ -280,8 +293,7 @@ export class NormalPointerService {
     //   this.isThrottle = false;
     // }, 10);
   }
-  public moveCanvasEnd(event){
-    this.infiniteCanvasService.moveWithDelta(event.delta);
+  public moveCanvasEnd(){
     this.infiniteCanvasService.solveDangerState();
   }
 }

@@ -52,12 +52,16 @@ import PointText = paper.PointText;
 import Point = paper.Point;
 // @ts-ignore
 import Project = paper.Project;
+// @ts-ignore
+import PaperScope = paper.PaperScope;
+
 import {EditableShapeDto} from '../../../../DTO/WhiteboardItemDto/WhiteboardShapeDto/EditableShapeDto/editable-shape-dto';
 import {WbItemPacketDto} from '../../../../DTO/WhiteboardItemDto/WbItemPacketDto/WbItemPacketDto';
 import {ItemBlinderManagementService} from '../../OccupiedItemBlinder/item-blinder-management-service/item-blinder-management.service';
 import {GlobalSelectedGroupDto} from '../../../../DTO/WhiteboardItemDto/ItemGroupDto/GlobalSelectedGroupDto/GlobalSelectedGroupDto';
 import {UiService} from '../../../Helper/ui-service/ui.service';
 import {HotKeyManagementService} from '../../HotKeyManagement/hot-key-management.service';
+import {PointerMode} from '../../Pointer/pointer-mode-enum-service/pointer-mode-enum.service';
 
 
 
@@ -66,12 +70,19 @@ import {HotKeyManagementService} from '../../HotKeyManagement/hot-key-management
 })
 export class DrawingLayerManagerService {
   private _drawingLayer:Layer;
+
   private _currentProject:Project;
+  private _tempProject:Project;
+  private _cursorTrackerPaperProject:Project;
+
+  public tempHtmlCanvas:HTMLCanvasElement;
+  public mainHtmlCanvas:HTMLCanvasElement;
+
   private _contextMenu: ContextMenuService;
 
   private _currentLinkerMode:LinkerMode;
 
-  private _currentPointerMode;
+  private _currentPointerMode:PointerMode;
   private longTouchTimer;
   private fromPoint: Point;
 
@@ -81,7 +92,6 @@ export class DrawingLayerManagerService {
 
   private _isEditableLinkSelected:Boolean;
 
-  private _idGenerator = 0;
   private _linkIdGenerator = 0;
 
   private hitOption = { segments: true, stroke: true, fill: true, tolerance: 15 };
@@ -115,9 +125,18 @@ export class DrawingLayerManagerService {
     this.initLinkModeHandler();
   }
 
-  initializeDrawingLayerService(paperProject, contextMenuService: ContextMenuService){
+  initializeDrawingLayerService(paperProject, contextMenuService: ContextMenuService,
+                                tempPaperProject, mainHtmlCanvas, tempHtmlCanvas, cursorTrackerPaperProject){
     this._currentProject = paperProject;
+    this._tempProject = tempPaperProject;
+    this._cursorTrackerPaperProject = cursorTrackerPaperProject;
+
+
     this._contextMenu = contextMenuService;
+
+    this.mainHtmlCanvas = mainHtmlCanvas;
+    this.tempHtmlCanvas = tempHtmlCanvas;
+
     this._currentProject.layers.forEach((value, index, array)=>{
       if(value.data.type === DataType.DRAWING_CANVAS){
         this.drawingLayer = value;
@@ -693,8 +712,6 @@ export class DrawingLayerManagerService {
     let wsWbController = WsWhiteboardController.getInstance();
     let dtoList = this.globalSelectedGroup.exportSelectionToDto();
     wsWbController.waitRequestUpdateMultipleWbItem(dtoList).subscribe(()=>{});
-
-    this.globalSelectedGroup.extractAllFromSelection();
   }
 
   public ungroupSelectedItems(){
@@ -709,8 +726,6 @@ export class DrawingLayerManagerService {
     let wsWbController = WsWhiteboardController.getInstance();
     let dtoList = this.globalSelectedGroup.exportSelectionToDto();
     wsWbController.waitRequestUpdateMultipleWbItem(dtoList).subscribe(()=>{});
-
-    this.globalSelectedGroup.extractAllFromSelection();
   }
 
   public applyZIndex(){
@@ -782,6 +797,15 @@ export class DrawingLayerManagerService {
         }
       }
     }
+  }
+
+  activateMainWbMode(){
+    this.mainHtmlCanvas.style.zIndex = "0";
+    this.tempHtmlCanvas.style.zIndex = "-2";
+  }
+  activateTempWbMode(){
+    this.tempHtmlCanvas.style.zIndex = "0";
+    this.mainHtmlCanvas.style.zIndex = "-2";
   }
 
 
@@ -888,6 +912,24 @@ export class DrawingLayerManagerService {
 
   get currentProject(): Project {
     return this._currentProject;
+  }
+
+
+  get tempProject(): Project {
+    return this._tempProject;
+  }
+
+  set tempProject(value: Project) {
+    this._tempProject = value;
+  }
+
+
+  get cursorTrackerPaperProject(): Project {
+    return this._cursorTrackerPaperProject;
+  }
+
+  set cursorTrackerPaperProject(value: Project) {
+    this._cursorTrackerPaperProject = value;
   }
 
 //#####################################

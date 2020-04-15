@@ -206,8 +206,6 @@ export abstract class WhiteboardItem {
     let blindTextBg;
     for(let i = 0 ; i < this.blindGroup.children.length; i++){
       let currItem = this.blindGroup.children[i];
-      console.log("WhiteboardItem >> updateBlindGroup >> currItem : ",currItem);
-      console.log("WhiteboardItem >> updateBlindGroup >> currItem : ",currItem.name);
       if (currItem.name === 'blind-main') {
         blindRect = currItem;
       } else if (currItem.name === 'blind-text-bg') {
@@ -220,9 +218,6 @@ export abstract class WhiteboardItem {
     if( !blindText || !blindRect || !blindTextBg ){
       return;
     }
-    console.log("WhiteboardItem >> updateBlindGroup >> blindRect : ",blindRect);
-    console.log("WhiteboardItem >> updateBlindGroup >> blindText : ",blindText);
-    console.log("WhiteboardItem >> updateBlindGroup >> blindTextBg : ",blindTextBg);
     blindRect.bounds = this.group.bounds;
     blindText.bounds.topRight = this.group.bounds.bottomRight;
     blindTextBg.bounds.topLeft = blindText.bounds.topLeft;
@@ -253,6 +248,8 @@ export abstract class WhiteboardItem {
     this.isGrouped = dto.isGrouped;
     this.parentEdtGroup = dto.parentEdtGroupId;
     this.zIndex = dto.zIndex;
+    this.isLocked = dto.isLocked;
+    // this.isLocked = dto.is
     this.groupedIdList = dto.groupedIdList;
     if(this.blindGroup){
       this.updateBlindGroup();
@@ -322,7 +319,8 @@ export abstract class WhiteboardItem {
       gachiCenterPoint,
       this.isGrouped,
       parentEdtGroupId,
-      this.zIndex
+      this.isLocked,
+      this.zIndex,
     );
     if (this.groupedIdList) {
       wbItemDto.groupedIdList = this.groupedIdList;

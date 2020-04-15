@@ -8,7 +8,9 @@ import {SimpleStroke} from '../../Whiteboard-Item/editable-stroke/SimpleStroke/s
 import Point = paper.Point;
 // @ts-ignore
 import Group = paper.Group;
-import {InfiniteCanvasService} from '../../InfiniteCanvas/infinite-canvas.service';
+// @ts-ignore
+import Layer = paper.Layer;
+
 import {DrawingLayerManagerService} from '../../InfiniteCanvas/DrawingLayerManager/drawing-layer-manager.service';
 
 
@@ -20,6 +22,7 @@ export class BrushService {
   private strokeWidth = 1;
   private newPath: paper.Path;
   private currentProject: paper.Project;
+  private tempLayer:Layer;
 
   constructor(
     private posCalcService: PositionCalcService,
@@ -32,6 +35,7 @@ export class BrushService {
 
   public createPath(event) {
     this.createSimpleStroke(event.point);
+    this.layerService.tempProject.activeLayer.addChild(this.newPath);
   }
 
   public drawPath(event) {
@@ -40,12 +44,13 @@ export class BrushService {
 
   public endPath() {
     if(!!this.newPath) {
-      this.newPath.simplify(5);
+      this.newPath.simplify(3);
 
       //addToDrawingLayer를 이용하여 아이템 append
       this.layerService.addToDrawingLayer(this.newPath, WhiteboardItemType.SIMPLE_STROKE);
 
       this.newPath = null;
+      this.layerService.tempProject.activeLayer.removeChildren();
     }
   }
 

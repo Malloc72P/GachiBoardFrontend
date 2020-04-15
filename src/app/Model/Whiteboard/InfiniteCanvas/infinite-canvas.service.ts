@@ -46,6 +46,9 @@ export class InfiniteCanvasService {
   private initFlag = false;
 
   private currentProject: Project;
+  private tempProject: Project;
+  private cursorTrackerPaperProject: Project;
+
   public whiteboardMatrix: Array<Array<whiteboardCell>>;
   public observerFamily: Map<string, BoundaryObserver>;
   private whiteboardRect;
@@ -80,12 +83,18 @@ export class InfiniteCanvasService {
   }
   onWindowResized() {
     let bottomRight = this.posCalcService.getBottomRightPositionOfBrowser();
-    this.currentProject.view.viewSize = new Size(bottomRight.x, bottomRight.y);
+    let newResolution = new Size(bottomRight.x, bottomRight.y);
+    this.currentProject.view.viewSize = newResolution;
+    this.tempProject.view.viewSize = newResolution;
+    this.cursorTrackerPaperProject.view.viewSize = newResolution;
     this.resetInfiniteCanvas();
   }
 
-  public initializeInfiniteCanvas(currentProject: Project){
+  public initializeInfiniteCanvas(currentProject: Project, tempProject: Project, cursorTrackerPaperProject: Project){
     this.currentProject = currentProject;
+    this.tempProject = tempProject;
+    this.cursorTrackerPaperProject = cursorTrackerPaperProject;
+
     this.htmlCanvasWrapperObject
       = document.getElementById("canvasWrapper") as HTMLDivElement;
     this.initWhiteboardVariable();
@@ -135,6 +144,8 @@ export class InfiniteCanvasService {
     let width = rect.width + gridStep - (rect.width % gridStep);
     let height = rect.height + gridStep - (rect.height % gridStep);
 
+    this.whiteboardLayer.activate();
+
     for (let i = 0; i < 3; i++) {
       for (let j = 0; j < 3; j++) {
         let currentCell = this.whiteboardMatrix[j][i];
@@ -170,12 +181,15 @@ export class InfiniteCanvasService {
           newLine.lineTo(new Point(exitPoint.x, i));
           currentCell.cellGroup.addChild(newLine);
         }
+        this.whiteboardLayer.addChild(currentCell.cellGroup);
       }//for
     }
   }//WhiteboardInitializer
 
   public moveWithDelta(delta){
     this.currentProject.view.translate(delta);
+    this.tempProject.view.translate(delta);
+    this.cursorTrackerPaperProject.view.translate(delta);
   }
 
   createGridLine(){
@@ -288,8 +302,6 @@ export class InfiniteCanvasService {
 
   public changeZoom(oldZoom, ngCenter, ngMousePosition, delta){
 
-    this.resetInfiniteCanvas();
-
     if (delta < 0 && this.zoomDepth < this.zoomInMax) {//Zoom In
       this.zoomDepth++;
       this.zoomRatio = this.zoomDepth * (this.zoomFactor - 1);
@@ -313,7 +325,6 @@ export class InfiniteCanvasService {
       newCenter.x += ( ngMousePosition.x > ngCenter.x ) ? ( adjustedFactorOfX ) : ( -adjustedFactorOfX );
       newCenter.y += ( ngMousePosition.y > ngCenter.y ) ? ( adjustedFactorOfY ) : ( -adjustedFactorOfY );
 
-      this.currentProject.view.center = newCenter;
       this.newZoom = oldZoom * this.zoomFactor;
     }
     else{//zoom out
@@ -321,30 +332,37 @@ export class InfiniteCanvasService {
       newCenter.x -= ( ngMousePosition.x > ngCenter.x ) ? ( adjustedFactorOfX ) : ( -adjustedFactorOfX );
       newCenter.y -= ( ngMousePosition.y > ngCenter.y ) ? ( adjustedFactorOfY ) : ( -adjustedFactorOfY );
 
-      this.currentProject.view.center = newCenter;
-
       this.newZoom = oldZoom / this.zoomFactor;
     }
+
+    this.currentProject.view.center = newCenter;
+    this.tempProject.view.center = newCenter;
+    this.cursorTrackerPaperProject.view.center = newCenter;
+
     this.zoomEventEmitter.emit(new ZoomEvent(ZoomEventEnum.ZOOM_CHANGED, this.newZoom));
+
+    this.resetInfiniteCanvas();
+
     return this.newZoom;
   }
   public resetInfiniteCanvas(){
     // console.log("InfiniteCanvasService >> resetInfiniteCanvas >> 진입함");
-    this.initFlag = false;
+    // this.initFlag = false;
     this.currentProject.layers.forEach( (value, index) => {
       if(value.data.type === DataType.INFINITE_CANVAS){
         value.removeChildren();
-        value.remove();
       }
     } );
-    this.initWhiteboardVariable();
-    this.currentProject.layers.forEach((value, index) => {
+    // this.initWhiteboardVariable();
+    this.whiteboardInitializer();
+    /*this.currentProject.layers.forEach((value, index) => {
       if(value.data.type === DataType.DRAWING_CANVAS){
         value.activate();
       }
-    });
+    });*/
     this.whiteboardLayer.sendToBack();
     this.minimapSyncService.syncMinimap();
+    this.drawingLayer.activate();
   }
   private initializeDrawingLayer(){
     if(!this.isDrawingLayerExist){

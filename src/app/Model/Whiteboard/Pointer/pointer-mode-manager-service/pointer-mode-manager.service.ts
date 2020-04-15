@@ -39,6 +39,7 @@ export class PointerModeManagerService {
   public currentPointerMode: number;
   public mouseDown = false;
   public currentProject: Project;
+  public tempProject: Project;
 
   private isThrottle: boolean = false;
   private prevPoint = new Point(0, 0);
@@ -61,11 +62,25 @@ export class PointerModeManagerService {
       private cursorChangeService         : CursorChangeService,
     ) { }
 
-  public initializePointerModeManagerService(currentProject: Project) {
+  public initializePointerModeManagerService(currentProject: Project, tempProject: Project) {
 
     this.currentPointerMode = PointerMode.POINTER;
-    this.currentProject = currentProject;
 
+    this.currentProject = currentProject;
+    this.tempProject = tempProject;
+
+    this.initPointerTools();
+
+    this.setPointerCallback();
+
+    this.modeChange(PointerMode.POINTER);
+
+    this.layerService.pointerModeEventEmitter.subscribe((data:PointerModeEvent)=>{
+      this.lassoSelector.removeLassoPath();
+    })
+  }
+
+  initPointerTools(){
     this.canvasMoverService.initializeCanvasMoverService(this.currentProject);
     this.brushService.initializeBrushService(this.currentProject);
     this.eraser.initializeEraserService(this.currentProject);
@@ -73,49 +88,69 @@ export class PointerModeManagerService {
     this.shape.initializeShapeService(this.currentProject);
     this.normalPointerService.initializeNormalPointerService(this.currentProject);
     this.cursorChangeService.initializeCursorChangeService();
+  }
 
+  setPointerCallback(){
     this.currentProject.view.onMouseDown = (event) => {
-      this.initDelta(event.event);
-      if(event.event instanceof MouseEvent) {
-        this.onMouseDown(event);
-      } else {
-        this.onTouchStart(event);
-      }
+      this.onPointerDown(event);
     };
 
     this.currentProject.view.onMouseDrag = (event) => {
-      if(this.isThrottle) {
-        return;
-      }
-
-      // 수동으로 이벤트에서 델타 구해서 event.delta 를 덮어씌움
-      event.delta = this.initDelta(event.event);
-
-      this.isThrottle = true;
-      setTimeout(() => {
-        this.isThrottle = false;
-      }, 10);
-
-      if(event.event instanceof MouseEvent) {
-        this.onMouseMove(event);
-      } else {
-        this.onTouchMove(event);
-      }
+      this.onPointerDrag(event);
     };
 
     this.currentProject.view.onMouseUp = (event) => {
-      if(event.event instanceof MouseEvent) {
-        this.onMouseUp(event);
-      } else {
-        this.onTouchEnd(event);
-      }
+      this.onPointerUp(event)
     };
 
-    this.modeChange(PointerMode.POINTER);
+    this.tempProject.view.onMouseDown = (event) => {
+      this.onPointerDown(event);
+    };
 
-    this.layerService.pointerModeEventEmitter.subscribe((data:PointerModeEvent)=>{
-      this.lassoSelector.removeLassoPath();
-    })
+    this.tempProject.view.onMouseDrag = (event) => {
+      this.onPointerDrag(event);
+    };
+
+    this.tempProject.view.onMouseUp = (event) => {
+      this.onPointerUp(event)
+    };
+  }
+
+  onPointerDown(event){
+    this.initDelta(event.event);
+    if(event.event instanceof MouseEvent) {
+      this.onMouseDown(event);
+    } else {
+      this.onTouchStart(event);
+    }
+
+  }
+  onPointerDrag(event){
+    /*if(this.isThrottle) {
+      return;
+    }*/
+
+    // 수동으로 이벤트에서 델타 구해서 event.delta 를 덮어씌움
+    event.delta = this.initDelta(event.event);
+
+    /*this.isThrottle = true;
+    setTimeout(() => {
+      this.isThrottle = false;
+    }, 10);*/
+
+    if(event.event instanceof MouseEvent) {
+      this.onMouseMove(event);
+    } else {
+      this.onTouchMove(event);
+    }
+
+  }
+  onPointerUp(event){
+    if(event.event instanceof MouseEvent) {
+      this.onMouseUp(event);
+    } else {
+      this.onTouchEnd(event);
+    }
   }
 
   private _toolPanelToggleGroupValue;
@@ -160,12 +195,42 @@ export class PointerModeManagerService {
       default:
         break;
     }
+
+    switch (panelItem) {
+      //해당 포인터모드는 주 화이트보드를 전경에 놓고 동작함. 그래서 주 화이트보드의 콜백을 이용
+      case PointerMode.POINTER:
+      case PointerMode.MOVE:
+      case PointerMode.SHAPE:
+      case PointerMode.LINK:
+        this.layerService.activateMainWbMode();
+        break;
+      //해당 포인터모드는 임시 화이트보드를 전경에 놓고 동작함. 그래서 임시 화이트보드의 콜백을 이용
+      case PointerMode.DRAW:
+      case PointerMode.HIGHLIGHTER:
+      case PointerMode.ERASER:
+      case PointerMode.LASSO_SELECTOR:
+        this.layerService.activateTempWbMode();
+        break;
+
+    }
+  }
+
+  setAutoUpdateMode(isDownEvent){//onMouseDown이면 패러미터로 true를 전달. onMouseUp이면 false를 전달
+    switch (this.currentPointerMode) {
+      case PointerMode.DRAW:
+      case PointerMode.HIGHLIGHTER:
+      case PointerMode.ERASER:
+      case PointerMode.LASSO_SELECTOR:
+        this.currentProject.view.autoUpdate = !isDownEvent;
+        break;
+    }
   }
 
 
   // Touch - Start Listener
   private onTouchStart(event) {
     event.preventDefault();
+    this.setAutoUpdateMode(true);
 
     switch (this.currentPointerMode) {
       case PointerMode.POINTER:
@@ -236,6 +301,7 @@ export class PointerModeManagerService {
     }
     else if (event.event.touches.length == 2) {
       //핀치줌
+      this.layerService.currentProject.view.autoUpdate = true;
       this.zoomCtrlService.onPinchZoomMove(event.event);
     }
 
@@ -244,6 +310,9 @@ export class PointerModeManagerService {
   // Touch - End Listener
   private onTouchEnd(event) {
     event.preventDefault();
+
+    this.setAutoUpdateMode(false);
+
     if(this.zoomCtrlService.isZooming > 0) {
       this.zoomCtrlService.onPinchZoomEnd();
     }else if ( this.zoomCtrlService.isZooming == 0){
@@ -283,7 +352,8 @@ export class PointerModeManagerService {
   // Mouse - Down Listener
   private onMouseDown(event) {
     event.preventDefault();
-    switch (event.button) {
+    console.log("PointerModeManagerService >> onMouseDown >> 진입함");
+    switch (event.event.button) {
       case MouseButtonEventEnum.LEFT_CLICK:
         break;
       case MouseButtonEventEnum.MIDDLE_CLICK:
@@ -292,6 +362,8 @@ export class PointerModeManagerService {
         return;
     }
     this.mouseDown = true;
+    this.setAutoUpdateMode(true);
+
     switch (this.currentPointerMode) {
       case PointerMode.POINTER:
         this.normalPointerService.onMouseDown(event);
@@ -326,7 +398,7 @@ export class PointerModeManagerService {
   // Mouse - Move Listener
   private onMouseMove(event) {
     event.preventDefault();
-    switch (event.button) {
+    switch (event.event.button) {
       case MouseButtonEventEnum.LEFT_CLICK:
         break;
       case MouseButtonEventEnum.MIDDLE_CLICK:
@@ -370,7 +442,10 @@ export class PointerModeManagerService {
   // Mouse - Up Listener
   private onMouseUp(event) {
     event.preventDefault();
-    switch (event.button) {
+
+    this.setAutoUpdateMode(false);
+
+    switch (event.event.button) {
       case MouseButtonEventEnum.LEFT_CLICK:
         break;
       case MouseButtonEventEnum.MIDDLE_CLICK:

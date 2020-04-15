@@ -6,7 +6,9 @@ import {GachiPointDto} from '../../../PointDto/gachi-point-dto';
 export class EditableRectangleDto extends EditableShapeDto{
 
 
-  constructor(id, type, center: GachiPointDto, isGrouped, parentEdtGroupId, width, height, borderColor, borderWidth, fillColor, opacity, linkPortsDto: Array<LinkPortDto>, textContent, rawTextContent, textStyle: TextStyle) {
-    super(id, type, center, isGrouped, parentEdtGroupId, width, height, borderColor, borderWidth, fillColor, opacity, linkPortsDto, textContent, rawTextContent, textStyle);
+  constructor(id, type, center: GachiPointDto, isGrouped, parentEdtGroupId, width, height, borderColor, borderWidth, fillColor, opacity,
+              linkPortsDto: Array<LinkPortDto>, textContent, rawTextContent, textStyle: TextStyle, isLocked) {
+    super(id, type, center, isGrouped, parentEdtGroupId, width, height, borderColor, borderWidth, fillColor,
+      opacity, linkPortsDto, textContent, rawTextContent, textStyle, isLocked);
   }
 }
