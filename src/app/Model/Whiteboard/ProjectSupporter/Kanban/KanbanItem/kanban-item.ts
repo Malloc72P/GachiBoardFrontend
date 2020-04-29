@@ -13,6 +13,9 @@ export class KanbanItem {
   private color;
   tagList:Array<TagItem>;
   public lockedBy = null;
+  isTimerStarted;
+  timerStartDate;
+  timerEndDate;
   constructor(title?, userInfo?, color?){
     this.title = title;
     this.userInfo = userInfo;
@@ -44,6 +47,9 @@ export class KanbanItem {
     kanbanDto.userInfo = this.userInfo.idToken;
     kanbanDto.color = this.color;
     kanbanDto.title = this.title;
+    kanbanDto.isTimerStarted  = this.isTimerStarted;
+    kanbanDto.timerStartDate  = this.timerStartDate;
+    kanbanDto.timerEndDate    = this.timerEndDate;
 
     if(this.tagList.length > 0){
       for(let tag of this.tagList){

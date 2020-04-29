@@ -143,6 +143,10 @@ export class KanbanComponent implements OnInit, OnDestroy {
     kanbanItem.userInfo = UserManagerService.getParticipantByIdToken(kanbanItemDto.userInfo, this.projectDto);
     kanbanItem._id = kanbanItemDto._id;
     kanbanItem.lockedBy = kanbanItemDto.lockedBy;
+    kanbanItem.isTimerStarted = kanbanItemDto.isTimerStarted;
+    kanbanItem.timerStartDate = kanbanItemDto.timerStartDate;
+    kanbanItem.timerEndDate = kanbanItemDto.timerEndDate;
+
     if(kanbanItemDto.tagIdList){
       let tagListDto:Array<TagItem> = kanbanItemDto.tagIdList;
       for(let tagItem of tagListDto){

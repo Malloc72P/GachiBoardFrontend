@@ -8,6 +8,7 @@ import {KanbanItem} from '../../../../Model/Whiteboard/ProjectSupporter/Kanban/K
 import {KanbanGroup} from '../../../../Model/Whiteboard/ProjectSupporter/Kanban/KanbanGroup/kanban-group';
 import {WsKanbanController} from '../../../../Controller/Controller-WebSocket/websocket-manager/KanbanWsController/ws-kanban.controller';
 import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
+import * as moment from 'moment'
 
 export class EditKanbanDialogData {
   kanbanItem:KanbanItem;
@@ -20,11 +21,13 @@ export class EditKanbanDialogData {
   styleUrls: ['./kanban-item-edit.component.css']
 })
 export class KanbanItemEditComponent implements OnInit {
-  kanbanItem:KanbanItem;
-  kanbanGroup:KanbanGroup;
-  userFormControl:FormControl;
-  colorFormControl:FormControl;
-  titleFormControl:FormControl;
+  kanbanItem         : KanbanItem;
+  kanbanGroup        : KanbanGroup;
+  userFormControl    : FormControl;
+  colorFormControl   : FormControl;
+  titleFormControl   : FormControl;
+  endDateFormControl : FormControl;
+  endTimeFormControl : FormControl;
 
   selected = 0;
   constructor(
@@ -40,6 +43,8 @@ export class KanbanItemEditComponent implements OnInit {
     ]);
     this.colorFormControl = new FormControl(this.kanbanItem.getColorNumber());
     this.userFormControl = new FormControl(this.kanbanItem.userInfo.idToken);
+    this.endDateFormControl = new FormControl(this.kanbanItem.timerEndDate);
+    this.endTimeFormControl = new FormControl(this.kanbanItem.timerEndDate);
     this.selected = this.colorFormControl.value;
   }
 
@@ -56,6 +61,16 @@ export class KanbanItemEditComponent implements OnInit {
     );
     this.kanbanItem.setColor(this.colorFormControl.value);
     this.kanbanItem.title = this.titleFormControl.value;
+
+
+    let endDate = moment(this.endDateFormControl.value);
+    let endTime = moment(this.endTimeFormControl.value, ['h:m a', 'H:m']);
+    endDate.add(endTime.hour(),"hour").add(endTime.minute(),"minute");
+
+    console.log(`endDate : ${this.endDateFormControl.value}\n endTime : ${this.endTimeFormControl.value}`);
+    console.log(`endDate : ${endDate}`);
+
+    return;
 
     let wsKanbanController = WsKanbanController.getInstance();
     wsKanbanController.waitRequestUpdateKanban(this.kanbanItem, this.kanbanGroup)

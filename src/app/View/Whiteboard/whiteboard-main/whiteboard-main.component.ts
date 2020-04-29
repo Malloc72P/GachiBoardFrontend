@@ -54,6 +54,7 @@ import {WbItemPacketDto} from '../../../DTO/WhiteboardItemDto/WbItemPacketDto/Wb
 import {ItemBlinderManagementService} from '../../../Model/Whiteboard/OccupiedItemBlinder/item-blinder-management-service/item-blinder-management.service';
 import {HotKeyManagementService} from '../../../Model/Whiteboard/HotKeyManagement/hot-key-management.service';
 import {ImportFileService} from "../../../Model/Whiteboard/ImportFile/import-file.service";
+import {TimeTimerManagerService} from '../../../Model/Whiteboard/TimeTimer/time-timer-manager.service';
 
 @Component({
   selector: 'app-whiteboard-main',
@@ -110,6 +111,7 @@ export class WhiteboardMainComponent implements OnInit,OnDestroy {
     public itemBlinderManagementService:ItemBlinderManagementService,
     public hotKeyManagementService:HotKeyManagementService,
     private importFile: ImportFileService,
+    public timeTimerMgr: TimeTimerManagerService,
   ) {
     this.connectedUserList = new Array<string>();
   }

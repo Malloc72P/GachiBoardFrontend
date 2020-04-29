@@ -11,6 +11,9 @@ export class KanbanItemDto {
   public tagIdList:Array<any>;
   public parentGroup;
   public lockedBy = null;
+  public isTimerStarted;
+  public timerStartDate;
+  public timerEndDate;
 
   constructor(id?: number, title?: string, userInfo?, color?, tagIdList?: Array<any>, parentGroup?) {
     this._id = id;
