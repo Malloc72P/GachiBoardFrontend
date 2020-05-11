@@ -6,6 +6,7 @@ export class LongTouch {
   private longTouchTimer;
   private fromPoint: paper.Point;
   private _longTouched: boolean = false;
+  private isStarted: boolean = false;
 
   public stop(event?: any) {
     if(!!this.longTouchTimer) {
@@ -15,13 +16,23 @@ export class LongTouch {
         }
       }
       clearTimeout(this.longTouchTimer);
+      this.isStarted = false;
     }
   }
 
   public start(event, callback: Function) {
+    console.log("LongTouch >> start >> event : ",event);
     if(event.event.constructor.name !== "TouchEvent") {
       return;
     }
+    if (!!this.longTouchTimer) {
+      clearTimeout(this.longTouchTimer);
+    }
+    if (this.isStarted){
+      return;
+    }
+
+    this.isStarted = true;
 
     this.fromPoint = event.point.clone();
 

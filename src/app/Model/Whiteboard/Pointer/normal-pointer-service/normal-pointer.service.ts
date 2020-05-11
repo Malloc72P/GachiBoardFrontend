@@ -52,6 +52,7 @@ export class NormalPointerService {
   // ##############################################
 
   public onMouseDown(event){
+    console.log("NormalPointerService >> onMouseDown >> longTouch : ");
     this.longTouch.start(event, () => {
       this.layerService.contextMenu.openMenu(event.event);
     });
@@ -73,6 +74,9 @@ export class NormalPointerService {
 
       }
     }
+  }
+  public onPinchZoomMove(){
+    this.longTouch.stop()
   }
 
   // ##############################################

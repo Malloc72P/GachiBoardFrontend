@@ -303,6 +303,14 @@ export class PointerModeManagerService {
       //핀치줌
       this.layerService.currentProject.view.autoUpdate = true;
       this.zoomCtrlService.onPinchZoomMove(event.event);
+      switch (this.currentPointerMode) {
+        case PointerMode.POINTER:
+          this.normalPointerService.onPinchZoomMove();
+          break;
+        case PointerMode.LASSO_SELECTOR:
+          this.lassoSelector.onPinchZoomMove();
+          break;
+      }
     }
 
   }
@@ -315,7 +323,7 @@ export class PointerModeManagerService {
 
     if(this.zoomCtrlService.isZooming > 0) {
       this.zoomCtrlService.onPinchZoomEnd();
-    }else if ( this.zoomCtrlService.isZooming == 0){
+    }else if ( this.zoomCtrlService.isZooming === 0){
       switch (this.currentPointerMode) {
         case PointerMode.POINTER:
           this.normalPointerService.onMouseUp(event);

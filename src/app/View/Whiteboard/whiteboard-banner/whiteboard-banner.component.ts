@@ -14,6 +14,7 @@ import {
 } from '../../../Controller/Controller-WebSocket/websocket-manager/WhiteboardSessionWsController/wb-session-event/wb-session-event';
 import {Subscription} from 'rxjs';
 import {RouterHelperService} from '../../../Model/Helper/router-helper-service/router-helper.service';
+import {WorkHistoryManager} from '../../../Model/Whiteboard/InfiniteCanvas/DrawingLayerManager/WorkHistoryManager/work-history-manager';
 
 @Component({
   selector: 'app-whiteboard-banner',
@@ -34,7 +35,9 @@ export class WhiteboardBannerComponent implements OnInit,OnDestroy {
   ) { }
 
   private subscription:Subscription;
+  public workHistoryManager:WorkHistoryManager;
   ngOnInit(): void {
+    this.workHistoryManager = WorkHistoryManager.getInstance();
     this.subscription = this.wbSessionEventManager.wsWbSessionEventEmitter.subscribe((recvEvent:WbSessionEvent)=>{
       switch (recvEvent.action) {
         case WbSessionEventEnum.JOIN:
