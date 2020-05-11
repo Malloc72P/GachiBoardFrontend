@@ -29,8 +29,8 @@
   <app-project-supporter-pannel class="supporterPanel"></app-project-supporter-pannel>
   <app-whiteboard-banner [wbTitle]="wbTitle" [wbSessionId]="wbSessionId" [connectedUserList]="connectedUserList"></app-whiteboard-banner>
 
-  <app-time-timer *ngFor="let timeTimer of timeTimerMgr.timeTimerList">
-
+  <app-time-timer *ngFor="let timeTimerKey of timeTimerMgr.timeTimerMap.keys()"
+                  [timeTimer]="timeTimerMgr.timeTimerMap.get(timeTimerKey)">
   </app-time-timer>
 
 

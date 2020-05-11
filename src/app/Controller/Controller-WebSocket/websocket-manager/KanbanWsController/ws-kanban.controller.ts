@@ -303,6 +303,7 @@ export class WsKanbanController {
 
     return new Observable<any>((subscriber)=>{
       let kanbanItemDto = kanbanItem.exportDto(kanbanGroup.title);
+      console.log("WsKanbanController >> waitRequestUpdateKanban >> kanbanItemDto : ",kanbanItemDto);
       let packetDto = this.websocketManager.createProjectScopePacket(kanbanItemDto, WebsocketPacketActionEnum.UPDATE);
       packetDto.wsPacketSeq = this.websocketManager.wsPacketSeq;
       this.socket.emit(HttpHelper.websocketApi.kanban.update.event, packetDto);

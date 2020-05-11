@@ -14,13 +14,14 @@ export class KanbanItem {
   tagList:Array<TagItem>;
   public lockedBy = null;
   isTimerStarted;
-  timerStartDate;
-  timerEndDate;
+  timerStartDate:Date;
+  timerEndDate:Date;
   constructor(title?, userInfo?, color?){
     this.title = title;
     this.userInfo = userInfo;
     this.color = color+"";
     this.tagList = new Array<TagItem>();
+    this.isTimerStarted = false;
   }
   getColor(){
     return KanbanItemColor[this.color].toLowerCase();

@@ -11,20 +11,24 @@
 
     <span class="time-timer-title"
           matTooltipPosition="above"
-          matTooltip="페이트 스테이 나이트 헤븐즈 필">
-      페이트 스테이 나이트 헤븐즈 필
+          matTooltip="{{timeTimer.kanbanItem.title}}">
+      {{timeTimer.kanbanItem.title}}
     </span>
 
-    <button mat-button class="time-timer-menuBtn">
+    <button mat-button class="time-timer-menuBtn" [matMenuTriggerFor]="timerMenu">
       <mat-icon >more_vert</mat-icon>
     </button>
+    <mat-menu #timerMenu>
+      <button mat-button>타이머 종료</button>
+    </mat-menu>
 
   </div>
-  <div  class="time-timer-content">
+  <div  class="time-timer-content"
+        matTooltip="{{getTimerInfo()}}">
     <div class="time-timer-spinner-row-wrapper">
       <mat-spinner mode="determinate"
                    color="warn"
-                   value="70"
+                   value="{{timerProgress}}"
                    diameter="130"
                    strokeWidth="40"></mat-spinner>
     </div>
