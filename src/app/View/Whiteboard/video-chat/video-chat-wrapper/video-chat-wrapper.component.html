@@ -3,14 +3,13 @@
      (cdkDragEnded)="dragEnd($event)"
      [style.width]="width"
      [style.height]="height">
-  <div>
-    <div id="videoPanel" #videoPanel>
-      <video #videoElement autoplay playsinline></video>
-      <audio #audioElement autoplay></audio>
-    </div>
-    <div class="buttons">
-      <button class="fullscreen" mat-button (click)="onClickFullScreenButton()"><mat-icon>fullscreen</mat-icon></button>
-      <button class="scale-change" mat-button (click)="onClickSizeChangeButton()">{{changePanelSizeButtonLabel}}</button>
-    </div>
+  <div id="videoPanel" #videoPanel>
+    <video #videoElement autoplay playsinline></video>
+    <audio #audioElement autoplay></audio>
+  </div>
+  <div class="buttons">
+    <button class="change-camera" mat-button (click)="onClickCameraFlipButton()" [disabled]="changeWebCamIsDisable"><mat-icon>flip_camera_ios</mat-icon></button>
+    <button class="scale-change" mat-button (click)="onClickSizeChangeButton()">{{changePanelSizeButtonLabel}}</button>
+    <button class="fullscreen" mat-button (click)="onClickFullScreenButton()"><mat-icon>fullscreen</mat-icon></button>
   </div>
 </div>
