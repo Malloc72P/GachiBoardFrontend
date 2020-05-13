@@ -25,6 +25,12 @@
                              [enableUserName]="false"
                              [imgSrc]="websocketManagerService.getUserInfoByIdToken(idToken).profileImg">
       </app-user-overlay-card>
+      <button mat-button class="banner-menu-btn"
+              [disabled]="workHistoryManager.undoStack.length === 0"
+              (click)="workHistoryManager.undoTask()"><mat-icon>undo</mat-icon></button>
+      <button mat-button class="banner-menu-btn"
+              [disabled]="workHistoryManager.redoStack.length === 0"
+              (click)="workHistoryManager.redoTask()"><mat-icon>redo</mat-icon></button>
     </div>
   </mat-card>
   <!--<div class="wb-user-wrapper">

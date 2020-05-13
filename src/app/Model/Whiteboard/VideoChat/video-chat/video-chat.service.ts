@@ -37,6 +37,8 @@ export class VideoChatService {
   private userList: Array<string>;
   private type: string;
   private isChangingVideoSource = false;
+  private webCams: Array<string>;
+  private webCam: string;
 
   private device: Device;
 
@@ -60,6 +62,7 @@ export class VideoChatService {
     private panel: VideoChatPanelManagerService,
   ) {
     this.userList = new Array<string>();
+    this.webCams = new Array<string>();
   }
 
   public async joinVideoChat(type: 'cam' | 'screen') {
@@ -80,6 +83,38 @@ export class VideoChatService {
     this.isChangingVideoSource = true;
     this.stopVideoStream();
     this.producerVideoStart(type);
+  }
+
+  public async changeWebCam() {
+    let updateTargetCam = this.webCams[0];
+
+    for(let i = 0; i < this.webCams.length; i++) {
+      if(this.webCam === this.webCams[i]) {
+        updateTargetCam = this.webCams[i + 1 < this.webCams.length ? i + 1 : 0];
+        break;
+      }
+    }
+
+    const videoStream = await navigator.mediaDevices.getUserMedia({
+      video: { deviceId: { exact: updateTargetCam }}
+    });
+
+    const videoTrack = videoStream.getVideoTracks()[0];
+    this.webCam = videoTrack.getCapabilities().deviceId;
+
+    if(videoTrack) {
+      await this.producerVideo.replaceTrack({track: videoTrack});
+    }
+
+    let previousStream = this.producerVideoStream;
+    this.producerVideoStream = videoStream;
+    this.attachVideo(this.userId, videoStream);
+
+    if(!!previousStream) {
+      previousStream.getTracks().forEach(track => {
+        track.stop();
+      });
+    }
   }
 
   // ##########################################
@@ -275,7 +310,16 @@ export class VideoChatService {
         let videoStream;
         switch (type) {
           case "cam":
-            videoStream = await navigator.mediaDevices.getUserMedia({ video: { width: 200, height: 200 }});
+            videoStream = await navigator.mediaDevices.getUserMedia({ video: true });
+
+            const devices = await navigator.mediaDevices.enumerateDevices();
+
+            for (let device of devices) {
+              if(device.kind === "videoinput") {
+                this.webCams.push(device.deviceId);
+              }
+            }
+
             break;
           case "screen":
             // @ts-ignore
@@ -291,6 +335,7 @@ export class VideoChatService {
         }
 
         const videoTrack = videoStream.getVideoTracks()[0];
+        this.webCam = videoTrack.getCapabilities().deviceId;
 
         if(videoTrack) {
           if(this.producerTransport && !this.producerTransport.closed) {
@@ -540,6 +585,10 @@ export class VideoChatService {
 
   get numberOfUser(): number {
     return this.userList.length;
+  }
+
+  get numberOfWebCams(): number {
+    return this.webCams.length === undefined ? 0 : this.webCams.length;
   }
 
   // ##########################################

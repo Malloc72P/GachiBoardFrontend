@@ -56,6 +56,10 @@ export class VideoChatWrapperComponent implements OnInit, AfterViewInit {
     if (methodToBeInvoked) methodToBeInvoked.call(element);
   }
 
+  public onClickCameraFlipButton() {
+    this.videoChat.changeWebCam().then();
+  }
+
   public dragEnd(event: CdkDragEnd) {
     this.position = event.source.getFreeDragPosition();
     this.calcOutOfBounds(this.maxPanelSize * this.panelSizeFactor);
@@ -124,11 +128,17 @@ export class VideoChatWrapperComponent implements OnInit, AfterViewInit {
 
     return (maxValue * this.panelSizeFactor) + "px";
   }
+
   get changePanelSizeButtonLabel(): string {
     if(this.panelSizeFactor === 1) {
       return "2x";
     } else {
       return "1x";
     }
+  }
+
+  get changeWebCamIsDisable(): boolean {
+
+    return this.videoChat.numberOfWebCams < 2;
   }
 }

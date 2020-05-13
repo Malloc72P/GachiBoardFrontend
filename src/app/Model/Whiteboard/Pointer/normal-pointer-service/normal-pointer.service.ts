@@ -20,6 +20,7 @@ enum NORMAL_POINTER_ACTIONS{
   MOVING,
   LINK_ADDING,
   LINK_EDITING,
+  ADDING_ITEM,
 }
 
 @Injectable({
@@ -28,7 +29,7 @@ enum NORMAL_POINTER_ACTIONS{
 export class NormalPointerService {
   private currentProject: Project;
 
-  private action: NORMAL_POINTER_ACTIONS;
+  private action: NORMAL_POINTER_ACTIONS = NORMAL_POINTER_ACTIONS.NOT_THING;
 
   private selectedHandle;
 
@@ -52,14 +53,12 @@ export class NormalPointerService {
   // ##############################################
 
   public onMouseDown(event){
+    console.log("NormalPointerService >> onMouseDown >> longTouch : ");
     this.longTouch.start(event, () => {
       this.layerService.contextMenu.openMenu(event.event);
     });
     // 선택된 아이템이 없음
     if(!this.layerService.isSelecting){
-      // 아이템 선택 시도
-      if(this.isItemHit(event.point)) {
-      }
       // 아이템 선택 실패 - 캔버스 이동
       // this.moveCanvas(event);
     } else {
@@ -73,6 +72,9 @@ export class NormalPointerService {
 
       }
     }
+  }
+  public onPinchZoomMove(){
+    this.longTouch.stop()
   }
 
   // ##############################################
@@ -100,6 +102,9 @@ export class NormalPointerService {
     this.longTouch.stop();
     this.longTouch.touchEnd();
     if(!this.layerService.isSelecting){
+      // 아이템 선택 시도
+      if(this.isItemHit(event.point)) {
+      }
       // this.moveCanvas(event);
       this.moveCanvasEnd();
     } else {
@@ -222,6 +227,10 @@ export class NormalPointerService {
   }
 
   private isItemHit(point): boolean {
+    console.log("NormalPointerService >> isItemHit >> this.action : ", NORMAL_POINTER_ACTIONS[this.action]);
+    if(this.action !== NORMAL_POINTER_ACTIONS.NOT_THING) {
+      return false;
+    }
     let hitItem = this.layerService.getHittedItem(point);
 
     if(!!hitItem) {
@@ -283,6 +292,9 @@ export class NormalPointerService {
 
   private isThrottle = false;
   public moveCanvas(event) {
+    if(this.action !== NORMAL_POINTER_ACTIONS.MOVING) {
+      this.action = NORMAL_POINTER_ACTIONS.MOVING;
+    }
     this.infiniteCanvasService.moveWithDelta(event.delta);
     // if(this.isThrottle){
     //   return;
@@ -295,5 +307,6 @@ export class NormalPointerService {
   }
   public moveCanvasEnd(){
     this.infiniteCanvasService.solveDangerState();
+    this.action = NORMAL_POINTER_ACTIONS.NOT_THING;
   }
 }

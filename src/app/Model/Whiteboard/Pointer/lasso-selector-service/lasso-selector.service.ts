@@ -97,6 +97,10 @@ export class LassoSelectorService {
     this.removeItem(this.newPath);
   }
 
+  public onPinchZoomMove(){
+    this.longTouch.stop()
+  }
+
   private isItemHit(point): boolean {
     let hitItem = this.layerService.getHittedItem(point);
 

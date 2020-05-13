@@ -73,7 +73,7 @@ export class ZoomControlService {
     let p1 = new Point(event.touches[0].clientX, event.touches[0].clientY);
     let p2 = new Point(event.touches[1].clientX, event.touches[1].clientY);
 
-    if (this.isZooming == 2) {//핀치줌 시작후 추가식별됨
+    if (this.isZooming === 2) {//핀치줌 시작후 추가식별됨
       let currentDistance = this.posCalcService.calcPointDistanceOn2D(p1, p2);
       let ngCanvasCenter = this.posCalcService.getCenterOfBrowser();
 
@@ -113,7 +113,7 @@ export class ZoomControlService {
     //this.zoomEventEmitter.emit(new ZoomEvent(ZoomEventEnum.ZOOM_CHANGED));
   }
   onPinchZoomEnd(){
-    this.isZooming--;
+    this.isZooming = 0;
   }
   zoomInToCenter(){
     let ngCanvasCenter = this.posCalcService.getCenterOfBrowser();
