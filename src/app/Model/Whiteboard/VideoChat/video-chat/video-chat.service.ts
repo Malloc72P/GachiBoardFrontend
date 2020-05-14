@@ -325,7 +325,7 @@ export class VideoChatService {
             // @ts-ignore
             videoStream = await navigator.mediaDevices.getDisplayMedia({ video: true });
             videoStream.oninactive = () => {
-              console.log("VideoChatService >> oninactive >> this.isChangingVideoSource : ", this.isChangingVideoSource);
+              //console.log("VideoChatService >> oninactive >> this.isChangingVideoSource : ", this.isChangingVideoSource);
               if(!this.isChangingVideoSource) {
                 this.leaveVideoChat();
               }
@@ -545,14 +545,14 @@ export class VideoChatService {
   private async request(event: string, socketDto?: WebsocketPacketDto): Promise<WebsocketPacketDto> {
     return new Promise<WebsocketPacketDto>((resolve, reject) => {
       this.socket.emit(event, socketDto);
-      // console.log(`${event} : emitted`);
+      // //console.log(`${event} : emitted`);
       this.socket.once(event, (ackSocketDto: WebsocketPacketDto) => {
-        // console.log(`${event} : received`);
+        // //console.log(`${event} : received`);
         switch (ackSocketDto.action) {
           case WebsocketPacketActionEnum.ACK:
             resolve(ackSocketDto);
-            // console.log(`${event} : socket request resolved`);
-            // console.log("Resolved data : ", ackSocketDto);
+            // //console.log(`${event} : socket request resolved`);
+            // //console.log("Resolved data : ", ackSocketDto);
             break;
           case WebsocketPacketActionEnum.NAK:
             reject(`Request failed - ${event}`);

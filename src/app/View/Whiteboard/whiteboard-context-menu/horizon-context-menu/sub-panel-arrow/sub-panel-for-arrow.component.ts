@@ -74,7 +74,7 @@ export class SubPanelForArrowComponent implements OnInit {
       if(this.menu.item.linkHeadType !== EditableLinkCapTypes[type]) {
         this.menu.item.linkHeadType = EditableLinkCapTypes[type];
         this.menu.item.isModified = true;
-        console.log("SubPanelForArrowComponent >> onClickHeadSelector >> this.menu.item.isModified : ", this.menu.item.isModified);
+        //console.log("SubPanelForArrowComponent >> onClickHeadSelector >> this.menu.item.isModified : ", this.menu.item.isModified);
       }
     }
   }

@@ -21,7 +21,7 @@ export class LongTouch {
   }
 
   public start(event, callback: Function) {
-    console.log("LongTouch >> start >> event : ",event);
+    //console.log("LongTouch >> start >> event : ",event);
     if(event.event.constructor.name !== "TouchEvent") {
       return;
     }

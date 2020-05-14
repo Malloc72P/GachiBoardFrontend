@@ -31,7 +31,7 @@ export class AuthProcessComponent implements OnInit {
 
       //let newUserDto = new UserDTO(idToken,userName,email,authToken);
       //this.authRequester.setUserInfo(newUserDto);
-      //console.log("LoginProcessComponent > ngOnInit > param : ", authToken);
+      ////console.log("LoginProcessComponent > ngOnInit > param : ", authToken);
     }
     else{
       this.authRequester.signOut();

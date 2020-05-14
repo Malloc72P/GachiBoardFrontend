@@ -360,7 +360,7 @@ export class PointerModeManagerService {
   // Mouse - Down Listener
   private onMouseDown(event) {
     event.preventDefault();
-    console.log("PointerModeManagerService >> onMouseDown >> 진입함");
+    //console.log("PointerModeManagerService >> onMouseDown >> 진입함");
     switch (event.event.button) {
       case MouseButtonEventEnum.LEFT_CLICK:
         break;

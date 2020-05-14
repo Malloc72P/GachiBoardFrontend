@@ -23,6 +23,7 @@ import {KanbanDataDto} from '../../../DTO/ProjectDto/KanbanDataDto/kanban-data-d
 import {Subscription} from 'rxjs';
 import {MAT_DIALOG_DATA, MatDialog, MatDialogRef} from '@angular/material/dialog';
 import {UiService} from '../../../Model/Helper/ui-service/ui.service';
+import {AreYouSurePanelService} from '../../../Model/PopupManager/AreYouSurePanelManager/are-you-sure-panel.service';
 
 export class KanbanComponentData {
   projectDto:ProjectDto;
@@ -58,6 +59,7 @@ export class KanbanComponent implements OnInit, OnDestroy {
     public kanbanEventManager:KanbanEventManagerService,
     public websocketManagerService:WebsocketManagerService,
     public htmlHelper:HtmlHelperService,
+    public areYouSurePanelService:AreYouSurePanelService,
     @Inject(MAT_DIALOG_DATA) public data: KanbanComponentData,
   ) {
     this.kanbanGroupWrapper = new Array<KanbanGroup>();
@@ -251,6 +253,10 @@ export class KanbanComponent implements OnInit, OnDestroy {
   lockedByWs(kanbanItemDto){
     let groupEnum:KanbanGroupEnum = kanbanItemDto.parentGroup as KanbanGroupEnum;
 
+    if(this.currentItem && kanbanItemDto._id === this.currentItem._id){
+      document.dispatchEvent(new Event("mouseup"));
+    }
+
     let targetGroup:KanbanGroup = null;
 
     switch (groupEnum) {
@@ -312,6 +318,7 @@ export class KanbanComponent implements OnInit, OnDestroy {
     fromGroup = this.getGroupObjectByTitle(kanbanItemDto.parentGroup);
     toGroup = this.getGroupObjectByTitle(destGroupTitle);
 
+
     let kanbanItem:KanbanItem;
     let previousIndex = -1;
     for (let i = 0; i < fromGroup.kanbanItemList.length; i++) {
@@ -332,10 +339,10 @@ export class KanbanComponent implements OnInit, OnDestroy {
     }
 
     if (kanbanItemDto.parentGroup === destGroupTitle) {
-      console.log("KanbanComponent >> drop >> 이전 컨테이너와 현재 컨네이너가 동일");
+      //console.log("KanbanComponent >> drop >> 이전 컨테이너와 현재 컨네이너가 동일");
       moveItemInArray(toGroup.kanbanItemList, previousIndex, currentIndex);
     } else {
-      console.log("KanbanComponent >> drop >> 이전과 현재 컨테이너가 다름.");
+      //console.log("KanbanComponent >> drop >> 이전과 현재 컨테이너가 다름.");
       transferArrayItem(fromGroup.kanbanItemList,
         toGroup.kanbanItemList,
         previousIndex,
@@ -347,6 +354,10 @@ export class KanbanComponent implements OnInit, OnDestroy {
 
   drop(event: CdkDragDrop<string[]>) {
 
+    /*if(event.previousContainer.data.lockedBy && this.checkEditorIsAnotherUser(event.previousContainer.data.lockedBy)){
+
+    }*/
+
     let prevContainerName = this.getGroupNameById(event.previousContainer.id);
     let currContainerName = this.getGroupNameById(event.container.id);
 
@@ -354,20 +365,27 @@ export class KanbanComponent implements OnInit, OnDestroy {
     let prevKanbanItem:KanbanItem = event.previousContainer.data[event.previousIndex] as unknown as KanbanItem;
     let currKanbanItem:KanbanItem = event.container.data[event.currentIndex] as unknown as KanbanItem;
 
-    if (event.previousContainer === event.container) {
-      console.log("KanbanComponent >> drop >> 이전 컨테이너와 현재 컨네이너가 동일");
-      moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
-    } else {
-      console.log("KanbanComponent >> drop >> 이전과 현재 컨테이너가 다름.");
-      transferArrayItem(event.previousContainer.data,
-        event.container.data,
-        event.previousIndex,
-        event.currentIndex);
+    if(prevKanbanItem.lockedBy && this.checkEditorIsAnotherUser(prevKanbanItem.lockedBy)){
+      this.areYouSurePanelService.openAreYouSurePanel("칸반을 수정하던 중 문제가 발생했습니다",
+        "이미 다른 유저에 의해 수정중인 칸반입니다.", true).subscribe(()=>{});
+      return;
     }
-    let wsKanbanController = WsKanbanController.getInstance();
-    wsKanbanController.requestRelocationKanban(prevKanbanItem,prevContainerName,currContainerName,event.currentIndex);
-    //prevKanbanItem이 currKanbanItem의 위치를 대신하도록 요청한다.
-    //만약 currKanbanItem이 null이라면, 그건 재배치하는 위치에 칸반아이템이 없는 경우라서 그런 것임.
+    else{
+      if (event.previousContainer === event.container) {
+        //console.log("KanbanComponent >> drop >> 이전 컨테이너와 현재 컨네이너가 동일");
+        moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
+      } else {
+        //console.log("KanbanComponent >> drop >> 이전과 현재 컨테이너가 다름.");
+        transferArrayItem(event.previousContainer.data,
+          event.container.data,
+          event.previousIndex,
+          event.currentIndex);
+      }
+      let wsKanbanController = WsKanbanController.getInstance();
+      wsKanbanController.requestRelocationKanban(prevKanbanItem,prevContainerName,currContainerName,event.currentIndex);
+      //prevKanbanItem이 currKanbanItem의 위치를 대신하도록 요청한다.
+      //만약 currKanbanItem이 null이라면, 그건 재배치하는 위치에 칸반아이템이 없는 경우라서 그런 것임.
+    }
   }
   onNoClick(): void {
     this.dialogRef.close();
@@ -380,7 +398,7 @@ export class KanbanComponent implements OnInit, OnDestroy {
 
     dialogRef.afterClosed().subscribe((result) => {
       if(result){
-        console.log("KanbanComponent >>  >> result : ",result);
+        //console.log("KanbanComponent >>  >> result : ",result);
         if(!result.createFlag){
           return;
         }
@@ -399,7 +417,7 @@ export class KanbanComponent implements OnInit, OnDestroy {
     });
 
     dialogRef.afterClosed().subscribe((result) => {
-      console.log("KanbanComponent >>  >> result : ",result);
+      //console.log("KanbanComponent >>  >> result : ",result);
     });
 
   }
@@ -410,7 +428,7 @@ export class KanbanComponent implements OnInit, OnDestroy {
     });
 
     dialogRef.afterClosed().subscribe((result) => {
-      console.log("KanbanComponent >>  >> result : ",result);
+      //console.log("KanbanComponent >>  >> result : ",result);
     });
 
   }
@@ -434,7 +452,7 @@ export class KanbanComponent implements OnInit, OnDestroy {
     let wsKanbanController = WsKanbanController.getInstance();
     let subscription:Subscription = wsKanbanController.waitRequestLockKanban(kanbanItem, kanbanGroup)
       .subscribe(()=>{
-        console.log("KanbanComponent >> onContextBtnClick >> 진입함");
+        //console.log("KanbanComponent >> onContextBtnClick >> 진입함");
         switch (operation) {
           case "edit":
             this.onEditBtnClick(kanbanItem, kanbanGroup);
@@ -450,20 +468,22 @@ export class KanbanComponent implements OnInit, OnDestroy {
       });
   }
 
-
+  private currentItem:KanbanItem = null;
   requestLock(kanbanItem, kanbanGroup){
-    console.log("KanbanComponent >> requestLock >> kanbanItem : ",kanbanItem);
+    //console.log("KanbanComponent >> requestLock >> kanbanItem : ",kanbanItem);
     if(kanbanItem.lockedBy){
       return;
     }
+    this.currentItem = kanbanItem;
     let wsKanbanController = WsKanbanController.getInstance();
     wsKanbanController.requestLockKanban(kanbanItem, kanbanGroup);
   }
   requestRelease(kanbanItem, kanbanGroup){
-    console.log("KanbanComponent >> requestLock >> kanbanItem : ",kanbanItem);
+    //console.log("KanbanComponent >> requestLock >> kanbanItem : ",kanbanItem);
     if(!kanbanItem.lockedBy){
       return;
     }
+    this.currentItem = null;
     let wsKanbanController = WsKanbanController.getInstance();
     wsKanbanController.requestUnlockKanban(kanbanItem, kanbanGroup);
   }

@@ -117,14 +117,14 @@ export class WhiteboardItemFactory {
       if(wbItemArray){
         WhiteboardItemFactory.waitForCreateWbItem(wbItemDto, BUILD_MODE.CREATE, wbItemArray)
           .subscribe((wbFactoryRes:WbItemFactoryResult)=>{
-            // console.log("WhiteboardItemFactory >> buildWbItems >> wbFactoryRes : ",wbFactoryRes);
+            // //console.log("WhiteboardItemFactory >> buildWbItems >> wbFactoryRes : ",wbFactoryRes);
             observer.next(wbFactoryRes);
           });
       }
       else {
         WhiteboardItemFactory.waitForCreateWbItem(wbItemDto, BUILD_MODE.CREATE)
           .subscribe((wbFactoryRes:WbItemFactoryResult)=>{
-            // console.log("WhiteboardItemFactory >> buildWbItems >> wbFactoryRes : ",wbFactoryRes);
+            // //console.log("WhiteboardItemFactory >> buildWbItems >> wbFactoryRes : ",wbFactoryRes);
             observer.next(wbFactoryRes);
           });
 

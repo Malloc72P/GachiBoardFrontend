@@ -53,7 +53,7 @@ export class NormalPointerService {
   // ##############################################
 
   public onMouseDown(event){
-    console.log("NormalPointerService >> onMouseDown >> longTouch : ");
+    //console.log("NormalPointerService >> onMouseDown >> longTouch : ");
     this.longTouch.start(event, () => {
       this.layerService.contextMenu.openMenu(event.event);
     });
@@ -227,7 +227,7 @@ export class NormalPointerService {
   }
 
   private isItemHit(point): boolean {
-    console.log("NormalPointerService >> isItemHit >> this.action : ", NORMAL_POINTER_ACTIONS[this.action]);
+    //console.log("NormalPointerService >> isItemHit >> this.action : ", NORMAL_POINTER_ACTIONS[this.action]);
     if(this.action !== NORMAL_POINTER_ACTIONS.NOT_THING) {
       return false;
     }

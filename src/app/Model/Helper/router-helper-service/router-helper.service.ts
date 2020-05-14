@@ -14,7 +14,7 @@ export class RouterHelperService {
     this.goToTarget("login");
   }
   goToMainPage(){
-    console.log("RouterHelperService >> goToMainPage >> 진입함");
+    //console.log("RouterHelperService >> goToMainPage >> 진입함");
     this.goToTarget("mainpage");
   }
   goToHomePage(){
@@ -28,8 +28,8 @@ export class RouterHelperService {
   }
   goToWhiteboardPage(projectId, wbSessionId){
     //this.router.navigate(["whiteboard", {wbSessionId:wbSessionId}]);
-    console.log("RouterHelperService >> goToWhiteboardPage >> projectId : ",projectId);
-    console.log("RouterHelperService >> goToWhiteboardPage >> wbSessionId : ",wbSessionId);
+    //console.log("RouterHelperService >> goToWhiteboardPage >> projectId : ",projectId);
+    //console.log("RouterHelperService >> goToWhiteboardPage >> wbSessionId : ",wbSessionId);
     document.location.href = "/whiteboard?"+"projectId="+projectId+"&"+"wbSessionId="+wbSessionId;
   }
   private goToTarget(target){

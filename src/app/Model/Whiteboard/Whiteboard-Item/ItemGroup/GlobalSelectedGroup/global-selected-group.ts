@@ -356,7 +356,7 @@ export class GlobalSelectedGroup extends ItemGroup {
   }
   public insertMultipleIntoSelection(wbItemList: Array<WhiteboardItem>) :Promise<any>{
     return new Promise<any>((resolve, reject)=>{
-      console.log("GlobalSelectedGroup >> insertMultipleIntoSelection >> 진입함");
+      //console.log("GlobalSelectedGroup >> insertMultipleIntoSelection >> 진입함");
       for(let wbItem of wbItemList){
         if(this.checkLocking(wbItem)) {
           continue;

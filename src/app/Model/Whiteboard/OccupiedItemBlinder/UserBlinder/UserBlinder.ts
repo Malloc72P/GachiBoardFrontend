@@ -104,6 +104,9 @@ export class UserBlinder {
         if(!this.blindItemMap.has(foundItem.id)){
           foundItem.isOccupied = true;
           this.blindItemMap.set(foundItem.id, foundItem)
+          if(foundItem.isSelected){
+            this.layerService.globalSelectedGroup.extractAllFromSelection();
+          }
         }
       }
     }

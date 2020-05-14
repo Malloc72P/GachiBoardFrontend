@@ -3,7 +3,7 @@
     <div class="banner-card-header">
       <mat-icon class="banner-title-icon"
                 style="margin: 0 6px 0 0">dashboard</mat-icon>
-      <h3 class="banner-title">{{wbTitle}}</h3>
+      <h3 class="banner-title text-ellipsis" matTooltip="{{wbTitle}}">{{wbTitle}}</h3>
 
       <button mat-button class="banner-menu-btn" [matMenuTriggerFor]="wbMainMenu"><mat-icon>more_vert</mat-icon></button>
 

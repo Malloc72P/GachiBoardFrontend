@@ -73,7 +73,7 @@ export class KanbanTagManagementComponent implements OnInit {
 
   add(event: MatChipInputEvent): void {
     if (!this.matAutocomplete.isOpen) {
-      console.log("KanbanTagManagementComponent >> add >> event : ",event);
+      //console.log("KanbanTagManagementComponent >> add >> event : ",event);
       const input = event.input;
       const value = event.value;
 
@@ -84,7 +84,7 @@ export class KanbanTagManagementComponent implements OnInit {
       if(!this.isDuplicated(newTagItem)){
         /*태그 추가*/
         if ((value || '').trim()) {
-          console.log("KanbanTagManagementComponent >> add >> newTagItem : ",newTagItem);
+          //console.log("KanbanTagManagementComponent >> add >> newTagItem : ",newTagItem);
           //this.tagMgrService.insertTagInTaglist(this.kanbanItem, newTagItem.title, newTagItem.color);
           this.tagMgrService.addTag(newTagItem);
         }
@@ -150,7 +150,7 @@ export class KanbanTagManagementComponent implements OnInit {
     for(let i = 0 ; i < tagList.length; i++){
       let currentTag = tagList[i];
       if(currentTag.title === tagItem.title){
-        console.log("KanbanTagManagementComponent >> isDuplicated >> 중복발견");
+        //console.log("KanbanTagManagementComponent >> isDuplicated >> 중복발견");
         this.showUnavailable(tagItem);
         dupFlag = true;
         break;

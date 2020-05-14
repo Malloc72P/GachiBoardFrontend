@@ -50,7 +50,7 @@ export class WsWhiteboardSessionController {
           // this.websocketManager.uiService.spin$.next(false);
           switch (wsPacketDto.action) {
             case WebsocketPacketActionEnum.ACK:
-              console.log("WsWhiteboardSessionController >> waitRequestCreateWbSession >> wsPacketDto : ",wsPacketDto);
+              //console.log("WsWhiteboardSessionController >> waitRequestCreateWbSession >> wsPacketDto : ",wsPacketDto);
               subscriber.next(packetDto.dataDto);
               break;
             case WebsocketPacketActionEnum.NAK:
@@ -64,7 +64,7 @@ export class WsWhiteboardSessionController {
   private onWbSessionCreated(){
     this.socket.on(HttpHelper.websocketApi.whiteboardSession.create.event,
       (wsPacketDto:WebsocketPacketDto)=>{
-        console.log("WsWhiteboardSessionController >> onWbSessionCreated >> wsPacketDto : ",wsPacketDto);
+        //console.log("WsWhiteboardSessionController >> onWbSessionCreated >> wsPacketDto : ",wsPacketDto);
         this.websocketManager.wbSessionEventManagerService.wsWbSessionEventEmitter.emit(
           new WbSessionEvent(WbSessionEventEnum.CREATE, wsPacketDto.dataDto as WhiteboardSessionDto));
       });
@@ -96,7 +96,7 @@ export class WsWhiteboardSessionController {
           this.websocketManager.uiService.spin$.next(false);
           switch (wsPacketDto.action) {
             case WebsocketPacketActionEnum.ACK:
-              console.log("WsWhiteboardSessionController >> waitRequestJoinWbSession >> wsPacketDto : ",wsPacketDto);
+              //console.log("WsWhiteboardSessionController >> waitRequestJoinWbSession >> wsPacketDto : ",wsPacketDto);
               this.websocketManager.currentWbSessionDto = wsPacketDto.dataDto as WhiteboardSessionDto;
               subscriber.next(this.websocketManager.currentWbSessionDto);
               break;
@@ -112,7 +112,7 @@ export class WsWhiteboardSessionController {
     this.socket.on(HttpHelper.websocketApi.whiteboardSession.join.event,
       (wsPacketDto:WebsocketPacketDto)=>{
         if (wsPacketDto.action === WebsocketPacketActionEnum.JOIN) {
-          console.log("WsWhiteboardSessionController >> onWbSessionCreated >> wsPacketDto : ",wsPacketDto);
+          //console.log("WsWhiteboardSessionController >> onWbSessionCreated >> wsPacketDto : ",wsPacketDto);
           this.websocketManager.wbSessionEventManagerService.wsWbSessionEventEmitter.emit(
             new WbSessionEvent(WbSessionEventEnum.JOIN, wsPacketDto.dataDto as WhiteboardSessionDto, wsPacketDto.additionalData));
         }
@@ -131,7 +131,7 @@ export class WsWhiteboardSessionController {
     this.socket.on(HttpHelper.websocketApi.whiteboardSession.disconnect.event,
       (wsPacketDto:WebsocketPacketDto)=>{
         if (wsPacketDto.action === WebsocketPacketActionEnum.DISCONNECT) {
-          console.log("WsWhiteboardSessionController >> onWbSessionDisconnected >> wsPacketDto : ",wsPacketDto);
+          //console.log("WsWhiteboardSessionController >> onWbSessionDisconnected >> wsPacketDto : ",wsPacketDto);
           this.websocketManager.wbSessionEventManagerService.wsWbSessionEventEmitter.emit(
             new WbSessionEvent(WbSessionEventEnum.DISCONNECT, wsPacketDto.dataDto as WhiteboardSessionDto, wsPacketDto.additionalData));
         }
@@ -162,7 +162,7 @@ export class WsWhiteboardSessionController {
           this.websocketManager.uiService.spin$.next(false);
           switch (wsPacketDto.action) {
             case WebsocketPacketActionEnum.ACK:
-              console.log("WsWhiteboardSessionController >> waitRequestCreateWbSession >> wsPacketDto : ",wsPacketDto);
+              //console.log("WsWhiteboardSessionController >> waitRequestCreateWbSession >> wsPacketDto : ",wsPacketDto);
               let wbSessionList:Array<WhiteboardSessionDto> = wsPacketDto.dataDto as Array<WhiteboardSessionDto>;
               subscriber.next(wbSessionList);
               break;
@@ -199,7 +199,7 @@ export class WsWhiteboardSessionController {
           // this.websocketManager.uiService.spin$.next(false);
           switch (wsPacketDto.action) {
             case WebsocketPacketActionEnum.ACK:
-              console.log("WsWhiteboardSessionController >> waitRequestUpdateWbSession >> wsPacketDto : ",wsPacketDto);
+              //console.log("WsWhiteboardSessionController >> waitRequestUpdateWbSession >> wsPacketDto : ",wsPacketDto);
               this.websocketManager.wbSessionEventManagerService.wsWbSessionEventEmitter.emit(
                 new WbSessionEvent(WbSessionEventEnum.UPDATE, wsPacketDto.dataDto as WhiteboardSessionDto, wsPacketDto.additionalData));
               subscriber.next(packetDto.dataDto);
@@ -215,7 +215,7 @@ export class WsWhiteboardSessionController {
     this.socket.on(HttpHelper.websocketApi.whiteboardSession.update.event,
       (wsPacketDto:WebsocketPacketDto)=>{
         if (wsPacketDto.action === WebsocketPacketActionEnum.UPDATE) {
-          console.log("WsWhiteboardSessionController >> onPinged >> wsPacketDto : ",wsPacketDto);
+          //console.log("WsWhiteboardSessionController >> onPinged >> wsPacketDto : ",wsPacketDto);
           this.websocketManager.wbSessionEventManagerService.wsWbSessionEventEmitter.emit(
             new WbSessionEvent(WbSessionEventEnum.UPDATE, wsPacketDto.dataDto as WhiteboardSessionDto, wsPacketDto.additionalData));
         }
@@ -262,7 +262,7 @@ export class WsWhiteboardSessionController {
     this.socket.on(HttpHelper.websocketApi.whiteboardSession.delete.event,
       (wsPacketDto:WebsocketPacketDto)=>{
         if (wsPacketDto.action === WebsocketPacketActionEnum.DELETE) {
-          console.log("WsWhiteboardSessionController >> onWbSessionDelete >> 진입함");
+          //console.log("WsWhiteboardSessionController >> onWbSessionDelete >> 진입함");
           this.websocketManager.wbSessionEventManagerService.wsWbSessionEventEmitter.emit(
             new WbSessionEvent(WbSessionEventEnum.DELETE, wsPacketDto.dataDto as WhiteboardSessionDto, wsPacketDto.additionalData));        }
       });

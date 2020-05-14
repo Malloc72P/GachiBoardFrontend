@@ -43,7 +43,7 @@ export class MainPageComponent implements OnInit {
 
     this.sidebarManagerService.sidebarEventEmitter
       .subscribe((event:GachiSidebarEvent)=>{
-        console.log("GachiLeftSidebarComponent >> subscribe >> event : ",event);
+        //console.log("GachiLeftSidebarComponent >> subscribe >> event : ",event);
         if (event.action === GachiSidebarEventEnum.TOGGLE_LEFT_SIDEBAR) {
           this.mainLeftDrawer.toggle();
         }

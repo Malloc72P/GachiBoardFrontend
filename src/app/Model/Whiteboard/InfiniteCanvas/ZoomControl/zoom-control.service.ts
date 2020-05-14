@@ -51,7 +51,7 @@ export class ZoomControlService {
   }
 
   zoomControl(event) {
-    // //console.log("WhiteboardMainComponent >> zoomControl >> event : ",event);
+    // ////console.log("WhiteboardMainComponent >> zoomControl >> event : ",event);
     event.preventDefault();
 
 

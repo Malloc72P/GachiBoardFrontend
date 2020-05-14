@@ -43,7 +43,7 @@ export class WhiteboardBannerComponent implements OnInit,OnDestroy {
         case WbSessionEventEnum.JOIN:
           break;
         case WbSessionEventEnum.DISCONNECT:
-          console.log("WhiteboardBannerComponent >> WbSessionEvent >> recvEvent : ",recvEvent);
+          //console.log("WhiteboardBannerComponent >> WbSessionEvent >> recvEvent : ",recvEvent);
           this.onUserDisconnect(recvEvent.data, recvEvent.additionalData);
           break;
       }
@@ -71,7 +71,7 @@ export class WhiteboardBannerComponent implements OnInit,OnDestroy {
       return;
     }
     let userCursor = this.cursorTrackerService.userCursorMap.get(idToken);
-    console.log("WhiteboardBannerComponent >> onUserImageClick >> userCursor : ",userCursor);
+    //console.log("WhiteboardBannerComponent >> onUserImageClick >> userCursor : ",userCursor);
     let currentProject = this.layerService.currentProject;
     let deltaX = currentProject.view.bounds.center.x - userCursor.position.x;
     let deltaY = currentProject.view.bounds.center.y - userCursor.position.y;
