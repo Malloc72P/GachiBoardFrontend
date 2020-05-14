@@ -27,7 +27,7 @@ export class KanbanItemCreateComponent implements OnInit {
     public colorService:KanbanItemColorService,
     @Inject(MAT_DIALOG_DATA) public data: CreateKanbanDialogData
   ) {
-    console.log("KanbanItemCreateComponent >> constructor >> data : ",data.kanbanGroup.title);
+    //console.log("KanbanItemCreateComponent >> constructor >> data : ",data.kanbanGroup.title);
     this.kanbanGroup = data.kanbanGroup;
 
     this.kanbanCreateFormGroup = new FormGroup({
@@ -45,13 +45,13 @@ export class KanbanItemCreateComponent implements OnInit {
     );
   }
   onSubmit(){
-    console.log("KanbanItemCreateComponent >> onSubmit >> 진입함");
+    //console.log("KanbanItemCreateComponent >> onSubmit >> 진입함");
     let title = this.kanbanCreateFormGroup.get("title").value;
     let userInfo = this.userManagerService.getUserDataByName(this.kanbanCreateFormGroup.get("user").value);
     let color = this.kanbanCreateFormGroup.get("color").value;
 
     let kanbanItem = new KanbanItem(title, userInfo, color);
-    console.log("KanbanItemCreateComponent >> onSubmit >> kanbanItem : ",kanbanItem);
+    //console.log("KanbanItemCreateComponent >> onSubmit >> kanbanItem : ",kanbanItem);
     this.dialogRef.close({
       createFlag : true,
       kanbanItem : kanbanItem,

@@ -32,7 +32,7 @@ export class ItemGroup extends WhiteboardItem {
     super(id, type, item, layerService);
     this.coreItem = this.group;
     this.wbItemGroup = new Array<WhiteboardItem>();
-    console.log('ItemGroup >> constructor >> 진입함');
+    //console.log('ItemGroup >> constructor >> 진입함');
 
   }
 
@@ -49,7 +49,7 @@ export class ItemGroup extends WhiteboardItem {
   //### Mouse Event 콜백
   protected setCallback() {}
   public onMouseDown(event){
-    console.log("ItemGroup >> onMouseDown >> 진입함");
+    //console.log("ItemGroup >> onMouseDown >> 진입함");
     if(!this.isMovable){
       return;
     }
@@ -157,7 +157,7 @@ export class ItemGroup extends WhiteboardItem {
   }
 
   public onMouseUp(event){
-    console.log("ItemGroup >> onMouseUp >> 이걸 발견 하신다면 제보해주세요 - 윤상현");
+    //console.log("ItemGroup >> onMouseUp >> 이걸 발견 하신다면 제보해주세요 - 윤상현");
     this.calcCurrentDistance(event);
     if(!this.isMovable){
       return;
@@ -198,7 +198,7 @@ export class ItemGroup extends WhiteboardItem {
     this.wbItemGroup.push(wbItem);
     wbItem.isSelected = true;
     let wbItemPaperIdx = wbItem.group.index;
-    // console.log("ItemGroup >> insertOneIntoGroup >> wbItemPaperIdx : ",wbItemPaperIdx);
+    // //console.log("ItemGroup >> insertOneIntoGroup >> wbItemPaperIdx : ",wbItemPaperIdx);
     this.coreItem.addChild(wbItem.group);
     this.layerService.drawingLayer.insertChild(wbItemPaperIdx, this.coreItem);
     //this.group.bringToFront();

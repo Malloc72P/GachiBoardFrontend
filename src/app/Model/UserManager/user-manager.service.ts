@@ -23,7 +23,7 @@ export class UserManagerService {
   public initService(projectDto:ProjectDto){
     this.userList.slice(0, this.userList.length);
     for (let participantDto of projectDto.participantList){
-      console.log("UserManagerService >> initService >> participantDto : ",participantDto);
+      //console.log("UserManagerService >> initService >> participantDto : ",participantDto);
       this.userList.push(participantDto);
     }
   }

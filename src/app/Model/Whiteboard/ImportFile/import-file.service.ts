@@ -41,13 +41,13 @@ export class ImportFileService {
         case "image/jpeg":
         case "image/gif":
         case "image/png":
-          console.log("ImportFileService >> importFile >> object.type : ", object.item(i).type);
+          //console.log("ImportFileService >> importFile >> object.type : ", object.item(i).type);
           this.drawImage(object.item(i), sumWidth, startPoint);
 
           break;
         case "application/pdf":
-          console.log("ImportFileService >> importFile >> object : ", object.item(i));
-          console.log("ImportFileService >> importFile >> object.type : ", object.item(i).type);
+          //console.log("ImportFileService >> importFile >> object : ", object.item(i));
+          //console.log("ImportFileService >> importFile >> object.type : ", object.item(i).type);
           break;
         default:
           break;

@@ -48,7 +48,7 @@ export class CreateProjectComponent implements OnInit {
 
     this.projectRequesterService.createProject(projectTitle)
       .subscribe((data:ProjectDto)=>{
-        console.log("CreateProjectComponent >> onSubmit >> data : ",data);
+        //console.log("CreateProjectComponent >> onSubmit >> data : ",data);
         this.dialogRef.close({
           projectDto : data,
         });

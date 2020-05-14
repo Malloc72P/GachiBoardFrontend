@@ -109,7 +109,7 @@ export class KanbanTagListComponent implements OnInit, OnDestroy{
 
   add(event: MatChipInputEvent): void {
     let wsKanbanController = WsKanbanController.getInstance();
-    console.log("KanbanTagListComponent >> add >> event.value : ",event.value);
+    //console.log("KanbanTagListComponent >> add >> event.value : ",event.value);
 /*
     if (!this.matAutocomplete.isOpen) {
     }
@@ -128,14 +128,14 @@ export class KanbanTagListComponent implements OnInit, OnDestroy{
         this.tagListMgrService
           .insertTagInTaglist(this.kanbanItem, newTagItem.title, newColor, this.kanbanGroup)
           .subscribe((createdTag)=>{
-            console.log("KanbanTagListComponent >> add >> insertTagInTaglist >> createdTag : ",createdTag);
-            console.log("KanbanTagListComponent >>  >> kanbanItem : ",this.kanbanItem);
+            //console.log("KanbanTagListComponent >> add >> insertTagInTaglist >> createdTag : ",createdTag);
+            //console.log("KanbanTagListComponent >>  >> kanbanItem : ",this.kanbanItem);
 
             wsKanbanController.waitRequestUpdateKanban(this.kanbanItem, this.kanbanGroup)
               .subscribe(()=>{
                   this.resetInputer(input);
                   //wsKanbanController.requestUnlockKanban(this.kanbanItem, this.kanbanGroup);
-                  console.log("KanbanTagListComponent >> add >> DO focus");
+                  //console.log("KanbanTagListComponent >> add >> DO focus");
                   this.tagInput.nativeElement.focus();
                 },
                 (e)=>{
@@ -144,7 +144,7 @@ export class KanbanTagListComponent implements OnInit, OnDestroy{
                 });
 
           },(e)=>{
-            console.log("KanbanTagListComponent >> add >> insertTagInTaglist >> e : ",e);
+            //console.log("KanbanTagListComponent >> add >> insertTagInTaglist >> e : ",e);
             this.resetInputer(input);
             wsKanbanController.requestUnlockKanban(this.kanbanItem, this.kanbanGroup);
           });
@@ -168,7 +168,7 @@ export class KanbanTagListComponent implements OnInit, OnDestroy{
   }
 
   remove(tagItem: TagItem): void {
-    console.log("KanbanTagListComponent >> remove >> tagItem : ",tagItem);
+    //console.log("KanbanTagListComponent >> remove >> tagItem : ",tagItem);
     const index = this.kanbanItem.tagList.indexOf(tagItem);
     if (index >= 0) {
       this.kanbanItem.tagList.splice(index, 1);
@@ -234,7 +234,7 @@ export class KanbanTagListComponent implements OnInit, OnDestroy{
     if(!value){
       return null;
     }
-    console.log("KanbanTagListComponent >> _filter >> value : ",value);
+    //console.log("KanbanTagListComponent >> _filter >> value : ",value);
     let filterValue;
 
     if(value.title){
@@ -271,12 +271,12 @@ export class KanbanTagListComponent implements OnInit, OnDestroy{
   }
 
   onTagInputerFocusIn(){
-    console.log("KanbanTagListComponent >> onTagInputerFocusIn >> 진입함");
+    //console.log("KanbanTagListComponent >> onTagInputerFocusIn >> 진입함");
     let wsKanbanController = WsKanbanController.getInstance();
     wsKanbanController.requestLockKanban(this.kanbanItem, this.kanbanGroup);
   }
   onTagInputerFocusOut(){
-    console.log("KanbanTagListComponent >> onTagInputerFocusOut >> 진입함");
+    //console.log("KanbanTagListComponent >> onTagInputerFocusOut >> 진입함");
     let wsKanbanController = WsKanbanController.getInstance();
     wsKanbanController.requestUnlockKanban(this.kanbanItem, this.kanbanGroup);
   }

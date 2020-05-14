@@ -62,7 +62,7 @@ export class LinkModeManagerService {
     this._currentLinkerMode.strokeWidth = strokeWidth;
     this._currentLinkerMode.fillColor = fillColor;
 
-    console.log("LinkModeManagerService >> changeLinkerMode >> currentLinkerMode : ",(LinkerModeEnum[this._currentLinkerMode.mode]));
+    //console.log("LinkModeManagerService >> changeLinkerMode >> currentLinkerMode : ",(LinkerModeEnum[this._currentLinkerMode.mode]));
     this._linkerModeEventEmitter.emit(new LinkerModeChangeEvent(this._currentLinkerMode));
   }
 

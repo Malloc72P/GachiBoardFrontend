@@ -180,7 +180,7 @@ export class WorkHistoryManager {
   async buildItem(originWbItemDtoArray:Array<WhiteboardItemDto>):Promise<Array<WhiteboardItemDto>>{
     return new Promise<any>((resolve, reject)=>{
       let wsWbController = WsWhiteboardController.getInstance();
-      console.log("WorkHistoryManager >>  >> originWbItemDtoArray : ",originWbItemDtoArray);
+      //console.log("WorkHistoryManager >>  >> originWbItemDtoArray : ",originWbItemDtoArray);
 
       WhiteboardItemFactory.cloneWbItems(originWbItemDtoArray)
         .subscribe((copiedItems:Array<WhiteboardItem>)=>{

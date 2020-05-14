@@ -4,6 +4,7 @@ import {VideoChatService} from "../../../../Model/Whiteboard/VideoChat/video-cha
 import {HttpHelper} from "../../../../Model/Helper/http-helper/http-helper";
 import {CdkDragEnd} from "@angular/cdk/drag-drop";
 import {PanelData} from "../PanelData/panel-data";
+import {WebsocketManagerService} from "../../../../Controller/Controller-WebSocket/websocket-manager/websocket-manager.service";
 
 @Component({
   selector: 'app-video-chat-wrapper',
@@ -18,13 +19,14 @@ export class VideoChatWrapperComponent implements OnInit, AfterViewInit {
 
   private userName: string;
   private panelSizeFactor: number = 1;
-  private readonly maxPanelSize: number = 100;
+  private readonly maxPanelSize: number = 200;
   private readonly margin: number = 10;
   public position: {x: number, y: number} = { x: 0, y: 0};
 
   constructor(
     private videoChat: VideoChatService,
     private panelManager: VideoChatPanelManagerService,
+    private websocketManager: WebsocketManagerService,
   ) { }
 
   ngOnInit(): void {
@@ -138,7 +140,10 @@ export class VideoChatWrapperComponent implements OnInit, AfterViewInit {
   }
 
   get changeWebCamIsDisable(): boolean {
-
     return this.videoChat.numberOfWebCams < 2;
+  }
+
+  get isForMe(): boolean {
+    return this.userName === this.websocketManager.userInfo.idToken;
   }
 }

@@ -69,9 +69,9 @@ export class DebugingPannelComponent implements OnInit {
   }
 
   showMap(){
-    console.log("\n\n===============\n");
-    console.log("DebugingPannelComponent >> showMap >> idMap : ",this.workHistoryManager.idMap);
-    console.log("\n===============\n\n");
+    //console.log("\n\n===============\n");
+    //console.log("DebugingPannelComponent >> showMap >> idMap : ",this.workHistoryManager.idMap);
+    //console.log("\n===============\n\n");
   }
 
   public testArr:Array<any> = new Array<any>();

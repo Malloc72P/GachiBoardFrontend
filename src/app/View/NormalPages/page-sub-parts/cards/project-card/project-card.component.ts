@@ -45,7 +45,7 @@ export class ProjectCardComponent implements OnInit, AfterViewInit {
     this.checkAuth();
   }
   ngAfterViewInit(): void {
-    console.log("ProjectCardComponent >> ngAfterViewInit >> projectCard : ",this.projectCard);
+    //console.log("ProjectCardComponent >> ngAfterViewInit >> projectCard : ",this.projectCard);
     this.projectCardEl = this.projectCard.nativeElement
   }
 
@@ -89,7 +89,7 @@ export class ProjectCardComponent implements OnInit, AfterViewInit {
     });
 
     dialogRef.afterClosed().subscribe((response) => {
-      console.log("ProjectCardComponent >>  >> response : ",response);
+      //console.log("ProjectCardComponent >>  >> response : ",response);
       if(response && response.res){
         let restPacketDto:RestPacketDto = response.res as RestPacketDto;
         this.userDtoEventEmitter.emit(restPacketDto.data);
@@ -105,11 +105,11 @@ export class ProjectCardComponent implements OnInit, AfterViewInit {
       if(this.deleteSubscription){
         this.deleteSubscription.unsubscribe();
       }
-      console.log("ProjectCardComponent >> onProjectDelete >> res : ",res);
+      //console.log("ProjectCardComponent >> onProjectDelete >> res : ",res);
       if(res){
         let subscription = this.projectRequesterService.requestExitProject(this.projectDto._id).subscribe((userDto:UserDTO)=>{
           subscription.unsubscribe();
-          console.log("ProjectCardComponent >> onProjectDelete >> userDto : ",userDto);
+          //console.log("ProjectCardComponent >> onProjectDelete >> userDto : ",userDto);
           this.userDtoEventEmitter.emit(userDto);
         });
       }

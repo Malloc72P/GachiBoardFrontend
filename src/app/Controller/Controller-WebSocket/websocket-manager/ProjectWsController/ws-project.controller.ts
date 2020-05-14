@@ -46,7 +46,7 @@ export class WsProjectController {
 
       this.socket.once(HttpHelper.websocketApi.project.joinProject.event + HttpHelper.ACK_SIGN,
         (wsPacket:WebsocketPacketDto)=>{
-          console.log("WsProjectController >> waitJoinProject >> recv wsPacket : ",wsPacket);
+          //console.log("WsProjectController >> waitJoinProject >> recv wsPacket : ",wsPacket);
           switch (wsPacket.action) {
             case WebsocketPacketActionEnum.ACK:
               this.websocketManager.currentProjectDto = wsPacket.dataDto as ProjectDto;
@@ -77,11 +77,11 @@ export class WsProjectController {
     console.warn("WsProjectController >> onParticipantJoin >> 진입함");
     this.socket.on(HttpHelper.websocketApi.project.joinProject.event,
       (wsPacket:WebsocketPacketDto)=>{
-      console.log("WsProjectController >>  >> wsPacket : ",wsPacket);
+      //console.log("WsProjectController >>  >> wsPacket : ",wsPacket);
       let updatedProjectDto:ProjectDto = wsPacket.dataDto as ProjectDto;
       switch (wsPacket.action) {
         case WebsocketPacketActionEnum.SPECIAL:
-          console.log("WsProjectController >> onParticipantJoin >> SPECIAL >> wsPacket : ",wsPacket);
+          //console.log("WsProjectController >> onParticipantJoin >> SPECIAL >> wsPacket : ",wsPacket);
           this.websocketManager.currentProjectDto.participantList = updatedProjectDto.participantList;
           break;
         case WebsocketPacketActionEnum.ACK:
@@ -101,7 +101,7 @@ export class WsProjectController {
   private onProjectUpdate(){
     this.socket.on(HttpHelper.websocketApi.project.update.event,
       (wsPacket:WebsocketPacketDto)=>{
-      console.log("WsProjectController >> onProjectUpdate >> wsPacket : ",wsPacket);
+      //console.log("WsProjectController >> onProjectUpdate >> wsPacket : ",wsPacket);
         let updatedProjectDto:ProjectDto = wsPacket.dataDto as ProjectDto;
         if (wsPacket.action === WebsocketPacketActionEnum.UPDATE) {
           this.websocketManager.currentProjectDto = wsPacket.dataDto as ProjectDto;

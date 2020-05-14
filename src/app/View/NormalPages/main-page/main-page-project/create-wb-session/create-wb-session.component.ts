@@ -38,17 +38,17 @@ export class CreateWbSessionComponent implements OnInit {
   }
 
   onSubmit(){
-    console.log("CreateWbSessionComponent >> onSubmit >> 진입함");
+    //console.log("CreateWbSessionComponent >> onSubmit >> 진입함");
 
     let title = this.wbSessionFormGroup.get("title").value;
-    console.log("CreateWbSessionComponent >> onSubmit >> title : ",title);
+    //console.log("CreateWbSessionComponent >> onSubmit >> title : ",title);
 
     let wsWbSessionController = WsWhiteboardSessionController.getInstance();
     let wbSessionDto = new WhiteboardSessionDto();
     wbSessionDto.title = title;
     wsWbSessionController.waitRequestCreateWbSession(wbSessionDto)
       .subscribe((data)=>{
-        console.log("CreateWbSessionComponent >>  >> data : ",data);
+        //console.log("CreateWbSessionComponent >>  >> data : ",data);
           this.closePanel(true);
         },(error)=>{
           console.warn("CreateWbSessionComponent >> onSubmit >> error : ",error);

@@ -105,7 +105,7 @@ export class InfiniteCanvasService {
   }
   public initWhiteboardVariable( ){
     if(this.initFlag){
-      // console.log("InfiniteCanvasService >> initializeInfiniteCanvas >> 이미 초기화됨 : ");
+      // //console.log("InfiniteCanvasService >> initializeInfiniteCanvas >> 이미 초기화됨 : ");
       return;
     }
 
@@ -223,7 +223,7 @@ export class InfiniteCanvasService {
     if(pos.x <= leftObserver){
       if (mutexObserverMover) {
         mutexObserverMover = false;
-        console.log("영역 벗어남( left )");
+        //console.log("영역 벗어남( left )");
         this.shiftRight();
       }
     }
@@ -232,7 +232,7 @@ export class InfiniteCanvasService {
     if(pos.x >= rightObserver){
       if (mutexObserverMover) {
         mutexObserverMover = false;
-        console.log("영역 벗어남( right )");
+        //console.log("영역 벗어남( right )");
         this.shiftLeft();
       }
     }
@@ -241,7 +241,7 @@ export class InfiniteCanvasService {
     if(pos.y < topObserver){
       if(mutexObserverMover){
         mutexObserverMover = false;
-        console.log("영역 벗어남( top )");
+        //console.log("영역 벗어남( top )");
         this.shiftDown();
       }
     }
@@ -250,14 +250,14 @@ export class InfiniteCanvasService {
     if(pos.y > bottomObserver){
       if (mutexObserverMover) {
         mutexObserverMover = false;
-        console.log("영역 벗어남( up )");
+        //console.log("영역 벗어남( up )");
         this.shiftUp();
       }
     }
   }
 
   private shiftDown() {
-    console.log("InfiniteCanvasService >> shiftDown >> 진입함");
+    //console.log("InfiniteCanvasService >> shiftDown >> 진입함");
     this.whiteboardMatrix[2].forEach((vector: whiteboardCell) => {
       let cellHeight = vector.cellData.bounds.height;
       vector.cellGroup.position.y -= (cellHeight * 3) - this.gridStep;
@@ -266,7 +266,7 @@ export class InfiniteCanvasService {
     this.whiteboardMatrix.unshift(this.whiteboardMatrix.pop());
   }
   private shiftUp() {
-    console.log("InfiniteCanvasService >> shiftUp >> 진입함");
+    //console.log("InfiniteCanvasService >> shiftUp >> 진입함");
     this.whiteboardMatrix[0].forEach((vector: whiteboardCell) => {
       let cellHeight = vector.cellData.bounds.height;
       vector.cellGroup.position.y += (cellHeight * 3) - this.gridStep;
@@ -275,7 +275,7 @@ export class InfiniteCanvasService {
     this.whiteboardMatrix.push(this.whiteboardMatrix.shift());
   }
   private shiftRight() {
-    console.log("InfiniteCanvasService >> shiftRight >> 진입함");
+    //console.log("InfiniteCanvasService >> shiftRight >> 진입함");
     this.whiteboardMatrix.forEach((vector) => {
       let tgtVector = vector[2] as whiteboardCell;
       //그리드의 실제 길이
@@ -287,7 +287,7 @@ export class InfiniteCanvasService {
     });
   }
   private shiftLeft() {
-    console.log("InfiniteCanvasService >> shiftLeft >> 진입함");
+    //console.log("InfiniteCanvasService >> shiftLeft >> 진입함");
     this.whiteboardMatrix.forEach((vector) => {
       let tgtVector = vector[0] as whiteboardCell;
       //그리드의 실제 길이
@@ -346,7 +346,7 @@ export class InfiniteCanvasService {
     return this.newZoom;
   }
   public resetInfiniteCanvas(){
-    // console.log("InfiniteCanvasService >> resetInfiniteCanvas >> 진입함");
+    // //console.log("InfiniteCanvasService >> resetInfiniteCanvas >> 진입함");
     // this.initFlag = false;
     this.currentProject.layers.forEach( (value, index) => {
       if(value.data.type === DataType.INFINITE_CANVAS){

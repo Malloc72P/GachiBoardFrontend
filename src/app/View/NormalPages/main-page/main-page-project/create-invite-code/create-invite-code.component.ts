@@ -58,10 +58,10 @@ export class CreateInviteCodeComponent implements OnInit {
     /*this.stepper.selectedIndex = 1;*/
     //this.inviteCodeFormGroup.
     let remainCount = this.remainSlider.value;
-    console.log("CreateInviteCodeComponent >> onGenerateCodeBtnClick >> projectDto : ",this.projectDto);
+    //console.log("CreateInviteCodeComponent >> onGenerateCodeBtnClick >> projectDto : ",this.projectDto);
     this.projectRequesterService.generateInviteCode(this.projectDto._id, remainCount)
       .subscribe((data)=>{
-      console.log("CreateInviteCodeComponent >>  >> data : ",data);
+      //console.log("CreateInviteCodeComponent >>  >> data : ",data);
         if (data.inviteCode) {
           this.inviteCode = data.inviteCode;
           this.inviteUrl = HttpHelper.ngUrl + HttpHelper.api.project.invitation.uri + ";inviteCode=" + this.inviteCode;

@@ -46,12 +46,12 @@ export class UiService {
   }
 
   private showSpinner(){
-    console.log("attach");
+    //console.log("attach");
     this.spinnerTopRef.attach(new ComponentPortal(MatSpinner));
   }
 
   private stopSpinner(){
-    console.log("dispose");
+    //console.log("dispose");
     this.spinnerTopRef.detach() ;
   }
 }

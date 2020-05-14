@@ -8,7 +8,8 @@
     <audio #audioElement autoplay></audio>
   </div>
   <div class="buttons">
-    <button class="change-camera" mat-button (click)="onClickCameraFlipButton()" [disabled]="changeWebCamIsDisable"><mat-icon>flip_camera_ios</mat-icon></button>
+    <button class="change-camera" mat-button (click)="onClickCameraFlipButton()"
+            [disabled]="changeWebCamIsDisable" *ngIf="isForMe"><mat-icon>flip_camera_ios</mat-icon></button>
     <button class="scale-change" mat-button (click)="onClickSizeChangeButton()">{{changePanelSizeButtonLabel}}</button>
     <button class="fullscreen" mat-button (click)="onClickFullScreenButton()"><mat-icon>fullscreen</mat-icon></button>
   </div>

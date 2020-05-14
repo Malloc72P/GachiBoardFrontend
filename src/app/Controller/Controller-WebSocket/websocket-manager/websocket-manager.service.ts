@@ -91,7 +91,7 @@ export class WebsocketManagerService {
       }
       this.notVerifiedKanbanItems.splice(verifiedIdx, 1);
     }
-    console.log("WebsocketManagerService >> verifyKanbanItem >> notVerifiedKanbanItems : ",this.notVerifiedKanbanItems);
+    //console.log("WebsocketManagerService >> verifyKanbanItem >> notVerifiedKanbanItems : ",this.notVerifiedKanbanItems);
   }
 
   resetSocket(){

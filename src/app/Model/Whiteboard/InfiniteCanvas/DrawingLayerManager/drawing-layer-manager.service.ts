@@ -222,6 +222,7 @@ export class DrawingLayerManagerService {
           break;
         case WbItemEventEnum.OCCUPIED:
           let occupiedGsgDto:GlobalSelectedGroupDto = recvWbItemEvent.data as unknown as GlobalSelectedGroupDto;
+          console.log("DrawingLayerManagerService >>  >> occupiedGsgDto : ",occupiedGsgDto);
           this.blinderManagementService.updateOccupiedData(occupiedGsgDto);
           break;
         case WbItemEventEnum.NOT_OCCUPIED:

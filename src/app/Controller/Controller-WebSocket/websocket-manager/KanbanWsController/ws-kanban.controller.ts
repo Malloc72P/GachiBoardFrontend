@@ -49,7 +49,7 @@ export class WsKanbanController {
   private onKanbanCreated(){
     this.socket.on(HttpHelper.websocketApi.kanban.create.event,
       (wsPacketDto:WebsocketPacketDto)=>{
-        console.log("WsKanbanController >> onKanbanCreated >> wsPacketDto : ",wsPacketDto);
+        //console.log("WsKanbanController >> onKanbanCreated >> wsPacketDto : ",wsPacketDto);
         switch (wsPacketDto.action) {
           case WebsocketPacketActionEnum.CREATE:
             // this.createFromWsManager(wsPacketDto);
@@ -84,7 +84,7 @@ export class WsKanbanController {
   private onKanbanDeleted(){
     this.socket.on(HttpHelper.websocketApi.kanban.delete.event,
       (wsPacketDto:WebsocketPacketDto)=>{
-        console.log("WsKanbanController >> onKanbanDeleted >> wsPacketDto : ",wsPacketDto);
+        //console.log("WsKanbanController >> onKanbanDeleted >> wsPacketDto : ",wsPacketDto);
         switch (wsPacketDto.action) {
           case WebsocketPacketActionEnum.DELETE:
             // this.delFromWsManager(wsPacketDto);
@@ -119,7 +119,7 @@ export class WsKanbanController {
       this.socket.on(HttpHelper.websocketApi.kanban.read.event,
         (wsPacketDto:WebsocketPacketDto)=>{
           this.websocketManager.uiService.spin$.next(false);
-          console.log("WsKanbanController >> onKanbanGet >> wsPacketDto : ",wsPacketDto);
+          //console.log("WsKanbanController >> onKanbanGet >> wsPacketDto : ",wsPacketDto);
           switch (wsPacketDto.action) {
             case WebsocketPacketActionEnum.ACK:
               subscriber.next(wsPacketDto.dataDto);
@@ -148,7 +148,7 @@ export class WsKanbanController {
       destIdx         : destIdx
     };
 
-    console.log("WsKanbanController >> requestRelocationKanban >> packetDto : ",packetDto);
+    //console.log("WsKanbanController >> requestRelocationKanban >> packetDto : ",packetDto);
 
     this.socket.emit(HttpHelper.websocketApi.kanban.relocate.event, packetDto);
     this.websocketManager.saveNotVerifiedKanbanItem(packetDto, fromKanbanItem);
@@ -157,7 +157,7 @@ export class WsKanbanController {
   private onKanbanRelocation(){
     this.socket.on(HttpHelper.websocketApi.kanban.relocate.event,
       (wsPacketDto:WebsocketPacketDto)=>{
-        console.log("WsKanbanController >> onKanbanRelocation >> 진입함");
+        //console.log("WsKanbanController >> onKanbanRelocation >> 진입함");
         switch (wsPacketDto.action) {
           case WebsocketPacketActionEnum.RELOCATE:
             this.websocketManager.kanbanEventManagerService.kanbanEventEmitter.emit(
@@ -196,7 +196,7 @@ export class WsKanbanController {
     this.websocketManager.uiService.spin$.next(true);
 
     return new Observable<any>((subscriber)=>{
-      console.log("WsKanbanController >> waitRequestLockKanban >> 진입함");
+      //console.log("WsKanbanController >> waitRequestLockKanban >> 진입함");
       let kanbanItemDto = kanbanItem.exportDto(kanbanGroup.title);
 
       kanbanItemDto.lockedBy = this.websocketManager.userInfo.idToken;
@@ -213,7 +213,7 @@ export class WsKanbanController {
           this.websocketManager.uiService.spin$.next(false);
           switch (wsPacketDto.action) {
             case WebsocketPacketActionEnum.ACK:
-              console.log("WsKanbanController >> onKanbanLock >> wsPacketDto : ",wsPacketDto);
+              //console.log("WsKanbanController >> onKanbanLock >> wsPacketDto : ",wsPacketDto);
               this.websocketManager.verifyKanbanItem(wsPacketDto);
               subscriber.next(wsPacketDto);
               break;
@@ -230,7 +230,7 @@ export class WsKanbanController {
       (wsPacketDto:WebsocketPacketDto)=>{
         switch (wsPacketDto.action) {
           case WebsocketPacketActionEnum.LOCK:
-            console.log("WsKanbanController >> onKanbanLock >> wsPacketDto : ",wsPacketDto);
+            //console.log("WsKanbanController >> onKanbanLock >> wsPacketDto : ",wsPacketDto);
             this.websocketManager.kanbanEventManagerService.kanbanEventEmitter.emit(
               new KanbanEvent(KanbanEventEnum.LOCK, wsPacketDto.dataDto as KanbanItemDto));
             break;
@@ -265,7 +265,7 @@ export class WsKanbanController {
   private onKanbanUnlock(){
     this.socket.on(HttpHelper.websocketApi.kanban.unlock.event,
       (wsPacketDto:WebsocketPacketDto)=>{
-        console.log("WsKanbanController >> onKanbanUnlock >> wsPacketDto : ",wsPacketDto);
+        //console.log("WsKanbanController >> onKanbanUnlock >> wsPacketDto : ",wsPacketDto);
         switch (wsPacketDto.action) {
           case WebsocketPacketActionEnum.UNLOCK:
             // this.unlockFromWsManager(wsPacketDto);
@@ -315,7 +315,7 @@ export class WsKanbanController {
           this.websocketManager.uiService.spin$.next(false);
           switch (wsPacketDto.action) {
             case WebsocketPacketActionEnum.ACK:
-              console.log("WsKanbanController >> onKanbanUpdate >> wsPacketDto : ",wsPacketDto);
+              //console.log("WsKanbanController >> onKanbanUpdate >> wsPacketDto : ",wsPacketDto);
               this.websocketManager.verifyKanbanItem(wsPacketDto);
               subscriber.next(packetDto);
               break;
@@ -332,7 +332,7 @@ export class WsKanbanController {
       (wsPacketDto:WebsocketPacketDto)=>{
         switch (wsPacketDto.action) {
           case WebsocketPacketActionEnum.UPDATE:
-            console.log("WsKanbanController >> onKanbanUpdate >> wsPacketDto : ",wsPacketDto);
+            //console.log("WsKanbanController >> onKanbanUpdate >> wsPacketDto : ",wsPacketDto);
             this.websocketManager.kanbanEventManagerService.kanbanEventEmitter.emit(
               new KanbanEvent(KanbanEventEnum.UPDATE, wsPacketDto.dataDto as KanbanItemDto));
             break;
@@ -358,7 +358,7 @@ export class WsKanbanController {
     this.websocketManager.uiService.spin$.next(true);
     return new Observable<any>((subscriber)=>{
       let tagDto = kanbanTag.exportDto();
-      console.log("WsKanbanController >> waitRequestCreateKanbanTag >> tagDto : ",tagDto);
+      //console.log("WsKanbanController >> waitRequestCreateKanbanTag >> tagDto : ",tagDto);
 
       let packetDto = this.websocketManager.createProjectScopePacket(tagDto, WebsocketPacketActionEnum.CREATE_TAG);
       packetDto.wsPacketSeq = this.websocketManager.wsPacketSeq;
@@ -374,7 +374,7 @@ export class WsKanbanController {
           this.websocketManager.uiService.spin$.next(false);
           switch (wsPacketDto.action) {
             case WebsocketPacketActionEnum.ACK:
-              console.log("WsKanbanController >> waitRequestCreateTagKanban >> wsPacketDto : ",wsPacketDto);
+              //console.log("WsKanbanController >> waitRequestCreateTagKanban >> wsPacketDto : ",wsPacketDto);
               let responseTagDto:KanbanTagDto = wsPacketDto.dataDto as KanbanTagDto;
               kanbanTag._id = responseTagDto._id;
               subscriber.next(responseTagDto);
@@ -392,7 +392,7 @@ export class WsKanbanController {
       (wsPacketDto:WebsocketPacketDto)=>{
         switch (wsPacketDto.action) {
           case WebsocketPacketActionEnum.CREATE_TAG:
-            console.log("WsKanbanController >> onKanbanCreateTag >> wsPacketDto : ",wsPacketDto);
+            //console.log("WsKanbanController >> onKanbanCreateTag >> wsPacketDto : ",wsPacketDto);
             let responseTagDto:KanbanTagDto = wsPacketDto.dataDto as KanbanTagDto;
             this.websocketManager.kanbanEventManagerService.kanbanEventEmitter.emit(
               new KanbanEvent(KanbanEventEnum.CREATE_TAG, null, responseTagDto));
@@ -416,7 +416,7 @@ export class WsKanbanController {
     this.websocketManager.uiService.spin$.next(true);
     return new Observable<any>((subscriber)=>{
       let tagDto = kanbanTag.exportDto();
-      console.log("WsKanbanController >> waitRequestDeleteKanbanTag >> tagDto : ",tagDto);
+      //console.log("WsKanbanController >> waitRequestDeleteKanbanTag >> tagDto : ",tagDto);
 
       let packetDto = this.websocketManager.createProjectScopePacket(tagDto, WebsocketPacketActionEnum.DELETE_TAG);
       packetDto.wsPacketSeq = this.websocketManager.wsPacketSeq;
@@ -432,7 +432,7 @@ export class WsKanbanController {
           this.websocketManager.uiService.spin$.next(false);
           switch (wsPacketDto.action) {
             case WebsocketPacketActionEnum.ACK:
-              console.log("WsKanbanController >> waitRequestDeleteKanbanTag >> wsPacketDto : ",wsPacketDto);
+              //console.log("WsKanbanController >> waitRequestDeleteKanbanTag >> wsPacketDto : ",wsPacketDto);
               let responseTagDto:KanbanTagDto = wsPacketDto.dataDto as KanbanTagDto;
               kanbanTag._id = responseTagDto._id;
               subscriber.next(responseTagDto);
@@ -450,7 +450,7 @@ export class WsKanbanController {
       (wsPacketDto:WebsocketPacketDto)=>{
         switch (wsPacketDto.action) {
           case WebsocketPacketActionEnum.DELETE_TAG:
-            console.log("WsKanbanController >> onKanbanTagDelete >> wsPacketDto : ",wsPacketDto);
+            //console.log("WsKanbanController >> onKanbanTagDelete >> wsPacketDto : ",wsPacketDto);
             let responseTagDto:KanbanTagDto = wsPacketDto.dataDto as KanbanTagDto;
             this.websocketManager.kanbanEventManagerService.kanbanEventEmitter.emit(
               new KanbanEvent(KanbanEventEnum.DELETE_TAG, null, responseTagDto));

@@ -22,6 +22,8 @@
 
 #videoPanel {
   height: inherit;
+  display: flex;
+  justify-content: center;
 }
 
 video {

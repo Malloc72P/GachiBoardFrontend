@@ -287,7 +287,7 @@ export class EditableLink extends WhiteboardItem {
   }
 
   public refreshLink() {
-    console.log("EditableLink >> refreshLink >> 진입함");
+    //console.log("EditableLink >> refreshLink >> 진입함");
     if(!!this._toLinkPort) {
       this.endPoint = this._toLinkPort.calcLinkPortPosition();
     }

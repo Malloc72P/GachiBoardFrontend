@@ -98,7 +98,7 @@ export class KanbanTagListManagerService {
       return;
     }
     paramTagList.forEach((value, index)=>{
-      console.log("KanbanTagListManagerService >> paramTagList >> forEach : ",value);
+      //console.log("KanbanTagListManagerService >> paramTagList >> forEach : ",value);
       this.addTag(value);
     });
   }
