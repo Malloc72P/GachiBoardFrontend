@@ -103,8 +103,7 @@ export class LassoSelectorService {
 
   private isItemHit(point): boolean {
     let hitItem = this.layerService.getHittedItem(point);
-
-    if(hitItem) {
+    if(hitItem && !hitItem.isOccupied) {
       this.layerService.globalSelectedGroup.insertOneIntoSelection(hitItem);
       return true;
     } else {
@@ -120,7 +119,7 @@ export class LassoSelectorService {
       if(wbItem instanceof GlobalSelectedGroup){
         continue
       }
-      if(this.isInside(this.newPath, wbItem.group)){
+      if(this.isInside(this.newPath, wbItem.group) && !wbItem.isOccupied){
         selection.push(wbItem);
       }
     }

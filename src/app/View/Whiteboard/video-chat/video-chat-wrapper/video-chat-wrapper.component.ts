@@ -19,7 +19,7 @@ export class VideoChatWrapperComponent implements OnInit, AfterViewInit {
 
   private userName: string;
   private panelSizeFactor: number = 1;
-  private readonly maxPanelSize: number = 100;
+  private readonly maxPanelSize: number = 200;
   private readonly margin: number = 10;
   public position: {x: number, y: number} = { x: 0, y: 0};
 

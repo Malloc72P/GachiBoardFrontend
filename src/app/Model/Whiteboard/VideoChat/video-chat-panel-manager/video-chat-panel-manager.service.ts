@@ -7,7 +7,7 @@ import {PanelData} from "../../../../View/Whiteboard/video-chat/PanelData/panel-
 export class VideoChatPanelManagerService {
   private _videoPanels = new Map<string, PanelData>();
   private readonly margin = 10;
-  private readonly panelSize = 100;
+  private readonly panelSize = 200;
 
   constructor( ) {
 
