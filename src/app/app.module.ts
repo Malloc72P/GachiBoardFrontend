@@ -94,7 +94,7 @@ import {MatCardModule} from '@angular/material/card';
 import {MatButtonModule} from '@angular/material/button';
 import {MatButtonToggleModule} from '@angular/material/button-toggle';
 import {MatRadioModule} from '@angular/material/radio';
-import {MatRippleModule} from '@angular/material/core';
+import {MatNativeDateModule, MatRippleModule} from '@angular/material/core';
 import {MatSliderModule} from '@angular/material/slider';
 import {MatDividerModule} from '@angular/material/divider';
 import {MatAutocompleteModule} from '@angular/material/autocomplete';
@@ -122,6 +122,10 @@ import { VideoChatPanelComponent } from './View/Whiteboard/video-chat/video-chat
 import {VideoChatPanelManagerService} from "./Model/Whiteboard/VideoChat/video-chat-panel-manager/video-chat-panel-manager.service";
 import { VideoChatWrapperComponent } from './View/Whiteboard/video-chat/video-chat-wrapper/video-chat-wrapper.component';
 import {VideoChatService} from "./Model/Whiteboard/VideoChat/video-chat/video-chat.service";
+import { TimeTimerComponent } from './View/Whiteboard/time-timer/time-timer.component';
+import {MatDatepickerModule} from '@angular/material/datepicker';
+import {NgxMaterialTimepickerModule} from 'ngx-material-timepicker';
+import {MatSnackBarModule} from '@angular/material/snack-bar';
 
 const config: SocketIoConfig = { url: HttpHelper.apiUrl, options: {} };
 
@@ -244,6 +248,7 @@ const appRoutes: Routes = [
     EditWbSessionComponent,
     VideoChatPanelComponent,
     VideoChatWrapperComponent,
+    TimeTimerComponent,
   ],
   entryComponents: [
     KanbanComponent,
@@ -297,6 +302,10 @@ const appRoutes: Routes = [
     MatBadgeModule,
     MatProgressSpinnerModule,
     OverlayModule,
+    MatDatepickerModule,
+    MatNativeDateModule,
+    NgxMaterialTimepickerModule,
+    MatSnackBarModule
   ],
   providers: [
     RouterHelperService,

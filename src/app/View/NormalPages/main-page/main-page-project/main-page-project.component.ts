@@ -39,6 +39,7 @@ import {
   WebsocketEvent,
   WebsocketEventEnum
 } from '../../../../Controller/Controller-WebSocket/websocket-manager/WebsocketEvent/WebsocketEvent';
+import {TimeTimerManagerService} from '../../../../Model/Whiteboard/TimeTimer/time-timer-manager.service';
 
 @Component({
   selector: 'app-main-page-project',
@@ -73,7 +74,8 @@ export class MainPageProjectComponent implements OnInit, OnDestroy {
     public uiService:UiService,
     public areYouSurePanelService:AreYouSurePanelService,
     public projectRequesterService:ProjectRequesterService,
-    public routerService:RouterHelperService
+    public routerService:RouterHelperService,
+    public timeTimerMgr: TimeTimerManagerService,
   ) {
     this.projectId = this.route.snapshot.paramMap.get('projectId');
 

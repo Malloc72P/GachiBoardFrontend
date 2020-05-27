@@ -5,6 +5,7 @@ import {ParticipantDto} from '../../../../../DTO/ProjectDto/ParticipantDto/parti
 
 import {ProjectDto} from '../../../../../DTO/ProjectDto/project-dto';
 import {UserManagerService} from '../../../../UserManager/user-manager.service';
+import {EventEmitter} from '@angular/core';
 
 export class KanbanItem {
   _id:number;
@@ -13,11 +14,15 @@ export class KanbanItem {
   private color;
   tagList:Array<TagItem>;
   public lockedBy = null;
+  isTimerStarted;
+  timerStartDate:Date;
+  timerEndDate:Date;
   constructor(title?, userInfo?, color?){
     this.title = title;
     this.userInfo = userInfo;
     this.color = color+"";
     this.tagList = new Array<TagItem>();
+    this.isTimerStarted = false;
   }
   getColor(){
     return KanbanItemColor[this.color].toLowerCase();
@@ -38,12 +43,15 @@ export class KanbanItem {
     return newKanbanItem;
   }
 
-  exportDto(parentGroup){
+   exportDto(parentGroup){
     let kanbanDto = new KanbanItemDto();
     kanbanDto._id = this._id;
     kanbanDto.userInfo = this.userInfo.idToken;
     kanbanDto.color = this.color;
     kanbanDto.title = this.title;
+    kanbanDto.isTimerStarted  = this.isTimerStarted;
+    kanbanDto.timerStartDate  = this.timerStartDate;
+    kanbanDto.timerEndDate    = this.timerEndDate;
 
     if(this.tagList.length > 0){
       for(let tag of this.tagList){

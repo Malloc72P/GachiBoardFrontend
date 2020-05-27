@@ -104,6 +104,9 @@
                   <mat-menu #menu="matMenu">
                     <button mat-menu-item
                             [disabled]="item.lockedBy && checkEditorIsAnotherUser(item.lockedBy)"
+                            (click)="onContextBtnClick( 'startTimer', item, group )">타이머 시작</button>
+                    <button mat-menu-item
+                            [disabled]="item.lockedBy && checkEditorIsAnotherUser(item.lockedBy)"
                             (click)="onContextBtnClick( 'edit', item, group )">수정</button>
                     <!--onEditBtnClick(item)-->
                     <button mat-menu-item

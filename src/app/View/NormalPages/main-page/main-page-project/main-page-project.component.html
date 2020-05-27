@@ -67,5 +67,11 @@
                          [projectId]="projectDto._id"
                          [marginValue]="'8px 8px 8px 0'"></app-whiteboard-card>
   </mat-card-content>
+
 </mat-card>
+<div class="time-timer-list-wrapper">
+  <app-time-timer *ngFor="let timerKey of timeTimerMgr.timerKeys"
+                  [timeTimer]="timeTimerMgr.timeTimerMap.get(timerKey)">
+  </app-time-timer>
+</div>
 <!--프로젝트 Article #2-->
