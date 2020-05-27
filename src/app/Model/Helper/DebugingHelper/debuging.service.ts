@@ -56,26 +56,26 @@ export class DebugingService {
     this.paperProject = currentProject;
   }
   public logDrawingLayer(){
-    console.log("\n\nWbItem Array=============\n");
+    //console.log("\n\nWbItem Array=============\n");
     this.drawingLayerManagerService.whiteboardItemArray.forEach((value, index, array)=>{
-      console.log("DebugingService >> logDrawingLayer >> WbItem < "+value.id+" > : ",value);
+      //console.log("DebugingService >> logDrawingLayer >> WbItem < "+value.id+" > : ",value);
     });
-    console.log("\n\n");
+    //console.log("\n\n");
 
-    console.log("\n\nWbLink Array=============\n");
+    //console.log("\n\nWbLink Array=============\n");
     this.drawingLayerManagerService.editableLinkArray.forEach((value, index, array)=>{
-      console.log("DebugingService >> logDrawingLayer >> WbLink : ",value);
+      //console.log("DebugingService >> logDrawingLayer >> WbLink : ",value);
     });
-    console.log("\n\n");
+    //console.log("\n\n");
   }
   public logChildren(){
-    console.log("\n\n=============\n");
+    //console.log("\n\n=============\n");
     this.drawingLayerManagerService.drawingLayer.children.forEach((value, index, array)=>{
-      console.log("DebugingService >> logChildren [ "+index+" ]  : ",value.children);
+      //console.log("DebugingService >> logChildren [ "+index+" ]  : ",value.children);
       value.children.forEach((value, index, array)=>{
-        console.log("DebugingService >> value >>  : ",value.bounds);
+        //console.log("DebugingService >> value >>  : ",value.bounds);
       })
     });
-    console.log("\n\n");
+    //console.log("\n\n");
   }
 }

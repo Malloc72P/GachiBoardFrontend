@@ -60,7 +60,7 @@ export class ProjectSupporterPannelComponent extends PopoverPanel  implements On
 
   }
   onPanelStateChangeHandler() {
-    console.log("ProjectSupporterPannelComponent >> onPanelStateChangeHandler >> 진입함");
+    //console.log("ProjectSupporterPannelComponent >> onPanelStateChangeHandler >> 진입함");
     //this.pointerModeManagerService.currentPointerMode = this.currentSelectedMode;
   }
   onClickPanelItem(panelItem: number) {
@@ -77,7 +77,7 @@ export class ProjectSupporterPannelComponent extends PopoverPanel  implements On
         });
 
         dialogRef.afterClosed().subscribe(result => {
-          console.log('The dialog was closed');
+          //console.log('The dialog was closed');
           this.hotKeyManagementService.enableHotKeySystem();
         });
         break;
@@ -108,7 +108,7 @@ export class ProjectSupporterPannelComponent extends PopoverPanel  implements On
 
   onFileChangeMultiple() {
     let fileObjects = this.fileInputMultiple.nativeElement.files;
-    console.log("ProjectSupporterPannelComponent >> onFileChange >> this.fileInput.nativeElement.files : ", fileObjects);
+    //console.log("ProjectSupporterPannelComponent >> onFileChange >> this.fileInput.nativeElement.files : ", fileObjects);
 
     this.importFileService.importFile(fileObjects)
   }

@@ -5,6 +5,7 @@ import {ParticipantDto} from '../../../../../DTO/ProjectDto/ParticipantDto/parti
 
 import {ProjectDto} from '../../../../../DTO/ProjectDto/project-dto';
 import {UserManagerService} from '../../../../UserManager/user-manager.service';
+import {EventEmitter} from '@angular/core';
 
 export class KanbanItem {
   _id:number;
@@ -42,7 +43,7 @@ export class KanbanItem {
     return newKanbanItem;
   }
 
-  exportDto(parentGroup){
+   exportDto(parentGroup){
     let kanbanDto = new KanbanItemDto();
     kanbanDto._id = this._id;
     kanbanDto.userInfo = this.userInfo.idToken;

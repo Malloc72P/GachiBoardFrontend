@@ -57,7 +57,7 @@ export class WsWhiteboardController {
           this.websocketManager.uiService.spin$.next(false);
           switch (wsPacketDto.action) {
             case WebsocketPacketActionEnum.ACK:
-              // console.log("WsWhiteboardController >> waitRequestGetWbItemList >> wsPacketDto : ",wsPacketDto);
+              // //console.log("WsWhiteboardController >> waitRequestGetWbItemList >> wsPacketDto : ",wsPacketDto);
               subscriber.next(wsPacketDto);
               break;
             case WebsocketPacketActionEnum.NAK:
@@ -96,7 +96,7 @@ export class WsWhiteboardController {
           // }
           switch (wsPacketDto.action) {
             case WebsocketPacketActionEnum.ACK:
-              // console.log("WsWhiteboardController >> waitRequestCreateWbItem >> wsPacketDto : ",wsPacketDto);
+              // //console.log("WsWhiteboardController >> waitRequestCreateWbItem >> wsPacketDto : ",wsPacketDto);
               subscriber.next(wsPacketDto);
               break;
             case WebsocketPacketActionEnum.NAK:
@@ -111,7 +111,7 @@ export class WsWhiteboardController {
     this.socket.on(HttpHelper.websocketApi.whiteboardItem.create.event,
       (wsPacketDto:WebsocketPacketDto)=>{
         if (wsPacketDto.action === WebsocketPacketActionEnum.CREATE) {
-          // console.log("WsWhiteboardController >> onWbItemCreated >> wsPacketDto : ",wsPacketDto);
+          // //console.log("WsWhiteboardController >> onWbItemCreated >> wsPacketDto : ",wsPacketDto);
 
           this.websocketManager.wbItemEventManagerService.wsWbItemEventEmitter.emit(
             new WbItemEvent( WbItemEventEnum.CREATE, wsPacketDto.dataDto as WhiteboardItemDto)
@@ -137,7 +137,7 @@ export class WsWhiteboardController {
       let newSeq = this.websocketManager.wsPacketSeq;
       packetDto.wsPacketSeq = newSeq;
 
-      // console.log("WsWhiteboardController >> testing >> packetDto : ",packetDto);
+      // //console.log("WsWhiteboardController >> testing >> packetDto : ",packetDto);
 
       this.socket.emit(HttpHelper.websocketApi.whiteboardItem.create_multiple.event, packetDto);
 
@@ -148,7 +148,7 @@ export class WsWhiteboardController {
           //this.websocketManager.uiService.spin$.next(false);
           switch (wsPacketDto.action) {
             case WebsocketPacketActionEnum.ACK:
-              // console.log("WsWhiteboardController >> waitRequestCreateWbItem >> wsPacketDto : ",wsPacketDto);
+              // //console.log("WsWhiteboardController >> waitRequestCreateWbItem >> wsPacketDto : ",wsPacketDto);
               subscriber.next(wsPacketDto);
               break;
             case WebsocketPacketActionEnum.NAK:
@@ -163,7 +163,7 @@ export class WsWhiteboardController {
     this.socket.on(HttpHelper.websocketApi.whiteboardItem.create_multiple.event,
       (wsPacketDto:WebsocketPacketDto)=>{
         if (wsPacketDto.action === WebsocketPacketActionEnum.CREATE_MULTIPLE) {
-          // console.log("WsWhiteboardController >> onWbItemCreated >> wsPacketDto : ",wsPacketDto);
+          // //console.log("WsWhiteboardController >> onWbItemCreated >> wsPacketDto : ",wsPacketDto);
 
           this.websocketManager.wbItemEventManagerService.wsWbItemEventEmitter.emit(
             new WbItemEvent( WbItemEventEnum.CREATE_MULTIPLE, null, wsPacketDto.dataDto)
@@ -201,7 +201,7 @@ export class WsWhiteboardController {
           //this.websocketManager.uiService.spin$.next(false);
           switch (wsPacketDto.action) {
             case WebsocketPacketActionEnum.ACK:
-              // console.log("WsWhiteboardController >> waitRequestUpdateWbItem >> wsPacketDto : ",wsPacketDto);
+              // //console.log("WsWhiteboardController >> waitRequestUpdateWbItem >> wsPacketDto : ",wsPacketDto);
               subscriber.next(wsPacketDto);
               break;
             case WebsocketPacketActionEnum.NAK:
@@ -216,7 +216,7 @@ export class WsWhiteboardController {
     this.socket.on(HttpHelper.websocketApi.whiteboardItem.update.event,
       (wsPacketDto:WebsocketPacketDto)=>{
         if (wsPacketDto.action === WebsocketPacketActionEnum.UPDATE) {
-          // console.log("WsWhiteboardController >> onWbItemUpdated >> wsPacketDto : ",wsPacketDto);
+          // //console.log("WsWhiteboardController >> onWbItemUpdated >> wsPacketDto : ",wsPacketDto);
 
           this.websocketManager.wbItemEventManagerService.wsWbItemEventEmitter.emit(
             new WbItemEvent(
@@ -237,7 +237,7 @@ export class WsWhiteboardController {
   /* *************************************************** */
   waitRequestUpdateMultipleWbItem( wbItemDtos:Array<WhiteboardItemDto>, gsgDto?:GlobalSelectedGroupDto){
     //this.websocketManager.uiService.spin$.next(true);
-    console.log("WsWhiteboardController >> waitRequestUpdateMultipleWbItem >> wbItemDtos : ",wbItemDtos);
+    //console.log("WsWhiteboardController >> waitRequestUpdateMultipleWbItem >> wbItemDtos : ",wbItemDtos);
     return new Observable<any>((subscriber)=>{
 
 
@@ -263,7 +263,7 @@ export class WsWhiteboardController {
           //this.websocketManager.uiService.spin$.next(false);
           switch (wsPacketDto.action) {
             case WebsocketPacketActionEnum.ACK:
-              // console.log("WsWhiteboardController >> waitRequestUpdateWbItem >> wsPacketDto : ",wsPacketDto);
+              // //console.log("WsWhiteboardController >> waitRequestUpdateWbItem >> wsPacketDto : ",wsPacketDto);
               subscriber.next(wsPacketDto);
               break;
             case WebsocketPacketActionEnum.NAK:
@@ -278,7 +278,7 @@ export class WsWhiteboardController {
     this.socket.on(HttpHelper.websocketApi.whiteboardItem.update_multiple.event,
       (wsPacketDto:WebsocketPacketDto)=>{
         if (wsPacketDto.action === WebsocketPacketActionEnum.UPDATE) {
-          // console.log("WsWhiteboardController >> onWbItemUpdated >> wsPacketDto : ",wsPacketDto);
+          // //console.log("WsWhiteboardController >> onWbItemUpdated >> wsPacketDto : ",wsPacketDto);
 
           this.websocketManager.wbItemEventManagerService.wsWbItemEventEmitter.emit(
             new WbItemEvent(
@@ -323,7 +323,7 @@ export class WsWhiteboardController {
           //this.websocketManager.uiService.spin$.next(false);
           switch (wsPacketDto.action) {
             case WebsocketPacketActionEnum.ACK:
-              // console.log("WsWhiteboardController >> waitRequestUpdateZIndexWbItem >> wsPacketDto : ",wsPacketDto);
+              // //console.log("WsWhiteboardController >> waitRequestUpdateZIndexWbItem >> wsPacketDto : ",wsPacketDto);
               subscriber.next(wsPacketDto);
               break;
             case WebsocketPacketActionEnum.NAK:
@@ -338,7 +338,7 @@ export class WsWhiteboardController {
     this.socket.on(HttpHelper.websocketApi.whiteboardItem.updateZIndex.event,
       (wsPacketDto:WebsocketPacketDto)=>{
         if (wsPacketDto.action === WebsocketPacketActionEnum.UPDATE) {
-          // console.log("WsWhiteboardController >> onWbItemUpdated >> wsPacketDto : ",wsPacketDto);
+          // //console.log("WsWhiteboardController >> onWbItemUpdated >> wsPacketDto : ",wsPacketDto);
 
           this.websocketManager.wbItemEventManagerService.wsWbItemEventEmitter.emit(
             new WbItemEvent(WbItemEventEnum.UPDATE_ZIndex,null, wsPacketDto.additionalData));
@@ -377,7 +377,7 @@ export class WsWhiteboardController {
           //this.websocketManager.uiService.spin$.next(false);
           switch (wsPacketDto.action) {
             case WebsocketPacketActionEnum.ACK:
-              // console.log("WsWhiteboardController >> waitRequestDeleteWbItem >> wsPacketDto : ",wsPacketDto);
+              // //console.log("WsWhiteboardController >> waitRequestDeleteWbItem >> wsPacketDto : ",wsPacketDto);
               subscriber.next(wsPacketDto);
               break;
             case WebsocketPacketActionEnum.NAK:
@@ -392,7 +392,7 @@ export class WsWhiteboardController {
     this.socket.on(HttpHelper.websocketApi.whiteboardItem.delete.event,
       (wsPacketDto:WebsocketPacketDto)=>{
         if (wsPacketDto.action === WebsocketPacketActionEnum.DELETE) {
-          // console.log("WsWhiteboardController >> onWbItemDeleted >> wsPacketDto : ",wsPacketDto);
+          // //console.log("WsWhiteboardController >> onWbItemDeleted >> wsPacketDto : ",wsPacketDto);
 
           this.websocketManager.wbItemEventManagerService.wsWbItemEventEmitter.emit(
             new WbItemEvent( WbItemEventEnum.DELETE, wsPacketDto.dataDto as WhiteboardItemDto)
@@ -445,7 +445,7 @@ export class WsWhiteboardController {
           //this.websocketManager.uiService.spin$.next(false);
           switch (wsPacketDto.action) {
             case WebsocketPacketActionEnum.ACK:
-              // console.log("WsWhiteboardController >> waitRequestDeleteWbItem >> wsPacketDto : ",wsPacketDto);
+              // //console.log("WsWhiteboardController >> waitRequestDeleteWbItem >> wsPacketDto : ",wsPacketDto);
               subscriber.next(wsPacketDto);
               break;
             case WebsocketPacketActionEnum.NAK:
@@ -460,7 +460,7 @@ export class WsWhiteboardController {
     this.socket.on(HttpHelper.websocketApi.whiteboardItem.delete_multiple.event,
       (wsPacketDto:WebsocketPacketDto)=>{
         if (wsPacketDto.action === WebsocketPacketActionEnum.DELETE) {
-          // console.log("WsWhiteboardController >> onWbItemDeleted >> wsPacketDto : ",wsPacketDto);
+          // //console.log("WsWhiteboardController >> onWbItemDeleted >> wsPacketDto : ",wsPacketDto);
 
           this.websocketManager.wbItemEventManagerService.wsWbItemEventEmitter.emit(
             new WbItemEvent( WbItemEventEnum.DELETE_MULTIPLE, wsPacketDto.dataDto, wsPacketDto.additionalData)
@@ -510,7 +510,7 @@ export class WsWhiteboardController {
     this.socket.on(HttpHelper.websocketApi.whiteboardItem.lock.event,
       (wsPacketDto:WebsocketPacketDto)=>{
         if (wsPacketDto.action === WebsocketPacketActionEnum.LOCK) {
-          // console.log("WsWhiteboardController >> onWbItemLocked >> wsPacketDto : ",wsPacketDto);
+          // //console.log("WsWhiteboardController >> onWbItemLocked >> wsPacketDto : ",wsPacketDto);
 
           this.websocketManager.wbItemEventManagerService.wsWbItemEventEmitter.emit(
             new WbItemEvent( WbItemEventEnum.UPDATE, wsPacketDto.dataDto as WhiteboardItemDto)
@@ -545,7 +545,7 @@ export class WsWhiteboardController {
           //this.websocketManager.uiService.spin$.next(false);
           switch (wsPacketDto.action) {
             case WebsocketPacketActionEnum.ACK:
-              // console.log("WsWhiteboardController >> waitRequestUnlockWbItem >> wsPacketDto : ",wsPacketDto);
+              // //console.log("WsWhiteboardController >> waitRequestUnlockWbItem >> wsPacketDto : ",wsPacketDto);
               subscriber.next(wsPacketDto);
               break;
             case WebsocketPacketActionEnum.NAK:
@@ -560,7 +560,7 @@ export class WsWhiteboardController {
     this.socket.on(HttpHelper.websocketApi.whiteboardItem.unlock.event,
       (wsPacketDto:WebsocketPacketDto)=>{
         if (wsPacketDto.action === WebsocketPacketActionEnum.UNLOCK) {
-          // console.log("WsWhiteboardController >> onWbItemUnlocked >> wsPacketDto : ",wsPacketDto);
+          // //console.log("WsWhiteboardController >> onWbItemUnlocked >> wsPacketDto : ",wsPacketDto);
 
           this.websocketManager.wbItemEventManagerService.wsWbItemEventEmitter.emit(
             new WbItemEvent( WbItemEventEnum.UPDATE, wsPacketDto.dataDto as WhiteboardItemDto)
@@ -594,7 +594,7 @@ export class WsWhiteboardController {
       this.socket.once(HttpHelper.websocketApi.whiteboardItem.occupied.event + HttpHelper.ACK_SIGN + newSeq,
         (wsPacketDto:WebsocketPacketDto)=>{
           //this.websocketManager.uiService.spin$.next(false);
-          // console.log("WsWhiteboardController >> waitRequestOccupyWbItem >> wsPacketDto : ",wsPacketDto);
+          // //console.log("WsWhiteboardController >> waitRequestOccupyWbItem >> wsPacketDto : ",wsPacketDto);
           switch (wsPacketDto.action) {
             case WebsocketPacketActionEnum.ACK:
               subscriber.next(wsPacketDto);
@@ -611,7 +611,7 @@ export class WsWhiteboardController {
     this.socket.on(HttpHelper.websocketApi.whiteboardItem.occupied.event,
       (wsPacketDto:WebsocketPacketDto)=>{
         if (wsPacketDto.action === WebsocketPacketActionEnum.OCCUPIED) {
-          // console.log("WsWhiteboardController >> onWbItemOccupied >> wsPacketDto : ",wsPacketDto);
+          // //console.log("WsWhiteboardController >> onWbItemOccupied >> wsPacketDto : ",wsPacketDto);
 
           this.websocketManager.wbItemEventManagerService.wsWbItemEventEmitter.emit(
             new WbItemEvent( WbItemEventEnum.OCCUPIED, wsPacketDto.dataDto as WhiteboardItemDto, wsPacketDto)
@@ -638,7 +638,7 @@ export class WsWhiteboardController {
       let packetDto = this.websocketManager.createWbSessionScopePacket(gsgDto,WebsocketPacketActionEnum.NOT_OCCUPIED);
       let newSeq = this.websocketManager.wsPacketSeq;
       packetDto.wsPacketSeq = newSeq;
-      // console.log("WsWhiteboardController >> waitRequestNotOccupyWbItem >> gsgDto : ",gsgDto);
+      // //console.log("WsWhiteboardController >> waitRequestNotOccupyWbItem >> gsgDto : ",gsgDto);
       this.socket.emit(HttpHelper.websocketApi.whiteboardItem.notOccupied.event, packetDto);
 
       //#### 요청 완료
@@ -648,7 +648,7 @@ export class WsWhiteboardController {
           //this.websocketManager.uiService.spin$.next(false);
           switch (wsPacketDto.action) {
             case WebsocketPacketActionEnum.ACK:
-              // console.log("WsWhiteboardController >> waitRequestNotOccupyWbItem >> wsPacketDto : ",wsPacketDto);
+              // //console.log("WsWhiteboardController >> waitRequestNotOccupyWbItem >> wsPacketDto : ",wsPacketDto);
               subscriber.next(wsPacketDto);
               break;
             case WebsocketPacketActionEnum.NAK:
@@ -663,7 +663,7 @@ export class WsWhiteboardController {
     this.socket.on(HttpHelper.websocketApi.whiteboardItem.notOccupied.event,
       (wsPacketDto:WebsocketPacketDto)=>{
         if (wsPacketDto.action === WebsocketPacketActionEnum.NOT_OCCUPIED) {
-          // console.log("WsWhiteboardController >> onWbItemNotOccupied >> wsPacketDto : ",wsPacketDto);
+          // //console.log("WsWhiteboardController >> onWbItemNotOccupied >> wsPacketDto : ",wsPacketDto);
 
           this.websocketManager.wbItemEventManagerService.wsWbItemEventEmitter.emit(
             new WbItemEvent( WbItemEventEnum.NOT_OCCUPIED, wsPacketDto.dataDto as WhiteboardItemDto)

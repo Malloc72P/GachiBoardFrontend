@@ -26,7 +26,7 @@ export class ProjectRequesterService {
 
       this.apiRequester.post( HttpHelper.api.project.create.uri, {projectTitle : projectTitle} )
         .subscribe((data)=>{
-          console.log("ProjectRequesterService >> createProject >> data : ",data);
+          //console.log("ProjectRequesterService >> createProject >> data : ",data);
           let newProjectDto:ProjectDto = new ProjectDto();
           newProjectDto._id = data._id;
           newProjectDto.projectTitle = data.projectTitle;
@@ -37,7 +37,7 @@ export class ProjectRequesterService {
           newProjectDto.whiteboardSessionList = data.whiteboardSessionList;
           observer.next(newProjectDto);
         }, (error)=>{
-          console.log("ProjectRequesterService >> createProject >> error : ",error);
+          //console.log("ProjectRequesterService >> createProject >> error : ",error);
         });
     });
   }
@@ -50,7 +50,7 @@ export class ProjectRequesterService {
         .subscribe((data)=>{
           observer.next(data);
         }, (error)=>{
-          console.log("ProjectRequesterService >> createProject >> error : ",error);
+          //console.log("ProjectRequesterService >> createProject >> error : ",error);
           this.authRequestService.signOutProcess();
         });
     });
@@ -62,7 +62,7 @@ export class ProjectRequesterService {
         .subscribe((data)=>{
           observer.next(data);
         }, (error)=>{
-          console.log("ProjectRequesterService >> submitInviteCode >> error : ",error);
+          //console.log("ProjectRequesterService >> submitInviteCode >> error : ",error);
           this.authRequestService.signOutProcess();
         });
     });
@@ -77,7 +77,7 @@ export class ProjectRequesterService {
           observer.next(data);
         }, (error)=>{
           this.uiService.spin$.next(false);
-          console.log("ProjectRequesterService >> submitInviteCode >> error : ",error);
+          //console.log("ProjectRequesterService >> submitInviteCode >> error : ",error);
           this.authRequestService.signOutProcess();
         });
     });
@@ -91,7 +91,7 @@ export class ProjectRequesterService {
           observer.next(data);
         }, (error)=>{
           this.uiService.spin$.next(false);
-          console.log("ProjectRequesterService >> submitInviteCode >> error : ",error);
+          //console.log("ProjectRequesterService >> submitInviteCode >> error : ",error);
           this.authRequestService.signOutProcess();
         });
     });
@@ -104,7 +104,7 @@ export class ProjectRequesterService {
         .subscribe((data:RestPacketDto)=>{
           observer.next(data.data);
         }, (error)=>{
-          console.log("ProjectRequesterService >> submitInviteCode >> error : ",error);
+          //console.log("ProjectRequesterService >> submitInviteCode >> error : ",error);
           this.authRequestService.signOutProcess();
         });
     });

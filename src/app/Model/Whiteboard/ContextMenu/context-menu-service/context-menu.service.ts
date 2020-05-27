@@ -49,7 +49,7 @@ export class ContextMenuService {
   ) { }
 
   public initializeContextMenuService(contextMenu: MatMenu, contextMenuTrigger: MatMenuTrigger) {
-    console.log("ContextMenuService >> initializeContextMenuService >>  : ", );
+    //console.log("ContextMenuService >> initializeContextMenuService >>  : ", );
     this._contextMenuTrigger = contextMenuTrigger;
     this._contextMenu = contextMenu;
   }
@@ -69,7 +69,7 @@ export class ContextMenuService {
       this.item = hitItem;
     }
 
-    console.log("ContextMenuService >> openMenu >> 진입함");
+    //console.log("ContextMenuService >> openMenu >> 진입함");
 
     //1. GSG가 비어있는지 검사
     if(this.layerService.globalSelectedGroup.getNumberOfChild() === 0){
@@ -162,7 +162,7 @@ export class ContextMenuService {
   }
 
   private setContextMenuToShape() {
-    console.log("ContextMenuService >> setContextMenuToShape >> 진입함");
+    //console.log("ContextMenuService >> setContextMenuToShape >> 진입함");
     this._contextMenuItems.splice(0, this._contextMenuItems.length);
     for (let key in ShapeContextMenu) {
       if(ShapeContextMenu.hasOwnProperty(key)) {
@@ -171,7 +171,7 @@ export class ContextMenuService {
     }
   }
   private setContextMenuToStroke() {
-    console.log("ContextMenuService >> setContextMenuToStroke >> 진입함");
+    //console.log("ContextMenuService >> setContextMenuToStroke >> 진입함");
     this._contextMenuItems.splice(0, this._contextMenuItems.length);
     for (let key in StrokeContextMenu) {
       if(StrokeContextMenu.hasOwnProperty(key)) {
@@ -180,7 +180,7 @@ export class ContextMenuService {
     }
   }
   private setContextMenuToRaster() {
-    console.log("ContextMenuService >> setContextMenuToRaster >> 진입함");
+    //console.log("ContextMenuService >> setContextMenuToRaster >> 진입함");
     this._contextMenuItems.splice(0, this._contextMenuItems.length);
     for (let key in RasterContextMenu) {
       if(RasterContextMenu.hasOwnProperty(key)) {
@@ -189,7 +189,7 @@ export class ContextMenuService {
     }
   }
   private setContextMenuToGroup() {
-    console.log("ContextMenuService >> setContextMenuToGroup >> 진입함");
+    //console.log("ContextMenuService >> setContextMenuToGroup >> 진입함");
     this._contextMenuItems.splice(0, this._contextMenuItems.length);
     for (let key in GroupContextMenu) {
       if(GroupContextMenu.hasOwnProperty(key)) {
@@ -198,7 +198,7 @@ export class ContextMenuService {
     }
   }
   private setContextMenuToEditableLink() {
-    console.log("ContextMenuService >> setContextMenuToEditableLink >> 진입함");
+    //console.log("ContextMenuService >> setContextMenuToEditableLink >> 진입함");
     this._contextMenuItems.splice(0, this._contextMenuItems.length);
     for (let key in EditableLinkContextMenu) {
       if(EditableLinkContextMenu.hasOwnProperty(key)) {
@@ -208,7 +208,7 @@ export class ContextMenuService {
   }
 
   private setContextMenuToDefault() {
-    console.log("ContextMenuService >> setContextMenuToDefault >> 진입함");
+    //console.log("ContextMenuService >> setContextMenuToDefault >> 진입함");
     this._contextMenuItems.splice(0, this._contextMenuItems.length);
     for (let key in ContextMenu) {
       if(ContextMenu.hasOwnProperty(key)) {
@@ -235,7 +235,7 @@ export class ContextMenuService {
         }
         break;
       case ShapeContextMenu.EDIT:
-        console.log("ContextMenuService >> onClickContextMenu >> EDIT");
+        //console.log("ContextMenuService >> onClickContextMenu >> EDIT");
         this.pointerModeManagerService.modeChange(PointerMode.POINTER);
         this.layerService.globalSelectedGroup.insertOneIntoSelection(this.item);
         break;

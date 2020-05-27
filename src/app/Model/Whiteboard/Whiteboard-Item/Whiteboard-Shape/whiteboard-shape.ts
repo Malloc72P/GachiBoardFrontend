@@ -164,7 +164,7 @@ export class WhiteboardShape extends WhiteboardItem implements Editable{
   }
 
   public update(dto: WhiteboardShapeDto) {
-    console.log("WhiteboardShape >> update >> 진입함");
+    //console.log("WhiteboardShape >> update >> 진입함");
     this.width = dto.width;
     this.height = dto.height;
     this.borderColor = dto.borderColor;

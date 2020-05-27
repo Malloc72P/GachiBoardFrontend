@@ -15,14 +15,13 @@ import {KanbanTagManagementComponent} from './kanban-tag-management/kanban-tag-m
 import {HtmlHelperService} from '../../../Model/NormalPagesManager/HtmlHelperService/html-helper.service';
 import {ProjectDto} from '../../../DTO/ProjectDto/project-dto';
 import {WsKanbanController} from '../../../Controller/Controller-WebSocket/websocket-manager/KanbanWsController/ws-kanban.controller';
-import {KanbanItemDto, KanbanGroupEnum} from '../../../DTO/ProjectDto/KanbanDataDto/KanbanGroupDto/KanbanItemDto/kanban-item-dto';
+import {KanbanGroupEnum, KanbanItemDto} from '../../../DTO/ProjectDto/KanbanDataDto/KanbanGroupDto/KanbanItemDto/kanban-item-dto';
 import {KanbanEventManagerService} from '../../../Model/Whiteboard/ProjectSupporter/Kanban/kanban-event-manager.service';
 import {KanbanEvent, KanbanEventEnum} from '../../../Model/Whiteboard/ProjectSupporter/Kanban/KanbanEvent/KanbanEvent';
 import {WebsocketManagerService} from '../../../Controller/Controller-WebSocket/websocket-manager/websocket-manager.service';
 import {KanbanDataDto} from '../../../DTO/ProjectDto/KanbanDataDto/kanban-data-dto';
 import {Subscription} from 'rxjs';
 import {MAT_DIALOG_DATA, MatDialog, MatDialogRef} from '@angular/material/dialog';
-import {UiService} from '../../../Model/Helper/ui-service/ui.service';
 import * as moment from 'moment';
 import {AreYouSurePanelService} from '../../../Model/PopupManager/AreYouSurePanelManager/are-you-sure-panel.service';
 import {TimeTimerManagerService} from '../../../Model/Whiteboard/TimeTimer/time-timer-manager.service';
@@ -182,6 +181,8 @@ export class KanbanComponent implements OnInit, OnDestroy {
       let wsKanbanController = WsKanbanController.getInstance();
 
       wsKanbanController.requestDeleteKanban(kanbanItem, kanbanGroup);
+      this.kanbanEventManager.kanbanLocalEventEmitter.emit(
+        new KanbanEvent(KanbanEventEnum.DELETE, kanbanItem.exportDto(kanbanGroup)) );
     }
   }
   deleteByWs(kanbanItemDto:KanbanItemDto){
@@ -240,6 +241,12 @@ export class KanbanComponent implements OnInit, OnDestroy {
         if(currItem.userInfo.idToken !== kanbanItemDto.userInfo){
           currItem.userInfo = this.userManagerService.getUserDataByIdToken(kanbanItemDto.userInfo);
         }
+        if(currItem.timerStartDate !== kanbanItemDto.timerStartDate){
+          currItem.timerStartDate = kanbanItemDto.timerStartDate;
+        }
+        if(currItem.timerEndDate !== kanbanItemDto.timerEndDate){
+          currItem.timerEndDate = kanbanItemDto.timerEndDate;
+        }
 
         if(kanbanItemDto.tagIdList){
           let tagListDto:Array<TagItem> = kanbanItemDto.tagIdList;
@@ -251,7 +258,6 @@ export class KanbanComponent implements OnInit, OnDestroy {
             currItem.tagList.push(newTagItem);
           }
         }
-
         break;
       }
     }
@@ -341,10 +347,10 @@ export class KanbanComponent implements OnInit, OnDestroy {
     }
 
     if (kanbanItemDto.parentGroup === destGroupTitle) {
-      console.log("KanbanComponent >> drop >> 이전 컨테이너와 현재 컨네이너가 동일");
+      //console.log("KanbanComponent >> drop >> 이전 컨테이너와 현재 컨네이너가 동일");
       moveItemInArray(toGroup.kanbanItemList, previousIndex, currentIndex);
     } else {
-      console.log("KanbanComponent >> drop >> 이전과 현재 컨테이너가 다름.");
+      //console.log("KanbanComponent >> drop >> 이전과 현재 컨테이너가 다름.");
       transferArrayItem(fromGroup.kanbanItemList,
         toGroup.kanbanItemList,
         previousIndex,
@@ -364,10 +370,10 @@ export class KanbanComponent implements OnInit, OnDestroy {
     let currKanbanItem:KanbanItem = event.container.data[event.currentIndex] as unknown as KanbanItem;
 
     if (event.previousContainer === event.container) {
-      console.log("KanbanComponent >> drop >> 이전 컨테이너와 현재 컨네이너가 동일");
+      //console.log("KanbanComponent >> drop >> 이전 컨테이너와 현재 컨네이너가 동일");
       moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
     } else {
-      console.log("KanbanComponent >> drop >> 이전과 현재 컨테이너가 다름.");
+      //console.log("KanbanComponent >> drop >> 이전과 현재 컨테이너가 다름.");
       transferArrayItem(event.previousContainer.data,
         event.container.data,
         event.previousIndex,
@@ -389,7 +395,7 @@ export class KanbanComponent implements OnInit, OnDestroy {
 
     dialogRef.afterClosed().subscribe((result) => {
       if(result){
-        console.log("KanbanComponent >>  >> result : ",result);
+        //console.log("KanbanComponent >>  >> result : ",result);
         if(!result.createFlag){
           return;
         }
@@ -408,7 +414,7 @@ export class KanbanComponent implements OnInit, OnDestroy {
     });
 
     dialogRef.afterClosed().subscribe((result) => {
-      console.log("KanbanComponent >>  >> result : ",result);
+      //console.log("KanbanComponent >>  >> result : ",result);
     });
 
   }
@@ -419,7 +425,7 @@ export class KanbanComponent implements OnInit, OnDestroy {
     });
 
     dialogRef.afterClosed().subscribe((result) => {
-      console.log("KanbanComponent >>  >> result : ",result);
+      //console.log("KanbanComponent >>  >> result : ",result);
     });
 
   }
@@ -435,6 +441,7 @@ export class KanbanComponent implements OnInit, OnDestroy {
     dialogRef.afterClosed().subscribe((result) => {
       let wsKanbanController = WsKanbanController.getInstance();
       wsKanbanController.requestUnlockKanban(kanbanItem, kanbanGroup);
+      this.kanbanEventManager.kanbanLocalEventEmitter.emit(new KanbanEvent(KanbanEventEnum.UPDATE, kanbanItem.exportDto(kanbanGroup)));
     });
   }
 
@@ -443,7 +450,7 @@ export class KanbanComponent implements OnInit, OnDestroy {
     let wsKanbanController = WsKanbanController.getInstance();
     let subscription:Subscription = wsKanbanController.waitRequestLockKanban(kanbanItem, kanbanGroup)
       .subscribe(()=>{
-        console.log("KanbanComponent >> onContextBtnClick >> 진입함");
+        //console.log("KanbanComponent >> onContextBtnClick >> 진입함");
         switch (operation) {
           case "edit":
             this.onEditBtnClick(kanbanItem, kanbanGroup);
@@ -464,7 +471,7 @@ export class KanbanComponent implements OnInit, OnDestroy {
   startTimer(kanbanItem:KanbanItem, kanbanGroup){
     let startDate = new Date();
     let endDate = moment(kanbanItem.timerEndDate);
-    console.log(`startDate : ${startDate}\n endDate : ${endDate}`);
+    //console.log(`startDate : ${startDate}\n endDate : ${endDate}`);
     if(endDate.isBefore(startDate)){
       //종료일을 이미 지난 경우.
       //에러메세지 출력 후 리턴
@@ -485,11 +492,11 @@ export class KanbanComponent implements OnInit, OnDestroy {
     }
     let wsKanbanController = WsKanbanController.getInstance();
     wsKanbanController.requestUnlockKanban(kanbanItem, kanbanGroup);
-    this.timerManagerService.startTimeTimer(kanbanItem, kanbanGroup);
+    this.timerManagerService.startTimeTimer(kanbanItem);
   }
 
   requestLock(kanbanItem, kanbanGroup){
-    console.log("KanbanComponent >> requestLock >> kanbanItem : ",kanbanItem);
+    //console.log("KanbanComponent >> requestLock >> kanbanItem : ",kanbanItem);
     if(kanbanItem.lockedBy){
       return;
     }
@@ -497,7 +504,7 @@ export class KanbanComponent implements OnInit, OnDestroy {
     wsKanbanController.requestLockKanban(kanbanItem, kanbanGroup);
   }
   requestRelease(kanbanItem, kanbanGroup){
-    console.log("KanbanComponent >> requestLock >> kanbanItem : ",kanbanItem);
+    //console.log("KanbanComponent >> requestLock >> kanbanItem : ",kanbanItem);
     if(!kanbanItem.lockedBy){
       return;
     }

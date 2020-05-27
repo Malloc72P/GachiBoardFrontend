@@ -35,7 +35,7 @@ export class MainPageRootComponent implements OnInit, OnDestroy {
     if(inviteCode){
       let subscription = this.projectRequesterService.submitInviteCode(inviteCode)
         .subscribe((data)=>{
-          console.log("MainPageRootComponent >> projectRequesterService >> data : ",data);
+          //console.log("MainPageRootComponent >> projectRequesterService >> data : ",data);
           localStorage.removeItem("inviteCode");
           // this.routerHelperService.goToMainPage();
           this.initPageData(data.result);
@@ -48,7 +48,7 @@ export class MainPageRootComponent implements OnInit, OnDestroy {
     this.userDto = this.authRequestService.getUserInfo();
     let subscription = this.authRequestService.authEventEmitter.subscribe((authEvent:AuthEvent)=>{
       let userDto = authEvent.userInfo;
-      console.log("MainPageRootComponent >> authEventEmitter >> userDto : ",userDto);
+      //console.log("MainPageRootComponent >> authEventEmitter >> userDto : ",userDto);
       this.initPageData(userDto);
       subscription.unsubscribe();
     });
@@ -61,7 +61,7 @@ export class MainPageRootComponent implements OnInit, OnDestroy {
   }
 
   initPageData(userDto:UserDTO){
-    console.log("MainPageRootComponent >> initPageData >> userDto : ",userDto);
+    //console.log("MainPageRootComponent >> initPageData >> userDto : ",userDto);
     this.userDto = userDto;
     this.projectList.splice(0, this.projectList.length);
     for(let i = 0 ; i < this.userDto.participatingProjects.length; i++){
@@ -85,7 +85,7 @@ export class MainPageRootComponent implements OnInit, OnDestroy {
     });
 
     dialogRef.afterClosed().subscribe((result) => {
-      console.log("MainPageRootComponent >>  >> result : ",result);
+      //console.log("MainPageRootComponent >>  >> result : ",result);
       this.projectList.push(result.projectDto);
     });
 

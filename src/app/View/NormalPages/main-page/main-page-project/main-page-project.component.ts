@@ -142,8 +142,8 @@ export class MainPageProjectComponent implements OnInit, OnDestroy {
 
   subscribeKanbanEventEmitter(){
     let subscription = this.kanbanEventManager.kanbanEventEmitter.subscribe((kanbanEvent:KanbanEvent)=>{
-      console.log("MainPageProjectComponent >> subscribeKanbanEventEmitter >> 진입함");
-      console.log("MainPageProjectComponent >> subscribeKanbanEventEmitter >> kanbanEvent : ",kanbanEvent);
+      //console.log("MainPageProjectComponent >> subscribeKanbanEventEmitter >> 진입함");
+      //console.log("MainPageProjectComponent >> subscribeKanbanEventEmitter >> kanbanEvent : ",kanbanEvent);
       switch (kanbanEvent.action) {
         case KanbanEventEnum.CREATE:
         case KanbanEventEnum.UPDATE:
@@ -160,7 +160,7 @@ export class MainPageProjectComponent implements OnInit, OnDestroy {
   subscribeWbSessionEventEmitter(){
     let subscription = this.wbSessionEventManagerService.wsWbSessionEventEmitter
       .subscribe((wbSessionEvent:WbSessionEvent)=>{
-        console.log("MainPageProjectComponent >> subscribeWbSessionEventEmitter >> wbSessionEvent : ",wbSessionEvent);
+        //console.log("MainPageProjectComponent >> subscribeWbSessionEventEmitter >> wbSessionEvent : ",wbSessionEvent);
       switch (wbSessionEvent.action) {
         case WbSessionEventEnum.CREATE:
         case WbSessionEventEnum.DELETE:
@@ -173,7 +173,7 @@ export class MainPageProjectComponent implements OnInit, OnDestroy {
   subscribeProjectEventEmitter(){
     let subscription = this.websocketManagerService.wsEventEmitter
       .subscribe((websocketEvent:WebsocketEvent)=>{
-        console.log("MainPageProjectComponent >> subscribeProjectEventEmitter >> websocketEvent : ",websocketEvent);
+        //console.log("MainPageProjectComponent >> subscribeProjectEventEmitter >> websocketEvent : ",websocketEvent);
       switch (websocketEvent.action) {
         case WebsocketEventEnum.UPDATE:
           let projectDto:ProjectDto = websocketEvent.data;
@@ -195,10 +195,10 @@ export class MainPageProjectComponent implements OnInit, OnDestroy {
   }
   refreshWbSessionList(){
     let wsKanbanController = WsWhiteboardSessionController.getInstance();
-    console.log("MainPageProjectComponent >> refreshWbSessionList >> 진입함");
+    //console.log("MainPageProjectComponent >> refreshWbSessionList >> 진입함");
     wsKanbanController.requestGetWbSessionList()
       .subscribe((wbSessionList:Array<WhiteboardSessionDto>)=>{
-        console.log("MainPageProjectComponent >> refreshWbSessionList >> wbSessionList : ",wbSessionList);
+        //console.log("MainPageProjectComponent >> refreshWbSessionList >> wbSessionList : ",wbSessionList);
       this.wbSessionList = wbSessionList;
     });
   }
@@ -209,9 +209,9 @@ export class MainPageProjectComponent implements OnInit, OnDestroy {
 
   }
   ngOnDestroy(): void {
-    console.log("\n\n================================================");
-    console.log("MainPageProjectComponent >> ngOnDestroy >> 진입함");
-    console.log("================================================\n\n");
+    //console.log("\n\n================================================");
+    //console.log("MainPageProjectComponent >> ngOnDestroy >> 진입함");
+    //console.log("================================================\n\n");
     for(let subscriptionItem of this.subscriptionList){
       subscriptionItem.unsubscribe();
     }
@@ -241,9 +241,9 @@ export class MainPageProjectComponent implements OnInit, OnDestroy {
 
 
   openKanbanPanel(kanbanObject){
-    console.log("MainPageProjectComponent >> openKanbanPanel >> kanbanObject : ",kanbanObject);
+    //console.log("MainPageProjectComponent >> openKanbanPanel >> kanbanObject : ",kanbanObject);
 
-    console.log("MainPageProjectComponent >> openKanbanPanel >> this.htmlHelperService.getWidthOfBrowser() : ",this.htmlHelperService.getWidthOfBrowser());
+    //console.log("MainPageProjectComponent >> openKanbanPanel >> this.htmlHelperService.getWidthOfBrowser() : ",this.htmlHelperService.getWidthOfBrowser());
 
     const dialogRef = this.dialog.open(KanbanComponent, {
       width: this.htmlHelperService.getWidthOfBrowser()+"px",
@@ -257,7 +257,7 @@ export class MainPageProjectComponent implements OnInit, OnDestroy {
     dialogRef.afterClosed().subscribe(result => {
       /*let wsKanbanController = WsKanbanController.getInstance();
       wsKanbanController.requestGetKanban();*/
-      console.log("MainPageProjectComponent >>  >> result : ",result);
+      //console.log("MainPageProjectComponent >>  >> result : ",result);
       this.refreshInProgressGroup();
     });
   }
@@ -314,7 +314,7 @@ export class MainPageProjectComponent implements OnInit, OnDestroy {
     });
 
     dialogRef.afterClosed().subscribe((response) => {
-      console.log("ProjectCardComponent >> onProjectEdit >> response : ",response);
+      //console.log("ProjectCardComponent >> onProjectEdit >> response : ",response);
       if(response && response.res){
         let restPacketDto:RestPacketDto = response.res as RestPacketDto;
       }
@@ -331,10 +331,10 @@ export class MainPageProjectComponent implements OnInit, OnDestroy {
 
     let subscription = this.projectRequesterService.getParticipantList(this.projectId).subscribe((participantList:Array<ParticipantDto>)=>{
       subscription.unsubscribe();
-      console.log("MainPageProjectComponent >> onProjectExit >> participantList : ",participantList);
+      //console.log("MainPageProjectComponent >> onProjectExit >> participantList : ",participantList);
 
       let numberOfAvailUser = this.getNumberOfAvailUser(participantList);
-      console.log("MainPageProjectComponent >> onProjectExit >> numberOfAvailUser : ",numberOfAvailUser);
+      //console.log("MainPageProjectComponent >> onProjectExit >> numberOfAvailUser : ",numberOfAvailUser);
       if(numberOfAvailUser <= 1){
         secondMsg = "회원님은 해당 프로젝트의 마지막 참여자이므로, 회원님이 탈퇴하시면 해당 프로젝트는 삭제됩니다!";
       }
@@ -343,11 +343,11 @@ export class MainPageProjectComponent implements OnInit, OnDestroy {
         if(this.deleteSubscription){
           this.deleteSubscription.unsubscribe();
         }
-        console.log("ProjectCardComponent >> onProjectDelete >> res : ",res);
+        //console.log("ProjectCardComponent >> onProjectDelete >> res : ",res);
         if(res){
           let subscription = this.projectRequesterService.requestExitProject(this.projectDto._id).subscribe((userDto:UserDTO)=>{
             subscription.unsubscribe();
-            console.log("ProjectCardComponent >> onProjectDelete >> userDto : ",userDto);
+            //console.log("ProjectCardComponent >> onProjectDelete >> userDto : ",userDto);
             this.routerService.goToMainPage();
           });
         }

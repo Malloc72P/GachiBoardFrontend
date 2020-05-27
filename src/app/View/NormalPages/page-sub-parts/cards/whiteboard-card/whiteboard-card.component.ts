@@ -39,7 +39,7 @@ export class WhiteboardCardComponent implements OnInit, AfterViewInit, OnDestroy
   ) {
     let subscription = this.websocketManagerService.wbSessionEventManagerService.wsWbSessionEventEmitter
       .subscribe((wbSessionEvent:WbSessionEvent)=>{
-        console.log("WhiteboardCardComponent >>  >> wbSessionEvent : ",wbSessionEvent);
+        //console.log("WhiteboardCardComponent >>  >> wbSessionEvent : ",wbSessionEvent);
         switch (wbSessionEvent.action) {
           case WbSessionEventEnum.DELETE:
             break;
@@ -64,14 +64,14 @@ export class WhiteboardCardComponent implements OnInit, AfterViewInit, OnDestroy
     this.subscriptionList.push(subscription);
   }
   onJoin(wbSessionEvent:WbSessionEvent){
-    console.log("WhiteboardCardComponent >> onJoin >> wbSessionEvent : ",wbSessionEvent);
+    //console.log("WhiteboardCardComponent >> onJoin >> wbSessionEvent : ",wbSessionEvent);
     let recvWbSessionDto:WhiteboardSessionDto = wbSessionEvent.data as WhiteboardSessionDto;
     if(this.whiteboardSession._id === recvWbSessionDto._id){
       this.whiteboardSession.connectedUsers = recvWbSessionDto.connectedUsers;
     }
   }
   onDisconnect(wbSessionEvent:WbSessionEvent){
-    console.log("WhiteboardCardComponent >> onDisconnect >> wbSessionEvent : ",wbSessionEvent);
+    //console.log("WhiteboardCardComponent >> onDisconnect >> wbSessionEvent : ",wbSessionEvent);
     let wbSessionId = wbSessionEvent.additionalData;
     let disconnectedUserIdToken = wbSessionEvent.data;
 
@@ -120,7 +120,7 @@ export class WhiteboardCardComponent implements OnInit, AfterViewInit, OnDestroy
     });
   }
   onDeleteWbSessionBtnClick(){
-    console.log("WhiteboardCardComponent >> onDeleteWbSessionBtnClick >> this.whiteboardSession : ",this.whiteboardSession);
+    //console.log("WhiteboardCardComponent >> onDeleteWbSessionBtnClick >> this.whiteboardSession : ",this.whiteboardSession);
     if(this.whiteboardSession.connectedUsers.length <= 0){
       this.areYouSurePanelService.openAreYouSurePanel(
         "정말로 선택하신 화이트보드를 삭제하시겠어요?",
@@ -131,7 +131,7 @@ export class WhiteboardCardComponent implements OnInit, AfterViewInit, OnDestroy
           let subscription = wsWbSessionController.waitRequestDeleteWbSession(this.whiteboardSession)
             .subscribe((res)=>{
             subscription.unsubscribe();
-            console.log("WhiteboardCardComponent >> onDeleteWbSessionBtnClick >> res : ",res);
+            //console.log("WhiteboardCardComponent >> onDeleteWbSessionBtnClick >> res : ",res);
 
           },()=>{
               subscription.unsubscribe();

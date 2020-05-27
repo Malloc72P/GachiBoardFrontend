@@ -38,21 +38,21 @@ export class KanbanGroupSettingComponent implements OnInit {
       let tempGroup = new KanbanGroup(currentGroup.title, currentGroup.groupColor);
       this.kanbanGroups.push(tempGroup);
     }
-    console.log('KanbanGroupSettingComponent >> constructor >> kanbanGroups : ', this.kanbanGroups);
+    //console.log('KanbanGroupSettingComponent >> constructor >> kanbanGroups : ', this.kanbanGroups);
 
     this.kanbanGroupsFormGroup = new FormGroup({});
 
     for (let i = 0; i < this.kanbanGroups.length; i++) {
       this.addControl(i);
     }
-    console.log('KanbanGroupSettingComponent >> constructor >> kanbanGroupsFormGroup : ', this.kanbanGroupsFormGroup);
+    //console.log('KanbanGroupSettingComponent >> constructor >> kanbanGroupsFormGroup : ', this.kanbanGroupsFormGroup);
   }
 
   ngOnInit() {
   }
 
   onNoClick(): void {
-    console.log("KanbanGroupSettingComponent >> onNoClick >> 진입함");
+    //console.log("KanbanGroupSettingComponent >> onNoClick >> 진입함");
     this.onSubmitFlag = false;
     this.dialogRef.close();
   }
@@ -61,19 +61,19 @@ export class KanbanGroupSettingComponent implements OnInit {
     if(!this.onSubmitFlag){
       return;
     }
-    console.log("KanbanGroupSettingComponent >> onSubmit >> 진입함");
-    console.log("KanbanGroupSettingComponent >> onSubmit >> kanbanGroupsFormGroup : ",this.kanbanGroupsFormGroup);
+    //console.log("KanbanGroupSettingComponent >> onSubmit >> 진입함");
+    //console.log("KanbanGroupSettingComponent >> onSubmit >> kanbanGroupsFormGroup : ",this.kanbanGroupsFormGroup);
     this.areYouSurePanelService.openAreYouSurePanel(
       '정말로 적용하시겠습니까?',
       '해당 작업은 되돌릴 수 없습니다.')
       .subscribe((result) => {
-        console.log('KanbanGroupSettingComponent >> areYouSure >> result : ', result);
+        //console.log('KanbanGroupSettingComponent >> areYouSure >> result : ', result);
         if (result) {//확인응답 패널에서 확인버튼 누른 경우
           let groupsRef = this.data.groups;
-          console.log("KanbanGroupSettingComponent >>  >> kanbanGroupsFormGroup : ",this.kanbanGroupsFormGroup);
+          //console.log("KanbanGroupSettingComponent >>  >> kanbanGroupsFormGroup : ",this.kanbanGroupsFormGroup);
           //Step-1 : 일단 수정된 내용 반영하고, 추가된 그룹 반영함
           for (let i = 0; i < this.kanbanGroups.length; i++) {
-            console.log('KanbanGroupSettingComponent >> onSubmit >> i : ', i);
+            //console.log('KanbanGroupSettingComponent >> onSubmit >> i : ', i);
             let currentGroup = this.kanbanGroups[i];
             let realGroupRef = groupsRef[i];
 
@@ -111,13 +111,13 @@ export class KanbanGroupSettingComponent implements OnInit {
   addGroup() {
     let newGroup = new KanbanGroup('newGroup', 'primary');
     this.kanbanGroups.push(newGroup);
-    console.log('KanbanGroupSettingComponent >> addGroup >> kanbanGroups : ', this.kanbanGroups);
+    //console.log('KanbanGroupSettingComponent >> addGroup >> kanbanGroups : ', this.kanbanGroups);
     let i = this.kanbanGroups.length;
     this.addControl(i-1);
   }
 
   addControl(i) {
-    console.log("KanbanGroupSettingComponent >> addControl >> i : ",i);
+    //console.log("KanbanGroupSettingComponent >> addControl >> i : ",i);
     this.kanbanGroupsFormGroup.addControl(
       'isRemoved-' + i,
       new FormControl(false)

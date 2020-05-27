@@ -141,7 +141,7 @@ export class WhiteboardMainComponent implements OnInit,OnDestroy {
             let wsWbSessionController = WsWhiteboardSessionController.getInstance();
             wsWbSessionController.waitRequestJoinWbSession(wbSessionDto)
               .subscribe((wbSessionFullDto:WhiteboardSessionDto)=>{
-                console.log("WhiteboardMainComponent >>  >> wbSessionFullDto : ",wbSessionFullDto);
+                //console.log("WhiteboardMainComponent >>  >> wbSessionFullDto : ",wbSessionFullDto);
                 //#6. FullData획득시, 데이터에 있는 아이템을 전부 Layer서비스에 등록
 
                 this.minimapSyncService.syncMinimap();
@@ -160,7 +160,7 @@ export class WhiteboardMainComponent implements OnInit,OnDestroy {
                       factoryRes.newWbItem.zIndex =  recvWbItemPacket.wbItemDto.zIndex;
 
                       if (currIndex === recvWbItemPacketDtoList.length - 1) {
-                        console.log("WhiteboardMainComponent >> 마지막 아이템 생성 >> 진입함");
+                        //console.log("WhiteboardMainComponent >> 마지막 아이템 생성 >> 진입함");
                         this.layerService.applyZIndex();
                         this.minimapSyncService.syncMinimap();
                       }
@@ -273,7 +273,7 @@ export class WhiteboardMainComponent implements OnInit,OnDestroy {
     if(!cursorDataArray){ return; }
 
     for(let cursorData of cursorDataArray){
-      //console.log("WhiteboardMainComponent >> parsePositionData >> cursorData : ",cursorData);
+      ////console.log("WhiteboardMainComponent >> parsePositionData >> cursorData : ",cursorData);
       if(cursorData.idToken === this.websocketManagerService.userInfo.idToken){
         continue;
       }
@@ -479,10 +479,10 @@ export class WhiteboardMainComponent implements OnInit,OnDestroy {
         if (event.code === "KeyL") {
           this.layerService.globalSelectedGroup.wbItemGroup.forEach((value, index, array) => {
             let wbItemDto: WhiteboardItemDto = value.exportToDto();
-            console.log("WhiteboardMainComponent >> exportToDto >> wbItemDto : ", wbItemDto);
+            //console.log("WhiteboardMainComponent >> exportToDto >> wbItemDto : ", wbItemDto);
             if (value.isGrouped) {
               let groupDto = value.parentEdtGroup.exportToDto();
-              console.log("WhiteboardMainComponent >> exportToDto >> groupDto : ", groupDto);
+              //console.log("WhiteboardMainComponent >> exportToDto >> groupDto : ", groupDto);
             }
           });
         }

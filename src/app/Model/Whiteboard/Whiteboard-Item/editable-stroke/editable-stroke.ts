@@ -35,7 +35,7 @@ export abstract class EditableStroke extends WhiteboardItem implements Editable{
   }
   public destroyItemAndNoEmit() {
     // super.destroyItem();
-    console.log("EditableStroke >> destroyItem >> 진입함");
+    //console.log("EditableStroke >> destroyItem >> 진입함");
     this.coreItem.remove();
     this.group.remove();
     this.destroyBlind();

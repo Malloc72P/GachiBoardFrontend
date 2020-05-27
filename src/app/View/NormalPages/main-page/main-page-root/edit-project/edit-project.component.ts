@@ -85,7 +85,7 @@ export class EditProjectComponent implements OnInit {
   }
 
   addControl(i) {
-    console.log("KanbanGroupSettingComponent >> addControl >> i : ",i);
+    //console.log("KanbanGroupSettingComponent >> addControl >> i : ",i);
 
     this.projectFormGroup.addControl(
       'authorityLevel-' + i,
@@ -113,7 +113,7 @@ export class EditProjectComponent implements OnInit {
       isChanged = true;
     }
     this.tempProjectTitle = this.projectFormGroup.get("projectTitle").value;
-    console.log("EditProjectComponent >> onSubmit >> tempProjectTitle : ",this.tempProjectTitle);
+    //console.log("EditProjectComponent >> onSubmit >> tempProjectTitle : ",this.tempProjectTitle);
 
     for(let i = 0 ; i < this.tempParticipantList.length; i++){
       let currPatricipant = this.tempParticipantList[i];
@@ -127,18 +127,18 @@ export class EditProjectComponent implements OnInit {
       currPatricipant.state = this.projectFormGroup.get("state-"+i).value;
     }
 
-    console.log("EditProjectComponent >> onSubmit >> tempParticipantList : ",this.tempParticipantList);
+    //console.log("EditProjectComponent >> onSubmit >> tempParticipantList : ",this.tempParticipantList);
 
     if(isChanged === true){
-      console.log("EditProjectComponent >> onSubmit >> 값 변경됨");
+      //console.log("EditProjectComponent >> onSubmit >> 값 변경됨");
       this.projectDto.projectTitle = this.tempProjectTitle;
       this.projectDto.participantList = this.tempParticipantList;
 
-      console.log("EditProjectComponent >> onSubmit >> projectDto : ",this.projectDto);
+      //console.log("EditProjectComponent >> onSubmit >> projectDto : ",this.projectDto);
 
       this.projectRequesterService.requestUpdateProject(this.projectDto)
         .subscribe((response:RestPacketDto)=>{
-          console.log("EditProjectComponent >> requestUpdateProject >> res : ",response);
+          //console.log("EditProjectComponent >> requestUpdateProject >> res : ",response);
           switch (response.action) {
             case REST_RESPONSE.ACK:
               this.dialogRef.close({res : response,});
@@ -166,7 +166,7 @@ export class EditProjectComponent implements OnInit {
 /*
     this.projectRequesterService.createProject(projectTitle)
       .subscribe((data:ProjectDto)=>{
-        console.log("CreateProjectComponent >> onSubmit >> data : ",data);
+        //console.log("CreateProjectComponent >> onSubmit >> data : ",data);
         this.dialogRef.close({
           projectDto : data,
         });

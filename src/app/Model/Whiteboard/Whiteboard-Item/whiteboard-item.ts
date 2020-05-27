@@ -90,7 +90,7 @@ export abstract class WhiteboardItem {
 
     // TODO : 로컬 라이프사이클 체크용 로그
     // this._localLifeCycleEmitter.subscribe((event: ItemLifeCycleEvent) => {
-    //   console.log("LocalLifeCycle >> ", event.item.constructor.name, " ", event.item.id, " : ", ItemLifeCycleEnum[event.action]);
+    //   //console.log("LocalLifeCycle >> ", event.item.constructor.name, " ", event.item.id, " : ", ItemLifeCycleEnum[event.action]);
     // });
   }
   protected activateShadowEffect(){
@@ -151,7 +151,7 @@ export abstract class WhiteboardItem {
 
   protected blindGroup;
   onOccupied(occupierName){
-    console.log("WhiteboardItem >> onOccupied >> 진입함");
+    //console.log("WhiteboardItem >> onOccupied >> 진입함");
     // let blindRect:Rectangle = new Rectangle(this.group.bounds);
     if(!this.isOccupied){
       this.isOccupied = true;

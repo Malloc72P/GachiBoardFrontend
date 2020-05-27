@@ -5,6 +5,7 @@
   flex-flow: column;
   justify-content: center;
   background: #f4f4f4;
+  margin-right: 15px;
 }
 /*time-timer-header*/
 .time-timer-header{

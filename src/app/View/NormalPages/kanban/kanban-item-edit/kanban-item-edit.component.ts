@@ -41,7 +41,7 @@ export class KanbanItemEditComponent implements OnInit {
     this.kanbanItem = data.kanbanItem;
     this.kanbanGroup = data.kanbanGroup;
 
-    console.log("KanbanItemEditComponent >> constructor >> this.kanbanItem : ",this.kanbanItem);
+    //console.log("KanbanItemEditComponent >> constructor >> this.kanbanItem : ",this.kanbanItem);
 
     this.titleFormControl = new FormControl(this.kanbanItem.title, [
       Validators.required,
@@ -98,7 +98,7 @@ export class KanbanItemEditComponent implements OnInit {
     let endTime = moment(time, 'HH:mm A');
     endDate.add(endTime.hour(),"hour").add(endTime.minute(),"minute");
 
-    console.log(`endDate = ${endDate}\n endTime = ${endTime}`);
+    //console.log(`endDate = ${endDate}\n endTime = ${endTime}`);
     return endDate.toDate();
   }
 }

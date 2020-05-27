@@ -28,7 +28,7 @@ export class AnimeManagerService {
     }
     this.renderer2.addClass( el, animeRealName );
     setTimeout(()=>{
-      console.log("AnimeManagerService >> setTimeOut >> 진입함");
+      //console.log("AnimeManagerService >> setTimeOut >> 진입함");
       this.renderer2.removeClass( el, animeRealName );
     }, 1200)
   }

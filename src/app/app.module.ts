@@ -125,6 +125,7 @@ import {VideoChatService} from "./Model/Whiteboard/VideoChat/video-chat/video-ch
 import { TimeTimerComponent } from './View/Whiteboard/time-timer/time-timer.component';
 import {MatDatepickerModule} from '@angular/material/datepicker';
 import {NgxMaterialTimepickerModule} from 'ngx-material-timepicker';
+import {MatSnackBarModule} from '@angular/material/snack-bar';
 
 const config: SocketIoConfig = { url: HttpHelper.apiUrl, options: {} };
 
@@ -304,6 +305,7 @@ const appRoutes: Routes = [
     MatDatepickerModule,
     MatNativeDateModule,
     NgxMaterialTimepickerModule,
+    MatSnackBarModule
   ],
   providers: [
     RouterHelperService,

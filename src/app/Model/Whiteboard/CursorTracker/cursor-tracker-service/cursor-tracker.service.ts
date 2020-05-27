@@ -37,7 +37,7 @@ export class CursorTrackerService {
 
   public on() {
     this._isActivate = true;
-    console.log("CursorTrackerService >> on >> this.itsMe : ", this.itsMe);
+    //console.log("CursorTrackerService >> on >> this.itsMe : ", this.itsMe);
   }
 
   public off() {
@@ -67,7 +67,7 @@ export class CursorTrackerService {
   public deleteUser(idToken: string) {
     this.userCursorMap.get(idToken)?.cursor.remove();
     if(!this.userCursorMap.delete(idToken)) {
-      console.log("CursorTrackerService >> deleteUser >> Array delete failed");
+      //console.log("CursorTrackerService >> deleteUser >> Array delete failed");
     }
   }
 
@@ -75,7 +75,7 @@ export class CursorTrackerService {
     if(!this._isActivate) {
       return;
     }
-    //console.log("CursorTrackerService >> updateUser >> position : ",position);
+    ////console.log("CursorTrackerService >> updateUser >> position : ",position);
     // 정보가 없는 유저가 업데이트를 요청하면 Array 에 추가
     if(!this.userCursorMap.has(idToken)) {
       let targetIndex = this.websocketManagerService.getUserIndexByIdToken(idToken);
@@ -85,7 +85,7 @@ export class CursorTrackerService {
     // 업데이트
     let foundCursor = this.userCursorMap.get(idToken);
     foundCursor.position = new Point(position.x, position.y);
-    // console.log("CursorTrackerService >> updateUser >> foundCursor : ",foundCursor);
+    // //console.log("CursorTrackerService >> updateUser >> foundCursor : ",foundCursor);
   }
 
   private drawCursor(color: Color): Cursor {
