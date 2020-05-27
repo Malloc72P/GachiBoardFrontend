@@ -122,6 +122,9 @@ import { VideoChatPanelComponent } from './View/Whiteboard/video-chat/video-chat
 import {VideoChatPanelManagerService} from "./Model/Whiteboard/VideoChat/video-chat-panel-manager/video-chat-panel-manager.service";
 import { VideoChatWrapperComponent } from './View/Whiteboard/video-chat/video-chat-wrapper/video-chat-wrapper.component';
 import {VideoChatService} from "./Model/Whiteboard/VideoChat/video-chat/video-chat.service";
+import { TextChatCoreComponent } from './View/Whiteboard/text-chat/text-chat-core/text-chat-core.component';
+import {TextChatService} from "./Model/Whiteboard/TextChat/text-chat.service";
+import {MatBottomSheet, MatBottomSheetModule} from "@angular/material/bottom-sheet";
 
 const config: SocketIoConfig = { url: HttpHelper.apiUrl, options: {} };
 
@@ -244,6 +247,7 @@ const appRoutes: Routes = [
     EditWbSessionComponent,
     VideoChatPanelComponent,
     VideoChatWrapperComponent,
+    TextChatCoreComponent,
   ],
   entryComponents: [
     KanbanComponent,
@@ -297,6 +301,7 @@ const appRoutes: Routes = [
     MatBadgeModule,
     MatProgressSpinnerModule,
     OverlayModule,
+    MatBottomSheetModule,
   ],
   providers: [
     RouterHelperService,
@@ -340,6 +345,7 @@ const appRoutes: Routes = [
     LinkService,
     VideoChatPanelManagerService,
     VideoChatService,
+    TextChatService,
   ],
   bootstrap: [AppComponent]
 })

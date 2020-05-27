@@ -30,7 +30,7 @@
             (click)="onClickPanelItem(SupportMode.EXPORT)">
       <span class="selectable-icon {{projectSupporterEnumService.getSupporterIcon(SupportMode.EXPORT)}}"></span>
     </button>
-    <button [value]="SupportMode.TEXT_CHAT"
+    <button matBadge="0" [value]="SupportMode.TEXT_CHAT"
             mat-button matTooltip="{{SupportMode[SupportMode.TEXT_CHAT]}}"
             matTooltipPosition="above" class="supportBtn"
             (click)="onClickPanelItem(SupportMode.TEXT_CHAT)">

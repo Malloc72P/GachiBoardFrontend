@@ -14,6 +14,8 @@ import {MatDialog} from '@angular/material/dialog';
 import {HotKeyManagementService} from '../../../Model/Whiteboard/HotKeyManagement/hot-key-management.service';
 import {VideoChatService} from "../../../Model/Whiteboard/VideoChat/video-chat/video-chat.service";
 import {MatMenu} from "@angular/material/menu";
+import {TextChatService} from "../../../Model/Whiteboard/TextChat/text-chat.service";
+import {TextChatCoreComponent} from "../text-chat/text-chat-core/text-chat-core.component";
 
 @Component({
   selector: 'app-project-supporter-pannel',
@@ -39,6 +41,7 @@ export class ProjectSupporterPannelComponent extends PopoverPanel  implements On
     public layerService: DrawingLayerManagerService,
     public hotKeyManagementService: HotKeyManagementService,
     private videoChat: VideoChatService,
+    private textChat: TextChatService,
   ) {
     super(projectSupporterEnumService);
     this.projectSupporterEnumService = projectSupporterEnumService;
@@ -91,6 +94,11 @@ export class ProjectSupporterPannelComponent extends PopoverPanel  implements On
       case SupportMode.EXPORT:
         break;
       case SupportMode.TEXT_CHAT:
+        if(!this.textChat.isOpen) {
+          this.textChat.open(TextChatCoreComponent);
+        } else {
+          this.textChat.close();
+        }
         break;
       case SupportMode.VIDEO_CHAT:
         break;
