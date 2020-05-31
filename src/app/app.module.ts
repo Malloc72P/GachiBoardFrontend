@@ -126,6 +126,8 @@ import { TimeTimerComponent } from './View/Whiteboard/time-timer/time-timer.comp
 import {MatDatepickerModule} from '@angular/material/datepicker';
 import {NgxMaterialTimepickerModule} from 'ngx-material-timepicker';
 import {MatSnackBarModule} from '@angular/material/snack-bar';
+import { CloudStorageComponent } from './View/NormalPages/cloud-storage/cloud-storage.component';
+import { FileCardComponent } from './View/NormalPages/cloud-storage/file-card/file-card.component';
 
 const config: SocketIoConfig = { url: HttpHelper.apiUrl, options: {} };
 
@@ -249,6 +251,8 @@ const appRoutes: Routes = [
     VideoChatPanelComponent,
     VideoChatWrapperComponent,
     TimeTimerComponent,
+    CloudStorageComponent,
+    FileCardComponent,
   ],
   entryComponents: [
     KanbanComponent,
@@ -261,7 +265,8 @@ const appRoutes: Routes = [
     CreateInviteCodeComponent,
     EditProjectComponent,
     EditWbSessionComponent,
-    MatSpinner
+    MatSpinner,
+    CloudStorageComponent,
   ],
   imports: [
     BrowserModule,

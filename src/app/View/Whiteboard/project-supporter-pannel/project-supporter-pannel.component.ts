@@ -14,6 +14,7 @@ import {MatDialog} from '@angular/material/dialog';
 import {HotKeyManagementService} from '../../../Model/Whiteboard/HotKeyManagement/hot-key-management.service';
 import {VideoChatService} from "../../../Model/Whiteboard/VideoChat/video-chat/video-chat.service";
 import {MatMenu} from "@angular/material/menu";
+import {CloudStorageComponent} from '../../NormalPages/cloud-storage/cloud-storage.component';
 
 @Component({
   selector: 'app-project-supporter-pannel',
@@ -64,12 +65,13 @@ export class ProjectSupporterPannelComponent extends PopoverPanel  implements On
     //this.pointerModeManagerService.currentPointerMode = this.currentSelectedMode;
   }
   onClickPanelItem(panelItem: number) {
+    let dialogRef = null;
     switch (panelItem) {
       case SupportMode.KANBAN:
 
         this.hotKeyManagementService.disableHotKeySystem();
 
-        const dialogRef = this.dialog.open(KanbanComponent, {
+        dialogRef = this.dialog.open(KanbanComponent, {
           width: this.positionCalcService.getWidthOfBrowser()+"px",
           height: this.positionCalcService.getHeightOfBrowser()+"px",
           maxWidth: this.positionCalcService.getWidthOfBrowser()+"px",
@@ -84,6 +86,19 @@ export class ProjectSupporterPannelComponent extends PopoverPanel  implements On
       case SupportMode.TIME_TIMER:
         break;
       case SupportMode.CLOUD_STORAGE:
+        this.hotKeyManagementService.disableHotKeySystem();
+
+        dialogRef = this.dialog.open(CloudStorageComponent, {
+          width: this.positionCalcService.getWidthOfBrowser()+"px",
+          height: this.positionCalcService.getHeightOfBrowser()+"px",
+          maxWidth: this.positionCalcService.getWidthOfBrowser()+"px",
+          data: {}
+        });
+
+        dialogRef.afterClosed().subscribe(result => {
+          //console.log('The dialog was closed');
+          this.hotKeyManagementService.enableHotKeySystem();
+        });
         break;
       case SupportMode.IMPORT:
         document.getElementById("fileInputMultiple").click();

@@ -1,0 +1,26 @@
+<mat-card class="file-card-wrapper" matRipple>
+  <div class="file-card-content-wrapper">
+    <!--파일카드 좌측(아이콘, 타이틀)-->
+    <div class="file-card-left-side clickable"
+         (click)="cloudStorageManagerService.accessFile(fileMetadata)">
+      <mat-icon style="margin-right: 12px;">{{cloudStorageManagerService.getIconByFileType(fileMetadata.type)}}</mat-icon>
+      <!--파일 이름-->
+      <div class="file-title text-ellipsis">
+        <span>{{fileMetadata.title}}</span>
+      </div>
+    </div>
+    <!--파일 타입 아이콘-->
+
+    <!-- 메뉴버튼 우측정렬을 위한 빈 태그-->
+    <span class="clickable" style="flex: 1;" (click)="cloudStorageManagerService.accessFile(fileMetadata)"></span>
+    <!--파일 메뉴버튼-->
+    <button mat-button
+            [matMenuTriggerFor]="contextMenu"
+            style="padding: 0; min-width: 32px"><mat-icon>more_vert</mat-icon></button>
+    <mat-menu #contextMenu>
+      <button mat-menu-item>이름 수정</button>
+      <button mat-menu-item>삭제하기</button>
+      <button mat-menu-item>파일 속성</button>
+    </mat-menu>
+  </div>
+</mat-card>

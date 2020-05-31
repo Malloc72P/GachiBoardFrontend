@@ -1,0 +1,75 @@
+<div class="popup-main-panel popup-panel-box popup-commons-panel"
+     id="supporter-Cloud">
+
+  <div class="popup-panel-box popup-card-wrapper panel-main">
+    <mat-toolbar color="primary" class="panel-main-header-wrapper">
+      <mat-toolbar-row class="panel-main-header">
+        <span class="project-supporter-card-title">
+          <div class="panel-main-header-left">
+            <div class="icon-tools-cloud_storage project-supporter-card-title-icon cloud-icon"></div>
+          </div>
+          <div class="panel-main-header-left panel-main-header-left-text">Cloud Storage</div>
+
+        </span>
+        <span class="flex-spacer"></span>
+        <button mat-button color="Basic" class="cloud-header-btn"
+                (click)="onNoClick()">
+          <mat-icon aria-hidden="false"
+                    aria-label="cloud storage close button">close</mat-icon>
+        </button>
+      </mat-toolbar-row>
+    </mat-toolbar>
+
+    <mat-card-content class="popup-panel-row content" style="height: 100%;">
+      <!--#####여기서 팝업패널 내용 작성할 것######-->
+      <!--파일 경로 표시기-->
+      <mat-toolbar class="panel-main-header path-header" style="padding: 0;">
+        <mat-toolbar-row style="padding: 0;">
+          <!--사이드바 토글버튼 ( 파일경로부분 좌측 )-->
+          <div style="width: 200px; padding-left: 8px;">
+            <button mat-button style="width: 190px; height: 54px; text-align: left;">
+              <mat-icon style="margin-right: 12px;">menu</mat-icon>
+              <h2 style="display: inline-block">아야나님</h2>
+            </button>
+          </div>
+          <!--파일경로 부분-->
+          <div *ngFor="let currTrace of pathStack; index as i" class="path-wrapper">
+            <h2 mat-ripple class="path-name" (click)="cloudService.moveToTargetDirectory(currTrace)"> {{currTrace.title}} </h2>
+            <h2 *ngIf="i !== pathStack.length - 1" class="path-divider"> > </h2>
+          </div>
+        </mat-toolbar-row>
+      </mat-toolbar>
+      <!--사이드바 + 컨텐츠 래퍼-->
+      <mat-drawer-container class="cloud-content-wrapper">
+        <!--사이드바-->
+        <mat-drawer class="cloud-sidebar" opened mode="side">
+          <!--업로드버튼-->
+
+          <button mat-flat-button style="width: 100%; text-align: left; padding: 8px 16px;">
+            <mat-icon class="cloud-sidebar-icon">save</mat-icon>
+            <span class="cloud-sidebar-button">파일 업로드</span></button>
+          <mat-divider></mat-divider>
+
+          <!--파일삭제버튼-->
+          <button mat-flat-button style="width: 100%; text-align: left; padding: 8px 16px;">
+            <mat-icon class="cloud-sidebar-icon">delete</mat-icon>
+            <span class="cloud-sidebar-button">선택한 파일 삭제</span></button>
+          <mat-divider></mat-divider>
+
+        </mat-drawer>
+
+        <!--파일 리스트 래퍼-->
+        <mat-drawer-content class="cloud-content">
+          <!--파일 목록 표시기-->
+          <div class="file-list-wrapper">
+            <app-file-card *ngFor="let currFile of currDirectory.children" [fileMetadata]="currFile"></app-file-card>
+          </div>
+        </mat-drawer-content>
+      </mat-drawer-container>
+      <!--####################################-->
+    </mat-card-content>
+
+  </div>
+
+
+</div>
