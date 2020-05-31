@@ -42,7 +42,7 @@ export class TextChatService {
     window.setTimeout(() => { document.getElementById('text-chat-input-area').focus(); }, 0);
 
     if(this._isFirstOpen) {
-      this.loadRequest(HttpHelper.websocketApi.textChat.loadMessages.event, 0).then((data: Array<ChatMessageDto>) => {
+      this.loadRequest(HttpHelper.websocketApi.textChat.loadMessages.event).then((data: Array<ChatMessageDto>) => {
         data.forEach((value) => {
           this.chatBox.addMessage(new ChatMessage(ChatMessageDto.clone(value)));
           this.messageEmitter.emit();
@@ -59,7 +59,20 @@ export class TextChatService {
     }
   }
 
-  public initialize() {
+  public async loadMore(): Promise<any> {
+    return new Promise<ChatMessage>((resolve) => {
+      const latestMessageId = this.chatBox.messages[0].id;
+      const tempArray = new Array<ChatMessage>();
+
+      this.loadRequest(HttpHelper.websocketApi.textChat.loadMessages.event, latestMessageId).then((data: Array<ChatMessageDto>) => {
+        data.forEach((value) => {
+          tempArray.push(new ChatMessage(ChatMessageDto.clone(value)));
+        });
+        this.chatBox.loadPrevious(tempArray);
+
+        resolve();
+      });
+    });
 
   }
 
@@ -73,12 +86,9 @@ export class TextChatService {
   private async sendRequest(event: string, dto?: ChatMessageDto): Promise<ChatMessage> {
     return new Promise<ChatMessage>((resolve, reject) => {
       this.socket.emit(event, dto);
-      console.log(`${event} : emitted`);
       this.socket.once(event, (ackSocketDto: ChatMessageDto) => {
-        console.log(`${event} : received`);
         ackSocketDto = ChatMessageDto.clone(ackSocketDto);
         if(ackSocketDto.verify) {
-          console.log("TextChatService >>  >> ackSocketDto instanceof ChatMessageDto : ", ackSocketDto instanceof ChatMessageDto);
           resolve(new ChatMessage(ackSocketDto));
         } else {
           reject(`Project ID - ${ackSocketDto.projectId}, User ID - ${ackSocketDto.userId}, message send failed`);
@@ -87,12 +97,10 @@ export class TextChatService {
     });
   }
 
-  private async loadRequest(event: string, start: number): Promise<any> {
+  private async loadRequest(event: string, loadAt?: string): Promise<any> {
     return new Promise<any>(((resolve, reject) => {
-      this.socket.emit(event, { projectId: this.socketManager.currentProjectDto._id, start: start });
-      console.log(`${event} : emitted`);
+      this.socket.emit(event, { projectId: this.socketManager.currentProjectDto._id, loadAt: loadAt });
       this.socket.once(event, (data) => {
-        console.log(`${event} : received`);
         if (data !== null) {
           resolve(data);
         } else {

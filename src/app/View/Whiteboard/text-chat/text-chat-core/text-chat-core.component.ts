@@ -1,10 +1,18 @@
-import {Component, ElementRef, NgZone, OnInit, ViewChild, AfterViewInit, ChangeDetectorRef} from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  NgZone,
+  OnInit,
+  ViewChild,
+  AfterViewInit,
+  ChangeDetectorRef,
+  HostListener,
+} from '@angular/core';
 import {CdkTextareaAutosize} from "@angular/cdk/text-field";
 import {take} from "rxjs/operators";
 import {TextChatService} from "../../../../Model/Whiteboard/TextChat/text-chat.service";
 import {WebsocketManagerService} from "../../../../Controller/Controller-WebSocket/websocket-manager/websocket-manager.service";
 import {ChatMessage} from "../../../../Model/Whiteboard/TextChat/chat-message";
-import value from "*.json";
 
 @Component({
   selector: 'app-text-chat-core',
@@ -14,6 +22,7 @@ import value from "*.json";
 export class TextChatCoreComponent implements OnInit, AfterViewInit {
   private profiles: Map<string, {name: string, img: string}>;
   private messagesDivElement: HTMLDivElement;
+  private oldScrollHeight: number;
 
   constructor(
     private _ngZone: NgZone,
@@ -46,6 +55,19 @@ export class TextChatCoreComponent implements OnInit, AfterViewInit {
       this.cdr.detectChanges();
       this.scrollToBottom();
     });
+
+    this.scrollToBottom();
+  }
+
+  @HostListener('scroll', ['$event'])
+  onScroll(event: any) {
+    if (event.target.scrollTop <= 0) {
+      this.oldScrollHeight = this.messagesDivElement.scrollHeight;
+      this.textChat.loadMore().then(() => {
+        this.cdr.detectChanges();
+        this.messagesDivElement.scrollTop = this.messagesDivElement.scrollHeight - this.oldScrollHeight;
+      });
+    }
   }
 
   triggerResize() {
