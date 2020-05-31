@@ -29,7 +29,7 @@ export class TextChatService {
     this.socket.on(HttpHelper.websocketApi.textChat.receiveMessage.event, (message: ChatMessageDto) => {
       message = ChatMessageDto.clone(message);
       this.chatBox.addMessage(new ChatMessage(message));
-      this.messageEmitter.emit();
+      this._messageEmitter.emit();
     });
   }
 
@@ -45,7 +45,7 @@ export class TextChatService {
       this.loadRequest(HttpHelper.websocketApi.textChat.loadMessages.event).then((data: Array<ChatMessageDto>) => {
         data.forEach((value) => {
           this.chatBox.addMessage(new ChatMessage(ChatMessageDto.clone(value)));
-          this.messageEmitter.emit();
+          this._messageEmitter.emit();
         });
       });
       this._isFirstOpen = false;
@@ -79,7 +79,7 @@ export class TextChatService {
   public sendMessage(message: ChatMessage) {
     this.sendRequest(HttpHelper.websocketApi.textChat.sendMessage.event, message.exportDto()).then((result) => {
       this.chatBox.addMessage(result);
-      this.messageEmitter.emit();
+      this._messageEmitter.emit(result.userId);
     });
   }
 

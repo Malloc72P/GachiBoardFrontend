@@ -51,9 +51,15 @@ export class TextChatCoreComponent implements OnInit, AfterViewInit {
     });
 
     this.messagesDivElement = document.getElementById("text-chat-messages") as HTMLDivElement;
-    this.textChat.messageEmitter.subscribe(() => {
+    this.textChat.messageEmitter.subscribe((userId) => {
+      this.oldScrollHeight = this.messagesDivElement.scrollHeight;
       this.cdr.detectChanges();
-      this.scrollToBottom();
+      if (
+        this.oldScrollHeight === this.messagesDivElement.scrollTop + this.messagesDivElement.offsetHeight ||
+        this.socketManager.userInfo.idToken === userId
+      ) {
+        this.scrollToBottom();
+      }
     });
 
     this.scrollToBottom();
