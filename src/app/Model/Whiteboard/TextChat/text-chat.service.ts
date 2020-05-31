@@ -1,14 +1,12 @@
-import {Injectable} from '@angular/core';
+import {EventEmitter, Injectable} from '@angular/core';
 import {MatBottomSheet, MatBottomSheetRef} from "@angular/material/bottom-sheet";
 import {ChatMessage} from "./chat-message";
 import {ComponentType} from "@angular/cdk/overlay";
 import {ChatBox} from "./chat-box";
-import {WebsocketPacketActionEnum} from "../../../DTO/WebsocketPacketDto/WebsocketPacketActionEnum";
 import {WebsocketManagerService} from "../../../Controller/Controller-WebSocket/websocket-manager/websocket-manager.service";
 import {Socket} from "ngx-socket-io";
 import {HttpHelper} from "../../Helper/http-helper/http-helper";
 import {ChatMessageDto} from "../../../DTO/ChatMessageDto/chat-message-dto";
-import {WebsocketPacketDto} from "../../../DTO/WebsocketPacketDto/WebsocketPacketDto";
 
 @Injectable({
   providedIn: 'root'
@@ -20,6 +18,8 @@ export class TextChatService {
   private _isOpen: boolean = false;
   private _isFirstOpen: boolean = true;
 
+  private _messageEmitter: EventEmitter<any> = new EventEmitter<any>();
+
   constructor(
     private _bottomSheet: MatBottomSheet,
     private socketManager: WebsocketManagerService,
@@ -29,6 +29,7 @@ export class TextChatService {
     this.socket.on(HttpHelper.websocketApi.textChat.receiveMessage.event, (message: ChatMessageDto) => {
       message = ChatMessageDto.clone(message);
       this.chatBox.addMessage(new ChatMessage(message));
+      this.messageEmitter.emit();
     });
   }
 
@@ -41,9 +42,13 @@ export class TextChatService {
     window.setTimeout(() => { document.getElementById('text-chat-input-area').focus(); }, 0);
 
     if(this._isFirstOpen) {
-      this.loadRequest(HttpHelper.websocketApi.textChat.loadMessages.event, 0).then((data) => {
-
+      this.loadRequest(HttpHelper.websocketApi.textChat.loadMessages.event, 0).then((data: Array<ChatMessageDto>) => {
+        data.forEach((value) => {
+          this.chatBox.addMessage(new ChatMessage(ChatMessageDto.clone(value)));
+          this.messageEmitter.emit();
+        });
       });
+      this._isFirstOpen = false;
     }
   }
 
@@ -61,6 +66,7 @@ export class TextChatService {
   public sendMessage(message: ChatMessage) {
     this.sendRequest(HttpHelper.websocketApi.textChat.sendMessage.event, message.exportDto()).then((result) => {
       this.chatBox.addMessage(result);
+      this.messageEmitter.emit();
     });
   }
 
@@ -102,6 +108,10 @@ export class TextChatService {
 
   get messages(): Array<ChatMessage> {
     return this.chatBox.messages;
+  }
+
+  get messageEmitter(): EventEmitter<any> {
+    return this._messageEmitter;
   }
 
   private get socket(): Socket {

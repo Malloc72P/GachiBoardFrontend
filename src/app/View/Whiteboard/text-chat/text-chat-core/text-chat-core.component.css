@@ -34,6 +34,7 @@
 .messages-wrapper {
   padding: 2px;
   height: 300px;
+  width: 238px;
   overflow-y: auto;
   margin: 5px 0;
 }

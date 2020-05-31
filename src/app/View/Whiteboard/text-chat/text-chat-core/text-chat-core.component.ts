@@ -13,11 +13,13 @@ import value from "*.json";
 })
 export class TextChatCoreComponent implements OnInit, AfterViewInit {
   private profiles: Map<string, {name: string, img: string}>;
+  private messagesDivElement: HTMLDivElement;
 
   constructor(
     private _ngZone: NgZone,
     private textChat: TextChatService,
     private _socketManager: WebsocketManagerService,
+    private cdr: ChangeDetectorRef,
   ) {
     this.profiles = new Map<string, {name: string, img: string}>()
   }
@@ -37,6 +39,12 @@ export class TextChatCoreComponent implements OnInit, AfterViewInit {
         event.preventDefault();
         this.onClickSendButton();
       }
+    });
+
+    this.messagesDivElement = document.getElementById("text-chat-messages") as HTMLDivElement;
+    this.textChat.messageEmitter.subscribe(() => {
+      this.cdr.detectChanges();
+      this.scrollToBottom();
     });
   }
 
@@ -113,6 +121,10 @@ export class TextChatCoreComponent implements OnInit, AfterViewInit {
           return "";
       }
     });
+  }
+
+  public scrollToBottom() {
+    this.messagesDivElement.scrollTop = this.messagesDivElement.scrollHeight;
   }
 
   private zero(value: number): string {

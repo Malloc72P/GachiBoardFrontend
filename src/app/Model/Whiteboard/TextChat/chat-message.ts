@@ -12,7 +12,6 @@ export class ChatMessage {
   constructor(chatData: ChatMessageDto | {userId: string, projectId: string,
               message: string, sentDate: Date}) {
     if(chatData instanceof ChatMessageDto) {
-      console.log("11", );
       this._id = chatData._id;
       this._userId = chatData.userId;
       this._projectId = chatData.projectId;

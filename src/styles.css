@@ -66,20 +66,9 @@ mat-dialog-container{
   flex: 1 1 auto;
 }
 
-.mat-bottom-sheet-container-medium {
-  min-width: 0 !important;
-  max-width: 400px !important;
-}
-.mat-bottom-sheet-container-large {
-  min-width: 0 !important;
-  max-width: 400px !important;
-}
-.mat-bottom-sheet-container-xlarge {
-  min-width: 0 !important;
-  max-width: 400px !important;
-}
-
 .mat-bottom-sheet-container {
+  min-width: 0 !important;
+  max-width: 400px !important;
   position: absolute;
   padding: 0 !important;
   z-index: 1;
