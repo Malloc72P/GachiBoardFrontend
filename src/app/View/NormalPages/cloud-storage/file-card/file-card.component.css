@@ -7,6 +7,7 @@
   text-align: left;
   margin: 0 16px 16px 0;
   padding: 0;
+  transition: 0.2s;
 }
   .file-card-content-wrapper{
     display: flex;

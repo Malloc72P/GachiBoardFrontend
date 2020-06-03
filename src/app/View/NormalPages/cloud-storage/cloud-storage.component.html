@@ -27,7 +27,9 @@
         <mat-toolbar-row style="padding: 0;">
           <!--사이드바 토글버튼 ( 파일경로부분 좌측 )-->
           <div style="width: 200px; padding-left: 8px;">
-            <button mat-button style="width: 190px; height: 54px; text-align: left;">
+            <button mat-button
+                    (click)="isSidebarOpened = !isSidebarOpened;"
+                    style="width: 190px; height: 54px; text-align: left;">
               <mat-icon style="margin-right: 12px;">menu</mat-icon>
               <h2 style="display: inline-block">아야나님</h2>
             </button>
@@ -42,9 +44,15 @@
       <!--사이드바 + 컨텐츠 래퍼-->
       <mat-drawer-container class="cloud-content-wrapper">
         <!--사이드바-->
-        <mat-drawer class="cloud-sidebar" opened mode="side">
-          <!--업로드버튼-->
+        <mat-drawer class="cloud-sidebar" [opened]="isSidebarOpened" mode="side">
 
+          <!--새 폴더 생성-->
+          <button mat-flat-button style="width: 100%; text-align: left; padding: 8px 16px;">
+            <mat-icon class="cloud-sidebar-icon">folder</mat-icon>
+            <span class="cloud-sidebar-button">폴더생성</span></button>
+          <mat-divider></mat-divider>
+
+          <!--업로드버튼-->
           <button mat-flat-button style="width: 100%; text-align: left; padding: 8px 16px;">
             <mat-icon class="cloud-sidebar-icon">save</mat-icon>
             <span class="cloud-sidebar-button">파일 업로드</span></button>

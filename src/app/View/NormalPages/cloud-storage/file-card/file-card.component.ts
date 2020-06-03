@@ -1,6 +1,7 @@
 import {Component, Input, OnInit} from '@angular/core';
-import {FileMetadataDto} from '../../../../DTO/ProjectDto/FileMetadataDto/FileMetadataDto';
+
 import {CloudStorageManagerService} from '../../../../Model/NormalPagesManager/cloud-storage-manager/cloud-storage-manager.service';
+import {FileMetadataDto} from '../../../../DTO/ProjectDto/FileMetadataDto/file-metadata-dto';
 
 @Component({
   selector: 'app-file-card',

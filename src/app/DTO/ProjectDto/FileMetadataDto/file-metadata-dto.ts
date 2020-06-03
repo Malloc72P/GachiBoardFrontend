@@ -1,5 +1,5 @@
 export class FileMetadataDto {
-  public id;
+  public _id;
   public title;
   public type:FileTypeEnum;
   public size;
@@ -7,10 +7,11 @@ export class FileMetadataDto {
   public uploaderName;
   public uploadDate;
   public children:Array<FileMetadataDto>;
+  public filePointer;
 
 
   constructor(id, title, type, size, uploaderId, uploaderName, uploadDate) {
-    this.id = id;
+    this._id = id;
     this.title = title;
     this.type = type;
     this.size = size;

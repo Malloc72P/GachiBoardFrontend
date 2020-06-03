@@ -5,7 +5,8 @@ import {
   CloudLocalEvent, CloudLocalEventEnum,
   CloudStorageManagerService
 } from '../../../Model/NormalPagesManager/cloud-storage-manager/cloud-storage-manager.service';
-import {FileMetadataDto} from '../../../DTO/ProjectDto/FileMetadataDto/FileMetadataDto';
+import {FileMetadataDto} from '../../../DTO/ProjectDto/FileMetadataDto/file-metadata-dto';
+
 
 export class CloudStorageComponentData {
   projectDto:ProjectDto;
@@ -24,6 +25,7 @@ export class CloudStorageComponentData {
 export class CloudStorageComponent implements OnInit {
   public currDirectory:FileMetadataDto = null;
   public pathStack:Array<FileMetadataDto>;
+  public isSidebarOpened = true;
   constructor(
     public dialogRef: MatDialogRef<CloudStorageComponent>,
     public cloudService: CloudStorageManagerService,

@@ -19,7 +19,7 @@
   .cloud-sidebar{
     width: 200px;
     height: 100%;
-    padding-top: 16px;
+    /*padding-top: 16px;*/
   }
     .cloud-sidebar-header{
       background-color: rgb(225, 225, 225);
@@ -45,7 +45,7 @@
           margin-right: 12px;
         }
         .path-divider{
-          padding: 16px 0;
+          padding-top: 12px;
         }
         .path-name{
           cursor: pointer;

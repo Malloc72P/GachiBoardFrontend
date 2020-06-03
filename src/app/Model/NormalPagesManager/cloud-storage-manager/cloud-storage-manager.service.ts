@@ -1,5 +1,6 @@
 import {EventEmitter, Injectable} from '@angular/core';
-import {FileMetadataDto, FileTypeEnum} from '../../../DTO/ProjectDto/FileMetadataDto/FileMetadataDto';
+import {FileMetadataDto, FileTypeEnum} from '../../../DTO/ProjectDto/FileMetadataDto/file-metadata-dto';
+
 export class CloudLocalEvent {
   public action:CloudLocalEventEnum;
   public data;
@@ -96,12 +97,12 @@ export class CloudStorageManagerService {
 
     pathStack.push(currDirectory);
 
-    if(currDirectory.id === targetFile.id){
+    if(currDirectory._id === targetFile._id){
       return true;
     }
 
     for (let currFile of currDirectory.children){
-      if(currFile.id === targetFile.id){
+      if(currFile._id === targetFile._id){
         pathStack.push(currFile);
         return true;
       }
