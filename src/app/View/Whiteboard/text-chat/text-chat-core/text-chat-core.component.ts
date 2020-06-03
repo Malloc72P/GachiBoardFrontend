@@ -65,6 +65,13 @@ export class TextChatCoreComponent implements OnInit, AfterViewInit {
     this.scrollToBottom();
   }
 
+  @HostListener('window:unload', ['$event'])
+  unloadHandler(event) {
+    if (this.textChat.isOpen) {
+      this.textChat.updateLastReadDateForNow();
+    }
+  }
+
   @HostListener('scroll', ['$event'])
   onScroll(event: any) {
     if (event.target.scrollTop <= 0) {

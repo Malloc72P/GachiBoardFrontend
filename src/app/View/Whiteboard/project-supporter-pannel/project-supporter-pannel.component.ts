@@ -1,4 +1,4 @@
-import {Component, ElementRef, OnInit, Renderer2, ViewChild} from '@angular/core';
+import {AfterViewInit, Component, ElementRef, OnInit, Renderer2, ViewChild} from '@angular/core';
 import {
   ProjectSupporterEnumService,
   SupportMode
@@ -62,6 +62,7 @@ export class ProjectSupporterPannelComponent extends PopoverPanel  implements On
       })
 
   }
+
   onPanelStateChangeHandler() {
     //console.log("ProjectSupporterPannelComponent >> onPanelStateChangeHandler >> 진입함");
     //this.pointerModeManagerService.currentPointerMode = this.currentSelectedMode;
@@ -95,7 +96,7 @@ export class ProjectSupporterPannelComponent extends PopoverPanel  implements On
         break;
       case SupportMode.TEXT_CHAT:
         if(!this.textChat.isOpen) {
-          this.textChat.open(TextChatCoreComponent);
+          this.textChat.open(TextChatCoreComponent, 'whiteboard');
         } else {
           this.textChat.close();
         }
@@ -176,5 +177,9 @@ export class ProjectSupporterPannelComponent extends PopoverPanel  implements On
 
   get SupportMode() {
     return SupportMode;
+  }
+
+  get unReadMessage(): number | string {
+    return this.textChat.unReadMessage;
   }
 }

@@ -35,7 +35,7 @@ export class ChatMessage {
     dto.userId = this._userId;
     dto.projectId = this._projectId;
     dto.content = this._content;
-    dto.sentDate = this._sentDate.toString();
+    dto.sentDate = this._sentDate.toISOString();
 
     return dto;
   }

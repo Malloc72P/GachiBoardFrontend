@@ -54,6 +54,7 @@ import {WbItemPacketDto} from '../../../DTO/WhiteboardItemDto/WbItemPacketDto/Wb
 import {ItemBlinderManagementService} from '../../../Model/Whiteboard/OccupiedItemBlinder/item-blinder-management-service/item-blinder-management.service';
 import {HotKeyManagementService} from '../../../Model/Whiteboard/HotKeyManagement/hot-key-management.service';
 import {ImportFileService} from "../../../Model/Whiteboard/ImportFile/import-file.service";
+import {TextChatService} from "../../../Model/Whiteboard/TextChat/text-chat.service";
 
 @Component({
   selector: 'app-whiteboard-main',
@@ -110,6 +111,7 @@ export class WhiteboardMainComponent implements OnInit,OnDestroy {
     public itemBlinderManagementService:ItemBlinderManagementService,
     public hotKeyManagementService:HotKeyManagementService,
     private importFile: ImportFileService,
+    private textChat: TextChatService,
   ) {
     this.connectedUserList = new Array<string>();
   }
@@ -164,9 +166,9 @@ export class WhiteboardMainComponent implements OnInit,OnDestroy {
                       }
                     });
                 }
+                this.textChat.initializeTextChatService();
               });
           });
-
       });
     });
   }//ngOnInit()

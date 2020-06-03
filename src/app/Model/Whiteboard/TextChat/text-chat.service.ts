@@ -14,6 +14,7 @@ import {ChatMessageDto} from "../../../DTO/ChatMessageDto/chat-message-dto";
 export class TextChatService {
   private _bottomSheetRef: MatBottomSheetRef;
   private chatBox: ChatBox;
+  private _unReadMessage: number = 0;
 
   private _isOpen: boolean = false;
   private _isFirstOpen: boolean = true;
@@ -30,14 +31,31 @@ export class TextChatService {
       message = ChatMessageDto.clone(message);
       this.chatBox.addMessage(new ChatMessage(message));
       this._messageEmitter.emit();
+
+      if(!this._isOpen) {
+        this.getUnreadCount().then(data => {
+          this._unReadMessage = data;
+        });
+      }
     });
   }
 
-  public open<T>(component: ComponentType<T>) {
+  public initializeTextChatService() {
+    this.getUnreadCount().then(data => {
+      this._unReadMessage = data;
+    });
+  }
+
+  public open<T>(component: ComponentType<T>, usePage: 'whiteboard' | 'projectPage') {
     if(this.isOpen) {
       return;
     }
-    this._bottomSheetRef = this._bottomSheet.open(component, { hasBackdrop: false });
+
+    this._bottomSheetRef = this._bottomSheet.open(component, {
+      hasBackdrop: false,
+      panelClass: usePage === 'whiteboard' ? 'text-chat-for-whiteboard-page' : 'text-chat-for-project-page'
+    });
+    this._unReadMessage = 0;
     this._isOpen = true;
     window.setTimeout(() => { document.getElementById('text-chat-input-area').focus(); }, 0);
 
@@ -55,6 +73,7 @@ export class TextChatService {
   public close() {
     if(!!this._bottomSheetRef) {
       this._bottomSheetRef.dismiss();
+      this.updateLastReadDateForNow();
       this._isOpen = false;
     }
   }
@@ -80,6 +99,15 @@ export class TextChatService {
     this.sendRequest(HttpHelper.websocketApi.textChat.sendMessage.event, message.exportDto()).then((result) => {
       this.chatBox.addMessage(result);
       this._messageEmitter.emit(result.userId);
+    });
+  }
+
+  public updateLastReadDateForNow() {
+    const event = HttpHelper.websocketApi.textChat.updateReadDate.event;
+    this.socket.emit(event, {
+      projectId: this.socketManager.currentProjectDto._id,
+      userId: this.socketManager.userInfo.idToken,
+      date: Date.now()
     });
   }
 
@@ -110,6 +138,24 @@ export class TextChatService {
     }));
   }
 
+  private async getUnreadCount(): Promise<any> {
+    return new Promise<any>((resolve, reject) => {
+      const event = HttpHelper.websocketApi.textChat.getUnreadCount.event;
+      this.socket.emit(event, {
+        projectId: this.socketManager.currentProjectDto._id,
+        userId: this.socketManager.userInfo.idToken
+      });
+
+      this.socket.once(event, (data) => {
+        if (data !== null) {
+          resolve(data);
+        } else {
+          reject(`UnreadCount Load Error`);
+        }
+      });
+    });
+  }
+
   get isOpen(): boolean {
     return this._isOpen;
   }
@@ -120,6 +166,15 @@ export class TextChatService {
 
   get messageEmitter(): EventEmitter<any> {
     return this._messageEmitter;
+  }
+
+  get unReadMessage(): number | string {
+    if (this._unReadMessage > 9) {
+      return 9 + "+"
+    } else if (this._unReadMessage <= 0) {
+      return "";
+    }
+    return this._unReadMessage;
   }
 
   private get socket(): Socket {

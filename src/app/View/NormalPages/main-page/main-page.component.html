@@ -35,6 +35,9 @@
     </mat-drawer-container>
 
   </div>
+  <button mat-fab class="fixed-button" (click)="onClickTextChatButton()" matBadge="{{unReadMessage}}">
+    <mat-icon>chat</mat-icon>
+  </button>
   <div style="margin-top: 64px;"></div>
   <app-gachi-footer></app-gachi-footer>
 </div>

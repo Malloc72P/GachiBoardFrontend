@@ -276,6 +276,12 @@ export class HttpHelper {
       ),
       loadMessages: new WebSocketRequest(
         "textChat_loadMessages", WebSocketTypeEnum.READ
+      ),
+      getUnreadCount: new WebSocketRequest(
+        "textChat_getUnreadCount", WebSocketTypeEnum.READ
+      ),
+      updateReadDate: new WebSocketRequest(
+        "textChat_updateReadDate", WebSocketTypeEnum.UPDATE
       )
     }
   };
