@@ -125,6 +125,8 @@ import {VideoChatService} from "./Model/Whiteboard/VideoChat/video-chat/video-ch
 import { TextChatCoreComponent } from './View/Whiteboard/text-chat/text-chat-core/text-chat-core.component';
 import {TextChatService} from "./Model/Whiteboard/TextChat/text-chat.service";
 import {MatBottomSheet, MatBottomSheetModule} from "@angular/material/bottom-sheet";
+import {ExportFileService} from "./Model/Whiteboard/ExportFile/export-file.service";
+import { ExportFileComponent } from './View/Whiteboard/export-file/export-file.component';
 
 const config: SocketIoConfig = { url: HttpHelper.apiUrl, options: {} };
 
@@ -248,6 +250,7 @@ const appRoutes: Routes = [
     VideoChatPanelComponent,
     VideoChatWrapperComponent,
     TextChatCoreComponent,
+    ExportFileComponent,
   ],
   entryComponents: [
     KanbanComponent,
@@ -346,6 +349,7 @@ const appRoutes: Routes = [
     VideoChatPanelManagerService,
     VideoChatService,
     TextChatService,
+    ExportFileService,
   ],
   bootstrap: [AppComponent]
 })

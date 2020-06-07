@@ -1,0 +1,32 @@
+#export-file-dialog-wrapper {
+  width: 250px;
+  padding: 20px;
+}
+#export-file-options {
+  overflow: initial;
+  height: 100%;
+}
+
+.checkbox-margin {
+  margin-bottom: 10px;
+}
+
+#confirm-buttons {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.buttons {
+  margin-left: 10px;
+}
+
+.line-align {
+  display: flex;
+  justify-content: space-between;
+}
+
+.basic-input {
+  width: 100px;
+  border-bottom: #3a3a3a solid 1px;
+  text-align: center;
+}

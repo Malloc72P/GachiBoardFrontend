@@ -1,0 +1,22 @@
+<div id="export-file-dialog-wrapper">
+  <div mat-dialog-title id="export-file-title">
+    Export Whiteboard
+  </div>
+  <div mat-dialog-content id="export-file-options">
+    <div id="transparency-checkbox" class="checkbox-margin">
+      <mat-checkbox [(ngModel)]="isTransparency">Transparency</mat-checkbox>
+    </div>
+    <div id="select-only-checkbox" class="checkbox-margin">
+      <mat-checkbox [(ngModel)]="isSelectOnly">Select only</mat-checkbox>
+    </div>
+    <div id="padding-checkbox" class="checkbox-margin line-align">
+      <mat-checkbox [(ngModel)]="isInsertPadding">Padding</mat-checkbox>
+      <input #padding class="basic-input" min="0" max="999" matInput maxlength="3" placeholder="pixels">
+    </div>
+  </div>
+  <div mat-dialog-actions id="confirm-buttons">
+    <button mat-stroked-button mat-dialog-close class="buttons">Cancel</button>
+    <button mat-stroked-button mat-dialog-close color="primary"
+            class="buttons" (click)="onClickExportToImageButton()">Export</button>
+  </div>
+</div>

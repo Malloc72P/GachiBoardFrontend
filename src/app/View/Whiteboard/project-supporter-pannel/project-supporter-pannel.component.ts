@@ -16,6 +16,7 @@ import {VideoChatService} from "../../../Model/Whiteboard/VideoChat/video-chat/v
 import {MatMenu} from "@angular/material/menu";
 import {TextChatService} from "../../../Model/Whiteboard/TextChat/text-chat.service";
 import {TextChatCoreComponent} from "../text-chat/text-chat-core/text-chat-core.component";
+import {ExportFileComponent} from "../export-file/export-file.component";
 
 @Component({
   selector: 'app-project-supporter-pannel',
@@ -146,6 +147,14 @@ export class ProjectSupporterPannelComponent extends PopoverPanel  implements On
 
   onClickEnd() {
     this.videoChat.leaveVideoChat().then();
+  }
+
+  onClickExportFile() {
+    this.hotKeyManagementService.disableHotKeySystem();
+    const dialogRef = this.dialog.open(ExportFileComponent);
+    dialogRef.afterClosed().subscribe(() => {
+      this.hotKeyManagementService.enableHotKeySystem();
+    });
   }
 
   menu(mode: SupportMode) {
