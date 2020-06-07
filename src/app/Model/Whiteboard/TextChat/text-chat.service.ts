@@ -158,10 +158,8 @@ export class TextChatService {
   private async loadRequest(event: string, loadAt?: string): Promise<any> {
     return new Promise<any>(((resolve, reject) => {
       this.socket.emit(event, { projectId: this.socketManager.currentProjectDto._id, loadAt: loadAt });
-      console.log(`emitted`);
       this.socket.once(event, (data) => {
         if (data !== null) {
-          console.log(`received`);
           resolve(data);
         } else {
           reject(`Message Load Error`);
