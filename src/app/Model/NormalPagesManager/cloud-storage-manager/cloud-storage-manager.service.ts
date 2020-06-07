@@ -1,15 +1,26 @@
 import {EventEmitter, Injectable} from '@angular/core';
 import {FileMetadataDto, FileTypeEnum} from '../../../DTO/ProjectDto/FileMetadataDto/file-metadata-dto';
+import {WebsocketManagerService} from '../../../Controller/Controller-WebSocket/websocket-manager/websocket-manager.service';
+
+import {MatDialog} from '@angular/material/dialog';
+import {CloudStorageCreateFolderComponent} from '../../../View/NormalPages/cloud-storage/cloud-storage-create-folder/cloud-storage-create-folder.component';
+import {AreYouSurePanelService} from '../../PopupManager/AreYouSurePanelManager/are-you-sure-panel.service';
+import {CloudStorageRequesterService} from '../../../Controller/CloudStorage/cloud-storage-requester.service';
 
 export class CloudLocalEvent {
   public action:CloudLocalEventEnum;
   public data;
+  public additionalData;
 
-
-  constructor(action: CloudLocalEventEnum, data) {
+  constructor(action: CloudLocalEventEnum, data, additionalData?) {
     this.action = action;
     this.data = data;
+    this.additionalData = additionalData;
   }
+}
+export class PathStack {
+  currPathName;
+  currStack:Array<string>;
 }
 export enum CloudLocalEventEnum {
   DIRECTORY_CHANGED,
@@ -19,46 +30,33 @@ export enum CloudLocalEventEnum {
 })
 export class CloudStorageManagerService {
   public cloudRoot:FileMetadataDto;
+  public currDirectory:FileMetadataDto;
   public cloudStorageLocalEventEmitter:EventEmitter<any>;
-  constructor() {
+  constructor(
+    public dialog: MatDialog,
+    public websocketManagerService:WebsocketManagerService,
+    public areYouSurePanelService:AreYouSurePanelService,
+    public cloudStorageRequesterService:CloudStorageRequesterService,
+  ) {
     this.cloudStorageLocalEventEmitter = new EventEmitter<any>();
-    this.getCloudStorageDB();
   }
-  public getCloudStorageDB(){
-    this.cloudRoot = new FileMetadataDto( this.getId(),
-      "root",FileTypeEnum.DIRECTORY,0,"ayana1234","아야나",new Date()
-    );
-
-    this.cloudRoot.children.push(
-      new FileMetadataDto( this.getId(),
-        "스커트 모델링",FileTypeEnum.DOCUMENT,212,"ayana1234","아야나",
-        new Date()
-      )
-    );
-    this.cloudRoot.children.push(
-      new FileMetadataDto( this.getId(),
-        "바이저 모델링",FileTypeEnum.DOCUMENT,212,"ayana1234","아야나",
-        new Date()
-      )
-    );
-    this.cloudRoot.children.push(
-      new FileMetadataDto( this.getId(),
-        "오퍼레이터 2B 전투기록영상",FileTypeEnum.VIDEO,212,"ayana1234","아야나",
-        new Date()
-      )
-    );
-    let testDir:FileMetadataDto = new FileMetadataDto( this.getId(),
-      "2B 스켈레톤",FileTypeEnum.DIRECTORY,212,"ayana1234","아야나", new Date());
-    testDir.children.push( new FileMetadataDto( this.getId(), "하체 골격",FileTypeEnum.DOCUMENT,212,"ayana1234","아야나", new Date() ));
-    testDir.children.push( new FileMetadataDto( this.getId(), "상체 골격",FileTypeEnum.DOCUMENT,212,"ayana1234","아야나", new Date() ));
-    testDir.children.push( new FileMetadataDto( this.getId(), "머리 뼈대",FileTypeEnum.DOCUMENT,212,"ayana1234","아야나", new Date() ));
-    this.cloudRoot.children.push(testDir);
+  public async getFileListOfPath(path):Promise<any>{
+    return new Promise<any>((resolve)=>{
+      this.cloudStorageRequesterService
+        .getFileList(path, this.websocketManagerService.currentProjectDto._id)
+        .subscribe((currDirectory:FileMetadataDto)=>{
+        console.log("CloudStorageManagerService >>  >> currDirectory : ",currDirectory);
+        this.currDirectory = currDirectory;
+        resolve(this.currDirectory);
+      });
+    });
   }
   private idGen = 0;
   getId(){
     return this.idGen++;
   }
   getIconByFileType(fileType:FileTypeEnum){
+    // console.log("CloudStorageManagerService >> getIconByFileType >> fileType : ",fileType);
     let iconName = null;
     switch (fileType) {
       case FileTypeEnum.DIRECTORY:
@@ -82,12 +80,24 @@ export class CloudStorageManagerService {
     }
     return iconName;
   }
+  getCurrPath(directory:FileMetadataDto){
+    if(directory.path){
+      return `${directory.path}${directory._id},`;
+    }else{
+      //root인 경우 path값이 null이다
+      return `,${directory._id},`;
+    }
+  }
+  addPath(currPath, appendPath){
+    return currPath + `${appendPath},`;
+  }
   getCurrPathByMetadata(fileMetadataDto:FileMetadataDto){
-    let pathStack:Array<FileMetadataDto> = new Array<FileMetadataDto>();
-    let findIt = this.findFile(this.cloudRoot, fileMetadataDto, pathStack);
-
-    console.log("CloudStorageManagerService >> getCurrPathByMetadata >> findIt : ",findIt);
-    return pathStack;
+    // let pathStack:Array<FileMetadataDto> = new Array<FileMetadataDto>();
+    // let findIt = this.findFile(this.cloudRoot, fileMetadataDto, pathStack);
+    //
+    // console.log("CloudStorageManagerService >> getCurrPathByMetadata >> findIt : ",findIt);
+    // console.log("CloudStorageManagerService >> getCurrPathByMetadata >> pathStack : ",pathStack);
+    // return pathStack;
   }
   findFile(currDirectory:FileMetadataDto, targetFile:FileMetadataDto, pathStack:Array<FileMetadataDto>){
     if(!currDirectory){
@@ -115,25 +125,85 @@ export class CloudStorageManagerService {
     }
     return findIt;
   }
-  accessFile(fileMetadataDto:FileMetadataDto){
+  accessFile(fileMetadataDto:FileMetadataDto, action?){
     switch (fileMetadataDto.type) {
       case FileTypeEnum.DIRECTORY:
-        this.moveToTargetDirectory(fileMetadataDto);
+        this.moveToTargetDirectory(fileMetadataDto, action);
         break;
       case FileTypeEnum.VIDEO:
-        break;
       case FileTypeEnum.IMAGE:
-        break;
       case FileTypeEnum.DOCUMENT:
-        break;
       case FileTypeEnum.COMPRESSED_FILE:
-        break;
       case FileTypeEnum.ETC:
+        let stackTrace:Array<FileMetadataDto> = new Array<FileMetadataDto>();
+        // this.findFile(this.cloudRoot, fileMetadataDto, stackTrace);
+        console.log("CloudStorageManagerService >> accessFile >> stackTrace : ",stackTrace);
         break;
     }
   }
-  moveToTargetDirectory(directory:FileMetadataDto){
-    this.cloudStorageLocalEventEmitter.emit(
-      new CloudLocalEvent(CloudLocalEventEnum.DIRECTORY_CHANGED, directory));
+  moveToTargetDirectory(directory:FileMetadataDto, action){
+    let currPath;
+    let newPath;
+    if(action === "descend"){
+      currPath = this.getCurrPath(this.currDirectory);
+      newPath = this.addPath(currPath, directory._id);
+    }else{
+      console.log("CloudStorageManagerService >> moveToTargetDirectory >> directory : ",directory);
+      newPath = this.getCurrPath(directory);
+      /*if (directory.path !== null) {
+        newPath = this.addPath(currPath, directory._id);
+      }*/
+    }
+    console.log("CloudStorageManagerService >> moveToTargetDirectory >> newPath : ",newPath);
+    this.getFileListOfPath(newPath).then((currDirectory:FileMetadataDto)=>{
+      console.log("CloudStorageComponent >> moveToTargetDirectory >> currDirectory : ",currDirectory);
+      this.currDirectory = currDirectory;
+      this.cloudStorageLocalEventEmitter.emit(
+        new CloudLocalEvent(CloudLocalEventEnum.DIRECTORY_CHANGED, this.currDirectory, action));
+    });
+  }
+  createFolder(currPath:FileMetadataDto){
+    const dialogRef = this.dialog.open(CloudStorageCreateFolderComponent, {
+      width: '480px',
+      data: null
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if(result){
+        //console.log("KanbanComponent >>  >> result : ",result);
+        if(!result.createFlag || !result.title){
+          return;
+        }
+        let folderName = result.title;
+        this.cloudStorageRequesterService.createFolder(
+          this.websocketManagerService.currentProjectDto._id,
+          folderName,
+          this.getCurrPath(currPath)
+        ).subscribe((refreshedDirectory:FileMetadataDto)=>{
+          this.currDirectory = refreshedDirectory;
+          this.cloudStorageLocalEventEmitter.emit(
+            new CloudLocalEvent(CloudLocalEventEnum.DIRECTORY_CHANGED, this.currDirectory, "stay"));
+
+        });
+        // currPath.children.push( new FileMetadataDto(
+        //   this.getId(),title,FileTypeEnum.DIRECTORY,0,
+        //   this.websocketManagerService.userInfo.idToken,this.websocketManagerService.userInfo.userName, new Date()) );
+      }
+    });
+  }
+  deleteFile(currPath:FileMetadataDto, tgtFile:FileMetadataDto){
+    this.areYouSurePanelService.openAreYouSurePanel("정말로 삭제하시겠습니까?",
+      "이 작업은 되돌릴 수 없습니다.").subscribe((answer)=>{
+        if(!answer){
+          return;
+        }
+        for (let i = 0 ; i < currPath.children.length; i++){
+          let currItem = currPath.children[i];
+          if(currItem._id === tgtFile._id){
+            currPath.children.splice(i, 1);
+            break;
+          }
+        }
+    });
   }
 }

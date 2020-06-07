@@ -47,7 +47,7 @@ export enum WebSocketTypeEnum {
 export enum Z_INDEX_ACTION {
   BRING_TO_FRONT,
   SEND_TO_BACK
-  
+
 }
 export enum SpecialAction {
   PASTE_COMPLETE,
@@ -123,6 +123,14 @@ export class HttpHelper {
       getParticipantList : new ApiRequest(
         "/project/participantList", ApiRequestTypeEnum.GET
       )
+    },
+    cloudStorage : {
+      getFileListOfCurrPath : new ApiRequest(
+        "/cloudStorage", ApiRequestTypeEnum.GET
+      ),
+      createFolder : new ApiRequest(
+        "/cloudStorage/folder", ApiRequestTypeEnum.POST
+      ),
     }
   };
 

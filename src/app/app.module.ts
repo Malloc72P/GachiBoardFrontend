@@ -128,6 +128,7 @@ import {NgxMaterialTimepickerModule} from 'ngx-material-timepicker';
 import {MatSnackBarModule} from '@angular/material/snack-bar';
 import { CloudStorageComponent } from './View/NormalPages/cloud-storage/cloud-storage.component';
 import { FileCardComponent } from './View/NormalPages/cloud-storage/file-card/file-card.component';
+import { CloudStorageCreateFolderComponent } from './View/NormalPages/cloud-storage/cloud-storage-create-folder/cloud-storage-create-folder.component';
 
 const config: SocketIoConfig = { url: HttpHelper.apiUrl, options: {} };
 
@@ -253,6 +254,7 @@ const appRoutes: Routes = [
     TimeTimerComponent,
     CloudStorageComponent,
     FileCardComponent,
+    CloudStorageCreateFolderComponent,
   ],
   entryComponents: [
     KanbanComponent,
@@ -267,6 +269,7 @@ const appRoutes: Routes = [
     EditWbSessionComponent,
     MatSpinner,
     CloudStorageComponent,
+    CloudStorageCreateFolderComponent,
   ],
   imports: [
     BrowserModule,

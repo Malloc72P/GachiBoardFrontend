@@ -36,7 +36,7 @@
           </div>
           <!--파일경로 부분-->
           <div *ngFor="let currTrace of pathStack; index as i" class="path-wrapper">
-            <h2 mat-ripple class="path-name" (click)="cloudService.moveToTargetDirectory(currTrace)"> {{currTrace.title}} </h2>
+            <h2 mat-ripple class="path-name" (click)="cloudService.moveToTargetDirectory(currTrace, 'ascend')"> {{currTrace.title}} </h2>
             <h2 *ngIf="i !== pathStack.length - 1" class="path-divider"> > </h2>
           </div>
         </mat-toolbar-row>
@@ -47,7 +47,9 @@
         <mat-drawer class="cloud-sidebar" [opened]="isSidebarOpened" mode="side">
 
           <!--새 폴더 생성-->
-          <button mat-flat-button style="width: 100%; text-align: left; padding: 8px 16px;">
+          <button mat-flat-button
+                  (click)="this.cloudService.createFolder(this.currDirectory)"
+                  style="width: 100%; text-align: left; padding: 8px 16px;">
             <mat-icon class="cloud-sidebar-icon">folder</mat-icon>
             <span class="cloud-sidebar-button">폴더생성</span></button>
           <mat-divider></mat-divider>
@@ -58,19 +60,15 @@
             <span class="cloud-sidebar-button">파일 업로드</span></button>
           <mat-divider></mat-divider>
 
-          <!--파일삭제버튼-->
-          <button mat-flat-button style="width: 100%; text-align: left; padding: 8px 16px;">
-            <mat-icon class="cloud-sidebar-icon">delete</mat-icon>
-            <span class="cloud-sidebar-button">선택한 파일 삭제</span></button>
-          <mat-divider></mat-divider>
-
         </mat-drawer>
 
         <!--파일 리스트 래퍼-->
         <mat-drawer-content class="cloud-content">
           <!--파일 목록 표시기-->
           <div class="file-list-wrapper">
-            <app-file-card *ngFor="let currFile of currDirectory.children" [fileMetadata]="currFile"></app-file-card>
+            <app-file-card *ngFor="let currFile of currDirectory.children"
+                           [fileMetadata]="currFile"
+                           [currDirectory]="currDirectory"></app-file-card>
           </div>
         </mat-drawer-content>
       </mat-drawer-container>

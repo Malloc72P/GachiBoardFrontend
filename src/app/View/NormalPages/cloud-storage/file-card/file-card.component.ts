@@ -11,6 +11,7 @@ import {FileMetadataDto} from '../../../../DTO/ProjectDto/FileMetadataDto/file-m
 })
 export class FileCardComponent implements OnInit {
   @Input() fileMetadata:FileMetadataDto;
+  @Input() currDirectory:FileMetadataDto;
   constructor(
     public cloudStorageManagerService:CloudStorageManagerService
   ) { }

@@ -1,6 +1,8 @@
 export class FileMetadataDto {
   public _id;
+  public projectId;
   public title;
+  public path;
   public type:FileTypeEnum;
   public size;
   public uploaderId;
@@ -10,8 +12,9 @@ export class FileMetadataDto {
   public filePointer;
 
 
-  constructor(id, title, type, size, uploaderId, uploaderName, uploadDate) {
-    this._id = id;
+  constructor(projectId, path, title, type, size, uploaderId, uploaderName, uploadDate, filePointer?) {
+    this.projectId = projectId;
+    this.path = path;
     this.title = title;
     this.type = type;
     this.size = size;
@@ -19,6 +22,7 @@ export class FileMetadataDto {
     this.uploaderName = uploaderName;
     this.uploadDate = uploadDate;
     this.children = new Array<FileMetadataDto>();
+    this.filePointer = filePointer;
   }
 }
 export enum FileTypeEnum {

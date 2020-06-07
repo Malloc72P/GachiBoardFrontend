@@ -24,20 +24,44 @@ export class CloudStorageComponentData {
 })
 export class CloudStorageComponent implements OnInit {
   public currDirectory:FileMetadataDto = null;
-  public pathStack:Array<FileMetadataDto>;
+  public currPath = ",";
+  public pathStack:Array<FileMetadataDto> = new Array<FileMetadataDto>();
   public isSidebarOpened = true;
   constructor(
     public dialogRef: MatDialogRef<CloudStorageComponent>,
     public cloudService: CloudStorageManagerService,
   ) {
-    this.currDirectory = this.cloudService.cloudRoot;
-    this.pathStack = this.cloudService.getCurrPathByMetadata(this.currDirectory);
-    console.log("CloudStorageComponent >> constructor >> currDirectory : ",this.cloudService.getCurrPathByMetadata(this.currDirectory));
+    console.log("CloudStorageComponent >> constructor >> 진입함");
+    this.currDirectory = new FileMetadataDto(
+      "","","","","","","","",""
+    );
+    this.cloudService.getFileListOfPath(",").then((currDirectory:FileMetadataDto)=>{
+      console.log("CloudStorageComponent >>  >> currDirectory : ",currDirectory);
+      this.currDirectory = currDirectory;
+      this.pathStack.push(currDirectory);
+    });
+    // this.currDirectory = this.cloudService.cloudRoot;
+    // this.pathStack = this.cloudService.getCurrPathByMetadata(this.currDirectory);
+
     this.cloudService.cloudStorageLocalEventEmitter.subscribe((localEvent:CloudLocalEvent)=>{
+      console.log("CloudStorageComponent >>  >> localEvent : ",localEvent);
       switch (localEvent.action) {
         case CloudLocalEventEnum.DIRECTORY_CHANGED:
           this.currDirectory = localEvent.data;
-          this.pathStack = this.cloudService.getCurrPathByMetadata(this.currDirectory);
+          if(localEvent.additionalData === "descend"){
+            this.pathStack.push(this.currDirectory);
+          }else if(localEvent.additionalData === "ascend"){
+            console.log("CloudStorageComponent >>  >> pathStack : ",this.pathStack);
+            console.log("CloudStorageComponent >>  >> currDirectory : ",this.currDirectory);
+            for (let i = 0 ; i < this.pathStack.length; i++){
+              let currPath:FileMetadataDto = this.pathStack[i];
+              if(currPath._id === this.currDirectory._id){
+                this.pathStack.splice(i + 1, this.pathStack.length - i);
+                break;
+              }
+            }
+          }
+          // this.pathStack = this.cloudService.getCurrPathByMetadata(this.currDirectory);
           break;
       }
     });
