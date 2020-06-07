@@ -81,3 +81,7 @@
   font-size: x-small;
   user-select: none;
 }
+
+.load-spinner {
+  margin: 0 auto 5px auto;
+}

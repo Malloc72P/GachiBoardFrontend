@@ -11,7 +11,7 @@ export class ChatBox {
     this.chatMessages.push(message);
   }
 
-  public loadPrevious(messages: Array<ChatMessage>) {
+  public addPrevious(messages: Array<ChatMessage>) {
     messages.forEach((value, index) => {
       this.chatMessages.splice(index, 0, value);
     });

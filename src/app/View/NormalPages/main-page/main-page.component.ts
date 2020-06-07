@@ -13,6 +13,7 @@ import {transition, trigger, useAnimation} from '@angular/animations';
 import {fadeInLeft, jackInTheBox} from 'ng-animate';
 import {TextChatService} from "../../../Model/Whiteboard/TextChat/text-chat.service";
 import {TextChatCoreComponent} from "../../Whiteboard/text-chat/text-chat-core/text-chat-core.component";
+import {Router} from "@angular/router";
 
 @Component({
   selector: 'app-main-page',
@@ -33,6 +34,7 @@ export class MainPageComponent implements OnInit {
     public routerHelperService:RouterHelperService,
     public sidebarManagerService:GachiSidebarManagerService,
     public textChat: TextChatService,
+    private router: Router,
   ) {
 
   }
@@ -67,5 +69,9 @@ export class MainPageComponent implements OnInit {
 
   get unReadMessage(): number | string {
     return this.textChat.unReadMessage;
+  }
+
+  get isProjectPage(): boolean {
+    return this.router.url.split(';')[0] === '/project';
   }
 }
