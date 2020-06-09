@@ -4,7 +4,7 @@
               (click)="onClickMinimizeButton()">expand_more</mat-icon>
   </div>
   <div id="text-chat-messages" class="messages-wrapper" (scroll)="onScroll($event)">
-    <mat-spinner class="load-spinner" *ngIf="this.textChat.isLoadFinished"
+    <mat-spinner class="load-spinner" *ngIf="isLoadFinished"
                  [diameter]="25" [strokeWidth]="5"></mat-spinner>
     <div class="chat-message" *ngFor="let message of messages">
       <div class="profile">

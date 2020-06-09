@@ -8,15 +8,10 @@ import {MatInput} from "@angular/material/input";
   styleUrls: ['./export-file.component.css']
 })
 export class ExportFileComponent implements OnInit {
-  private isTransparency = false;
-  private isSelectOnly = false;
-  private isInsertPadding = false;
-
-  @ViewChild('padding') private padding: MatInput;
-
   constructor(
     private exportFile: ExportFileService,
-  ) { }
+  ) {
+  }
 
   ngOnInit(): void {
   }
@@ -25,7 +20,61 @@ export class ExportFileComponent implements OnInit {
     this.exportFile.exportToImage(
       "png",
       this.isTransparency,
-      this.isSelectOnly,
-      this.isInsertPadding ? this.padding.value : null);
+      this.checkSelection ? false : this.isSelectOnly,
+      this.isInsertPadding ? this.padding : null,
+      this.isRename ? this.filename : null
+    );
+  }
+
+  get checkSelection(): boolean {
+    return !this.exportFile.isSelected;
+  }
+
+  get isTransparency(): boolean {
+    return this.exportFile.isTransparency;
+  }
+
+  get isSelectOnly(): boolean {
+    return this.exportFile.isSelectOnly;
+  }
+
+  get isInsertPadding(): boolean {
+    return this.exportFile.isInsertPadding;
+  }
+
+  set isTransparency(value: boolean) {
+    this.exportFile.isTransparency = value;
+  }
+
+  set isSelectOnly(value: boolean) {
+    this.exportFile.isSelectOnly = value;
+  }
+
+  set isInsertPadding(value: boolean) {
+    this.exportFile.isInsertPadding = value;
+  }
+
+  get isRename(): boolean {
+    return this.exportFile.isRename;
+  }
+
+  set isRename(value: boolean) {
+    this.exportFile.isRename = value;
+  }
+
+  get padding(): string {
+    return this.exportFile.padding;
+  }
+
+  set padding(value: string) {
+    this.exportFile.padding = value;
+  }
+
+  get filename(): string {
+    return this.exportFile.filename;
+  }
+
+  set filename(value: string) {
+    this.exportFile.filename = value;
   }
 }

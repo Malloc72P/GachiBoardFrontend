@@ -174,4 +174,8 @@ export class TextChatCoreComponent implements OnInit, AfterViewInit {
   get messages(): Array<ChatMessage> {
     return this.textChat.messages;
   }
+
+  get isLoadFinished(): boolean {
+    return this.textChat.isLoadFinished;
+  }
 }
