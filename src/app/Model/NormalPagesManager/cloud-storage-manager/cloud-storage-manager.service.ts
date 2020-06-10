@@ -20,30 +20,20 @@ import {
   CloudProgressPanelComponent
 } from '../../../View/NormalPages/cloud-storage/cloud-progress-panel/cloud-progress-panel.component';
 import {CommonSnackbarService} from '../common-snackbar/common-snackbar.service';
+import {
+  CloudLocalEvent,
+  CloudLocalEventEnum,
+  CloudStorageEventManagerService
+} from './cloud-storage-event-manager/cloud-storage-event-manager.service';
 
-export class CloudLocalEvent {
-  public action:CloudLocalEventEnum;
-  public data;
-  public additionalData;
-
-  constructor(action: CloudLocalEventEnum, data, additionalData?) {
-    this.action = action;
-    this.data = data;
-    this.additionalData = additionalData;
-  }
-}
 export class PathStack {
   currPathName;
   currStack:Array<string>;
-}
-export enum CloudLocalEventEnum {
-  DIRECTORY_CHANGED,
 }
 @Injectable({
   providedIn: 'root'
 })
 export class CloudStorageManagerService {
-  public cloudRoot:FileMetadataDto;
   public currDirectory:FileMetadataDto;
   public cloudStorageLocalEventEmitter:EventEmitter<any>;
   constructor(
@@ -52,8 +42,9 @@ export class CloudStorageManagerService {
     public areYouSurePanelService:AreYouSurePanelService,
     public cloudStorageRequesterService:CloudStorageRequesterService,
     public commonSnackbarService:CommonSnackbarService,
+    public cloudStorageEventManagerService:CloudStorageEventManagerService,
   ) {
-    this.cloudStorageLocalEventEmitter = new EventEmitter<any>();
+    this.cloudStorageLocalEventEmitter = cloudStorageEventManagerService.cloudStorageLocalEventEmitter;
   }
   public async getFileListOfPath(path):Promise<any>{
     return new Promise<any>((resolve)=>{

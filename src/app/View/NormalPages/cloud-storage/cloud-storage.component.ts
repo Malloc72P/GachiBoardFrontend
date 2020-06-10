@@ -1,12 +1,14 @@
 import {Component, ElementRef, OnInit, ViewChild} from '@angular/core';
 import {ProjectDto} from '../../../DTO/ProjectDto/project-dto';
-import {MatDialog, MatDialogRef} from '@angular/material/dialog';
-import {
-  CloudLocalEvent, CloudLocalEventEnum,
-  CloudStorageManagerService
-} from '../../../Model/NormalPagesManager/cloud-storage-manager/cloud-storage-manager.service';
-import {FileMetadataDto} from '../../../DTO/ProjectDto/FileMetadataDto/file-metadata-dto';
+import {MatDialogRef} from '@angular/material/dialog';
+import {CloudStorageManagerService} from '../../../Model/NormalPagesManager/cloud-storage-manager/cloud-storage-manager.service';
+import {FileMetadataDto, FileTypeEnum} from '../../../DTO/ProjectDto/FileMetadataDto/file-metadata-dto';
 import {MatMenuTrigger} from '@angular/material/menu';
+import {
+  CloudLocalEvent,
+  CloudLocalEventEnum
+} from '../../../Model/NormalPagesManager/cloud-storage-manager/cloud-storage-event-manager/cloud-storage-event-manager.service';
+import {AreYouSurePanelService} from '../../../Model/PopupManager/AreYouSurePanelManager/are-you-sure-panel.service';
 
 
 export class CloudStorageComponentData {
@@ -36,21 +38,20 @@ export class CloudStorageComponent implements OnInit {
   constructor(
     public dialogRef: MatDialogRef<CloudStorageComponent>,
     public cloudService: CloudStorageManagerService,
+    public areYouSurePanelService: AreYouSurePanelService,
   ) {
     console.log("CloudStorageComponent >> constructor >> 진입함");
     this.currDirectory = new FileMetadataDto(
       "","","","","","","","",""
     );
-    this.cloudService.getFileListOfPath(",").then((currDirectory:FileMetadataDto)=>{
-      console.log("CloudStorageComponent >>  >> currDirectory : ",currDirectory);
-      this.currDirectory = currDirectory;
-      this.pathStack.push(currDirectory);
-    });
+    this.getRootsFileList();
     // this.currDirectory = this.cloudService.cloudRoot;
     // this.pathStack = this.cloudService.getCurrPathByMetadata(this.currDirectory);
 
     this.cloudService.cloudStorageLocalEventEmitter.subscribe((localEvent:CloudLocalEvent)=>{
       console.log("CloudStorageComponent >>  >> localEvent : ",localEvent);
+      let emitBy;
+      let updatedDirectory:FileMetadataDto;
       switch (localEvent.action) {
         case CloudLocalEventEnum.DIRECTORY_CHANGED:
           this.currDirectory = localEvent.data;
@@ -69,7 +70,81 @@ export class CloudStorageComponent implements OnInit {
           }
           // this.pathStack = this.cloudService.getCurrPathByMetadata(this.currDirectory);
           break;
+        case CloudLocalEventEnum.UPDATED_BY_WS :
+          emitBy = localEvent.additionalData;
+          updatedDirectory = localEvent.data;
+          console.log("CloudStorageComponent >> UPDATED_BY_WS >> updatedDirectory : ",updatedDirectory);
+          if(emitBy === this.cloudService.websocketManagerService.userInfo.idToken){
+            return;
+          }
+          if(this.currDirectory.path === updatedDirectory.path){
+            this.cloudService.currDirectory = updatedDirectory;
+            this.currDirectory = updatedDirectory;
+          }else{
+            for (let i = 0 ; i < this.pathStack.length - 1 ; i++){
+              let currDirectory:FileMetadataDto = this.pathStack[i];
+              if(currDirectory._id === updatedDirectory._id){
+                let nextStack = this.pathStack[i + 1];
+                if(nextStack){
+                    for (let childFile of updatedDirectory.children){
+                      if(childFile._id === nextStack._id){
+                        nextStack.title = childFile.title;
+                      }
+                    }
+                }
+                break;
+              }
+            }
+          }
+          break;
+        case CloudLocalEventEnum.DELETED_BY_WS :
+          emitBy = localEvent.additionalData;
+          let deletedFileMetadata:FileMetadataDto = localEvent.data;
+          console.log("CloudStorageComponent >> DELETED_BY_WS >> deletedFileMetadata : ",deletedFileMetadata);
+          if(emitBy === this.cloudService.websocketManagerService.userInfo.idToken){
+            return;
+          }
+          if(deletedFileMetadata.type === FileTypeEnum.DIRECTORY){
+            if(deletedFileMetadata._id === this.currDirectory._id){
+              //현재 위치가 삭제됨. 에러메세지 출력 후, 루트로 강제 이동시킴
+              this.areYouSurePanelService
+                .openAreYouSurePanel("다른 유저가 당신이 있는 폴더를 삭제했어요!"
+                ,"최상위 폴더로 이동합니다", true).subscribe(()=>{
+                  this.getRootsFileList();
+              });
+              return;
+            }
+
+            for (let i = 0 ; i < this.pathStack.length - 1 ; i++){
+              let currDir:FileMetadataDto = this.pathStack[i];
+              if(currDir._id === deletedFileMetadata._id){
+                //상위 디렉토리가 삭제됨. 에러메세지 출력 후 루트로 강제이동시킴
+                this.areYouSurePanelService
+                  .openAreYouSurePanel("다른 유저가 당신이 있는 폴더의 상위 폴더를 삭제했어요!"
+                    ,"최상위 폴더로 이동합니다", true).subscribe(()=>{
+                  this.getRootsFileList();
+                });
+                return;
+
+              }
+            }
+          }
+          let currPath = this.cloudService.getCurrPath(this.currDirectory);
+          console.log("CloudStorageComponent >>  >> currPath : ",currPath);
+          if(deletedFileMetadata.path === currPath){
+            //내 경로에서 삭제가 발생함. 정보를 새로 가져와야함
+            this.cloudService.moveToTargetDirectory(this.currDirectory, "stay");
+          }
+          break;
       }
+    });
+  }
+  getRootsFileList(){
+    this.pathStack.splice(0, this.pathStack.length);
+    this.cloudService.getFileListOfPath(",").then((currDirectory:FileMetadataDto)=>{
+      console.log("CloudStorageComponent >>  >> currDirectory : ",currDirectory);
+      this.currDirectory = currDirectory;
+      this.pathStack.push(currDirectory);
     });
   }
   stepBackward(){

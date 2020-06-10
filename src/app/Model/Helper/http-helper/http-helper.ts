@@ -286,6 +286,14 @@ export class HttpHelper {
       getProducerIds: new WebSocketRequest(
         "videoChat_GetProducerIds", WebSocketTypeEnum.READ
       ),
+    },
+    cloudStorage : {
+      updated: new WebSocketRequest(
+        "cloudStorage_updated", WebSocketTypeEnum.UPDATE
+      ),
+      deleted: new WebSocketRequest(
+        "cloudStorage_deleted", WebSocketTypeEnum.UPDATE
+      ),
     }
   };
 
