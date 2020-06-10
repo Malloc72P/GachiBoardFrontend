@@ -24,6 +24,8 @@ import {GachiPointDto} from '../../../../../DTO/WhiteboardItemDto/PointDto/gachi
 import Item = paper.Item;
 // @ts-ignore
 import Path = paper.Path;
+// @ts-ignore
+import Point = paper.Point;
 
 export class GlobalSelectedGroup extends ItemGroup {
   private static globalSelectedGroup: GlobalSelectedGroup;
@@ -189,16 +191,18 @@ export class GlobalSelectedGroup extends ItemGroup {
         });
       }
     }
+    console.log("GlobalSelectedGroup >> copySelectedWbItems >> this.layerService.whiteboardItemArray : ", this.layerService.whiteboardItemArray);
+    console.log("GlobalSelectedGroup >> copySelectedWbItems >> this.copiedDtoArray : ", this.copiedDtoArray);
   }
 
   public extractCopiedItems(){
     this.copiedDtoArray.splice(0, this.copiedDtoArray.length);
   }
 
-  public waitForCloneOperation() :Observable<any>{
+  public waitForCloneOperation(copiedDtoArray: Array<WhiteboardItemDto>) :Observable<any>{
 
     return new Observable<any>((observer)=>{
-      WhiteboardItemFactory.cloneWbItems(this.copiedDtoArray).subscribe((copiedItems:Array<WhiteboardItem>)=>{
+      WhiteboardItemFactory.cloneWbItems(copiedDtoArray).subscribe((copiedItems:Array<WhiteboardItem>)=>{
         this.extractAllFromSelection();
         // this.extractCopiedItems();
         observer.next(copiedItems);
@@ -212,9 +216,16 @@ export class GlobalSelectedGroup extends ItemGroup {
     }
   }
 
-  public doPaste(newPosition){
-    if(this.copiedDtoArray.length > 0){
-      this.waitForCloneOperation().subscribe((data:Array<WhiteboardItem>)=>{
+  public doPaste(newPosition: Point, dtoArray?: Array<WhiteboardItemDto>){
+    let copiedDtoArray: Array<WhiteboardItemDto>;
+
+    if (!!dtoArray) {
+      copiedDtoArray = dtoArray;
+    } else {
+      copiedDtoArray = this.copiedDtoArray;
+    }
+    if(copiedDtoArray.length > 0){
+      this.waitForCloneOperation(copiedDtoArray).subscribe((data:Array<WhiteboardItem>)=>{
         this.layerService.uiService.spin$.next(true);
 
         // for (let i = 0; i < data.length; i++) {
@@ -242,7 +253,9 @@ export class GlobalSelectedGroup extends ItemGroup {
               // this.insertOneIntoSelection(newWbItem);
             }
             this.insertMultipleIntoSelection(cloneWbItemList).then(()=>{
-              this.relocateItemGroup(newPosition);
+              if (!!newPosition) {
+                this.relocateItemGroup(newPosition);
+              }
 
               let updateDtoList:Array<any> = new Array<any>();
               for (let i = 0; i < data.length; i++) {

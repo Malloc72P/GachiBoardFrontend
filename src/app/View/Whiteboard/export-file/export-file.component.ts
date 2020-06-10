@@ -8,6 +8,8 @@ import {MatInput} from "@angular/material/input";
   styleUrls: ['./export-file.component.css']
 })
 export class ExportFileComponent implements OnInit {
+  private _isBackupFile: boolean = false;
+
   constructor(
     private exportFile: ExportFileService,
   ) {
@@ -16,14 +18,22 @@ export class ExportFileComponent implements OnInit {
   ngOnInit(): void {
   }
 
-  public onClickExportToImageButton() {
-    this.exportFile.exportToImage(
-      "png",
-      this.isTransparency,
-      this.checkSelection ? false : this.isSelectOnly,
-      this.isInsertPadding ? this.padding : null,
-      this.isRename ? this.filename : null
-    );
+  public onClickExportButton() {
+    if (this.isBackupFile) {
+      this.exportFile.exportToBackupFile();
+    } else {
+      this.exportFile.exportToImage(
+        "png",
+        this.isTransparency,
+        this.checkSelection ? false : this.isSelectOnly,
+        this.isInsertPadding ? this.padding : null,
+        this.isRename ? this.filename : null
+      );
+    }
+  }
+
+  get isBackupChecked(): boolean {
+    return  this._isBackupFile;
   }
 
   get checkSelection(): boolean {
@@ -76,5 +86,13 @@ export class ExportFileComponent implements OnInit {
 
   set filename(value: string) {
     this.exportFile.filename = value;
+  }
+
+  get isBackupFile(): boolean {
+    return this._isBackupFile;
+  }
+
+  set isBackupFile(value: boolean) {
+    this._isBackupFile = value;
   }
 }

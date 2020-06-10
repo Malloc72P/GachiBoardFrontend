@@ -1,15 +1,13 @@
-import { Injectable } from '@angular/core';
-import {PositionCalcService} from "../PositionCalc/position-calc.service";
-import {DrawingLayerManagerService} from '../InfiniteCanvas/DrawingLayerManager/drawing-layer-manager.service';
-import {WhiteboardItemType} from '../../Helper/data-type-enum/data-type.enum';
-
 import * as paper from 'paper';
 // @ts-ignore
 import Raster = paper.Raster;
 // @ts-ignore
-import Project = paper.Project;
-// @ts-ignore
 import Point = paper.Point;
+
+import {Injectable} from '@angular/core';
+import {PositionCalcService} from "../PositionCalc/position-calc.service";
+import {DrawingLayerManagerService} from '../InfiniteCanvas/DrawingLayerManager/drawing-layer-manager.service';
+import {WhiteboardItemType} from '../../Helper/data-type-enum/data-type.enum';
 
 @Injectable({
   providedIn: 'root'
@@ -41,13 +39,16 @@ export class ImportFileService {
         case "image/jpeg":
         case "image/gif":
         case "image/png":
-          //console.log("ImportFileService >> importFile >> object.type : ", object.item(i).type);
+          if(object.item(i).size / Math.pow(1024, 2) > 4) {
+            // TODO: SNACKBAR 추가하기 => 4MB 이하의 파일만 추가할 수 있습니다.
+            break;
+          }
           this.drawImage(object.item(i), sumWidth, startPoint);
-
           break;
         case "application/pdf":
-          //console.log("ImportFileService >> importFile >> object : ", object.item(i));
-          //console.log("ImportFileService >> importFile >> object.type : ", object.item(i).type);
+          break;
+        case "application/json":
+          this.importFromJson(object.item(i));
           break;
         default:
           break;
@@ -55,7 +56,7 @@ export class ImportFileService {
     }
   }
 
-  drawImage(imageObject: File, sumWidth: { value }, startPoint: Point) {
+  private drawImage(imageObject: File, sumWidth: { value }, startPoint: Point) {
     let reader = new FileReader();
     let base64Image: string;
     let raster: Raster;
@@ -68,11 +69,31 @@ export class ImportFileService {
 
       raster.onLoad = () => {
         raster.bounds.topLeft = new Point(startPoint.x + sumWidth.value, startPoint.y); // raster bounds.topLeft 왜 안먹지?
-        sumWidth.value += raster.width + 10;
+        sumWidth.value += raster.width + 30;
 
         this.layerService.addToDrawingLayer(raster, WhiteboardItemType.SIMPLE_RASTER);
       };
     };
   }
 
+  private importFromJson(backupJsonFile: File) {
+    const reader = new FileReader();
+    reader.readAsText(backupJsonFile, 'UTF-8');
+    reader.onload = () => {
+      if (typeof reader.result === "string") {
+        try {
+          this.layerService.globalSelectedGroup.doPaste(null, JSON.parse(reader.result));
+        } catch (e) {
+          console.log("ImportFileService >> onload >> e : ", e);
+          // TODO: 스낵바 추가 => 손상된 백업 파일입니다.
+        }
+      } else {
+        // TODO: 스낵바 추가 => 손상된 백업 파일입니다.
+      }
+    };
+    reader.onerror = (error) => {
+      console.error(error);
+      // TODO: 스낵바 추가 => 손상된 백업 파일입니다.
+    };
+  }
 }

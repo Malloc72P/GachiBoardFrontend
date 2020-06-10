@@ -124,7 +124,7 @@ import { VideoChatWrapperComponent } from './View/Whiteboard/video-chat/video-ch
 import {VideoChatService} from "./Model/Whiteboard/VideoChat/video-chat/video-chat.service";
 import { TextChatCoreComponent } from './View/Whiteboard/text-chat/text-chat-core/text-chat-core.component';
 import {TextChatService} from "./Model/Whiteboard/TextChat/text-chat.service";
-import {MatBottomSheet, MatBottomSheetModule} from "@angular/material/bottom-sheet";
+import {MatBottomSheetModule} from "@angular/material/bottom-sheet";
 import {ExportFileService} from "./Model/Whiteboard/ExportFile/export-file.service";
 import { ExportFileComponent } from './View/Whiteboard/export-file/export-file.component';
 

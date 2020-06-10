@@ -518,7 +518,7 @@ export class WhiteboardMainComponent implements OnInit,OnDestroy {
     event.stopPropagation();
 
     const files = event.dataTransfer.files;
-    this.importFile.importFile(files);
+    this.importFile.importFile(files, this.posCalcService.advConvertNgToPaper(new Point(event.x, event.y)));
   }
 
   get PointerMode() {
