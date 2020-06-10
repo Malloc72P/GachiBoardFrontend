@@ -1,0 +1,28 @@
+.example-form {
+  min-width: 150px;
+  max-width: 500px;
+  width: 100%;
+}
+
+.example-full-width {
+  width: 100%;
+}
+
+.folder-item-edit-content{
+  padding: 25px 12px;
+}
+.folder-item-edit-button-wrapper{
+  display: flex;
+  flex-flow: row-reverse;
+}
+.folder-item-edit-divider{
+  margin-top: 16px;
+  margin-bottom: 16px;
+}
+.folder-create-form-field{
+  margin-bottom: 15px;
+}
+.file-info-input{
+  cursor: default;
+  margin-left: 8px;
+}

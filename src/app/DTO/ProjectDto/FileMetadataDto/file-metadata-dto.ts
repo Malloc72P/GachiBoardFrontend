@@ -28,6 +28,7 @@ export class FileMetadataDto {
 export enum FileTypeEnum {
   DIRECTORY,
   VIDEO,
+  AUDIO,
   IMAGE,
   DOCUMENT,
   COMPRESSED_FILE,

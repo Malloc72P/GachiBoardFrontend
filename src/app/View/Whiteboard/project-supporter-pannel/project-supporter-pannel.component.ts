@@ -87,6 +87,7 @@ export class ProjectSupporterPannelComponent extends PopoverPanel  implements On
         break;
       case SupportMode.CLOUD_STORAGE:
         this.hotKeyManagementService.disableHotKeySystem();
+        this.hotKeyManagementService.enableCloudMode();
 
         dialogRef = this.dialog.open(CloudStorageComponent, {
           width: this.positionCalcService.getWidthOfBrowser()+"px",
@@ -98,6 +99,7 @@ export class ProjectSupporterPannelComponent extends PopoverPanel  implements On
         dialogRef.afterClosed().subscribe(result => {
           //console.log('The dialog was closed');
           this.hotKeyManagementService.enableHotKeySystem();
+          this.hotKeyManagementService.disableCloudMode();
         });
         break;
       case SupportMode.IMPORT:

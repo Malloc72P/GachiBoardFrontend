@@ -1,7 +1,7 @@
 import {Component, Input, OnInit} from '@angular/core';
 
 import {CloudStorageManagerService} from '../../../../Model/NormalPagesManager/cloud-storage-manager/cloud-storage-manager.service';
-import {FileMetadataDto} from '../../../../DTO/ProjectDto/FileMetadataDto/file-metadata-dto';
+import {FileMetadataDto, FileTypeEnum} from '../../../../DTO/ProjectDto/FileMetadataDto/file-metadata-dto';
 
 @Component({
   selector: 'app-file-card',
@@ -13,10 +13,17 @@ export class FileCardComponent implements OnInit {
   @Input() fileMetadata:FileMetadataDto;
   @Input() currDirectory:FileMetadataDto;
   constructor(
-    public cloudStorageManagerService:CloudStorageManagerService
+    public cloudStorageManagerService:CloudStorageManagerService,
   ) { }
 
   ngOnInit(): void {
+  }
+  isZipFile(){
+    // console.log("FileCardComponent >> isZipFile >> fileMetadata : ",this.fileMetadata.type);
+    return this.fileMetadata.type === FileTypeEnum.COMPRESSED_FILE;
+  }
+  isDirectory(){
+    return this.fileMetadata.type === FileTypeEnum.DIRECTORY;
   }
 
 }

@@ -25,3 +25,13 @@
     .clickable{
       cursor: pointer;
     }
+  .cloud-zip-file{
+    display: inline-block;
+    background-image: url("/assets/images/supporter/cloud-storage/zip2.png");
+    width: 24px;
+    height: 24px;
+    margin-right: 12px;
+    background-size: cover;
+    user-select: none;
+    background-repeat: no-repeat;
+  }

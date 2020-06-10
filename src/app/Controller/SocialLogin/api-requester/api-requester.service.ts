@@ -24,12 +24,27 @@ export class ApiRequesterService {
       responseType: 'json'
     });
   }
+  public getFile(url, params = null): Observable<any> {
+    return this.http.get(this.baseUrl + url, {
+      params: params,
+      headers: new HttpHeaders({
+        'Content-Type': HttpHelper.getContentType()
+      }),
+      responseType: 'blob'
+    });
+  }
 
   public post(url, params = null): Observable<any> {
     return this.http.post(this.baseUrl + url, params, {
       headers: new HttpHeaders({
         'Content-Type': HttpHelper.getContentType()
       }),
+      responseType: 'json'
+    });
+  }
+  public multipartPost(url, params = null): Observable<any> {
+    return this.http.post(this.baseUrl + url, params, {
+      headers: new HttpHeaders({ 'enctype': 'multipart/form-data' }),
       responseType: 'json'
     });
   }

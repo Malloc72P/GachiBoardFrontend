@@ -128,8 +128,20 @@ export class HttpHelper {
       getFileListOfCurrPath : new ApiRequest(
         "/cloudStorage", ApiRequestTypeEnum.GET
       ),
+      downloadFile : new ApiRequest(
+        "/cloudStorage/file", ApiRequestTypeEnum.GET
+      ),
       createFolder : new ApiRequest(
         "/cloudStorage/folder", ApiRequestTypeEnum.POST
+      ),
+      uploadFile : new ApiRequest(
+        "/cloudStorage/file", ApiRequestTypeEnum.POST
+      ),
+      renameFile : new ApiRequest(
+        "/cloudStorage", ApiRequestTypeEnum.PATCH
+      ),
+      deleteFile : new ApiRequest(
+        "/cloudStorage", ApiRequestTypeEnum.DELETE
       ),
     }
   };

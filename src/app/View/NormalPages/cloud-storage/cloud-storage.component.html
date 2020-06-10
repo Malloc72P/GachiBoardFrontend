@@ -1,4 +1,4 @@
-<div class="popup-main-panel popup-panel-box popup-commons-panel"
+<div class="popup-main-panel popup-panel-box popup-commons-panel cloud-main-wrapper"
      id="supporter-Cloud">
 
   <div class="popup-panel-box popup-card-wrapper panel-main">
@@ -55,7 +55,9 @@
           <mat-divider></mat-divider>
 
           <!--업로드버튼-->
-          <button mat-flat-button style="width: 100%; text-align: left; padding: 8px 16px;">
+          <button mat-flat-button
+                  (click)="uploadFile()"
+                  style="width: 100%; text-align: left; padding: 8px 16px;">
             <mat-icon class="cloud-sidebar-icon">save</mat-icon>
             <span class="cloud-sidebar-button">파일 업로드</span></button>
           <mat-divider></mat-divider>
@@ -63,18 +65,32 @@
         </mat-drawer>
 
         <!--파일 리스트 래퍼-->
-        <mat-drawer-content class="cloud-content">
+        <mat-drawer-content class="cloud-content" (contextmenu)="onRightClick($event)">
           <!--파일 목록 표시기-->
           <div class="file-list-wrapper">
             <app-file-card *ngFor="let currFile of currDirectory.children"
                            [fileMetadata]="currFile"
                            [currDirectory]="currDirectory"></app-file-card>
           </div>
+          <mat-menu #contextmenu>
+            <div >
+              <button mat-menu-item (click)="cloudService.createFolder(this.currDirectory)">폴더 생성하기</button>
+              <button mat-menu-item (click)="stepBackward()">뒤로가기</button>
+            </div>
+          </mat-menu>
+          <div [matMenuTriggerFor]="contextmenu"
+               [style.position]="'absolute'"
+               [style.left.px]="menuPosX"
+               [style.top.px]="menuPosY"></div>
+
         </mat-drawer-content>
       </mat-drawer-container>
       <!--####################################-->
     </mat-card-content>
-
+    <input #fileUploadInput
+           type="file" multiple="multiple"
+           id="fileUploadInput"
+           (change)="onFileChangeMultiple()" style="display: none"/>
   </div>
 
 

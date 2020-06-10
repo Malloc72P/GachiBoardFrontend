@@ -1,14 +1,11 @@
 import {Component, Inject, OnInit} from '@angular/core';
-import {KanbanGroup} from '../../../../Model/Whiteboard/ProjectSupporter/Kanban/KanbanGroup/kanban-group';
-import {KanbanItem} from '../../../../Model/Whiteboard/ProjectSupporter/Kanban/KanbanItem/kanban-item';
 import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
-import {UserManagerService} from '../../../../Model/UserManager/user-manager.service';
-import {KanbanItemColorService} from '../../../../Model/Whiteboard/ProjectSupporter/Kanban/KanbanItemColorEnumManager/kanban-item-color.service';
 import {FormControl, FormGroup, Validators} from '@angular/forms';
-import {CreateKanbanDialogData} from '../../kanban/kanban-item-create/kanban-item-create.component';
+import {FileMetadataDto} from '../../../../DTO/ProjectDto/FileMetadataDto/file-metadata-dto';
+
 
 export class CreateCloudFolderDialogData{
-  data
+  fileMetadataDto:FileMetadataDto
 }
 
 @Component({

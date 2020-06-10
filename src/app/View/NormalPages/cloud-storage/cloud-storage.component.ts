@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, ElementRef, OnInit, ViewChild} from '@angular/core';
 import {ProjectDto} from '../../../DTO/ProjectDto/project-dto';
 import {MatDialog, MatDialogRef} from '@angular/material/dialog';
 import {
@@ -6,6 +6,7 @@ import {
   CloudStorageManagerService
 } from '../../../Model/NormalPagesManager/cloud-storage-manager/cloud-storage-manager.service';
 import {FileMetadataDto} from '../../../DTO/ProjectDto/FileMetadataDto/file-metadata-dto';
+import {MatMenuTrigger} from '@angular/material/menu';
 
 
 export class CloudStorageComponentData {
@@ -24,9 +25,14 @@ export class CloudStorageComponentData {
 })
 export class CloudStorageComponent implements OnInit {
   public currDirectory:FileMetadataDto = null;
-  public currPath = ",";
   public pathStack:Array<FileMetadataDto> = new Array<FileMetadataDto>();
   public isSidebarOpened = true;
+  public menuPosX = 0;
+  public menuPosY = 0;
+
+  @ViewChild('fileUploadInput') fileUploadInput: ElementRef;
+  @ViewChild(MatMenuTrigger) matMenuTrigger: MatMenuTrigger;
+
   constructor(
     public dialogRef: MatDialogRef<CloudStorageComponent>,
     public cloudService: CloudStorageManagerService,
@@ -65,13 +71,32 @@ export class CloudStorageComponent implements OnInit {
           break;
       }
     });
-
   }
-
+  stepBackward(){
+    this.cloudService.moveToTargetDirectory(this.pathStack[this.pathStack.length - 2], 'ascend');
+  }
   ngOnInit(): void {
   }
   onNoClick(): void {
     this.dialogRef.close();
+  }
+
+  uploadFile() {
+    document.getElementById("fileUploadInput").click();
+  }
+
+  onFileChangeMultiple() {
+    let fileObjects = this.fileUploadInput.nativeElement.files;
+    this.cloudService.uploadFile(fileObjects, this.currDirectory);
+
+    // this.importFileService.importFile(fileObjects)
+  }
+  onRightClick(event){
+    event.preventDefault();
+    console.log("CloudStorageComponent >> onRightClick >> event : ",event);
+    this.menuPosX = event.layerX;
+    this.menuPosY = event.layerY;
+    this.matMenuTrigger.openMenu();
   }
 
 }

@@ -6,6 +6,20 @@ import {MatDialog} from '@angular/material/dialog';
 import {CloudStorageCreateFolderComponent} from '../../../View/NormalPages/cloud-storage/cloud-storage-create-folder/cloud-storage-create-folder.component';
 import {AreYouSurePanelService} from '../../PopupManager/AreYouSurePanelManager/are-you-sure-panel.service';
 import {CloudStorageRequesterService} from '../../../Controller/CloudStorage/cloud-storage-requester.service';
+import {
+  CloudStorageInfoViewerComponent,
+  FileInfoViewerData
+} from '../../../View/NormalPages/cloud-storage/cloud-storage-info-viewer/cloud-storage-info-viewer.component';
+import {
+  CloudStorageRenameFileComponent,
+  RenameCloudItemDialogData
+} from '../../../View/NormalPages/cloud-storage/cloud-storage-rename-file/cloud-storage-rename-file.component';
+import {
+  CloudProgressAction,
+  CloudProgressData,
+  CloudProgressPanelComponent
+} from '../../../View/NormalPages/cloud-storage/cloud-progress-panel/cloud-progress-panel.component';
+import {CommonSnackbarService} from '../common-snackbar/common-snackbar.service';
 
 export class CloudLocalEvent {
   public action:CloudLocalEventEnum;
@@ -37,6 +51,7 @@ export class CloudStorageManagerService {
     public websocketManagerService:WebsocketManagerService,
     public areYouSurePanelService:AreYouSurePanelService,
     public cloudStorageRequesterService:CloudStorageRequesterService,
+    public commonSnackbarService:CommonSnackbarService,
   ) {
     this.cloudStorageLocalEventEmitter = new EventEmitter<any>();
   }
@@ -65,6 +80,9 @@ export class CloudStorageManagerService {
       case FileTypeEnum.VIDEO:
         iconName = "movie";
         break;
+      case FileTypeEnum.AUDIO:
+        iconName = "audiotrack";
+        break;
       case FileTypeEnum.IMAGE:
         iconName = "image";
         break;
@@ -77,6 +95,8 @@ export class CloudStorageManagerService {
       case FileTypeEnum.ETC:
         iconName = "description";
         break;
+      default:
+        iconName = "description"
     }
     return iconName;
   }
@@ -91,40 +111,6 @@ export class CloudStorageManagerService {
   addPath(currPath, appendPath){
     return currPath + `${appendPath},`;
   }
-  getCurrPathByMetadata(fileMetadataDto:FileMetadataDto){
-    // let pathStack:Array<FileMetadataDto> = new Array<FileMetadataDto>();
-    // let findIt = this.findFile(this.cloudRoot, fileMetadataDto, pathStack);
-    //
-    // console.log("CloudStorageManagerService >> getCurrPathByMetadata >> findIt : ",findIt);
-    // console.log("CloudStorageManagerService >> getCurrPathByMetadata >> pathStack : ",pathStack);
-    // return pathStack;
-  }
-  findFile(currDirectory:FileMetadataDto, targetFile:FileMetadataDto, pathStack:Array<FileMetadataDto>){
-    if(!currDirectory){
-      return
-    }
-    let findIt = false;
-
-    pathStack.push(currDirectory);
-
-    if(currDirectory._id === targetFile._id){
-      return true;
-    }
-
-    for (let currFile of currDirectory.children){
-      if(currFile._id === targetFile._id){
-        pathStack.push(currFile);
-        return true;
-      }
-      if(currFile.type === FileTypeEnum.DIRECTORY){
-        findIt = this.findFile(currFile, targetFile, pathStack);
-        if(findIt){
-          return true;
-        }else pathStack.splice(pathStack.length - 1, 1);
-      }
-    }
-    return findIt;
-  }
   accessFile(fileMetadataDto:FileMetadataDto, action?){
     switch (fileMetadataDto.type) {
       case FileTypeEnum.DIRECTORY:
@@ -135,9 +121,7 @@ export class CloudStorageManagerService {
       case FileTypeEnum.DOCUMENT:
       case FileTypeEnum.COMPRESSED_FILE:
       case FileTypeEnum.ETC:
-        let stackTrace:Array<FileMetadataDto> = new Array<FileMetadataDto>();
-        // this.findFile(this.cloudRoot, fileMetadataDto, stackTrace);
-        console.log("CloudStorageManagerService >> accessFile >> stackTrace : ",stackTrace);
+        this.downloadFile(fileMetadataDto);
         break;
     }
   }
@@ -185,25 +169,98 @@ export class CloudStorageManagerService {
             new CloudLocalEvent(CloudLocalEventEnum.DIRECTORY_CHANGED, this.currDirectory, "stay"));
 
         });
-        // currPath.children.push( new FileMetadataDto(
-        //   this.getId(),title,FileTypeEnum.DIRECTORY,0,
-        //   this.websocketManagerService.userInfo.idToken,this.websocketManagerService.userInfo.userName, new Date()) );
       }
     });
   }
-  deleteFile(currPath:FileMetadataDto, tgtFile:FileMetadataDto){
+  deleteFile(fileMetadata:FileMetadataDto){
     this.areYouSurePanelService.openAreYouSurePanel("정말로 삭제하시겠습니까?",
       "이 작업은 되돌릴 수 없습니다.").subscribe((answer)=>{
         if(!answer){
           return;
         }
-        for (let i = 0 ; i < currPath.children.length; i++){
-          let currItem = currPath.children[i];
-          if(currItem._id === tgtFile._id){
-            currPath.children.splice(i, 1);
-            break;
-          }
-        }
+      this.cloudStorageRequesterService.deleteFile(
+        this.websocketManagerService.currentProjectDto._id,
+        fileMetadata._id
+      ).subscribe((refreshedDirectory:FileMetadataDto)=>{
+        this.currDirectory = refreshedDirectory;
+        this.cloudStorageLocalEventEmitter.emit(
+          new CloudLocalEvent(CloudLocalEventEnum.DIRECTORY_CHANGED, this.currDirectory, "stay"));
+
+      });
+
     });
   }
+  taskComplete(){
+    this.commonSnackbarService.openSnackBar("작업이 완료되었어요!","close");
+  }
+  uploadFile(fileList:FileList, currPath:FileMetadataDto){
+    let progressEventEmitter:EventEmitter<any> = new EventEmitter<any>();
+    const dialogRef = this.dialog.open(CloudProgressPanelComponent, {
+      width: '480px',
+      data: new CloudProgressData(progressEventEmitter, CloudProgressAction.upload, "파일을 업로드 하고 있어요")
+    });
+
+    this.cloudStorageRequesterService.uploadFile(
+      this.websocketManagerService.currentProjectDto._id, fileList, this.getCurrPath(currPath))
+      .subscribe((refreshedDirectory:FileMetadataDto)=>{
+        progressEventEmitter.emit();
+        this.taskComplete();
+        this.currDirectory = refreshedDirectory;
+        this.cloudStorageLocalEventEmitter.emit(
+          new CloudLocalEvent(CloudLocalEventEnum.DIRECTORY_CHANGED, this.currDirectory, "stay"));
+      });
+  }
+  downloadFile(fileMetadataDto:FileMetadataDto){
+    let progressEventEmitter:EventEmitter<any> = new EventEmitter<any>();
+    const dialogRef = this.dialog.open(CloudProgressPanelComponent, {
+      width: '480px',
+      data: new CloudProgressData(progressEventEmitter, CloudProgressAction.download, "파일을 다운로드하고 있어요")
+    });
+
+    this.cloudStorageRequesterService.downloadFile(fileMetadataDto.filePointer)
+      .subscribe((data:Blob)=>{
+        console.log("CloudStorageManagerService >>  >> data : ",data);
+
+        let downloadLink = window.URL.createObjectURL(data);
+        let link= document.createElement("a");
+        link.href = downloadLink;
+        link.download = fileMetadataDto.title;
+        link.click();
+
+        progressEventEmitter.emit();
+        this.taskComplete();
+      });
+  }
+  openFileInfoPanel(fileMetadata:FileMetadataDto, mode){
+    const dialogRef = this.dialog.open(CloudStorageInfoViewerComponent, {
+      width: '480px',
+      data: new FileInfoViewerData(fileMetadata, mode)
+    });
+  }
+  renameFile(fileMetadata:FileMetadataDto){
+    const dialogRef = this.dialog.open(CloudStorageRenameFileComponent, {
+      width: '480px',
+      data: new RenameCloudItemDialogData(fileMetadata)
+    });
+    dialogRef.afterClosed().subscribe((result) => {
+      if(result){
+        if(!result.createFlag || !result.title){
+          return;
+        }
+        let newName = result.title;
+        this.cloudStorageRequesterService.renameFile(
+          this.websocketManagerService.currentProjectDto._id,
+          fileMetadata._id,
+          newName
+        ).subscribe((refreshedDirectory:FileMetadataDto)=>{
+          this.currDirectory = refreshedDirectory;
+          this.cloudStorageLocalEventEmitter.emit(
+            new CloudLocalEvent(CloudLocalEventEnum.DIRECTORY_CHANGED, this.currDirectory, "stay"));
+
+        });
+      }
+    })
+  }
+
+
 }

@@ -129,6 +129,10 @@ import {MatSnackBarModule} from '@angular/material/snack-bar';
 import { CloudStorageComponent } from './View/NormalPages/cloud-storage/cloud-storage.component';
 import { FileCardComponent } from './View/NormalPages/cloud-storage/file-card/file-card.component';
 import { CloudStorageCreateFolderComponent } from './View/NormalPages/cloud-storage/cloud-storage-create-folder/cloud-storage-create-folder.component';
+import { CloudStorageInfoViewerComponent } from './View/NormalPages/cloud-storage/cloud-storage-info-viewer/cloud-storage-info-viewer.component';
+import { CloudStorageRenameFileComponent } from './View/NormalPages/cloud-storage/cloud-storage-rename-file/cloud-storage-rename-file.component';
+import { CloudProgressPanelComponent } from './View/NormalPages/cloud-storage/cloud-progress-panel/cloud-progress-panel.component';
+import {MatProgressBarModule} from '@angular/material/progress-bar';
 
 const config: SocketIoConfig = { url: HttpHelper.apiUrl, options: {} };
 
@@ -255,6 +259,9 @@ const appRoutes: Routes = [
     CloudStorageComponent,
     FileCardComponent,
     CloudStorageCreateFolderComponent,
+    CloudStorageInfoViewerComponent,
+    CloudStorageRenameFileComponent,
+    CloudProgressPanelComponent,
   ],
   entryComponents: [
     KanbanComponent,
@@ -270,6 +277,8 @@ const appRoutes: Routes = [
     MatSpinner,
     CloudStorageComponent,
     CloudStorageCreateFolderComponent,
+    CloudStorageInfoViewerComponent,
+    CloudProgressPanelComponent,
   ],
   imports: [
     BrowserModule,
@@ -313,7 +322,8 @@ const appRoutes: Routes = [
     MatDatepickerModule,
     MatNativeDateModule,
     NgxMaterialTimepickerModule,
-    MatSnackBarModule
+    MatSnackBarModule,
+    MatProgressBarModule
   ],
   providers: [
     RouterHelperService,

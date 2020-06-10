@@ -386,8 +386,13 @@ export class WhiteboardMainComponent implements OnInit,OnDestroy {
     }
 
     if(!this.hotKeyManagementService.isAvail){
-      return;
+      if (this.hotKeyManagementService.isCloud) {
+        event.preventDefault();
+        console.log("WhiteboardMainComponent >> keydownHandler >> event : ",event);
+        return;
+      }else return;
     }
+
 
     event.preventDefault();
     // 전역

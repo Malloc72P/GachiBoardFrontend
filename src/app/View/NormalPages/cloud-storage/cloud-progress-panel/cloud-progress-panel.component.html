@@ -1,0 +1,47 @@
+<div>
+  <mat-toolbar color="primary">
+    <mat-toolbar-row>
+        <div class="toolbar-title-wrapper">
+          <div class="toolbar-title-icon-wrapper">
+            <mat-icon class="example-icon">info</mat-icon>
+          </div>
+          <span>같이보드가 열심히 일하고 있어요!</span>
+        </div>
+      <span class="flex-spacer"></span>
+      <button mat-button color="Basic"
+              (click)="onNoClick()">
+        <mat-icon class="example-icon"
+                  aria-hidden="false"
+                  aria-label="create folder panel close button">close</mat-icon>
+      </button>
+    </mat-toolbar-row>
+  </mat-toolbar>
+  <div class="folder-item-edit-content">
+    <mat-card class="cloud-progress-wrapper">
+      <mat-icon class="cloud-progress-icon"
+                style="margin-right: 35px;">home</mat-icon>
+      <mat-progress-bar class="cloud-progress-bar" mode="{{progressMode}}"></mat-progress-bar>
+      <mat-icon class="cloud-progress-icon"
+                style="margin-left: 40px;">cloud</mat-icon>
+    </mat-card>
+
+    <mat-divider class="folder-item-edit-divider"></mat-divider>
+
+    <!--프로그래스 바 래퍼 태그-->
+    <mat-card class="cloud-progress-msg">
+      <div class="toolbar-title-wrapper">
+        <div class="toolbar-title-icon-wrapper">
+          <mat-icon class="example-icon">info</mat-icon>
+        </div>
+        <h3 style="margin: 0">{{msg}}</h3>
+        <span class="flex-spacer"></span>
+      </div>
+      <div class="toolbar-title-wrapper">
+        <span class="flex-indent"></span>
+        <h3 style="margin: 0;">잠시만 기다려 주세요</h3>
+        <span class="flex-spacer"></span>
+      </div>
+    </mat-card>
+
+  </div>
+</div>
