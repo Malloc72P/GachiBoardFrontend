@@ -40,6 +40,7 @@ import {
   WebsocketEventEnum
 } from '../../../../Controller/Controller-WebSocket/websocket-manager/WebsocketEvent/WebsocketEvent';
 import {TimeTimerManagerService} from '../../../../Model/Whiteboard/TimeTimer/time-timer-manager.service';
+import {TextChatService} from "../../../../Model/Whiteboard/TextChat/text-chat.service";
 
 @Component({
   selector: 'app-main-page-project',
@@ -76,6 +77,7 @@ export class MainPageProjectComponent implements OnInit, OnDestroy {
     public projectRequesterService:ProjectRequesterService,
     public routerService:RouterHelperService,
     public timeTimerMgr: TimeTimerManagerService,
+    private textchat: TextChatService,
   ) {
     this.projectId = this.route.snapshot.paramMap.get('projectId');
 
@@ -108,7 +110,7 @@ export class MainPageProjectComponent implements OnInit, OnDestroy {
           for(let wbSession of wbSessionListData){
             this.wbSessionList.push(wbSession);
           }
-
+          this.textchat.initializeTextChatService();
         },(errorDetail)=>{
 
           this.areYouSurePanelService.openAreYouSurePanel(
