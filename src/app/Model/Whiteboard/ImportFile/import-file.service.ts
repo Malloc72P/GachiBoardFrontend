@@ -8,6 +8,7 @@ import {Injectable} from '@angular/core';
 import {PositionCalcService} from "../PositionCalc/position-calc.service";
 import {DrawingLayerManagerService} from '../InfiniteCanvas/DrawingLayerManager/drawing-layer-manager.service';
 import {WhiteboardItemType} from '../../Helper/data-type-enum/data-type.enum';
+import {CommonSnackbarService} from "../../NormalPagesManager/common-snackbar/common-snackbar.service";
 
 @Injectable({
   providedIn: 'root'
@@ -17,6 +18,7 @@ export class ImportFileService {
   constructor(
     private positionCalcService: PositionCalcService,
     private layerService: DrawingLayerManagerService,
+    private snackBar: CommonSnackbarService,
   ) { }
 
   importFile(object: FileList, position?: Point) {
@@ -40,7 +42,7 @@ export class ImportFileService {
         case "image/gif":
         case "image/png":
           if(object.item(i).size / Math.pow(1024, 2) > 4) {
-            // TODO: SNACKBAR 추가하기 => 4MB 이하의 파일만 추가할 수 있습니다.
+            this.snackBar.openSnackBar("4MB 이하의 파일만 화이트보드에 불러올 수 있습니다.", "close");
             break;
           }
           this.drawImage(object.item(i), sumWidth, startPoint);
@@ -84,16 +86,16 @@ export class ImportFileService {
         try {
           this.layerService.globalSelectedGroup.doPaste(null, JSON.parse(reader.result));
         } catch (e) {
-          console.log("ImportFileService >> onload >> e : ", e);
-          // TODO: 스낵바 추가 => 손상된 백업 파일입니다.
+          console.error("ImportFileService >> onload >> e : ", e);
+          this.snackBar.openSnackBar("손상된 백업 파일입니다.", "close");
         }
       } else {
-        // TODO: 스낵바 추가 => 손상된 백업 파일입니다.
+        this.snackBar.openSnackBar("손상된 백업 파일입니다.", "close");
       }
     };
     reader.onerror = (error) => {
       console.error(error);
-      // TODO: 스낵바 추가 => 손상된 백업 파일입니다.
+      this.snackBar.openSnackBar("손상된 백업 파일입니다.", "close");
     };
   }
 }
