@@ -1,4 +1,4 @@
-import {Component, ElementRef, OnInit, ViewChild} from '@angular/core';
+import {Component, ElementRef, HostListener, OnInit, ViewChild} from '@angular/core';
 import {ProjectDto} from '../../../DTO/ProjectDto/project-dto';
 import {MatDialogRef} from '@angular/material/dialog';
 import {CloudStorageManagerService} from '../../../Model/NormalPagesManager/cloud-storage-manager/cloud-storage-manager.service';
@@ -174,6 +174,30 @@ export class CloudStorageComponent implements OnInit {
     this.menuPosX = event.layerX;
     this.menuPosY = event.layerY;
     this.matMenuTrigger.openMenu();
+  }
+  @HostListener('dragover', ['$event'])
+  public onDragOver(event) {
+    event.preventDefault();
+    event.stopPropagation();
+
+    // 드래그 오버시에 처리할게 있으면 쓰면 됨
+  }
+
+  @HostListener('dragleave', ['$event'])
+  public onDragLeave(event) {
+    event.preventDefault();
+    event.stopPropagation();
+
+    // 드래그오버 후 브라우저 영역을 빠져나갈 때 처리할게 있으면 쓰면 됨
+  }
+  @HostListener('drop', ['$event'])
+  public onDrop(event) {
+    event.preventDefault();
+    event.stopPropagation();
+
+    const files = event.dataTransfer.files;
+    // this.importFile.importFile(files, this.posCalcService.advConvertNgToPaper(new Point(event.x, event.y)));
+    this.cloudService.uploadFile(files, this.currDirectory);
   }
 
 }
