@@ -11,6 +11,9 @@ import {UserDTO} from '../../../DTO/user-dto';
 import {MatSidenav} from '@angular/material/sidenav';
 import {transition, trigger, useAnimation} from '@angular/animations';
 import {fadeInLeft, jackInTheBox} from 'ng-animate';
+import {TextChatService} from "../../../Model/Whiteboard/TextChat/text-chat.service";
+import {TextChatCoreComponent} from "../../Whiteboard/text-chat/text-chat-core/text-chat-core.component";
+import {Router} from "@angular/router";
 
 @Component({
   selector: 'app-main-page',
@@ -29,7 +32,9 @@ export class MainPageComponent implements OnInit {
   constructor(
     public authRequestService:AuthRequestService,
     public routerHelperService:RouterHelperService,
-    public sidebarManagerService:GachiSidebarManagerService
+    public sidebarManagerService:GachiSidebarManagerService,
+    public textChat: TextChatService,
+    private router: Router,
   ) {
 
   }
@@ -54,6 +59,19 @@ export class MainPageComponent implements OnInit {
 
   }
 
+  onClickTextChatButton() {
+    if (this.textChat.isOpen) {
+      this.textChat.close();
+    } else {
+      this.textChat.open(TextChatCoreComponent, 'projectPage');
+    }
+  }
 
+  get unReadMessage(): number | string {
+    return this.textChat.unReadMessage;
+  }
 
+  get isProjectPage(): boolean {
+    return this.router.url.split(';')[0] === '/project';
+  }
 }

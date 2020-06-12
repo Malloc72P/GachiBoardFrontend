@@ -141,6 +141,7 @@ export class EditableLink extends WhiteboardItem {
   }
   public destroyItemAndNoEmit() {
     // super.destroyItem();
+    this.layerService.deleteItemFromWbArray(this.id);
     this.removeToLinkFromOwner();
     this.removeFromLinkFromOwner();
     this._linkHandlers.forEach(value => {

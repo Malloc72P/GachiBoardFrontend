@@ -47,7 +47,7 @@ export enum WebSocketTypeEnum {
 export enum Z_INDEX_ACTION {
   BRING_TO_FRONT,
   SEND_TO_BACK
-  
+
 }
 export enum SpecialAction {
   PASTE_COMPLETE,
@@ -266,6 +266,23 @@ export class HttpHelper {
       getProducerIds: new WebSocketRequest(
         "videoChat_GetProducerIds", WebSocketTypeEnum.READ
       ),
+    },
+    textChat: {
+      sendMessage: new WebSocketRequest(
+        "textChat_SendMessage", WebSocketTypeEnum.UPDATE
+      ),
+      receiveMessage: new WebSocketRequest(
+        "textChat_receiveMessage", WebSocketTypeEnum.UPDATE
+      ),
+      loadMessages: new WebSocketRequest(
+        "textChat_loadMessages", WebSocketTypeEnum.READ
+      ),
+      getUnreadCount: new WebSocketRequest(
+        "textChat_getUnreadCount", WebSocketTypeEnum.READ
+      ),
+      updateReadDate: new WebSocketRequest(
+        "textChat_updateReadDate", WebSocketTypeEnum.UPDATE
+      )
     }
   };
 

@@ -283,6 +283,7 @@ export class ItemGroup extends WhiteboardItem {
   destroyItemAndNoEmit() {
     // super.destroyItem();
     //unGroup하는 작업 실시
+    this.layerService.deleteItemFromWbArray(this.id);
     this.coreItem.remove();
     this.destroyBlind();
   }

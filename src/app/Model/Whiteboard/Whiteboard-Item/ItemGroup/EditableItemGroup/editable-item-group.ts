@@ -51,6 +51,7 @@ export class EditableItemGroup extends ItemGroup implements Editable{
     this.globalEmitDestroy();
   }
   public destroyItemAndNoEmit() {
+    this.layerService.deleteItemFromWbArray(this.id);
     this.coreItem.remove();
 
     this.wbItemGroup.forEach((value, index, array)=>{

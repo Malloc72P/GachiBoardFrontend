@@ -126,6 +126,11 @@ import { TimeTimerComponent } from './View/Whiteboard/time-timer/time-timer.comp
 import {MatDatepickerModule} from '@angular/material/datepicker';
 import {NgxMaterialTimepickerModule} from 'ngx-material-timepicker';
 import {MatSnackBarModule} from '@angular/material/snack-bar';
+import { TextChatCoreComponent } from './View/Whiteboard/text-chat/text-chat-core/text-chat-core.component';
+import {TextChatService} from "./Model/Whiteboard/TextChat/text-chat.service";
+import {MatBottomSheetModule} from "@angular/material/bottom-sheet";
+import {ExportFileService} from "./Model/Whiteboard/ExportFile/export-file.service";
+import { ExportFileComponent } from './View/Whiteboard/export-file/export-file.component';
 
 const config: SocketIoConfig = { url: HttpHelper.apiUrl, options: {} };
 
@@ -249,6 +254,8 @@ const appRoutes: Routes = [
     VideoChatPanelComponent,
     VideoChatWrapperComponent,
     TimeTimerComponent,
+    TextChatCoreComponent,
+    ExportFileComponent,
   ],
   entryComponents: [
     KanbanComponent,
@@ -305,7 +312,8 @@ const appRoutes: Routes = [
     MatDatepickerModule,
     MatNativeDateModule,
     NgxMaterialTimepickerModule,
-    MatSnackBarModule
+    MatSnackBarModule,
+    MatBottomSheetModule,
   ],
   providers: [
     RouterHelperService,
@@ -349,6 +357,8 @@ const appRoutes: Routes = [
     LinkService,
     VideoChatPanelManagerService,
     VideoChatService,
+    TextChatService,
+    ExportFileService,
   ],
   bootstrap: [AppComponent]
 })

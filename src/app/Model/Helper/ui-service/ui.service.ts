@@ -26,7 +26,11 @@ export class UiService {
       )
       .subscribe(
         (res) => {
-          if(res === 1){ this.showSpinner() }
+          if(res === 1){
+            if(!this.spinnerTopRef.hasAttached()) {
+              this.showSpinner();
+            }
+          }
           else if( res == 0 ){
             this.spinnerTopRef.hasAttached() ? this.stopSpinner(): null;
           }

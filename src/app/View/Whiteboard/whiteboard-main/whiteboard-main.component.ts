@@ -55,6 +55,7 @@ import {ItemBlinderManagementService} from '../../../Model/Whiteboard/OccupiedIt
 import {HotKeyManagementService} from '../../../Model/Whiteboard/HotKeyManagement/hot-key-management.service';
 import {ImportFileService} from "../../../Model/Whiteboard/ImportFile/import-file.service";
 import {TimeTimerManagerService} from '../../../Model/Whiteboard/TimeTimer/time-timer-manager.service';
+import {TextChatService} from "../../../Model/Whiteboard/TextChat/text-chat.service";
 
 @Component({
   selector: 'app-whiteboard-main',
@@ -112,6 +113,7 @@ export class WhiteboardMainComponent implements OnInit,OnDestroy {
     public hotKeyManagementService:HotKeyManagementService,
     private importFile: ImportFileService,
     public timeTimerMgr: TimeTimerManagerService,
+    private textChat: TextChatService,
   ) {
     this.connectedUserList = new Array<string>();
   }
@@ -166,9 +168,9 @@ export class WhiteboardMainComponent implements OnInit,OnDestroy {
                       }
                     });
                 }
+                this.textChat.initializeTextChatService();
               });
           });
-
       });
     });
   }//ngOnInit()
@@ -380,6 +382,10 @@ export class WhiteboardMainComponent implements OnInit,OnDestroy {
     if (event.target === document.getElementById("textEditor")) {
       return;
     }
+
+    if (event.target === document.getElementById("text-chat-input-area")) {
+      return;
+    }
     // 포인터로 무언가 그리거나 이동하는 등의 Mouse 이벤트가 시작된 상태면 단축키로 모드변경 못하도록 막음
     if (this.pointerModeManager.mouseDown) {
       return;
@@ -514,7 +520,7 @@ export class WhiteboardMainComponent implements OnInit,OnDestroy {
     event.stopPropagation();
 
     const files = event.dataTransfer.files;
-    this.importFile.importFile(files);
+    this.importFile.importFile(files, this.posCalcService.advConvertNgToPaper(new Point(event.x, event.y)));
   }
 
   get PointerMode() {

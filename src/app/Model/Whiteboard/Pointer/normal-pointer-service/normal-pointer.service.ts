@@ -10,7 +10,7 @@ import {InfiniteCanvasService} from '../../InfiniteCanvas/infinite-canvas.servic
 import {DrawingLayerManagerService} from '../../InfiniteCanvas/DrawingLayerManager/drawing-layer-manager.service';
 import {LinkPort} from "../../Whiteboard-Item/Whiteboard-Shape/LinkPort/link-port";
 import {LinkService} from "../link-service/link.service";
-import {LongTouch} from "../long-touch/long-touch";
+import {LongTouch} from "../Pointer-Functions/long-touch";
 
 
 enum NORMAL_POINTER_ACTIONS{

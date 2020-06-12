@@ -27,14 +27,14 @@
     <button [value]="SupportMode.EXPORT"
             mat-button matTooltip="{{SupportMode[SupportMode.EXPORT]}}"
             matTooltipPosition="above" class="supportBtn"
-            (click)="onClickPanelItem(SupportMode.EXPORT)">
+            (click)="onClickExportFile()">
       <span class="selectable-icon {{projectSupporterEnumService.getSupporterIcon(SupportMode.EXPORT)}}"></span>
     </button>
-    <button [value]="SupportMode.TEXT_CHAT"
+    <button matBadge="{{unReadMessage}}" [value]="SupportMode.TEXT_CHAT"
             mat-button matTooltip="{{SupportMode[SupportMode.TEXT_CHAT]}}"
             matTooltipPosition="above" class="supportBtn"
             (click)="onClickPanelItem(SupportMode.TEXT_CHAT)">
-      <span class="selectable-icon {{projectSupporterEnumService.getSupporterIcon(SupportMode.TEXT_CHAT)}}"></span>
+      <mat-icon>chat</mat-icon>
     </button>
     <button [value]="SupportMode.VIDEO_CHAT"
             mat-button matTooltip="{{SupportMode[SupportMode.VIDEO_CHAT]}}"
