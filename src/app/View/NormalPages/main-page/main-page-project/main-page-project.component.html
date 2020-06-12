@@ -7,6 +7,7 @@
   <mat-menu #projectMenu="matMenu">
     <button mat-menu-item (click)="onInviteBtnClick()"><span>프로젝트에 초대하기</span></button>
     <button mat-menu-item [disabled]="myAuthority" (click)="onProjectEdit()"><span>프로젝트 수정하기</span></button>
+    <button mat-menu-item (click)="openCloud()"><span>프로젝트 클라우드</span></button>
     <button mat-menu-item (click)="onProjectExit()"><span>프로젝트에서 나가기</span></button>
   </mat-menu>
 </mat-toolbar>
@@ -67,5 +68,11 @@
                          [projectId]="projectDto._id"
                          [marginValue]="'8px 8px 8px 0'"></app-whiteboard-card>
   </mat-card-content>
+
 </mat-card>
+<div class="time-timer-list-wrapper">
+  <app-time-timer *ngFor="let timerKey of timeTimerMgr.timerKeys"
+                  [timeTimer]="timeTimerMgr.timeTimerMap.get(timerKey)">
+  </app-time-timer>
+</div>
 <!--프로젝트 Article #2-->

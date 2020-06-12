@@ -1,0 +1,60 @@
+.cloud-main-wrapper{
+
+}
+.cloud-header-btn{
+  height: 36px;
+  min-height: 0;
+}
+.cloud-icon{
+  background-size: cover;
+}
+
+
+#supporter-Cloud, .popup-card-wrapper, .cloud-content-wrapper{
+  height: 100%;
+}
+
+.cloud-content-wrapper{
+  display: flex;
+  width: 100%;
+  height: 100%;
+}
+  .cloud-sidebar{
+    width: 200px;
+    height: 100%;
+    /*padding-top: 16px;*/
+  }
+    .cloud-sidebar-header{
+      background-color: rgb(225, 225, 225);
+    }
+    .cloud-sidebar-icon{
+      margin-right: 6px;
+    }
+    .cloud-sidebar-button{
+      font-size: 16px;
+    }
+  .cloud-content{
+    flex: 1;
+    height: 100%;
+  }
+    .path-header{
+      background-color: rgb(225, 225, 225);
+    }
+      .path-wrapper{
+        display: flex;
+        flex-flow: row;
+      }
+        .path-divider, .path-name{
+          margin-right: 12px;
+        }
+        .path-divider{
+          padding-top: 12px;
+        }
+        .path-name{
+          cursor: pointer;
+          padding: 12px;
+        }
+  .file-list-wrapper{
+    margin: 24px 16px 16px 24px;
+    flex-flow: row;
+  }

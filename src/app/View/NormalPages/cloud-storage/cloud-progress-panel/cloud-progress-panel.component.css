@@ -1,0 +1,36 @@
+
+.example-full-width {
+  width: 100%;
+}
+.toolbar-title-wrapper{
+  display: flex;
+  flex-flow: row;
+  justify-content: center;
+}
+.toolbar-title-icon-wrapper{
+  display: flex;
+  flex-flow: column;
+  justify-content: center;
+  margin-right: 5px;
+}
+.folder-item-edit-content{
+  padding: 16px 16px 28px 16px;
+  background-color: rgb(225, 225, 225);
+}
+.cloud-progress-wrapper{
+  display: flex;
+  flex-flow: row;
+  justify-content: center;
+  padding: 24px 16px 0 16px;
+  margin-top: 11px;
+  margin-bottom: 32px;
+}
+.cloud-progress-bar{
+  /*width: 85%;*/
+}
+.cloud-progress-icon{
+  line-height: 0;
+}
+.flex-indent{
+  width: 30px;
+}

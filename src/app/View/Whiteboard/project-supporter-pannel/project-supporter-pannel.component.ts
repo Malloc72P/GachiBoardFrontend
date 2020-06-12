@@ -1,4 +1,4 @@
-import {Component, ElementRef, OnInit, Renderer2, ViewChild} from '@angular/core';
+import {AfterViewInit, Component, ElementRef, OnInit, Renderer2, ViewChild} from '@angular/core';
 import {
   ProjectSupporterEnumService,
   SupportMode
@@ -14,6 +14,10 @@ import {MatDialog} from '@angular/material/dialog';
 import {HotKeyManagementService} from '../../../Model/Whiteboard/HotKeyManagement/hot-key-management.service';
 import {VideoChatService} from "../../../Model/Whiteboard/VideoChat/video-chat/video-chat.service";
 import {MatMenu} from "@angular/material/menu";
+import {TextChatService} from "../../../Model/Whiteboard/TextChat/text-chat.service";
+import {TextChatCoreComponent} from "../text-chat/text-chat-core/text-chat-core.component";
+import {ExportFileComponent} from "../export-file/export-file.component";
+import {CloudStorageComponent} from '../../NormalPages/cloud-storage/cloud-storage.component';
 
 @Component({
   selector: 'app-project-supporter-pannel',
@@ -39,6 +43,7 @@ export class ProjectSupporterPannelComponent extends PopoverPanel  implements On
     public layerService: DrawingLayerManagerService,
     public hotKeyManagementService: HotKeyManagementService,
     private videoChat: VideoChatService,
+    private textChat: TextChatService,
   ) {
     super(projectSupporterEnumService);
     this.projectSupporterEnumService = projectSupporterEnumService;
@@ -59,17 +64,19 @@ export class ProjectSupporterPannelComponent extends PopoverPanel  implements On
       })
 
   }
+
   onPanelStateChangeHandler() {
     //console.log("ProjectSupporterPannelComponent >> onPanelStateChangeHandler >> 진입함");
     //this.pointerModeManagerService.currentPointerMode = this.currentSelectedMode;
   }
   onClickPanelItem(panelItem: number) {
+    let dialogRef = null;
     switch (panelItem) {
       case SupportMode.KANBAN:
 
         this.hotKeyManagementService.disableHotKeySystem();
 
-        const dialogRef = this.dialog.open(KanbanComponent, {
+        dialogRef = this.dialog.open(KanbanComponent, {
           width: this.positionCalcService.getWidthOfBrowser()+"px",
           height: this.positionCalcService.getHeightOfBrowser()+"px",
           maxWidth: this.positionCalcService.getWidthOfBrowser()+"px",
@@ -84,6 +91,19 @@ export class ProjectSupporterPannelComponent extends PopoverPanel  implements On
       case SupportMode.TIME_TIMER:
         break;
       case SupportMode.CLOUD_STORAGE:
+        this.hotKeyManagementService.disableHotKeySystem();
+
+        dialogRef = this.dialog.open(CloudStorageComponent, {
+          width: this.positionCalcService.getWidthOfBrowser()+"px",
+          height: this.positionCalcService.getHeightOfBrowser()+"px",
+          maxWidth: this.positionCalcService.getWidthOfBrowser()+"px",
+          data: {}
+        });
+
+        dialogRef.afterClosed().subscribe(result => {
+          //console.log('The dialog was closed');
+          this.hotKeyManagementService.enableHotKeySystem();
+        });
         break;
       case SupportMode.IMPORT:
         document.getElementById("fileInputMultiple").click();
@@ -91,6 +111,11 @@ export class ProjectSupporterPannelComponent extends PopoverPanel  implements On
       case SupportMode.EXPORT:
         break;
       case SupportMode.TEXT_CHAT:
+        if(!this.textChat.isOpen) {
+          this.textChat.open(TextChatCoreComponent, 'whiteboard');
+        } else {
+          this.textChat.close();
+        }
         break;
       case SupportMode.VIDEO_CHAT:
         break;
@@ -139,6 +164,14 @@ export class ProjectSupporterPannelComponent extends PopoverPanel  implements On
     this.videoChat.leaveVideoChat().then();
   }
 
+  onClickExportFile() {
+    this.hotKeyManagementService.disableHotKeySystem();
+    const dialogRef = this.dialog.open(ExportFileComponent);
+    dialogRef.afterClosed().subscribe(() => {
+      this.hotKeyManagementService.enableHotKeySystem();
+    });
+  }
+
   menu(mode: SupportMode) {
     if(mode === SupportMode.VIDEO_CHAT) {
       return this.videoChatMenu;
@@ -168,5 +201,9 @@ export class ProjectSupporterPannelComponent extends PopoverPanel  implements On
 
   get SupportMode() {
     return SupportMode;
+  }
+
+  get unReadMessage(): number | string {
+    return this.textChat.unReadMessage;
   }
 }

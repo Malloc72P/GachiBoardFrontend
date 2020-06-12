@@ -39,6 +39,10 @@ import {
   WebsocketEvent,
   WebsocketEventEnum
 } from '../../../../Controller/Controller-WebSocket/websocket-manager/WebsocketEvent/WebsocketEvent';
+import {TimeTimerManagerService} from '../../../../Model/Whiteboard/TimeTimer/time-timer-manager.service';
+import {TextChatService} from "../../../../Model/Whiteboard/TextChat/text-chat.service";
+import {CloudStorageManagerService} from '../../../../Model/NormalPagesManager/cloud-storage-manager/cloud-storage-manager.service';
+import {CloudStorageComponent} from '../../cloud-storage/cloud-storage.component';
 
 @Component({
   selector: 'app-main-page-project',
@@ -73,7 +77,10 @@ export class MainPageProjectComponent implements OnInit, OnDestroy {
     public uiService:UiService,
     public areYouSurePanelService:AreYouSurePanelService,
     public projectRequesterService:ProjectRequesterService,
-    public routerService:RouterHelperService
+    public routerService:RouterHelperService,
+    public timeTimerMgr: TimeTimerManagerService,
+    private textchat: TextChatService,
+    private cloudService: CloudStorageManagerService,
   ) {
     this.projectId = this.route.snapshot.paramMap.get('projectId');
 
@@ -106,7 +113,7 @@ export class MainPageProjectComponent implements OnInit, OnDestroy {
           for(let wbSession of wbSessionListData){
             this.wbSessionList.push(wbSession);
           }
-
+          this.textchat.initializeTextChatService();
         },(errorDetail)=>{
 
           this.areYouSurePanelService.openAreYouSurePanel(
@@ -119,21 +126,6 @@ export class MainPageProjectComponent implements OnInit, OnDestroy {
     });
     this.subscriptionList.push(subscription);
 
-/*
-    subscription = this.websocketManagerService.wsEventEmitter.subscribe((wsEvent:WebsocketEvent)=>{
-      if(wsEvent.action === WebsocketEventEnum.GET_PROJECT_FULL_DATA){
-        let fullProjectDto:ProjectDto = wsEvent.data as ProjectDto;
-        let kanbanData:KanbanDataDto = fullProjectDto.kanbanData;
-        let wbSessionListData:Array<WhiteboardSessionDto> = fullProjectDto.whiteboardSessionList;
-        for(let kanbanItem of kanbanData.inProgressGroup){
-          this.inProgressGroup.push(kanbanItem);
-        }
-        for(let wbSession of wbSessionListData){
-          this.wbSessionList.push(wbSession);
-        }
-      }
-    });
-*/
     this.subscriptionList.push(subscription);
     this.subscribeKanbanEventEmitter();
     this.subscribeWbSessionEventEmitter();
@@ -142,8 +134,6 @@ export class MainPageProjectComponent implements OnInit, OnDestroy {
 
   subscribeKanbanEventEmitter(){
     let subscription = this.kanbanEventManager.kanbanEventEmitter.subscribe((kanbanEvent:KanbanEvent)=>{
-      //console.log("MainPageProjectComponent >> subscribeKanbanEventEmitter >> 진입함");
-      //console.log("MainPageProjectComponent >> subscribeKanbanEventEmitter >> kanbanEvent : ",kanbanEvent);
       switch (kanbanEvent.action) {
         case KanbanEventEnum.CREATE:
         case KanbanEventEnum.UPDATE:
@@ -259,9 +249,6 @@ export class MainPageProjectComponent implements OnInit, OnDestroy {
     });
 
     dialogRef.afterClosed().subscribe(result => {
-      /*let wsKanbanController = WsKanbanController.getInstance();
-      wsKanbanController.requestGetKanban();*/
-      //console.log("MainPageProjectComponent >>  >> result : ",result);
       this.refreshInProgressGroup();
     });
   }
@@ -368,6 +355,18 @@ export class MainPageProjectComponent implements OnInit, OnDestroy {
       }
     }
     return counter;
+  }
+  openCloud(){
+    let dialogRef = this.dialog.open(CloudStorageComponent, {
+      width: this.htmlHelperService.getWidthOfBrowser()+"px",
+      height: this.htmlHelperService.getHeightOfBrowser()+"px",
+      maxWidth: this.htmlHelperService.getWidthOfBrowser()+"px",
+      data: {}
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      //console.log('The dialog was closed');
+    });
   }
 
 }

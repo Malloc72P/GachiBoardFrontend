@@ -15,15 +15,16 @@ import {KanbanTagManagementComponent} from './kanban-tag-management/kanban-tag-m
 import {HtmlHelperService} from '../../../Model/NormalPagesManager/HtmlHelperService/html-helper.service';
 import {ProjectDto} from '../../../DTO/ProjectDto/project-dto';
 import {WsKanbanController} from '../../../Controller/Controller-WebSocket/websocket-manager/KanbanWsController/ws-kanban.controller';
-import {KanbanItemDto, KanbanGroupEnum} from '../../../DTO/ProjectDto/KanbanDataDto/KanbanGroupDto/KanbanItemDto/kanban-item-dto';
+import {KanbanGroupEnum, KanbanItemDto} from '../../../DTO/ProjectDto/KanbanDataDto/KanbanGroupDto/KanbanItemDto/kanban-item-dto';
 import {KanbanEventManagerService} from '../../../Model/Whiteboard/ProjectSupporter/Kanban/kanban-event-manager.service';
 import {KanbanEvent, KanbanEventEnum} from '../../../Model/Whiteboard/ProjectSupporter/Kanban/KanbanEvent/KanbanEvent';
 import {WebsocketManagerService} from '../../../Controller/Controller-WebSocket/websocket-manager/websocket-manager.service';
 import {KanbanDataDto} from '../../../DTO/ProjectDto/KanbanDataDto/kanban-data-dto';
 import {Subscription} from 'rxjs';
 import {MAT_DIALOG_DATA, MatDialog, MatDialogRef} from '@angular/material/dialog';
-import {UiService} from '../../../Model/Helper/ui-service/ui.service';
+import * as moment from 'moment';
 import {AreYouSurePanelService} from '../../../Model/PopupManager/AreYouSurePanelManager/are-you-sure-panel.service';
+import {TimeTimerManagerService} from '../../../Model/Whiteboard/TimeTimer/time-timer-manager.service';
 
 export class KanbanComponentData {
   projectDto:ProjectDto;
@@ -60,6 +61,7 @@ export class KanbanComponent implements OnInit, OnDestroy {
     public websocketManagerService:WebsocketManagerService,
     public htmlHelper:HtmlHelperService,
     public areYouSurePanelService:AreYouSurePanelService,
+    public timerManagerService:TimeTimerManagerService,
     @Inject(MAT_DIALOG_DATA) public data: KanbanComponentData,
   ) {
     this.kanbanGroupWrapper = new Array<KanbanGroup>();
@@ -145,6 +147,10 @@ export class KanbanComponent implements OnInit, OnDestroy {
     kanbanItem.userInfo = UserManagerService.getParticipantByIdToken(kanbanItemDto.userInfo, this.projectDto);
     kanbanItem._id = kanbanItemDto._id;
     kanbanItem.lockedBy = kanbanItemDto.lockedBy;
+    kanbanItem.isTimerStarted = kanbanItemDto.isTimerStarted;
+    kanbanItem.timerStartDate = kanbanItemDto.timerStartDate;
+    kanbanItem.timerEndDate = kanbanItemDto.timerEndDate;
+
     if(kanbanItemDto.tagIdList){
       let tagListDto:Array<TagItem> = kanbanItemDto.tagIdList;
       for(let tagItem of tagListDto){
@@ -175,6 +181,8 @@ export class KanbanComponent implements OnInit, OnDestroy {
       let wsKanbanController = WsKanbanController.getInstance();
 
       wsKanbanController.requestDeleteKanban(kanbanItem, kanbanGroup);
+      this.kanbanEventManager.kanbanLocalEventEmitter.emit(
+        new KanbanEvent(KanbanEventEnum.DELETE, kanbanItem.exportDto(kanbanGroup)) );
     }
   }
   deleteByWs(kanbanItemDto:KanbanItemDto){
@@ -233,6 +241,12 @@ export class KanbanComponent implements OnInit, OnDestroy {
         if(currItem.userInfo.idToken !== kanbanItemDto.userInfo){
           currItem.userInfo = this.userManagerService.getUserDataByIdToken(kanbanItemDto.userInfo);
         }
+        if(currItem.timerStartDate !== kanbanItemDto.timerStartDate){
+          currItem.timerStartDate = kanbanItemDto.timerStartDate;
+        }
+        if(currItem.timerEndDate !== kanbanItemDto.timerEndDate){
+          currItem.timerEndDate = kanbanItemDto.timerEndDate;
+        }
 
         if(kanbanItemDto.tagIdList){
           let tagListDto:Array<TagItem> = kanbanItemDto.tagIdList;
@@ -244,7 +258,6 @@ export class KanbanComponent implements OnInit, OnDestroy {
             currItem.tagList.push(newTagItem);
           }
         }
-
         break;
       }
     }
@@ -365,6 +378,7 @@ export class KanbanComponent implements OnInit, OnDestroy {
     let prevKanbanItem:KanbanItem = event.previousContainer.data[event.previousIndex] as unknown as KanbanItem;
     let currKanbanItem:KanbanItem = event.container.data[event.currentIndex] as unknown as KanbanItem;
 
+
     if(prevKanbanItem.lockedBy && this.checkEditorIsAnotherUser(prevKanbanItem.lockedBy)){
       this.areYouSurePanelService.openAreYouSurePanel("칸반을 수정하던 중 문제가 발생했습니다",
         "이미 다른 유저에 의해 수정중인 칸반입니다.", true).subscribe(()=>{});
@@ -444,6 +458,7 @@ export class KanbanComponent implements OnInit, OnDestroy {
     dialogRef.afterClosed().subscribe((result) => {
       let wsKanbanController = WsKanbanController.getInstance();
       wsKanbanController.requestUnlockKanban(kanbanItem, kanbanGroup);
+      this.kanbanEventManager.kanbanLocalEventEmitter.emit(new KanbanEvent(KanbanEventEnum.UPDATE, kanbanItem.exportDto(kanbanGroup)));
     });
   }
 
@@ -460,6 +475,9 @@ export class KanbanComponent implements OnInit, OnDestroy {
           case "delete":
             this.deleteFrom(kanbanItem, kanbanGroup);
             break;
+          case "startTimer":
+            this.startTimer(kanbanItem, kanbanGroup);
+            break;
         }
         subscription.unsubscribe();
       },(err)=>{
@@ -468,7 +486,34 @@ export class KanbanComponent implements OnInit, OnDestroy {
       });
   }
 
+
   private currentItem:KanbanItem = null;
+  startTimer(kanbanItem:KanbanItem, kanbanGroup){
+    let startDate = new Date();
+    let endDate = moment(kanbanItem.timerEndDate);
+    //console.log(`startDate : ${startDate}\n endDate : ${endDate}`);
+    if(endDate.isBefore(startDate)){
+      //종료일을 이미 지난 경우.
+      //에러메세지 출력 후 리턴
+      this.areYouSurePanelService.openAreYouSurePanel("수행할 수 없는 타이머입니다.","이미 기한을 지나버린 타이머입니다", true)
+        .subscribe(()=>{
+        });
+      return;
+    }
+    if(!kanbanItem.timerEndDate){
+      this.areYouSurePanelService.openAreYouSurePanel("수행할 수 없는 타이머입니다.","기한이 설정되지 않았습니다.", true)
+        .subscribe(()=>{
+        });
+    }
+    if(!kanbanItem.timerStartDate){
+      this.areYouSurePanelService.openAreYouSurePanel("수행할 수 없는 타이머입니다.","시작시간이 설정되지 않았습니다.", true)
+        .subscribe(()=>{
+        });
+    }
+    let wsKanbanController = WsKanbanController.getInstance();
+    wsKanbanController.requestUnlockKanban(kanbanItem, kanbanGroup);
+    this.timerManagerService.startTimeTimer(kanbanItem);
+  }
   requestLock(kanbanItem, kanbanGroup){
     //console.log("KanbanComponent >> requestLock >> kanbanItem : ",kanbanItem);
     if(kanbanItem.lockedBy){

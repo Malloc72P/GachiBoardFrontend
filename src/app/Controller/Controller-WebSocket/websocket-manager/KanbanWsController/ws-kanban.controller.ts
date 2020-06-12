@@ -90,6 +90,8 @@ export class WsKanbanController {
             // this.delFromWsManager(wsPacketDto);
             this.websocketManager.kanbanEventManagerService.kanbanEventEmitter.emit(
               new KanbanEvent(KanbanEventEnum.DELETE, wsPacketDto.dataDto as KanbanItemDto));
+            this.websocketManager.kanbanEventManagerService.kanbanLocalEventEmitter.emit(
+              new KanbanEvent(KanbanEventEnum.DELETE, wsPacketDto.dataDto as KanbanItemDto) );
             break;
           case WebsocketPacketActionEnum.ACK:
             this.websocketManager.verifyKanbanItem(wsPacketDto);
@@ -303,6 +305,7 @@ export class WsKanbanController {
 
     return new Observable<any>((subscriber)=>{
       let kanbanItemDto = kanbanItem.exportDto(kanbanGroup.title);
+      //console.log("WsKanbanController >> waitRequestUpdateKanban >> kanbanItemDto : ",kanbanItemDto);
       let packetDto = this.websocketManager.createProjectScopePacket(kanbanItemDto, WebsocketPacketActionEnum.UPDATE);
       packetDto.wsPacketSeq = this.websocketManager.wsPacketSeq;
       this.socket.emit(HttpHelper.websocketApi.kanban.update.event, packetDto);
@@ -335,6 +338,8 @@ export class WsKanbanController {
             //console.log("WsKanbanController >> onKanbanUpdate >> wsPacketDto : ",wsPacketDto);
             this.websocketManager.kanbanEventManagerService.kanbanEventEmitter.emit(
               new KanbanEvent(KanbanEventEnum.UPDATE, wsPacketDto.dataDto as KanbanItemDto));
+            this.websocketManager.kanbanEventManagerService.kanbanLocalEventEmitter
+              .emit(new KanbanEvent(KanbanEventEnum.UPDATE, wsPacketDto.dataDto as KanbanItemDto));
             break;
           case WebsocketPacketActionEnum.ACK:
             this.websocketManager.verifyKanbanItem(wsPacketDto);

@@ -20,6 +20,7 @@ import {ParticipantDto} from '../../../DTO/ProjectDto/ParticipantDto/participant
 import {WhiteboardSessionDto} from '../../../DTO/ProjectDto/WhiteboardSessionDto/whiteboard-session-dto';
 import {WbItemEventManagerService} from './WhiteboardWsController/wb-item-event-manager.service';
 import {WsWhiteboardController} from './WhiteboardWsController/ws-whiteboard.controller';
+import {CloudStorageEventManagerService} from '../../../Model/NormalPagesManager/cloud-storage-manager/cloud-storage-event-manager/cloud-storage-event-manager.service';
 
 @Injectable({
   providedIn: 'root'
@@ -43,6 +44,7 @@ export class WebsocketManagerService {
     public wbSessionEventManagerService:WbSessionEventManagerService,
     public wbItemEventManagerService:WbItemEventManagerService,
     public uiService:UiService,
+    public cloudStorageEventManagerService:CloudStorageEventManagerService,
   ) {
     this.authRequestService.authEventEmitter.subscribe((authEvent:AuthEvent)=>{
       if(authEvent.action === AuthEventEnum.SIGN_IN){

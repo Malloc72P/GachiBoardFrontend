@@ -55,7 +55,13 @@ app-project-supporter-pannel {
   flex-flow: column;
   position: absolute;
 }
-
+.time-timer-list-wrapper{
+  position: absolute;
+  display: flex;
+  flex-flow: row;
+  bottom: 70px;
+  left: 30px;
+}
 
 
 #textEditor:focus {

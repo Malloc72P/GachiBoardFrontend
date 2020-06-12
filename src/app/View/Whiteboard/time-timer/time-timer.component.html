@@ -1,0 +1,30 @@
+<mat-card class="time-timer-wrapper" cdkDrag>
+  <div class="time-timer-header">
+
+
+
+    <span class="time-timer-title"
+          matTooltipPosition="above"
+          matTooltip="{{timeTimer.title}}">
+      {{timeTimer.title}}
+    </span>
+
+    <button mat-button class="time-timer-menuBtn" [matMenuTriggerFor]="timerMenu">
+      <mat-icon >more_vert</mat-icon>
+    </button>
+    <mat-menu #timerMenu>
+      <button mat-button (click)="terminateTimer()">타이머 종료</button>
+    </mat-menu>
+
+  </div>
+  <div  class="time-timer-content"
+        matTooltip="{{getTimerInfo()}}">
+    <div class="time-timer-spinner-row-wrapper">
+      <mat-spinner mode="determinate"
+                   color="warn"
+                   value="{{timerProgress}}"
+                   diameter="130"
+                   strokeWidth="40"></mat-spinner>
+    </div>
+  </div>
+</mat-card>

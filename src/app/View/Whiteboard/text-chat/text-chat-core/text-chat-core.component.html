@@ -1,0 +1,27 @@
+<div id="text-chat-wrapper">
+  <div id="text-chat-top-menu" class="right-align">
+    <mat-icon class="clickable" matTooltip="Minimize" matTooltipPosition="above"
+              (click)="onClickMinimizeButton()">expand_more</mat-icon>
+  </div>
+  <div id="text-chat-messages" class="messages-wrapper" (scroll)="onScroll($event)">
+    <mat-spinner class="load-spinner" *ngIf="isLoadFinished"
+                 [diameter]="25" [strokeWidth]="5"></mat-spinner>
+    <div class="chat-message" *ngFor="let message of messages">
+      <div class="profile">
+        <div class="profile-image" [style.background-image]="'url(' + getProfileImage(message.userId) + ')'"></div>
+      </div>
+      <div class="content">
+        <div class="sender">{{getProfileName(message.userId)}}</div>
+        <div class="message">{{message.content}}</div>
+        <div class="sent-date">{{dateFormatter('yyyy-MM-DD H:i:s', message.sentDate)}}</div>
+      </div>
+    </div>
+  </div>
+  <div id="text-chat-send-message" class="send-wrapper">
+    <textarea #input id="text-chat-input-area" class="input-area" matInput cdkTextareaAutosize
+              #autosize="cdkTextareaAutosize"
+              spellcheck="false"
+              cdkAutosizeMaxRows="1"></textarea>
+    <button id="text-chat-send-button" class="send-button" mat-stroked-button (click)="onClickSendButton()">Send</button>
+  </div>
+</div>

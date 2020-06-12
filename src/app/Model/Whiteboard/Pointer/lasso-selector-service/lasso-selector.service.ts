@@ -13,7 +13,7 @@ import {WhiteboardItem} from '../../Whiteboard-Item/whiteboard-item';
 import {GlobalSelectedGroup} from '../../Whiteboard-Item/ItemGroup/GlobalSelectedGroup/global-selected-group';
 import {ZoomEvent} from "../../InfiniteCanvas/ZoomControl/ZoomEvent/zoom-event";
 import {NormalPointerService} from "../normal-pointer-service/normal-pointer.service";
-import {LongTouch} from "../long-touch/long-touch";
+import {LongTouch} from "../Pointer-Functions/long-touch";
 
 
 @Injectable({

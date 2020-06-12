@@ -20,6 +20,7 @@ export enum WebsocketPacketActionEnum {
   CONNECT,
   PRODUCE,
   CONSUME,
+  CLOUD_UPDATED,
 }
 
 export enum WebsocketPacketScopeEnum {

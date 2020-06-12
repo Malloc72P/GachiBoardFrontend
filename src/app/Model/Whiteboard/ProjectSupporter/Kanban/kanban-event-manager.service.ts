@@ -5,6 +5,7 @@ import {EventEmitter, Injectable, Output} from '@angular/core';
 })
 export class KanbanEventManagerService {
   @Output() kanbanEventEmitter:EventEmitter<any> = new EventEmitter<any>();
+  @Output() kanbanLocalEventEmitter:EventEmitter<any> = new EventEmitter<any>();
 
   constructor() { }
 }

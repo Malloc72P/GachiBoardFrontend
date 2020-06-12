@@ -94,7 +94,7 @@ import {MatCardModule} from '@angular/material/card';
 import {MatButtonModule} from '@angular/material/button';
 import {MatButtonToggleModule} from '@angular/material/button-toggle';
 import {MatRadioModule} from '@angular/material/radio';
-import {MatRippleModule} from '@angular/material/core';
+import {MatNativeDateModule, MatRippleModule} from '@angular/material/core';
 import {MatSliderModule} from '@angular/material/slider';
 import {MatDividerModule} from '@angular/material/divider';
 import {MatAutocompleteModule} from '@angular/material/autocomplete';
@@ -122,6 +122,22 @@ import { VideoChatPanelComponent } from './View/Whiteboard/video-chat/video-chat
 import {VideoChatPanelManagerService} from "./Model/Whiteboard/VideoChat/video-chat-panel-manager/video-chat-panel-manager.service";
 import { VideoChatWrapperComponent } from './View/Whiteboard/video-chat/video-chat-wrapper/video-chat-wrapper.component';
 import {VideoChatService} from "./Model/Whiteboard/VideoChat/video-chat/video-chat.service";
+import { TimeTimerComponent } from './View/Whiteboard/time-timer/time-timer.component';
+import {MatDatepickerModule} from '@angular/material/datepicker';
+import {NgxMaterialTimepickerModule} from 'ngx-material-timepicker';
+import {MatSnackBarModule} from '@angular/material/snack-bar';
+import { TextChatCoreComponent } from './View/Whiteboard/text-chat/text-chat-core/text-chat-core.component';
+import {TextChatService} from "./Model/Whiteboard/TextChat/text-chat.service";
+import {MatBottomSheetModule} from "@angular/material/bottom-sheet";
+import {ExportFileService} from "./Model/Whiteboard/ExportFile/export-file.service";
+import { ExportFileComponent } from './View/Whiteboard/export-file/export-file.component';
+import { CloudStorageComponent } from './View/NormalPages/cloud-storage/cloud-storage.component';
+import { FileCardComponent } from './View/NormalPages/cloud-storage/file-card/file-card.component';
+import { CloudStorageCreateFolderComponent } from './View/NormalPages/cloud-storage/cloud-storage-create-folder/cloud-storage-create-folder.component';
+import { CloudStorageInfoViewerComponent } from './View/NormalPages/cloud-storage/cloud-storage-info-viewer/cloud-storage-info-viewer.component';
+import { CloudStorageRenameFileComponent } from './View/NormalPages/cloud-storage/cloud-storage-rename-file/cloud-storage-rename-file.component';
+import { CloudProgressPanelComponent } from './View/NormalPages/cloud-storage/cloud-progress-panel/cloud-progress-panel.component';
+import {MatProgressBarModule} from '@angular/material/progress-bar';
 
 const config: SocketIoConfig = { url: HttpHelper.apiUrl, options: {} };
 
@@ -244,6 +260,16 @@ const appRoutes: Routes = [
     EditWbSessionComponent,
     VideoChatPanelComponent,
     VideoChatWrapperComponent,
+    TimeTimerComponent,
+
+    TextChatCoreComponent,
+    ExportFileComponent,
+    CloudStorageComponent,
+    FileCardComponent,
+    CloudStorageCreateFolderComponent,
+    CloudStorageInfoViewerComponent,
+    CloudStorageRenameFileComponent,
+    CloudProgressPanelComponent,
   ],
   entryComponents: [
     KanbanComponent,
@@ -256,7 +282,11 @@ const appRoutes: Routes = [
     CreateInviteCodeComponent,
     EditProjectComponent,
     EditWbSessionComponent,
-    MatSpinner
+    MatSpinner,
+    CloudStorageComponent,
+    CloudStorageCreateFolderComponent,
+    CloudStorageInfoViewerComponent,
+    CloudProgressPanelComponent,
   ],
   imports: [
     BrowserModule,
@@ -297,6 +327,12 @@ const appRoutes: Routes = [
     MatBadgeModule,
     MatProgressSpinnerModule,
     OverlayModule,
+    MatDatepickerModule,
+    MatNativeDateModule,
+    NgxMaterialTimepickerModule,
+    MatSnackBarModule,
+    MatBottomSheetModule,
+    MatProgressBarModule
   ],
   providers: [
     RouterHelperService,
@@ -340,6 +376,8 @@ const appRoutes: Routes = [
     LinkService,
     VideoChatPanelManagerService,
     VideoChatService,
+    TextChatService,
+    ExportFileService,
   ],
   bootstrap: [AppComponent]
 })

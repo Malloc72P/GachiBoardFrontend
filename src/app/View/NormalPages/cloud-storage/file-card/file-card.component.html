@@ -1,0 +1,43 @@
+<mat-card class="file-card-wrapper"
+          matTooltip=""
+          matRipple>
+  <div class="file-card-content-wrapper">
+    <!--파일카드 좌측(아이콘, 타이틀)-->
+    <div class="file-card-left-side clickable"
+         (click)="cloudStorageManagerService.accessFile(fileMetadata, 'descend')">
+      <!--압축파일이 아닌경우 해당 태그가 보임-->
+      <mat-icon *ngIf="!isZipFile()"
+                style="margin-right: 12px;">{{cloudStorageManagerService.getIconByFileType(fileMetadata.type)}}</mat-icon>
+      <!--압축파일 인 경우 해당 태그가 보임-->
+      <div *ngIf="isZipFile()"
+           class="cloud-zip-file"></div>
+      <!--파일 이름-->
+      <div class="file-title text-ellipsis" matTooltip="{{fileMetadata.title}}">
+        <span>{{fileMetadata.title}}</span>
+      </div>
+    </div>
+    <!--파일 타입 아이콘-->
+
+    <!-- 메뉴버튼 우측정렬을 위한 빈 태그-->
+    <span class="clickable" style="flex: 1;" (click)="cloudStorageManagerService.accessFile(fileMetadata, 'descend')"></span>
+    <!--파일 메뉴버튼-->
+    <button mat-button
+            [matMenuTriggerFor]="contextMenu"
+            style="padding: 0; min-width: 32px"><mat-icon>more_vert</mat-icon></button>
+    <mat-menu #contextMenu>
+      <button mat-menu-item
+              *ngIf="!isDirectory()"
+              (click)="cloudStorageManagerService.downloadFile(fileMetadata)">다운로드</button>
+      <button mat-menu-item
+              (click)="cloudStorageManagerService.renameFile(fileMetadata)">이름 수정</button>
+      <button mat-menu-item
+              (click)="cloudStorageManagerService.deleteFile(fileMetadata)">삭제하기</button>
+      <button mat-menu-item
+              *ngIf="!isDirectory()"
+              (click)="cloudStorageManagerService.openFileInfoPanel(fileMetadata, 'file')">파일 속성</button>
+      <button mat-menu-item
+              *ngIf="isDirectory()"
+              (click)="cloudStorageManagerService.openFileInfoPanel(fileMetadata, 'folder')">폴더 속성</button>
+    </mat-menu>
+  </div>
+</mat-card>
