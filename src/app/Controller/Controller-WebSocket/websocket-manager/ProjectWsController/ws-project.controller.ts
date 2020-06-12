@@ -6,6 +6,11 @@ import {WebsocketPacketActionEnum} from '../../../../DTO/WebsocketPacketDto/Webs
 import {ProjectDto} from '../../../../DTO/ProjectDto/project-dto';
 import {WebsocketEvent, WebsocketEventEnum} from '../WebsocketEvent/WebsocketEvent';
 import {Observable} from 'rxjs';
+import {FileMetadataDto} from '../../../../DTO/ProjectDto/FileMetadataDto/file-metadata-dto';
+import {
+  CloudLocalEvent,
+  CloudLocalEventEnum
+} from '../../../../Model/NormalPagesManager/cloud-storage-manager/cloud-storage-event-manager/cloud-storage-event-manager.service';
 
 export class WsProjectController {
   private socket:Socket;
@@ -18,6 +23,8 @@ export class WsProjectController {
     this.socket = this.websocketManager.socket;
     this.onParticipantJoin();
     this.onProjectUpdate();
+    this.onCloudStorageUpdate();
+    this.onCloudStorageDelete();
   }
 
 
@@ -109,6 +116,33 @@ export class WsProjectController {
         }
       })
   }
+  private onCloudStorageUpdate(){
+    this.socket.on(HttpHelper.websocketApi.cloudStorage.updated.event,
+      (wsPacket:WebsocketPacketDto)=>{
+        //console.log("WsProjectController >> onProjectUpdate >> wsPacket : ",wsPacket);
+        let currDirectory:FileMetadataDto = wsPacket.dataDto as FileMetadataDto;
+        let emitBy = wsPacket.additionalData;
+
+        this.websocketManager
+          .cloudStorageEventManagerService
+          .cloudStorageLocalEventEmitter.emit(
+          new CloudLocalEvent(CloudLocalEventEnum.UPDATED_BY_WS, currDirectory, emitBy));
+      })
+  }
+  private onCloudStorageDelete(){
+    this.socket.on(HttpHelper.websocketApi.cloudStorage.deleted.event,
+      (wsPacket:WebsocketPacketDto)=>{
+
+        let currDirectory:FileMetadataDto = wsPacket.dataDto as FileMetadataDto;
+        let emitBy = wsPacket.additionalData;
+
+        this.websocketManager
+          .cloudStorageEventManagerService
+          .cloudStorageLocalEventEmitter.emit(
+          new CloudLocalEvent(CloudLocalEventEnum.DELETED_BY_WS, currDirectory, emitBy));
+      })
+  }
+
 
 
 

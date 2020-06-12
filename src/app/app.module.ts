@@ -131,6 +131,13 @@ import {TextChatService} from "./Model/Whiteboard/TextChat/text-chat.service";
 import {MatBottomSheetModule} from "@angular/material/bottom-sheet";
 import {ExportFileService} from "./Model/Whiteboard/ExportFile/export-file.service";
 import { ExportFileComponent } from './View/Whiteboard/export-file/export-file.component';
+import { CloudStorageComponent } from './View/NormalPages/cloud-storage/cloud-storage.component';
+import { FileCardComponent } from './View/NormalPages/cloud-storage/file-card/file-card.component';
+import { CloudStorageCreateFolderComponent } from './View/NormalPages/cloud-storage/cloud-storage-create-folder/cloud-storage-create-folder.component';
+import { CloudStorageInfoViewerComponent } from './View/NormalPages/cloud-storage/cloud-storage-info-viewer/cloud-storage-info-viewer.component';
+import { CloudStorageRenameFileComponent } from './View/NormalPages/cloud-storage/cloud-storage-rename-file/cloud-storage-rename-file.component';
+import { CloudProgressPanelComponent } from './View/NormalPages/cloud-storage/cloud-progress-panel/cloud-progress-panel.component';
+import {MatProgressBarModule} from '@angular/material/progress-bar';
 
 const config: SocketIoConfig = { url: HttpHelper.apiUrl, options: {} };
 
@@ -254,8 +261,15 @@ const appRoutes: Routes = [
     VideoChatPanelComponent,
     VideoChatWrapperComponent,
     TimeTimerComponent,
+
     TextChatCoreComponent,
     ExportFileComponent,
+    CloudStorageComponent,
+    FileCardComponent,
+    CloudStorageCreateFolderComponent,
+    CloudStorageInfoViewerComponent,
+    CloudStorageRenameFileComponent,
+    CloudProgressPanelComponent,
   ],
   entryComponents: [
     KanbanComponent,
@@ -268,7 +282,11 @@ const appRoutes: Routes = [
     CreateInviteCodeComponent,
     EditProjectComponent,
     EditWbSessionComponent,
-    MatSpinner
+    MatSpinner,
+    CloudStorageComponent,
+    CloudStorageCreateFolderComponent,
+    CloudStorageInfoViewerComponent,
+    CloudProgressPanelComponent,
   ],
   imports: [
     BrowserModule,
@@ -314,6 +332,7 @@ const appRoutes: Routes = [
     NgxMaterialTimepickerModule,
     MatSnackBarModule,
     MatBottomSheetModule,
+    MatProgressBarModule
   ],
   providers: [
     RouterHelperService,

@@ -123,6 +123,26 @@ export class HttpHelper {
       getParticipantList : new ApiRequest(
         "/project/participantList", ApiRequestTypeEnum.GET
       )
+    },
+    cloudStorage : {
+      getFileListOfCurrPath : new ApiRequest(
+        "/cloudStorage", ApiRequestTypeEnum.GET
+      ),
+      downloadFile : new ApiRequest(
+        "/cloudStorage/file", ApiRequestTypeEnum.GET
+      ),
+      createFolder : new ApiRequest(
+        "/cloudStorage/folder", ApiRequestTypeEnum.POST
+      ),
+      uploadFile : new ApiRequest(
+        "/cloudStorage/file", ApiRequestTypeEnum.POST
+      ),
+      renameFile : new ApiRequest(
+        "/cloudStorage", ApiRequestTypeEnum.PATCH
+      ),
+      deleteFile : new ApiRequest(
+        "/cloudStorage", ApiRequestTypeEnum.DELETE
+      ),
     }
   };
 
@@ -282,7 +302,15 @@ export class HttpHelper {
       ),
       updateReadDate: new WebSocketRequest(
         "textChat_updateReadDate", WebSocketTypeEnum.UPDATE
-      )
+      ),
+    },
+    cloudStorage : {
+      updated: new WebSocketRequest(
+        "cloudStorage_updated", WebSocketTypeEnum.UPDATE
+      ),
+      deleted: new WebSocketRequest(
+        "cloudStorage_deleted", WebSocketTypeEnum.UPDATE
+      ),
     }
   };
 

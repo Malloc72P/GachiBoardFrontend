@@ -395,6 +395,7 @@ export class WhiteboardMainComponent implements OnInit,OnDestroy {
       return;
     }
 
+
     event.preventDefault();
     // 전역
     switch (event.code) {

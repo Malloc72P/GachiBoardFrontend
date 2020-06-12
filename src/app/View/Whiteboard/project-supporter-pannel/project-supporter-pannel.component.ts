@@ -17,6 +17,7 @@ import {MatMenu} from "@angular/material/menu";
 import {TextChatService} from "../../../Model/Whiteboard/TextChat/text-chat.service";
 import {TextChatCoreComponent} from "../text-chat/text-chat-core/text-chat-core.component";
 import {ExportFileComponent} from "../export-file/export-file.component";
+import {CloudStorageComponent} from '../../NormalPages/cloud-storage/cloud-storage.component';
 
 @Component({
   selector: 'app-project-supporter-pannel',
@@ -69,12 +70,13 @@ export class ProjectSupporterPannelComponent extends PopoverPanel  implements On
     //this.pointerModeManagerService.currentPointerMode = this.currentSelectedMode;
   }
   onClickPanelItem(panelItem: number) {
+    let dialogRef = null;
     switch (panelItem) {
       case SupportMode.KANBAN:
 
         this.hotKeyManagementService.disableHotKeySystem();
 
-        const dialogRef = this.dialog.open(KanbanComponent, {
+        dialogRef = this.dialog.open(KanbanComponent, {
           width: this.positionCalcService.getWidthOfBrowser()+"px",
           height: this.positionCalcService.getHeightOfBrowser()+"px",
           maxWidth: this.positionCalcService.getWidthOfBrowser()+"px",
@@ -89,6 +91,21 @@ export class ProjectSupporterPannelComponent extends PopoverPanel  implements On
       case SupportMode.TIME_TIMER:
         break;
       case SupportMode.CLOUD_STORAGE:
+        this.hotKeyManagementService.disableHotKeySystem();
+        this.hotKeyManagementService.enableCloudMode();
+
+        dialogRef = this.dialog.open(CloudStorageComponent, {
+          width: this.positionCalcService.getWidthOfBrowser()+"px",
+          height: this.positionCalcService.getHeightOfBrowser()+"px",
+          maxWidth: this.positionCalcService.getWidthOfBrowser()+"px",
+          data: {}
+        });
+
+        dialogRef.afterClosed().subscribe(result => {
+          //console.log('The dialog was closed');
+          this.hotKeyManagementService.enableHotKeySystem();
+          this.hotKeyManagementService.disableCloudMode();
+        });
         break;
       case SupportMode.IMPORT:
         document.getElementById("fileInputMultiple").click();

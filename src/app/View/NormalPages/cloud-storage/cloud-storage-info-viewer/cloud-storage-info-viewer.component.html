@@ -1,0 +1,68 @@
+<div>
+  <mat-toolbar color="warn">
+    <mat-toolbar-row>
+        <span>
+          <mat-icon class="example-icon"
+                    aria-hidden="false"
+                    aria-label="folder title edit button">info
+          </mat-icon>
+          {{isFile()}} 속성정보
+        </span>
+      <span class="flex-spacer"></span>
+      <button mat-button color="Basic"
+              (click)="onNoClick()">
+        <mat-icon class="example-icon"
+                  aria-hidden="false"
+                  aria-label="create folder panel close button">close</mat-icon>
+      </button>
+    </mat-toolbar-row>
+  </mat-toolbar>
+  <div *ngIf="mode === 'file'"
+    class="folder-item-edit-content">
+    <!--파일 속성 폼태그-->
+    <form class="example-form">
+      <!--파일이름 정보 출력-->
+      <mat-form-field class="example-full-width">
+        <mat-label>파일명</mat-label>
+        <input matInput readonly class="file-info-input" value="{{fileMetadataDto.title}}">
+      </mat-form-field>
+      <!--업로더 정보 출력-->
+      <mat-form-field class="example-full-width">
+        <mat-label>업로드 한 사람</mat-label>
+        <input matInput readonly class="file-info-input" value="{{fileMetadataDto.uploaderName}}">
+      </mat-form-field>
+      <!--업로드 일자 정보 출력-->
+      <mat-form-field class="example-full-width">
+        <mat-label>업로드 된 날짜</mat-label>
+        <input matInput readonly class="file-info-input" value="{{makeDatePretty(fileMetadataDto.uploadDate)}}">
+      </mat-form-field>
+      <!--파일 크기 정보 출력-->
+      <mat-form-field class="example-full-width">
+        <mat-label>파일 크기</mat-label>
+        <input matInput readonly class="file-info-input" value="{{makeFileSizePretty(fileMetadataDto.size)}}">
+      </mat-form-field>
+    </form>
+    <mat-divider class="folder-item-edit-divider"></mat-divider>
+    <div class="folder-item-edit-button-wrapper">
+      <button mat-button type="button" (click)="onNoClick()">확인</button>
+    </div>
+  </div>
+  <div *ngIf="mode === 'folder'"
+       class="folder-item-edit-content">
+    <!--폴더 이름 정보 출력-->
+    <mat-form-field class="example-full-width">
+      <mat-label>파일명</mat-label>
+      <input matInput readonly class="file-info-input" value="{{fileMetadataDto.title}}">
+    </mat-form-field>
+    <!--업로더 정보 출력-->
+    <mat-form-field class="example-full-width">
+      <mat-label>업로드 한 사람</mat-label>
+      <input matInput readonly class="file-info-input" value="{{fileMetadataDto.uploaderName}}">
+    </mat-form-field>
+    <!--생성 일자 정보 출력-->
+    <mat-form-field class="example-full-width">
+      <mat-label>생성 된 날짜</mat-label>
+      <input matInput readonly class="file-info-input" value="{{makeDatePretty(fileMetadataDto.uploadDate)}}">
+    </mat-form-field>
+  </div>
+</div>
