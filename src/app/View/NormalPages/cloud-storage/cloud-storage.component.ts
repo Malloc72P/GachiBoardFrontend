@@ -9,6 +9,7 @@ import {
   CloudLocalEventEnum
 } from '../../../Model/NormalPagesManager/cloud-storage-manager/cloud-storage-event-manager/cloud-storage-event-manager.service';
 import {AreYouSurePanelService} from '../../../Model/PopupManager/AreYouSurePanelManager/are-you-sure-panel.service';
+import {WebsocketManagerService} from '../../../Controller/Controller-WebSocket/websocket-manager/websocket-manager.service';
 
 
 export class CloudStorageComponentData {
@@ -39,6 +40,7 @@ export class CloudStorageComponent implements OnInit {
     public dialogRef: MatDialogRef<CloudStorageComponent>,
     public cloudService: CloudStorageManagerService,
     public areYouSurePanelService: AreYouSurePanelService,
+    public websocketManagerService: WebsocketManagerService,
   ) {
     console.log("CloudStorageComponent >> constructor >> 진입함");
     this.currDirectory = new FileMetadataDto(
