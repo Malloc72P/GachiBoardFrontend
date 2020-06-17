@@ -170,7 +170,12 @@ export class CloudStorageComponent implements OnInit {
   }
   onRightClick(event){
     event.preventDefault();
-    console.log("CloudStorageComponent >> onRightClick >> event : ",event);
+    let tgtElement:HTMLElement = event.target;
+
+    if(tgtElement.id !== "cloud-drawer-content" && tgtElement.id !== "file-list-wrapper"){
+      return
+    }
+
     this.menuPosX = event.layerX;
     this.menuPosY = event.layerY;
     this.matMenuTrigger.openMenu();

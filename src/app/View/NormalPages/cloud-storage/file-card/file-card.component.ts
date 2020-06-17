@@ -1,7 +1,8 @@
-import {Component, Input, OnInit} from '@angular/core';
+import {Component, Input, OnInit, ViewChild} from '@angular/core';
 
 import {CloudStorageManagerService} from '../../../../Model/NormalPagesManager/cloud-storage-manager/cloud-storage-manager.service';
 import {FileMetadataDto, FileTypeEnum} from '../../../../DTO/ProjectDto/FileMetadataDto/file-metadata-dto';
+import {MatMenuTrigger} from '@angular/material/menu';
 
 @Component({
   selector: 'app-file-card',
@@ -12,6 +13,7 @@ import {FileMetadataDto, FileTypeEnum} from '../../../../DTO/ProjectDto/FileMeta
 export class FileCardComponent implements OnInit {
   @Input() fileMetadata:FileMetadataDto;
   @Input() currDirectory:FileMetadataDto;
+  @ViewChild(MatMenuTrigger) matMenuTrigger: MatMenuTrigger;
   constructor(
     public cloudStorageManagerService:CloudStorageManagerService,
   ) { }
@@ -25,5 +27,7 @@ export class FileCardComponent implements OnInit {
   isDirectory(){
     return this.fileMetadata.type === FileTypeEnum.DIRECTORY;
   }
-
+  onRightClick(){
+    this.matMenuTrigger.openMenu();
+  }
 }
