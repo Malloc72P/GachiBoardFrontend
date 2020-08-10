@@ -48,13 +48,13 @@ export abstract class EditableShape extends WhiteboardShape {
     this._textStyle.eventEmitter = this.editTextEvent;
     this.editTextEvent.subscribe(() => {
       this.refreshItem();
-      this.layerService.setEditorTextStyle(this._textStyle);
+      // this.layerService.setEditorTextStyle(this._textStyle);
     });
     this.localLifeCycleEmitter.subscribe((event: ItemLifeCycleEvent) => {
       switch (event.action) {
         case ItemLifeCycleEnum.RESIZED:
           this.refreshItem();
-          this.layerService.setEditorTextStyle(this._textStyle);
+          // this.layerService.setEditorTextStyle(this._textStyle);
           break;
       }
     });
