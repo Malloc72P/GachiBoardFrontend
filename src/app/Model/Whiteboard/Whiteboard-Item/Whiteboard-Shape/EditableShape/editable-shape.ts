@@ -25,6 +25,7 @@ import {ItemLifeCycleEnum, ItemLifeCycleEvent} from '../../WhiteboardItemLifeCyc
 import {WhiteboardShape} from '../whiteboard-shape';
 import {EditableShapeDto} from '../../../../../DTO/WhiteboardItemDto/WhiteboardShapeDto/EditableShapeDto/editable-shape-dto';
 import {GachiTextStyleDto} from "../../../../../DTO/WhiteboardItemDto/WhiteboardShapeDto/EditableShapeDto/GachiTextStyleDto/gachi-text-style-dto";
+import {GachiPointDto} from "../../../../../DTO/WhiteboardItemDto/PointDto/gachi-point-dto";
 
 export abstract class EditableShape extends WhiteboardShape {
   private _rawTextContent: string;
@@ -207,6 +208,8 @@ export abstract class EditableShape extends WhiteboardShape {
     this.textContent = dto.textContent;
     this.rawTextContent = dto.rawTextContent;
     this.textStyle = GachiTextStyleDto.getTextStyle(dto.textStyle);
+
+    this.group.position = GachiPointDto.getPaperPoint(dto.center);
   }
 
   exportToDto(): EditableShapeDto {
