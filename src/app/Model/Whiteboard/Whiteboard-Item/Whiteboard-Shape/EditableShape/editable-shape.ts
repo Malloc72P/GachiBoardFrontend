@@ -80,8 +80,8 @@ export abstract class EditableShape extends WhiteboardShape {
   public refreshItem() {
     let newTopLeft = new Point(this.group.bounds.topLeft.x, this.group.bounds.topLeft.y);
 
-    let newWidth = this.group.bounds.width;
-    let newHeight = this.group.bounds.height;
+    let newWidth = this.coreItem.bounds.width;
+    let newHeight = this.coreItem.bounds.height;
 
     this.group.matrix.reset();
     this.editText.matrix.reset();
