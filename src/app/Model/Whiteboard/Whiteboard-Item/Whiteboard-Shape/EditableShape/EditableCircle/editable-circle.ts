@@ -36,7 +36,6 @@ export class EditableCircle extends EditableShape {
   public update(dto: EditableCircleDto) {
     super.update(dto);
 
-    this.radius = dto.radius;
   }
 
   get radius(): number {
