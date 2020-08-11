@@ -99,6 +99,14 @@ export abstract class EditableShape extends WhiteboardShape {
       /<(div|br)([^>]*)>/g, '\n'  // <div> <br> -> \n
     ).replace(
       /(<([^>]+)>)/ig, ''         // <*> -> empty
+    ).replace(
+      /&nbsp;/ig, ' '         // <*> -> empty
+    ).replace(
+      /&lt;/ig, '<'         // <*> -> empty
+    ).replace(
+      /&gt;/ig, '>'         // <*> -> empty
+    ).replace(
+      /&amp;/ig, '&'         // <*> -> empty
     );
 
     let adjustedTextContent = this.getAdjustedTextContent(
