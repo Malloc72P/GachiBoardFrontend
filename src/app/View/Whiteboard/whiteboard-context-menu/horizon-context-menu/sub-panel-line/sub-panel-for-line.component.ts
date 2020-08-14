@@ -42,8 +42,14 @@ export class SubPanelForLineComponent implements OnInit {
   }
 
   public onColorPickerClicked(index: number) {
-    if(this.menu.coreItem.strokeColor !== this.colors[index]) {
-      this.menu.coreItem.strokeColor = this.colors[index];
+    let savedAlpha = this.menu.coreItem.strokeColor.alpha;
+    let withoutAlpha = this.menu.coreItem.strokeColor;
+    withoutAlpha.alpha = 1;
+
+    if(!withoutAlpha.equals(this.colors[index])) {
+      let withAlpha = this.colors[index];
+      withAlpha.alpha = savedAlpha;
+      this.menu.coreItem.strokeColor = withAlpha;
       this.menu.item.isModified = true;
     }
   }

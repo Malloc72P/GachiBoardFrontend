@@ -1,6 +1,4 @@
 import * as paper from 'paper';
-// @ts-ignore
-import Rectangle = paper.Rectangle;
 
 import {Injectable} from '@angular/core';
 import {HorizonContextMenuActions, HorizonContextMenuTypes} from "./horizon-context-menu.enum";
@@ -19,8 +17,8 @@ import {
   ItemLifeCycleEvent
 } from "../../Whiteboard-Item/WhiteboardItemLifeCycle/WhiteboardItemLifeCycle";
 import {SubPanelManager} from "../../Panel/sub-panel-manager/sub-panel-manager";
-import {WsWhiteboardController} from '../../../../Controller/Controller-WebSocket/websocket-manager/WhiteboardWsController/ws-whiteboard.controller';
-import {WhiteboardItemDto} from '../../../../DTO/WhiteboardItemDto/whiteboard-item-dto';
+// @ts-ignore
+import Rectangle = paper.Rectangle;
 
 @Injectable({
   providedIn: 'root'
@@ -226,7 +224,7 @@ export class HorizonContextMenuService {
       HorizonContextMenuActions.FILL,
       HorizonContextMenuActions.FONT_STYLE,
       HorizonContextMenuActions.LOCK,
-      HorizonContextMenuActions.MORE,
+      // HorizonContextMenuActions.MORE,
     );
   }
 
@@ -234,15 +232,18 @@ export class HorizonContextMenuService {
     this._menuItemArray = new Array<HorizonContextMenuActions>(
       HorizonContextMenuActions.LINE,
       HorizonContextMenuActions.LOCK,
-      HorizonContextMenuActions.MORE,
+      // HorizonContextMenuActions.MORE,
     );
   }
 
   private setMenuForArrow() {
-    this._menuItemArray = new Array<HorizonContextMenuActions>(
-      HorizonContextMenuActions.ARROW_WING,
-      HorizonContextMenuActions.MORE,
-    );
+    // this._menuItemArray = new Array<HorizonContextMenuActions>(
+    //   HorizonContextMenuActions.ARROW_WING,
+    //   // HorizonContextMenuActions.MORE,
+    // );
+
+    this._menuItemArray = new Array<HorizonContextMenuActions>();
+    this._menuItemArray.push(HorizonContextMenuActions.ARROW_WING);
   }
 
   private setMenuForWhiteboardItems() {
@@ -250,7 +251,7 @@ export class HorizonContextMenuService {
       HorizonContextMenuActions.LOCK,
       HorizonContextMenuActions.GROUP,
       HorizonContextMenuActions.UNGROUP,
-      HorizonContextMenuActions.MORE,
+      // HorizonContextMenuActions.MORE,
     );
   }
 
@@ -258,15 +259,13 @@ export class HorizonContextMenuService {
     this._menuItemArray = new Array<HorizonContextMenuActions>(
       HorizonContextMenuActions.LOCK,
       HorizonContextMenuActions.UNGROUP,
-      HorizonContextMenuActions.MORE,
+      // HorizonContextMenuActions.MORE,
     );
   }
 
   private setMenuForItem() {
-    this._menuItemArray = new Array<HorizonContextMenuActions>(
-      HorizonContextMenuActions.LOCK,
-      HorizonContextMenuActions.MORE,
-    );
+    this._menuItemArray = new Array<HorizonContextMenuActions>();
+    this._menuItemArray.push(HorizonContextMenuActions.LOCK);
   }
 
   private initMenuSizeValue() {
