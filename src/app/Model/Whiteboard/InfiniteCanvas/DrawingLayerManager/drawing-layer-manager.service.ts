@@ -627,7 +627,7 @@ export class DrawingLayerManagerService {
     // EditText HTML Element 스타일 설정
     this.setWrapperStyle(htmlTextEditorWrapper, htmlEditorPoint, edtWidth, edtHeight, padding);
 
-    this.setEditorStyle(htmlTextEditorElement, edtWidth, padding, editableShape.textStyle);
+    this.setEditorStyle(edtWidth, padding, editableShape.textStyle);
 
     // 숨겨져있던 Editable 영역 표시
     window.setTimeout(() => { htmlTextEditorElement.focus(); }, 0);
@@ -682,9 +682,14 @@ export class DrawingLayerManagerService {
     element.style.height = height - padding * 2 + "px";
   }
 
-  private setEditorStyle(element, width, padding, style) {
-    element.style.width = width - padding * 2 + "px";
-    this.setEditorTextStyle(style);
+  private setEditorStyle(width: number, padding: number, style: TextStyle) {
+    this.htmlTextEditorElement.style.width = width - padding * 2 + "px";
+
+    this.htmlTextEditorElement.style.color = style.fontColor;
+    this.htmlTextEditorElement.style.fontFamily = style.fontFamily;
+    this.htmlTextEditorElement.style.fontSize = (style.fontSize * this.currentZoomFactor) + "px";
+    this.htmlTextEditorElement.style.fontWeight = style.isBold ? "bold" : "normal";
+    this.htmlTextEditorElement.style.fontStyle = style.isItalic ? "italic" : "";
   }
 
   public setEditorTextStyle(style) {
@@ -933,5 +938,13 @@ export class DrawingLayerManagerService {
     this._cursorTrackerPaperProject = value;
   }
 
+  get currentZoomFactor(): number {
+    return this.infiniteCanvasService.newZoom;
+  }
+
 //#####################################
+
+  private get htmlTextEditorElement(): HTMLElement {
+    return document.getElementById("textEditor");
+  }
 }

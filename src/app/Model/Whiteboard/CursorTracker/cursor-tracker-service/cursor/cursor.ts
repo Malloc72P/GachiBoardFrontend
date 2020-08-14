@@ -47,6 +47,9 @@ export class Cursor {
 
     this.layerService.cursorTrackerPaperProject.activeLayer.addChild(this.group);
 
+    this.group.bounds.width = this.group.bounds.width / this.layerService.currentZoomFactor;
+    this.group.bounds.height = this.group.bounds.height / this.layerService.currentZoomFactor;
+
     zoomEventEmitter.subscribe((zoomEvent: ZoomEvent) => {
       this.onZoomChanged(zoomEvent);
     });
@@ -57,6 +60,8 @@ export class Cursor {
 
     this.width = this.group.bounds.width;
     this.height = this.group.bounds.height;
+
+
   }
 
   private isMoving = false;

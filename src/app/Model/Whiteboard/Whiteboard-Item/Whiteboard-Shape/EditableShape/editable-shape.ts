@@ -25,6 +25,7 @@ import {ItemLifeCycleEnum, ItemLifeCycleEvent} from '../../WhiteboardItemLifeCyc
 import {WhiteboardShape} from '../whiteboard-shape';
 import {EditableShapeDto} from '../../../../../DTO/WhiteboardItemDto/WhiteboardShapeDto/EditableShapeDto/editable-shape-dto';
 import {GachiTextStyleDto} from "../../../../../DTO/WhiteboardItemDto/WhiteboardShapeDto/EditableShapeDto/GachiTextStyleDto/gachi-text-style-dto";
+import {GachiPointDto} from "../../../../../DTO/WhiteboardItemDto/PointDto/gachi-point-dto";
 
 export abstract class EditableShape extends WhiteboardShape {
   private _rawTextContent: string;
@@ -48,13 +49,13 @@ export abstract class EditableShape extends WhiteboardShape {
     this._textStyle.eventEmitter = this.editTextEvent;
     this.editTextEvent.subscribe(() => {
       this.refreshItem();
-      this.layerService.setEditorTextStyle(this._textStyle);
+      // this.layerService.setEditorTextStyle(this._textStyle);
     });
     this.localLifeCycleEmitter.subscribe((event: ItemLifeCycleEvent) => {
       switch (event.action) {
         case ItemLifeCycleEnum.RESIZED:
           this.refreshItem();
-          this.layerService.setEditorTextStyle(this._textStyle);
+          // this.layerService.setEditorTextStyle(this._textStyle);
           break;
       }
     });
@@ -80,8 +81,8 @@ export abstract class EditableShape extends WhiteboardShape {
   public refreshItem() {
     let newTopLeft = new Point(this.group.bounds.topLeft.x, this.group.bounds.topLeft.y);
 
-    let newWidth = this.group.bounds.width;
-    let newHeight = this.group.bounds.height;
+    let newWidth = this.coreItem.bounds.width;
+    let newHeight = this.coreItem.bounds.height;
 
     this.group.matrix.reset();
     this.editText.matrix.reset();
@@ -98,6 +99,14 @@ export abstract class EditableShape extends WhiteboardShape {
       /<(div|br)([^>]*)>/g, '\n'  // <div> <br> -> \n
     ).replace(
       /(<([^>]+)>)/ig, ''         // <*> -> empty
+    ).replace(
+      /&nbsp;/ig, ' '         // <*> -> empty
+    ).replace(
+      /&lt;/ig, '<'         // <*> -> empty
+    ).replace(
+      /&gt;/ig, '>'         // <*> -> empty
+    ).replace(
+      /&amp;/ig, '&'         // <*> -> empty
     );
 
     let adjustedTextContent = this.getAdjustedTextContent(
@@ -207,6 +216,8 @@ export abstract class EditableShape extends WhiteboardShape {
     this.textContent = dto.textContent;
     this.rawTextContent = dto.rawTextContent;
     this.textStyle = GachiTextStyleDto.getTextStyle(dto.textStyle);
+
+    this.group.position = GachiPointDto.getPaperPoint(dto.center);
   }
 
   exportToDto(): EditableShapeDto {
