@@ -15,7 +15,7 @@
       <div class="font-weight-wrapper">
         <mat-form-field class="size-wrapper divide-two">
           <mat-label>Size</mat-label>
-          <input matInput type="number" [value]="fontSize" (change)="onChangeFontSize()"
+          <input id="font-size" matInput type="number" [value]="fontSize" (change)="onChangeFontSize()"
                  min="10" max="100" formControlName="size">
         </mat-form-field>
         <mat-button-toggle-group multiple class="divide-two" (change)="onChangeFontWeight($event)">
