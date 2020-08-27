@@ -369,7 +369,7 @@ export class WhiteboardMainComponent implements OnInit,OnDestroy {
       this.layerService.endEditText();
     });
 
-    document.addEventListener('mousedown', (event) => {
+    document.addEventListener('pointerdown', (event) => {
       if(!(event.target === target || event.target === hMenu)) {
         target.blur();
       }
