@@ -85,7 +85,7 @@ export class PointerModeManagerService {
     this.brushService.initializeBrushService(this.currentProject);
     this.eraser.initializeEraserService(this.currentProject);
     this.lassoSelector.initializeLassoSelectorService(this.currentProject);
-    this.shape.initializeShapeService(this.currentProject);
+    this.shape.initializeShapeService(this.currentProject, this);
     this.normalPointerService.initializeNormalPointerService(this.currentProject);
     this.cursorChangeService.initializeCursorChangeService();
   }
