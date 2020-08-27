@@ -178,7 +178,7 @@ export class MainPageProjectComponent implements OnInit, OnDestroy {
   }
 
   refreshInProgressGroup(){
-    console.log("MainPageProjectComponent >> refreshInProgressGroup >> 진입함");
+    // console.log("MainPageProjectComponent >> refreshInProgressGroup >> 진입함");
     let wsKanbanController = WsKanbanController.getInstance();
     let subscription = wsKanbanController.requestGetKanban().subscribe((kanbanData:KanbanDataDto)=>{
       this.inProgressGroup = kanbanData.inProgressGroup;
@@ -186,7 +186,7 @@ export class MainPageProjectComponent implements OnInit, OnDestroy {
     });
   }
   refreshWbSessionList(){
-    console.log("MainPageProjectComponent >> refreshWbSessionList >> 진입함");
+    // console.log("MainPageProjectComponent >> refreshWbSessionList >> 진입함");
     let wsKanbanController = WsWhiteboardSessionController.getInstance();
     //console.log("MainPageProjectComponent >> refreshWbSessionList >> 진입함");
     let subscription = wsKanbanController.requestGetWbSessionList()

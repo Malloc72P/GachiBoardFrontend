@@ -8,6 +8,7 @@ import {MatButtonToggleChange} from "@angular/material/button-toggle";
 import {EditableShape} from "../../../../../Model/Whiteboard/Whiteboard-Item/Whiteboard-Shape/EditableShape/editable-shape";
 // @ts-ignore
 import Color = paper.Color;
+import {HotKeyManagementService} from "../../../../../Model/Whiteboard/HotKeyManagement/hot-key-management.service";
 
 @Component({
   selector: 'app-sub-panel-for-font',
@@ -40,6 +41,7 @@ export class SubPanelForFontComponent implements OnInit {
   constructor(
     public menu: HorizonContextMenuService,
     public formBuilder: FormBuilder,
+    private hotKeyManagement: HotKeyManagementService,
   ) {
     this.fontStyle = formBuilder.group({
       family: this.fontFamilyList[0],
@@ -48,7 +50,15 @@ export class SubPanelForFontComponent implements OnInit {
   }
 
   ngOnInit() {
+    const fontSizeElement = document.getElementById("font-size");
 
+    fontSizeElement.onfocus = () => {
+      this.hotKeyManagement.disableHotKeySystem();
+    };
+
+    fontSizeElement.onblur = () => {
+      this.hotKeyManagement.enableHotKeySystem();
+    };
   }
 
   // ############# Font Family ##############

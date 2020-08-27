@@ -1,20 +1,18 @@
-import {EventEmitter, Injectable} from '@angular/core';
+import {Injectable} from '@angular/core';
 import {PositionCalcService} from '../../PositionCalc/position-calc.service';
 import {ShapeStyle, WhiteboardItemType} from '../../../Helper/data-type-enum/data-type.enum';
-import {TextStyle} from "./text-style";
+import {TextStyle} from './text-style';
 import {DrawingLayerManagerService} from '../../InfiniteCanvas/DrawingLayerManager/drawing-layer-manager.service';
-import {WhiteboardItem} from '../../Whiteboard-Item/whiteboard-item';
-import {EditableShape} from '../../Whiteboard-Item/Whiteboard-Shape/EditableShape/editable-shape';
-import {PointCalculator} from "../point-calculator/point-calculator";
+import {PointCalculator} from '../point-calculator/point-calculator';
+
+import * as paper from 'paper';
+import {PointerModeManagerService} from '../pointer-mode-manager-service/pointer-mode-manager.service';
+import {PointerMode} from '../pointer-mode-enum-service/pointer-mode-enum.service';
 
 // @ts-ignore
 import PointText = paper.PointText;
 // @ts-ignore
-import Group = paper.Group;
-// @ts-ignore
 import Point = paper.Point;
-
-import * as paper from 'paper';
 // @ts-ignore
 import Point = paper.Point;
 // @ts-ignore
@@ -58,16 +56,19 @@ export class ShapeService {
   private isCreated = false;
   private toolState = 'normal';
 
+  private pointerModeManager:PointerModeManagerService;
+
   constructor(
     private posCalcService: PositionCalcService,
     private layerService: DrawingLayerManagerService,
   ) { }
 
-  public initializeShapeService(project: paper.Project) {
+  public initializeShapeService(project: paper.Project, pointerModeManager:PointerModeManagerService) {
     this.currentProject = project;
     this.HTMLTextEditorElement = document.getElementById("textEditor");
     this.HTMLTextEditorWrapper = document.getElementById("textEditorWrapper");
     this.HTMLCanvasElement = document.getElementById("cv1");
+    this.pointerModeManager = pointerModeManager;
   }
 
   public createPath(event) {
@@ -118,6 +119,7 @@ export class ShapeService {
   }
 
   public endPath(event) {
+
     if(this.newPath == null) {
       return;
     }
@@ -134,7 +136,9 @@ export class ShapeService {
     this.isCreated = false;
     this.minDrawBound.remove();
     this.toolState = 'normal';
+    this.pointerModeManager.modeChange(PointerMode.POINTER);
     this.createShapeItem();
+    this.newPath = null;
   }
 
   private createShapeItem(){
